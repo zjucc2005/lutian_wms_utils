@@ -1,0 +1,133 @@
+{
+    "pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+        {
+            "path": "pages/login",
+            "style":  { "navigationBarTitleText" : "登录" }
+        },
+        {
+            "path": "pages/operation/index",
+            "style":  { "navigationBarTitleText": "仓库作业" }
+        },      
+        {
+            "path": "pages/api_utils/index",
+            "style": { "navigationBarTitleText": "API调试" }
+        },
+        {
+            "path" : "pages/api_utils/login/validateUser",
+            "style" : { "navigationBarTitleText": "用户名/密码" }
+        },
+        {
+            "path": "pages/api_utils/gongyinglian/bd_stock",
+            "style": { "navigationBarTitleText": "API-供应链-仓库" }
+        },
+        {
+            "path": "pages/api_utils/gongyinglian/stk_inventory",
+            "style": { "navigationBarTitleText": "API-供应链-即时库存" }
+        },
+        {
+            "path": "pages/api_utils/gongyinglian/stk_transferdirect",
+            "style": { "navigationBarTitleText": "API-供应链-直接调拨单" }
+        },
+        {
+            "path": "pages/api_utils/jichuguanli/bd_customer",
+            "style":  { "navigationBarTitleText": "API-基础管理-客户" }
+        },
+        {
+            "path": "pages/api_utils/jichuguanli/bd_empinfo",
+            "style": { "navigationBarTitleText": "API-基础管理-员工" }
+        },
+        {
+            "path": "pages/api_utils/jichuguanli/bd_material",
+            "style":  { "navigationBarTitleText": "API-基础管理-物料" }
+        },
+        {
+            "path": "pages/api_utils/jichuguanli/bd_unit",
+            "style":  { "navigationBarTitleText": "API-基础管理-计量单位" }
+        },
+        {
+            "path": "pages/api_utils/jichuguanli/bd_warehouseworkers",
+            "style":  { "navigationBarTitleText": "API-基础管理-仓管员" }
+        },
+        {
+            "path": "pages/api_utils/store/store",
+            "style": { "navigationBarTitleText": "全局状态" }
+        },
+        {
+            "path": "pages/api_utils/store/get_system_info",
+            "style":  { "navigationBarTitleText": "getSystemInfo"}
+        },
+        {
+            "path": "pages/operation/inbound/index",
+            "style":  { "navigationBarTitleText": "入库 STEP 1" }
+        },
+        {
+            "path": "pages/operation/inbound/mount",
+            "style":  { "navigationBarTitleText": "入库 STEP 2" }
+        },
+        {
+            "path": "pages/my/index",
+            "style":  { "navigationBarTitleText": "我"}
+        }
+    ],
+    "globalStyle": {
+        "navigationBarTextStyle": "black",
+        "navigationBarTitleText": "uni-app",
+        "navigationBarBackgroundColor": "#F8F8F8",
+        "backgroundColor": "#F8F8F8",
+        "console": true
+    },
+    "uniIdRouter": {},
+    "tabBar": {
+        "iconfontSrc": "uni_modules/uni-icons/components/uni-icons/uniicons.ttf",
+        "color": "#7A7E83",
+        "selectedColor": "#007AFF",
+        "borderStyle": "black",
+        "backgroundColor": "#F8F8F8",
+        "list": [
+            // {
+            //     "pagePath": "pages/login",
+            //     "text": "启动页",
+            //     "iconfont": {
+            //         "text": "\ue65d",
+            //         "color": "#7A7E83",
+            //         "selectedText": "\ue65d",
+            //         "fontSize": "24px",
+            //         "selectedColor": "#007aff"
+            //     }
+            // },
+            {
+                "pagePath": "pages/operation/index",
+                "text": "仓库作业",
+                "iconfont": {
+                    "text": "\ue662",
+                    "color": "#7A7E83",
+                    "selectedText": "\ue662",
+                    "fontSize": "24px",
+                    "selectedColor": "#007aff"
+                }
+            },
+            {
+                "pagePath": "pages/my/index",
+                "text": "我",
+                "iconfont": {
+                    "text": "\ue699",
+                    "color": "#7A7E83",
+                    "selectedText": "\ue699",
+                    "fontSize": "24px",
+                    "selectedColor": "#007aff"
+                }
+            },
+            {
+                "pagePath": "pages/api_utils/index",
+                "text": "API调试",
+                "iconfont": {
+                    "text": "\ue653",
+                    "color": "#7A7E83",
+                    "selectedText": "\ue653",
+                    "fontSize": "24px",
+                    "selectedColor": "#007aff"
+                }
+            }
+        ]
+    }
+}
