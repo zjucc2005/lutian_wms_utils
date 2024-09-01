@@ -16,14 +16,14 @@
 
 <script>
     import K3CloudApi from '@/utils/k3cloudapi'
-    import model from '@/utils/model'
+    import db_model from '@/utils/db_model'
     export default {
         data() {
             return {
                 loading: true,
                 tableData: [],
                 model_name: 'BD_CUSTOMER',
-                model: model.BD_CUSTOMER,
+                model: db_model.BD_CUSTOMER,
                 page: 1,
                 per_page: 10,
                 total: 10000
@@ -42,7 +42,7 @@
                 }
                 K3CloudApi.bill_query(params).then(res => {
                     console.log(`${this.model_name} page res:`, res)
-                    this.tableData = res;
+                    this.tableData = res.data;
                     this.loading = false;
                 })
             },

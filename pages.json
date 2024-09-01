@@ -58,11 +58,31 @@
         },
         {
             "path": "pages/operation/inbound/index",
-            "style":  { "navigationBarTitleText": "入库 STEP 1" }
+            "style":  { "navigationBarTitleText": "入库" }
+        },
+        {
+            "path": "pages/operation/inbound/task",
+            "style": { "navigationBarTitleText": "入库 - 任务" }
         },
         {
             "path": "pages/operation/inbound/mount",
-            "style":  { "navigationBarTitleText": "入库 STEP 2" }
+            "style":  { "navigationBarTitleText": "入库 - 上架" }
+        },
+        {
+            "path": "pages/operation/inbound/logs",
+            "style": { "navigationBarTitleText": "入库 - 操作日志" }
+        },
+        {
+            "path": "pages/operation/manage/index",
+            "style": { "navigationBarTitleText": "仓库管理" }
+        },
+        {
+            "path": "pages/operation/manage/locs",
+            "style": { "navigationBarTitleText": "仓库管理 - 库位管理" }
+        },
+        {
+            "path": "pages/operation/manage/loc_new",
+            "style": { "navigationBarTitleText": "仓库管理 - 新增库位" }
         },
         {
             "path": "pages/my/index",
@@ -78,26 +98,26 @@
     },
     "uniIdRouter": {},
     "tabBar": {
-        "iconfontSrc": "uni_modules/uni-icons/components/uni-icons/uniicons.ttf",
+        "iconfontSrc": "/static/icon/uniicons.ttf",
         "color": "#7A7E83",
         "selectedColor": "#007AFF",
         "borderStyle": "black",
         "backgroundColor": "#F8F8F8",
         "list": [
-            // {
-            //     "pagePath": "pages/login",
-            //     "text": "启动页",
-            //     "iconfont": {
-            //         "text": "\ue65d",
-            //         "color": "#7A7E83",
-            //         "selectedText": "\ue65d",
-            //         "fontSize": "24px",
-            //         "selectedColor": "#007aff"
-            //     }
-            // },
+            {
+                "pagePath": "pages/login",
+                "text": "启动页",
+                "iconfont": {
+                    "text": "\ue65d",
+                    "color": "#7A7E83",
+                    "selectedText": "\ue65d",
+                    "fontSize": "24px",
+                    "selectedColor": "#007aff"
+                }
+            },
             {
                 "pagePath": "pages/operation/index",
-                "text": "仓库作业",
+                "text": "仓库",
                 "iconfont": {
                     "text": "\ue662",
                     "color": "#7A7E83",

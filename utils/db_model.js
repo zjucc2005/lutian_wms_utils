@@ -371,5 +371,16 @@
             FDEPTID: "部门",
             FForbiddenStatus: "禁用状态"
         }
+    },
+    PAEZ_C_STOCK_LOC: {
+        fields: {
+            FID: "FID",
+            FName: "FName",
+            FDocumentStatus: "数据状态",
+            FForbidStatus: "禁用状态",
+            FNumber: "编码",
+            FStockId: "仓库",
+            FCreateDate: "创建日期"
+        }
     }
 }

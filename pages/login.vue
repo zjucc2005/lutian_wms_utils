@@ -1,36 +1,34 @@
 <template>
-    <view>
-        <uni-section class="container">
-            <uni-forms ref="login_form" :model="login_form"  :rules="login_form_rules" labelWidth="60px">
-                <uni-forms-item label="仓库" name="depot_id">
-                    <uni-data-picker v-model="login_form.depot_id" :localdata="depot_opts" popup-title="请选择">
-                    </uni-data-picker>
-                </uni-forms-item>
-                <uni-forms-item label="姓名" name="staff_name">
-                    <uni-easyinput v-model="login_form.staff_name" />
-                </uni-forms-item>
-                <uni-forms-item label="工号" name="staff_no">
-                    <uni-easyinput v-model="login_form.staff_no" />
-                </uni-forms-item>
-                <button type="primary" @click="submit('login_form')">登录</button>
-            </uni-forms>
-        </uni-section>
+    <view class="container">
+        <uni-forms ref="login_form" :model="login_form"  :rules="login_form_rules" labelWidth="80px">
+            <uni-forms-item label="仓库" name="stock_id">
+                <uni-data-picker v-model="login_form.stock_id" :localdata="stock_opts" popup-title="请选择">
+                </uni-data-picker>
+            </uni-forms-item>
+            <uni-forms-item label="姓名" name="staff_name">
+                <uni-easyinput v-model="login_form.staff_name" />
+            </uni-forms-item>
+            <uni-forms-item label="工号" name="staff_no">
+                <uni-easyinput v-model="login_form.staff_no" />
+            </uni-forms-item>
+            <button type="primary" @click="submit('login_form')">登录</button>
+        </uni-forms>    
     </view>
 </template>
 
 <script>
-    import K3CloudApi from '@/utils/k3cloudapi'
+    import { validate_staff, get_bd_stocks } from '@/utils/api'
     import store from '@/store'
     export default {
         data() {
             return {
                 login_form: {
-                    depot_id: store.state.cur_depot.FStockId,
+                    stock_id: store.state.cur_stock.FStockId,
                     staff_name: store.state.cur_staff.FName,
                     staff_no: store.state.cur_staff.FNumber
                 },
                 login_form_rules: {
-                    depot_id: {
+                    stock_id: {
                         rules: [{
                             required: true,
                             errorMessage: '仓库不能为空'
@@ -49,41 +47,57 @@
                         }]
                     }
                 },
-                depot_opts: []
+                bd_stocks: [],
+                stock_opts: [] // 仓库分组，data-picker为两级选择
             }
         },
         mounted() {
-           this.load_depots()
+           this.load_stocks()
         },
         methods: {
-            load_depots() {
-                if (store.state.bd_depot_opts?.length) {
-                    this.depot_opts = store.state.bd_depot_opts
-                    console.log('load state.bd_depot_opts:', store.state.bd_depot_opts)
+            load_stocks() {
+                if (store.state.bd_stocks?.length) {
+                    this.bd_stocks = store.state.bd_stocks
+                    this.set_stock_opts()
+                    // console.log('load state.bd_stocks:', store.state.bd_stocks)
                 } else {
-                    const params = {
-                        FormId: 'BD_STOCK',
-                        FieldKeys: "FStockId,FName",
-                        Limit: 100
-                    }
-                    K3CloudApi.bill_query(params).then(res => {
-                        const depot_opts = []
-                        res.forEach(d => {
-                            depot_opts.push({ text: d.FName, value: d.FStockId })
-                        })
-                        this.depot_opts = depot_opts
-                        store.commit('set_bd_depot_opts', depot_opts)
+                    get_bd_stocks().then(res => {
+                        store.commit('set_bd_stocks', res.data)
+                        this.bd_stocks = res.data
+                        this.set_stock_opts()
                     })
                 }
             },
+            set_stock_opts() {
+                const stock_opts = []
+                this.bd_stocks.forEach(d => {
+                    let group = stock_opts.find(opt => opt.value === d.FGroup)
+                    if (group) {
+                        group.children.push({ text: d.FName, value: d.FStockId })
+                    } else {
+                        group = { text: d['FGroup.FName'] || '未分组', value: d.FGroup, children: [] }
+                        group.children.push({ text: d.FName, value: d.FStockId })
+                        stock_opts.push(group)
+                    }
+                })
+                this.stock_opts = stock_opts
+            },
             submit(ref) {
                 this.$refs[ref].validate().then(e => {
-                    // console.log('success', e);
-                    K3CloudApi.validate_staff(e.staff_name, e.staff_no).then(res => {
+                    console.log('success', e);
+                    uni.showLoading({ title: 'loading' }); // 网络慢时，需要loading提示
+                    validate_staff(e.staff_name, e.staff_no).then(res => {
                         if (res) {
-                            const depot_opt = this.depot_opts.find(opt => opt.value === e.depot_id)
+                            if (res.FForbiddenStatus != '0') {
+                                uni.showToast({
+                                    icon: "error",
+                                    title: '账号异常'
+                                })
+                                return
+                            }
+                            const bd_stock = this.bd_stocks.find(d => d.FStockId === e.stock_id)
                             const store_data = {
-                                depot: { FStockId: depot_opt.value, FName: depot_opt.text },
+                                stock: bd_stock,
                                 staff: res
                             }
                             store.commit('staff_login', store_data)
@@ -102,6 +116,7 @@
                     })                    
                 }).catch(err => {
                     console.log('err', err);
+                    uni.hideLoading()
                 })
             }
         }

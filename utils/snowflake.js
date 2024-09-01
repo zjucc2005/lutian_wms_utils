@@ -1,4 +1,5 @@
 /**
+ * 从 2024-01-01 开始运行
  * 使用方式
  * const snowflake = new Snowflake(device_id);
  * const uid = snowflake.next_id();
@@ -26,7 +27,7 @@ class Snowflake {
             this.sequence = 0;
         }
         this.last_timestamp = current_time;  
-        const id = (BigInt(current_time - 1609459200000) << 22n) | (BigInt(this.device_id) << 12n) | BigInt(this.sequence);
+        const id = (BigInt(current_time - 1704067200000) << 22n) | (BigInt(this.device_id) << 12n) | BigInt(this.sequence);
         return id.toString();
     }
     

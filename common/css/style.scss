@@ -11,3 +11,18 @@
     line-height: 16px;
     color: #333;
 }
+
+.uni-goods-nav-wrapper {
+    /* #ifndef APP-NVUE */
+    display: flex;
+    /* #endif */
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    right: 0;
+    /* #ifdef H5 */
+    left: var(--window-left);
+    right: var(--window-right);
+    /* #endif */
+    bottom: 0;
+}
