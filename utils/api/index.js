@@ -12,13 +12,14 @@ import K3CloudApi from "@/utils/k3cloudapi";
  * 员工登录认证
  * @return { Hash/undefined } Promise
  */
-const validate_staff = async (staff_name, staff_no) => {
+const validate_staff = async (staff_name, staff_no, org_id) => {
     const data = {
         FormId: "BD_WAREHOUSEWORKERS",
-        FieldKeys: "FName,FNumber,FForbiddenStatus",
+        FieldKeys: "FName,FNumber,FForbiddenStatus,FBIZORGID,FBIZORGID.FName,FDEPTID,FDEPTID.FName",
         FilterString: [
             {"Left":"","FieldName":"FName","Compare":"67","Value":staff_name,"Right":"","Logic":0},
             {"Left":"","FieldName":"FNumber","Compare":"67","Value":staff_no,"Right":"","Logic":0},
+            {"Left":"","FieldName":"FBIZORGID","Compare":"67","Value":org_id,"Right":"","Logic":0}
         ]
     }
     return K3CloudApi.bill_query(data).then(res => {  

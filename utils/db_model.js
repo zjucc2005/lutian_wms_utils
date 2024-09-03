@@ -375,7 +375,9 @@
             FStaffId: "职员内码",
             FISUSE: "启用",
             FBIZORGID: "业务组织",
+            'FBIZORGID.FName': 'FBIZORGID.FName',
             FDEPTID: "部门",
+            'FDEPTID.FName': 'FDEPTID.FName',
             FForbiddenStatus: "禁用状态"
         }
     },
