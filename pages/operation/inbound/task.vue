@@ -4,7 +4,7 @@
             <uni-list>
                 <uni-list-item title="入库日期" :rightText="cur_inbound_task.inbound_date" />
                 <uni-list-item title="批次号" :rightText="cur_inbound_task.batch_no" />
-                <uni-list-item title="单据编号" :rightText="cur_inbound_task.f_bill_no" />
+                <uni-list-item title="单据编号" :rightText="cur_inbound_task.bill_no" />
             </uni-list>
         </uni-section>
     </view>

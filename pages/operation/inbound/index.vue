@@ -13,8 +13,8 @@
                     <uni-forms-item label="批次号" name="batch_no" required>
                         <uni-data-picker v-model="inbound_task_form.batch_no" :localdata="batch_no_opts"></uni-data-picker>
                     </uni-forms-item>
-                    <uni-forms-item label="单据编号" name="f_bill_no">
-                        <uni-easyinput v-model="inbound_task_form.f_bill_no" />
+                    <uni-forms-item label="单据编号" name="bill_no">
+                        <uni-easyinput v-model="inbound_task_form.bill_no" />
                     </uni-forms-item>
                 </uni-forms>
             </view>
@@ -34,7 +34,7 @@
             <uni-list>
                 <uni-list-item title="入库日期" :rightText="cur_inbound_task.inbound_date" />
                 <uni-list-item title="批次号" :rightText="cur_inbound_task.batch_no" />
-                <uni-list-item title="单据编号" :rightText="cur_inbound_task.f_bill_no" />
+                <uni-list-item title="单据编号" :rightText="cur_inbound_task.bill_no" />
             </uni-list>
         </uni-section>
         
@@ -60,7 +60,7 @@
                 inbound_task_form: {
                     inbound_date: '',
                     batch_no: '',
-                    f_bill_no: ''
+                    bill_no: ''
                 },
                 inbound_task_form_rules: {
                     inbound_date: {
@@ -131,23 +131,14 @@
             },
             // 新增入库任务 goods_nav
             goods_nav_click(e) {
-                // console.log('click e:', e)
-                // console.log('data:', this.$data)
                 if (e.index === 0) {
-                    // 扫码
-                    let _this_ = this;
-                    uni.scanCode({
-                        success: function (res) {
-                            console.log("uni.scanCode res:", res)
-                            _this_.handle_scanCode_result(res.result)
-                        }
-                    });                                       
+                    this.scan_code() // btn:扫码                                                         
                 }
             },
             goods_nav_buttonClick(e) {
                 if (e.index === 0) {
-                    if (this.inbound_task_form.f_bill_no) {
-                        console.log(e.content.text, this.inbound_task_form.f_bill_no)
+                    if (this.inbound_task_form.bill_no) {
+                        console.log(e.content.text, this.inbound_task_form.bill_no)
                         // code here
                     } else {
                         uni.showToast({
@@ -157,7 +148,7 @@
                     }
                 } else if (e.index === 1) {
                     // console.log(e.content.text, this.inbound_task_form)
-                    this.$refs['inbound_task_form'].validate().then(e => {
+                    this.$refs.inbound_task_form.validate().then(e => {
                         this.create_inbound_task()
                         uni.navigateTo({
                             url: '/pages/operation/inbound/mount'
@@ -188,39 +179,43 @@
                         }
                     })
                 } else if (e.index === 1) {         
-                    this.continue_inbound_task() // 继续入库任务
+                    // this.continue_inbound_task() // 继续入库任务
                     uni.navigateTo({
                         url: '/pages/operation/inbound/mount'
                     })
                 }
             },
-            handle_scanCode_result(text) {
-                // if 有符合条件的单据编号，直接提取
-                // else split 字符串，供选择
-                let arr = text.split(/\|{2}|,|;/)
-                if (arr.length === 1) {
-                    this.inbound_task_form.f_bill_no = arr[0]
-                } else {
-                    // 多个结果供选择
-                    uni.showActionSheet({
-                        title: '扫码结果',
-                        itemList: arr,
-                        popover: {},
-                        success: (e) => {
-                            this.inbound_task_form.f_bill_no = arr[e.tapIndex]
+            scan_code() {
+                uni.scanCode({
+                    success: function (res) {
+                        console.log("uni.scanCode res:", res)
+                        // if 有符合条件的单据编号，直接提取
+                        // else split 字符串，供选择
+                        let arr = res.result.split(/\|{2}|,|;/)
+                        if (arr.length === 1) {
+                            this.inbound_task_form.bill_no = arr[0]
+                        } else {
+                            uni.showActionSheet({
+                                title: '扫码结果',
+                                itemList: arr,
+                                popover: {},
+                                success: (e) => {
+                                    this.inbound_task_form.bill_no = arr[e.tapIndex]
+                                }
+                            })
                         }
-                    })
-                }
+                    }
+                });  
             },
             create_inbound_task() {
                 const options = {
                     f_stock_id: store.state.cur_stock.FStockId,
                     inbound_date: this.inbound_task_form.inbound_date,
                     batch_no: this.inbound_task_form.batch_no,
-                    f_bill_no: this.inbound_task_form.f_bill_no
+                    bill_no: this.inbound_task_form.bill_no
                 }
                 let inbound_task = new InboundTask(options)
-                inbound_task.save() 
+                inbound_task.save()
                 this.cur_inbound_task = inbound_task  // 赋值cur_inbound_task，解决VUE设置空值对象时console报错
                 console.log('新建入库任务', inbound_task)
             },
@@ -228,10 +223,10 @@
                 InboundTask.destroy_all()               
                 this.cur_inbound_task= {}
                 console.log('结束入库任务')
-            },
-            continue_inbound_task() {
-                store.commit('set_cur_inbound_task', this.cur_inbound_task)
             }
+            // continue_inbound_task() {
+            //     store.commit('set_cur_inbound_task', this.cur_inbound_task)
+            // }
         }
     }
 </script>

@@ -5,12 +5,13 @@ import store from '@/store';
  */
 class InboundTask {
     constructor(options={}) {
-        this.f_stock_id = 0;                      // 仓库ID
-        // this.staff_no = 2817;                     // 员工编号
-        this.inbound_date = options.inbound_date; // 入库日期
-        this.batch_no = options.batch_no;         // 批次号
-        this.f_bill_no = options.f_bill_no;       // 单据编号
-        this.inv_logs = []                        // 操作日志
+        this.f_stock_id = options.f_stock_id;              // 仓库ID
+        this.staff_no = options.staff_no;                  // 员工编号
+        this.inbound_date = options.inbound_date;          // 入库日期
+        this.batch_no = options.batch_no;                  // 批次号
+        this.bill_no = options.bill_no;                    // 单据编号
+        this.inbound_detail = options.inbound_detail || [] // 入库明细
+        this.inv_logs = []                                 // 操作日志
     }
     
     append_inv_log(inv_log) {

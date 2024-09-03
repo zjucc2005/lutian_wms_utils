@@ -6,13 +6,25 @@
             type="line"
             style="padding-bottom: 60px;"
         >
-            <uni-list>
-            	<uni-list-item 
+            <!-- <uni-list>
+                <uni-list-item 
                     v-for="c_stock_loc in c_stock_locs"
                     :key="c_stock_loc.FID"
                     :title="c_stock_loc.FNumber"
                 />
-            </uni-list>   
+            </uni-list> -->
+            
+            <uni-swipe-action ref="c_stock_loc_swipe">
+                <uni-swipe-action-item
+                    v-for="(c_stock_loc, index) in c_stock_locs"
+                    :key="index"
+                    :threshold="60"
+                    :right-options="swipe_action_options"
+                    @click="swipe_action_click($event, index)"
+                >
+                    <uni-list-item :title="c_stock_loc.FNumber" :rightText="this.status_dict[c_stock_loc.FDocumentStatus]" />
+                </uni-swipe-action-item>
+            </uni-swipe-action>
         </uni-section>
         
         <view class="uni-goods-nav-wrapper">
@@ -28,12 +40,25 @@
 
 <script>
     import store from '@/store'
-    import { get_c_stock_locs } from '@/utils/api'
+    import { get_c_stock_locs, delete_c_stock_locs } from '@/utils/api/c_stock_loc'
     export default {
         data() {
             return {
                 cur_stock: {},
                 c_stock_locs: [],
+                status_dict: {
+                    A: '已新增',
+                    B: '已提交',
+                    C: '已审核'
+                },
+                swipe_action_options: [
+                    // {
+                    //     text: '删除',
+                    //     style: {
+                    //         backgroundColor: '#f56c6c'
+                    //     }
+                    // }
+                ],
                 goods_nav: {
                     options: [
                         { icon: 'more-filled', text: '排序' }
@@ -59,6 +84,30 @@
                 get_c_stock_locs(store.state.cur_stock.FStockId).then(res => {
                     this.c_stock_locs = res.data
                 })
+            },
+            swipe_action_click(e, list_index) {
+                console.log('swipe action click e:', e, list_index) 
+                if (e.index === 0) {
+                    let c_stock_loc = this.c_stock_locs[list_index]
+                    // console.log("delete c_stock_loc:", c_stock_loc)
+                    delete_c_stock_locs([c_stock_loc.FID]).then(res => {
+                        if (res.statusCode === 200 && res.data.Result.ResponseStatus.IsSuccess) {
+                            this.c_stock_locs.splice(list_index, 1) // 删除行                           
+                        } else {
+                            uni.showToast({
+                                icon: 'error',
+                                title: res.data.Result.ResponseStatus.Errors[0].Message
+                            })
+                        }
+                    }).catch(err => {
+                        console.log('err:', err)
+                        uni.showToast({
+                            icon: 'error',
+                            title: '不能删除'
+                        })
+                    }) 
+                    this.$refs.c_stock_loc_swipe.closeAll() // 复位滑动操作
+                }              
             },
             goods_nav_click(e) {
                 if (e.index === 0) {

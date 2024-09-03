@@ -50,13 +50,13 @@
 
 <script>
     import store from '@/store'
-    import { post_c_stock_locs, exist_c_stock_locs } from '@/utils/api'
+    import { post_c_stock_locs, exist_c_stock_locs } from '@/utils/api/c_stock_loc'
     export default {
         data() {
             return {
                 cur_stock: {},
                 loc_nos: [
-                    { value: 'T-B01-101', status: '' }
+                    // { value: 'T-B01-101', status: '' }
                 ],
                 loc_form: {
                     loc_nos: [
@@ -97,7 +97,7 @@
         methods: {
             swipe_action_click(e, list_index) {
                 console.log('swipe action click e:', e, list_index) 
-                if (e.index === 0) {                  
+                if (e.index === 0) {
                     this.loc_nos.splice(list_index, 1) // 删除行
                     this.$refs.loc_no_swipe.closeAll() // 复位滑动操作
                 }              

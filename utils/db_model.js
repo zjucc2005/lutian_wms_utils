@@ -55,6 +55,7 @@
         fields: {
             FID: "FID",
             FStockId: "仓库编码",
+            'FStockId.FName': 'FStockId.FName',
             FKeeperId: "保管者编码",
             FOwnerId: "货主编码",
             FKeeperTypeId: "保管者类型",
@@ -65,6 +66,7 @@
             FBaseUnitId: "基本单位",
             FSecUnitId: "库存辅单位",
             FStockUnitId: "库存主单位",
+            'FStockUnitId.FNumber': 'FStockUnitId.FNumber',
             FLot: "批号",
             FProjectNo: "项目编号",
             FLockQty: "预留量(主单位)",
@@ -96,12 +98,14 @@
             FBillNo: "单据编号",
             FDocumentStatus: "单据状态",
             FStockOrgId: "调入库存组织",
+            'FStockOrgId.FName': 'FStockOrgId.FName',
             FDate: "日期",
             FBillTypeID: "单据类型",
             FOwnerTypeIdHead: "调入货主类型",
             FOwnerIdHead: "调入货主",
             FTransferBizType: "调拨类型",
             FStockOutOrgId: "调出库存组织",
+            'FStockOutOrgId.FName': 'FStockOutOrgId.FName',
             FOwnerTypeOutIdHead: "调出货主类型",
             FOwnerOutIdHead: "调出货主",
             FTransferDirect: "调拨方向",
@@ -258,9 +262,11 @@
     },
     BD_MATERIAL: {
         fields: {
-            FMATERIALID: "FMATERIALID",
+            FMaterialId: "FMATERIALID",
             FName: "FName",
             FDescription: "FDescription",
+            'FBaseUnitId': 'FBaseUnitId',
+            'FBaseUnitId.FNumber': 'FBaseUnitId.FNumber',
             FDocumentStatus: "数据状态",
             FForbidStatus: "禁用状态",
             FNumber: "编码",
@@ -278,6 +284,7 @@
             FImage1: "图片(数据库)",
             FOldNumber: "旧物料编码",
             FMaterialGroup: "物料分组",
+            'FMaterialGroup.FName': "FMaterialGroup.FName",
             FPLMMaterialId: "PLM物料内码",
             FMaterialSRC: "物料来源",
             FImageFileServer: "参考图(以发布图纸为准)",
@@ -381,6 +388,50 @@
             FNumber: "编码",
             FStockId: "仓库",
             FCreateDate: "创建日期"
+        }
+    },
+    PAEZ_C_INV: {
+        fields: {
+            FID: "FID",
+            FStockId: "仓库ID",
+            'FStockId.FName': "仓库名称",
+            FStockLocId: "仓位号ID",
+            'FStockLocId.FNumber': "仓位号",
+            FMaterialId: "物料ID",
+            'FMaterialId.FNumber': "物料编码",
+            'FMaterialId.FName': "物料名称",
+            FQty: "数量",
+            FStockUnitId: "计量单位ID",
+            'FStockUnitId.FName': '计量单位',
+            FBatchNo: "库存批次号",
+            FProduceDate: "生产日期",
+            FLastInboundDate: "最近入库日期",
+            FCreateTime: "数据新建时间"
+        }
+    },
+    PAEZ_C_INV_LOG: {
+        fields: {
+            FID: "FID",
+            FOpSN: "操作序列号",
+            FOpType: "库存操作类型",
+            FStockId: "仓库ID",
+            FStockLocId: "仓位号ID",
+            'FStockLocId.FNumber': "仓位号",
+            FMaterialId: "物料编码ID",
+            'FMaterialId.FNumber': "物料编码",
+            'FMaterialId.FName': "物料名称",
+            FOpQTY: "操作数量",
+            FStockUnitId: "计量单位ID",
+            'FStockUnitId.FName': '计量单位',
+            FInvIncre: "库存变更数量",
+            FInvQTY: "库存批次流水",
+            FBatchNo: "库存批次号",
+            FBillNo: "单据编号",
+            FRemark: "操作备注",
+            FOpStaffNo: "操作员工编号",
+            FCreateTime: "数据新建时间",
+            FCInvId: "关联C_INV",
+            FReferId: "自关联ID"
         }
     }
 }
