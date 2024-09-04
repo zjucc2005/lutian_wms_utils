@@ -74,17 +74,6 @@
                 }
             },
             set_stock_opts() {
-                // const stock_opts = []
-                // this.bd_stocks.forEach(d => {
-                //     let group = stock_opts.find(opt => opt.value === d.FGroup)
-                //     if (group) {
-                //         group.children.push({ text: d.FName, value: d.FStockId })
-                //     } else {
-                //         group = { text: d['FGroup.FName'] || '未分组', value: d.FGroup, children: [] }
-                //         group.children.push({ text: d.FName, value: d.FStockId })
-                //         stock_opts.push(group)
-                //     }
-                // })
                 // 组织 - 分组 - 仓库
                 const stock_opts = []
                 this.bd_stocks.forEach(d => {
@@ -99,7 +88,8 @@
                         org.children.push(group)
                     }
                     group.children.push({ text: d.FName, value: d.FStockId })
-                })                
+                })
+                stock_opts.sort((x, y) => { return x.value - y.value }) // 按组织编号排序
                 this.stock_opts = stock_opts
             },
             handle_stock_change(e) {

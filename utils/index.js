@@ -52,7 +52,7 @@ const describe_inv_log = (inv_log) => {
     let list = [
         `${op_type_dict[inv_log.FOpType]} ${inv_log.FOpQTY} ${inv_log['FStockUnitId.FName']}`,
         `${inv_log['FMaterialId.FNumber']} / ${inv_log['FMaterialId.FName']}`,
-        `到库位 ${inv_log['FStockLocId.FNumber']}`
+        `库位 ${inv_log['FStockLocId.FNumber']}`
     ]
     return list.join("\n")
 }
@@ -62,5 +62,6 @@ export {
     to_raw,
     is_material_no_format,
     is_loc_no_std_format,
-    is_decimal_unit
+    is_decimal_unit,
+    describe_inv_log
 }

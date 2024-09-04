@@ -11,11 +11,6 @@ class InboundTask {
         this.batch_no = options.batch_no;                  // 批次号
         this.bill_no = options.bill_no;                    // 单据编号
         this.inbound_detail = options.inbound_detail || [] // 入库明细
-        this.inv_logs = []                                 // 操作日志
-    }
-    
-    append_inv_log(inv_log) {
-        this.inv_logs.push(inv_log)
     }
         
     save() {        

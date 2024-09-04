@@ -22,7 +22,7 @@ const fullURL = (path) => {
 }
 
 const fieldKeys = (model_name) => {
-    return Object.getOwnPropertyNames(db_model[model_name].fields).join(',')
+    return Object.getOwnPropertyNames(db_model[model_name].fields)
 }
 
 /**
@@ -152,6 +152,7 @@ const _delete_ = async (form_id, data) => {
  */
 const save = async (form_id, data) => {
     const _data_ = {
+        // NeedReturnFields: fieldKeys(form_id),
         ...data
     }
     return conn().then(_ => {
@@ -197,6 +198,7 @@ const save = async (form_id, data) => {
 */
 const batch_save = async (form_id, data) => {
     const _data_ = {
+        // NeedReturnFields: fieldKeys(form_id),
         ...data
     }
     return conn().then(_ => {
@@ -236,7 +238,7 @@ const batch_save = async (form_id, data) => {
 const execute_bill_query = async (data) => {
     const _data_ = {
         FormId: "",
-        FieldKeys: fieldKeys(data['FormId']),
+        FieldKeys: fieldKeys(data['FormId']).join(','),
         FilterString: [],
         OrderString: "",
         TopRowCount: 0,
@@ -282,7 +284,7 @@ const execute_bill_query = async (data) => {
 const bill_query = async (data) => {
     const _data_ = {
         FormId: "",
-        FieldKeys: fieldKeys(data['FormId']),
+        FieldKeys: fieldKeys(data['FormId']).join(','),
         FilterString: [],
         OrderString: "",
         TopRowCount: 0,

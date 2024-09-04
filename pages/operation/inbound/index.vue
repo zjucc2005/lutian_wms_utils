@@ -64,16 +64,14 @@
                 },
                 inbound_task_form_rules: {
                     inbound_date: {
-                        rules: [{
-                            required: true,
-                            errorMessage: '入库日期不能为空'
-                        }]
+                        rules: [
+                            { required: true, errorMessage: '入库日期不能为空' },
+                        ]
                     },
                     batch_no: {
-                        rules: [{
-                            required: true,
-                            errorMessage: '批次号不能为空'
-                        }]
+                        rules: [
+                            { required: true, errorMessage: '批次号不能为空' },
+                        ]
                     }
                 },
                 batch_no_opts: [],
@@ -117,7 +115,6 @@
         methods: {
             inbound_date_change(e) { 
                 const batch_no_opts = []
-                // console.log('inbound_date_change', e)
                 if (e) {
                     const t = new Date(e)
                     // 可选批次号范围为，入库日期往前3天 

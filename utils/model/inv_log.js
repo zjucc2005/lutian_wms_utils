@@ -19,12 +19,11 @@ import K3CloudApi from '@/utils/k3cloudapi';
 class InvLog {
     constructor(options={}) {
         this.FOpSN = store.state.snowflake.next_id()       
-        this.FOpType = options.FOpType
+        this.FOpType = options.FOpType  // in, in_cl, out, out_cl
         this.FStockId = { FStockId: options.FStockId } 
         this.FStockLocId = { FNumber: options.FStockLocNo } 
         this.FMaterialId = { FMaterialId: options.FMaterialId }
         this.FOpQTY = options.FOpQTY
-        // this.FStockUnitId = { FNumber: 'Pcs' }
         this.FInvIncre = ['in_cl', 'out'].includes(options.FOpType) ? -options.FOpQTY : options.FOpQTY
         this.FBatchNo = options.FBatchNo
         this.FBillNo = options.FBillNo || ''
@@ -39,7 +38,6 @@ class InvLog {
      */
     save() {
         const data = {
-            NeedReturnFields: ['FID', 'FOpSN', 'FOpType', 'FStockId', 'FCreateDate'],
             model: this
         }
         // console.log('Invlog.save data', data)
@@ -51,11 +49,13 @@ class InvLog {
     /**
      * 获取库存日志列表
      * @param options:Hash 参数集
+     *   @field FID:Integer 主键ID
      *   @field FStockId:Integer 仓库
      *   @field FBatchNo:String 批次号
      *   @field FBillNo:String 单据编号
      * @param meta:Hash
-     *   @field limit:Integer
+     *   @field page:Integer
+     *   @field per_page:Integer
      *   @field order:String
      * @return {Hash} Promise
      */
@@ -63,6 +63,9 @@ class InvLog {
         const data = {
             FormId: "PAEZ_C_INV_LOG",
             FilterString: []
+        }
+        if (options.FID) {
+            data.FilterString.push({ Left: "", FieldName: "FID", Compare: "67", Value: options.FID, Right: "", Logic: 0 })
         }
         if (options.FStockId) {
             data.FilterString.push({ Left: "", FieldName: "FStockId", Compare: "67", Value: options.FStockId, Right: "", Logic: 0 })
@@ -72,10 +75,19 @@ class InvLog {
         }
         if (options.FBillNo) {
             data.FilterString.push({ Left: "", FieldName: "FBillNo", Compare: "67", Value: options.FBillNo, Right: "", Logic: 0 })
+        }       
+        if (meta.per_page) {
+            data.Limit = meta.per_page
+            if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
         }
-        if (meta.limit) data.Limit = meta.limit
         if (meta.order) data.OrderString = meta.order
         return K3CloudApi.bill_query(data).then(res => {
+            return Promise.resolve(res)
+        })
+    }
+    
+    static find(id) {
+        return this.query({ FID: id }, { limit: 1 }).then( res => {
             return Promise.resolve(res)
         })
     }

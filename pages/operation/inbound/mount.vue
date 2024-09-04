@@ -25,19 +25,18 @@
             </view>
         </uni-section>
         <uni-section title="最近操作日志" type="line" style="padding-bottom: 60px;">
-            <template v-slot:right>
-                切换时间
-            	<switch checked style="transform:scale(0.7)"/>
-            </template>
-            <uni-swipe-action>
+            <uni-swipe-action ref="c_inv_log_swipe">
                 <uni-swipe-action-item
-                    v-for="index in 5"
+                    v-for="(inv_log, index) in c_inv_logs"
                     :key="index"
                     :threshold="60"
-                    :right-options="log_options"
-                    @click="swipe_action_click($event, index)"
+                    :right-options="inv_log.FOpType == 'in' && !inv_log.status ? log_options : []"
+                    @click="swipe_action_click($event, inv_log.FID)"
                 >
-                    <uni-list-item title="{物料号} 上架 {数量} 到 { 库位号}" rightText="2024-08-20" />
+                    <uni-list-item 
+                        :title="formatDate(inv_log.FCreateTime, 'yyyy-MM-dd hh:mm:ss')"
+                        :note="describe_inv_log(inv_log)"
+                        :rightText="inv_log.status" />
                 </uni-swipe-action-item>
             </uni-swipe-action>
         </uni-section>
@@ -55,10 +54,11 @@
 
 <script>
     import store from '@/store';
-    import { is_material_no_format, is_loc_no_std_format, is_decimal_unit } from '@/utils';
     import { get_bd_material } from '@/utils/api';
     import { get_c_stock_locs } from '@/utils/api/c_stock_loc';
-    import InvLog from '@/utils/model/inv_log';
+    import { InvLog } from '@/utils/model';
+    import { is_material_no_format, is_loc_no_std_format, is_decimal_unit, describe_inv_log } from '@/utils';
+    import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     export default {
         data() {
             return {
@@ -133,7 +133,7 @@
                 },
                 log_options: [
                     {
-                        text: '撤回',
+                        text: '取消',
                         style: {
                             backgroundColor: '#f56c6c'
                         }
@@ -162,17 +162,23 @@
             this.cur_stock = store.state.cur_stock // 加载当前仓库
             this.cur_staff = store.state.cur_staff // 加载当前员工
             this.cur_inbound_task = uni.getStorageSync('cur_inbound_task')
-            InvLog.query({ FStockId: this.cur_stock.FStockId }, { limit: 5, order: 'FCreateTime DESC' }).then(res => {
-                this.c_inv_logs = res.data
+            InvLog.query(
+                { FStockId: this.cur_stock.FStockId, FBatchNo: this.cur_inbound_task.batch_no }, 
+                { page: 1, per_page: 5, order: 'FCreateTime DESC' }).then(res => {
+                res.data.reverse().forEach(log => this.unshift_inv_log(log))
             })
             get_c_stock_locs(this.cur_stock.FStockId).then(res => {
                 this.c_stock_locs = res.data // 加载当前仓库的库位数据
             })
         },
-        methods: {                          
+        methods: {
+            describe_inv_log,
+            formatDate,
             // button mapping
-            swipe_action_click(e, index) {
-               console.log('swipe action click e:', e, index) 
+            swipe_action_click(e, inv_log_id) {
+               if (e.index === 0) {
+                   this.cancel(inv_log_id) // 撤回
+               }
             },
             goods_nav_click(e) {
                 if (e.index === 0) {
@@ -275,15 +281,71 @@
                         FBatchNo: this.cur_inbound_task.batch_no,
                         FBillNo: this.cur_inbound_task.bill_no,
                         FOpStaffNo: this.cur_staff.FNumber
+                    })                    
+                    inv_log.save().then(save_res => {
+                        this.after_save(save_res)
+                        // 重置表单
+                        this.mount_form = {
+                            material_no: '',
+                            material_name: '',
+                            loc_no: '',
+                            op_qty: '',
+                            base_unit: 'Pcs',
+                            base_unit_name: 'Pcs',
+                            decimal_unit: false
+                        }
+                        uni.pageScrollTo({ scrollTop: 0 })
                     })
-                    inv_log.save()
-                    // console.log("提交上架 inv_log:", inv_log)
-                    // validate material_no & loc_no
-                    // submit
-                    // handle latest logs in current page
                 }).catch(err => {
-                    console.log('提交上架err:', err);
+                    console.log('submit err:', err);
                 })
+            },
+            cancel(inv_log_id) {
+                let c_inv_log = this.c_inv_logs.find(x => x.FID === inv_log_id)
+                if (c_inv_log.FOpType == 'in' && !c_inv_log.status) {
+                    let inv_log = new InvLog({
+                        FOpType: 'in_cl',
+                        FStockId: c_inv_log.FStockId,
+                        FStockLocNo: c_inv_log['FStockLocId.FNumber'],
+                        FMaterialId: c_inv_log.FMaterialId,
+                        FOpQTY: c_inv_log.FOpQTY,
+                        FBatchNo: c_inv_log.FBatchNo,
+                        FBillNo: c_inv_log.FBillNo,
+                        FOpStaffNo: this.cur_staff.FNumber,
+                        FReferId: c_inv_log.FID                   
+                    })
+                    inv_log.save().then(save_res => {
+                        this.after_save(save_res)
+                        this.$refs.c_inv_log_swipe.closeAll() // 关闭滑动操作
+                    })
+                } else {
+                    uni.showToast({ icon: 'error', title: 'ERROR' })
+                }
+            },
+            // 提交上架or取消上架后，获取新增日志并插入下方日志列表中
+            after_save(save_res) {
+                if (save_res.data.Result.ResponseStatus.IsSuccess) {
+                    InvLog.find(save_res.data.Result.Id).then(find_res => {
+                        if (find_res.data[0]) {
+                            this.unshift_inv_log(find_res.data[0])
+                            uni.showToast({
+                                title: '提交成功'
+                            })                           
+                        } 
+                    })
+                } else {
+                    uni.showToast({
+                        title: '提交失败'
+                    })
+                }
+            },
+            // 日志逐条插入列表中，判断是否取消
+            unshift_inv_log(c_inv_log) {
+                if (c_inv_log.FOpType == 'in_cl') {
+                    let refer_inv_log = this.c_inv_logs.find(x => x.FID === c_inv_log.FReferId )
+                    if (refer_inv_log) refer_inv_log.status = '已取消'
+                }
+                this.c_inv_logs.unshift(c_inv_log)
             }
         }
     }
@@ -293,5 +355,8 @@
     .easyinput-suffix-text {
         color: #666;
         padding: 0 10px;
+    }
+    .uni-list-item__extra-text>span {
+        color: #dd524d;
     }
 </style>

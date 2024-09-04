@@ -1,6 +1,15 @@
 <template>
     <view>		
         <uni-section title="API调试" sub-title="Kingdee系统API数据查询展示，仅用来测试API对接。" type="line">
+            <uni-list>
+                <uni-list-item 
+                    :show-extra-icon="true"
+                    :extra-icon="{ color: '#dd524d', size: '24', type: 'link' }"
+                    title="API调用(代码测试)"
+                    clickable @click="api_call_test()">
+                </uni-list-item>
+            </uni-list>
+            
             <uni-collapse accordion>
                 <uni-collapse-item v-for="cate in categories" :key="cate.value" :title="cate.name" >
                     <uni-list>
@@ -25,6 +34,7 @@
 </template>
 
 <script>
+    import K3CloudApi from '@/utils/k3cloudapi'
     export default {
         data() {
             return {
@@ -76,6 +86,16 @@
                         })
                     }
                 });
+            },
+            api_call_test() {
+                console.log('API调用 - 目前无测试代码')
+                // const form_id = 'PAEZ_C_INV_LOG'
+                // const data = {
+                //     Ids: '100013'
+                // }
+                // K3CloudApi.delete(form_id, data).then(res => {
+                    
+                // })
             }
         }
     }

@@ -73,6 +73,10 @@
             "style": { "navigationBarTitleText": "入库 - 操作日志" }
         },
         {
+            "path": "pages/operation/outbound/index",
+            "style": { "navigationBarTitleText": "出库"}
+        },
+        {
             "path": "pages/operation/manage/index",
             "style": { "navigationBarTitleText": "仓库管理" }
         },
@@ -88,6 +92,7 @@
             "path": "pages/my/index",
             "style":  { "navigationBarTitleText": "我"}
         }
+        
     ],
     "globalStyle": {
         "navigationBarTextStyle": "black",

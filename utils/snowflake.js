@@ -1,8 +1,10 @@
 /**
- * 从 2024-01-01 开始运行
  * 使用方式
  * const snowflake = new Snowflake(device_id);
  * const uid = snowflake.next_id();
+ * timestamp 41位，从 2024-01-01 开始运行，能使用69年;
+ * device_id 18位，最大支持 262144 个设备;
+ * sequence 4位，仓位人工操作，并发数不高，每毫秒16次能够满足需求;
 */
 
 class Snowflake {
@@ -19,7 +21,7 @@ class Snowflake {
             throw new Error('Clock moved backwards!');
         }
         if (current_time === this.last_timestamp) {
-            this.sequence = (this.sequence + 1) & 0xFFF;
+            this.sequence = (this.sequence + 1) & 0xF;
             if (this.sequence === 0) {
                 current_time = this.wait_next_millis();
             }
@@ -27,7 +29,7 @@ class Snowflake {
             this.sequence = 0;
         }
         this.last_timestamp = current_time;  
-        const id = (BigInt(current_time - 1704067200000) << 22n) | (BigInt(this.device_id) << 12n) | BigInt(this.sequence);
+        const id = (BigInt(current_time - 1704067200000) << 22n) | (BigInt(this.device_id) << 4n) | BigInt(this.sequence);
         return id.toString();
     }
     

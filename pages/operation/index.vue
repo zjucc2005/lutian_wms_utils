@@ -3,13 +3,13 @@
         <uni-grid :column="2" :highlight="true">
             <uni-grid-item @click="goTo('inbound')">
                 <view class="grid-item-box">
-                    <uni-icons type="download" class="inbound-icon" :size="80" color="#007aff" />
+                    <uni-icons type="download" class="inbound-icon" :size="80" color="#dd524d" />
                     <text class="text">入库</text>
                 </view>
             </uni-grid-item>
-            <uni-grid-item>
+            <uni-grid-item @click="goTo('outbound')">
                 <view class="grid-item-box">
-                    <uni-icons type="upload" class="outbound-icon" :size="80" color="#777" />
+                    <uni-icons type="upload" class="outbound-icon" :size="80" color="#007aff" />
                     <text class="text">出库</text>
                 </view>
             </uni-grid-item>
