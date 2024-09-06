@@ -50,7 +50,7 @@ const get_bd_stocks = async () => {
 const get_bd_material = async (material_no, use_org_id) => {
     const data = {
         FormId: 'BD_MATERIAL',
-        FieldKeys: 'FMaterialId,FName,FNumber,FBaseUnitId,FBaseUnitId.FNumber,FBaseUnitId.FName,FMaterialGroup.FName,FUseOrgId,FUseOrgId.FName',
+        FieldKeys: 'FMaterialId,FName,FNumber,FForbidStatus,FDocumentStatus,FBaseUnitId,FBaseUnitId.FNumber,FBaseUnitId.FName,FMaterialGroup.FName,FUseOrgId,FUseOrgId.FName',
         FilterString: [
             { Left: "", FieldName: "FNumber", Compare: "67", Value: material_no, Right: "", Logic: 0 },
             { Left: "", FieldName: "FUseOrgId", Compare: "67", Value: use_org_id, Right: "", Logic: 0 }

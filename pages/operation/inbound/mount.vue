@@ -91,11 +91,22 @@
                                             if (res.data[0]) {
                                                 bd_material = res.data[0]
                                                 this.bd_materials.push(res.data[0])
+                                                if (bd_material.FDocumentStatus != 'C') {
+                                                    return callback('此物料编码未审核')
+                                                } else if (bd_material.FForbidStatus != 'A'){
+                                                    return callback('此物料编码被禁用')
+                                                }
                                                 return bd_material
                                             } else {
                                                 return callback('不存在此物料编码')
                                             }
                                         })
+                                    } else {
+                                        if (bd_material.FDocumentStatus != 'C') {
+                                            return callback('此物料编码未审核')
+                                        } else if (bd_material.FForbidStatus != 'A'){
+                                            return callback('此物料编码被禁用')
+                                        }
                                     }
                                 }
                             }
