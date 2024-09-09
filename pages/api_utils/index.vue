@@ -35,6 +35,8 @@
 
 <script>
     import K3CloudApi from '@/utils/k3cloudapi'
+    import { get_bd_material } from '../../utils/api'
+    import { Inv } from '@/utils/model'
     export default {
         data() {
             return {
@@ -89,6 +91,13 @@
             },
             api_call_test() {
                 console.log('API调用 - 目前无测试代码')
+                const data = {
+                    // Number: 'FHTZD074960',
+                    Number: 'FHTZD078950'
+                }
+                K3CloudApi.view('SAL_DELIVERYNOTICE', data).then(res => {
+                    console.log('res.data.Result.Result.SAL_DELIVERYNOTICEENTRY', res.data.Result.Result.SAL_DELIVERYNOTICEENTRY)
+                })
                 // const form_id = 'PAEZ_C_INV_LOG'
                 // const data = {
                 //     Ids: '100013'
@@ -96,6 +105,7 @@
                 // K3CloudApi.delete(form_id, data).then(res => {
                     
                 // })
+                // get_bd_material('1.06.08.03.0006', 100007)
             }
         }
     }

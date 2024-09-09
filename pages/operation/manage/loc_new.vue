@@ -56,7 +56,7 @@
             return {
                 cur_stock: {},
                 loc_nos: [
-                    // { value: 'T-B01-101', status: '' }
+                    { value: 'T-B01-101', status: '' }
                 ],
                 loc_form: {
                     loc_nos: [
@@ -122,7 +122,7 @@
                         return
                     }
                     let loc_nos = this.loc_nos.map(x => x.value)
-                    exist_c_stock_locs(this.cur_stock.FStockId, loc_nos).then(res => {
+                    exist_c_stock_locs(loc_nos).then(res => {
                         console.log('exist res', res)
                         if (res.status === 0) {                            
                             const model = this.loc_nos.map(loc_no => {
@@ -204,5 +204,7 @@
     .uni-list-item-right-text {
         color: #dd524d;
         font-size: 12px;
+        display: flex;
+        align-items: center;
     }
 </style>

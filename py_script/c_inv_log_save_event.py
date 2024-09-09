@@ -33,7 +33,7 @@ def get_inv_qty(inv_log):
     f_material_id=inv_log['MaterialId_Id'],
     f_batch_no=inv_log['BatchNo'])
     inv_qty = App.Data.DBUtils.ExecuteScalar(this.Context, sql, None)
-    return inv_qty
+    return inv_qty or 0
 
 # 回写库存流水和关联C_INV
 def update_inv_log(inv_log, inv_id):
@@ -85,13 +85,22 @@ def create_inv(inv_log):
     update_inv_log(inv_log, inv_fid)
     
 def update_inv(inv, inv_log):
-    sql = """
-    UPDATE PAEZ_t_C_INV
-    SET FQTY = {f_qty}, FLASTINBOUNDDATE = {f_last_inbound_date}
-    WHERE FID = {fid};
-    """.format(
-    f_qty=inv_log['InvQty'],
-    f_last_inbound_date=inv_log['CreateTime'],
-    fid=inv['FID'])
+    if inv_log['OpType'] == 'in':
+        sql = """
+        UPDATE PAEZ_t_C_INV
+        SET FQTY = {f_qty}, FLASTINBOUNDDATE = '{f_last_inbound_date}'
+        WHERE FID = {fid};
+        """.format(
+        f_qty=inv_log['InvQty'],
+        f_last_inbound_date=inv_log['CreateTime'],
+        fid=inv['FID'])
+    else:        
+        sql = """
+        UPDATE PAEZ_t_C_INV
+        SET FQTY = {f_qty}
+        WHERE FID = {fid};
+        """.format(
+        f_qty=inv_log['InvQty'],
+        fid=inv['FID'])
     App.Data.DBUtils.Execute(this.Context, sql)
     update_inv_log(inv_log, inv['FID'])

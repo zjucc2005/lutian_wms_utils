@@ -270,6 +270,7 @@
             FDocumentStatus: "数据状态",
             FForbidStatus: "禁用状态",
             FNumber: "编码",
+            FSpecification: '规格型号',
             FCreateOrgId: "创建组织",
             FUseOrgId: "使用组织",
             FCreatorId: "创建人",
@@ -396,6 +397,7 @@
         fields: {
             FID: "FID",
             FStockId: "仓库ID",
+            'FStockId.FNumber': '仓库编码',
             'FStockId.FName': "仓库名称",
             FStockLocId: "仓位号ID",
             'FStockLocId.FNumber': "仓位号",
@@ -422,6 +424,7 @@
             FMaterialId: "物料编码ID",
             'FMaterialId.FNumber': "物料编码",
             'FMaterialId.FName': "物料名称",
+            'FMaterialId.FSpecification': '规格型号',
             FOpQTY: "操作数量",
             FStockUnitId: "计量单位ID",
             'FStockUnitId.FName': '计量单位',

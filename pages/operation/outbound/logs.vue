@@ -1,15 +1,15 @@
 <template>
     <view>
         <uni-section title="操作日志" type="line">
-            <uni-swipe-action ref="inv_log_swipe">
+            <uni-swipe-action ref="c_inv_log_swipe">
                 <uni-swipe-action-item
                     v-for="(inv_log, index) in inv_logs"
                     :key="index"
                     :threshold="60"
-                    :right-options="inv_log.FOpType == 'in' && !inv_log.status ? log_options : []"
+                    :right-options="inv_log.FOpType == 'out' && !inv_log.status ? log_options : []"
                     @click="swipe_action_click($event, inv_log.FID)"
                 >
-                    <uni-list-item
+                    <uni-list-item 
                         :title="formatDate(inv_log.FCreateTime, 'yyyy-MM-dd hh:mm:ss')"
                         :note="describe_inv_log(inv_log)"
                         :rightText="inv_log.status">
@@ -33,7 +33,7 @@
             return {
                 cur_stock: {},
                 cur_staff: {},
-                cur_inbound_task: {},
+                cur_outbound_task: {},
                 inv_logs: [],
                 log_options: [
                     {
@@ -48,7 +48,7 @@
         mounted() {
             this.cur_stock = store.state.cur_stock // 加载当前仓库
             this.cur_staff = store.state.cur_staff // 加载当前员工
-            this.cur_inbound_task = uni.getStorageSync('cur_inbound_task')
+            this.cur_outbound_task = uni.getStorageSync('cur_outbound_task')
             this.load_inv_logs()
         },
         methods: {
@@ -56,7 +56,7 @@
             formatDate,
             load_inv_logs () {
                 InvLog.query(
-                    { FStockId: this.cur_stock.FStockId, FBatchNo: this.cur_inbound_task.batch_no, FOpType_in: ['in', 'in_cl'] }, 
+                    { FStockId: this.cur_stock.FStockId, FBillNo: this.cur_outbound_task.bill_no, FOpType_in: ['out', 'out_cl'] }, 
                     { order: 'FCreateTime DESC' }).then(res => {
                     res.data.reverse().forEach(log => this.unshift_inv_log(log))
                 })
@@ -67,22 +67,22 @@
                }
             },
             cancel(inv_log_id) {
-                let inv_log = this.inv_logs.find(x => x.FID === inv_log_id)
-                if (inv_log.FOpType == 'in' && !inv_log.status) {
+                let c_inv_log = this.inv_logs.find(x => x.FID === inv_log_id)
+                if (c_inv_log.FOpType == 'out' && !c_inv_log.status) {
                     let inv_log = new InvLog({
-                        FOpType: 'in_cl',
-                        FStockId: inv_log.FStockId,
-                        FStockLocNo: inv_log['FStockLocId.FNumber'],
-                        FMaterialId: inv_log.FMaterialId,
-                        FOpQTY: inv_log.FOpQTY,
-                        FBatchNo: inv_log.FBatchNo,
-                        FBillNo: inv_log.FBillNo,
+                        FOpType: 'out_cl',
+                        FStockId: c_inv_log.FStockId,
+                        FStockLocNo: c_inv_log['FStockLocId.FNumber'],
+                        FMaterialId: c_inv_log.FMaterialId,
+                        FOpQTY: c_inv_log.FOpQTY,
+                        FBatchNo: c_inv_log.FBatchNo,
+                        FBillNo: c_inv_log.FBillNo,
                         FOpStaffNo: this.cur_staff.FNumber,
-                        FReferId: inv_log.FID
+                        FReferId: c_inv_log.FID
                     })
                     inv_log.save().then(save_res => {
                         this.after_save(save_res)
-                        this.$refs.inv_log_swipe.closeAll() // 关闭滑动操作
+                        this.$refs.c_inv_log_swipe.closeAll() // 关闭滑动操作
                     })
                 } else {
                     uni.showToast({ icon: 'error', title: 'ERROR' })
@@ -106,12 +106,12 @@
                 }
             },
             // 日志逐条插入列表中，判断是否取消
-            unshift_inv_log(inv_log) {
-                if (inv_log.FOpType == 'in_cl') {
-                    let refer_inv_log = this.inv_logs.find(x => x.FID === inv_log.FReferId )
+            unshift_inv_log(c_inv_log) {
+                if (c_inv_log.FOpType == 'out_cl') {
+                    let refer_inv_log = this.inv_logs.find(x => x.FID === c_inv_log.FReferId )
                     if (refer_inv_log) refer_inv_log.status = '已取消'
                 }
-                this.inv_logs.unshift(inv_log)
+                this.inv_logs.unshift(c_inv_log)
             }
         }
     }

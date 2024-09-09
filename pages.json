@@ -66,7 +66,7 @@
         },
         {
             "path": "pages/operation/inbound/mount",
-            "style":  { "navigationBarTitleText": "入库 - 上架" }
+            "style":  { "navigationBarTitleText": "入库 - 扫描上架" }
         },
         {
             "path": "pages/operation/inbound/logs",
@@ -75,6 +75,18 @@
         {
             "path": "pages/operation/outbound/index",
             "style": { "navigationBarTitleText": "出库"}
+        },
+        {
+            "path": "pages/operation/outbound/allocate",
+            "style": { "navigationBarTitleText": "出库 - 分配预览" }
+        },
+        {
+            "path": "pages/operation/outbound/unmount",
+            "style": { "navigationBarTitleText": "出库 - 扫描下架" }
+        },
+        {
+            "path": "pages/operation/outbound/logs",
+            "style": { "navigationBarTitleText": "出库 - 操作日志" }
         },
         {
             "path": "pages/operation/manage/index",

@@ -1,9 +1,9 @@
-const dev_mode = true;
+import config from "@/config"
 const logger = {
     dev: (...args) => {
-        if (dev_mode) {
+        // if (config.env == 'dev') {
             console.log(...args)
-        }   
+        // }   
     },
     info: (...args) => {
         console.log(...args)

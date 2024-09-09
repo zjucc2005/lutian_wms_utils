@@ -47,9 +47,25 @@ class InvLog {
     }
     
     /**
+     * 批量保存库存日志（到数据库）
+     * @return {Hash} Promise
+     */
+    static batch_save(inv_logs=[]) {
+        const data = {
+            model: inv_logs,
+            ValidateRepeatJson: true
+        }
+        return K3CloudApi.batch_save('PAEZ_C_INV_LOG', data).then(res => {
+            return Promise.resolve(res)
+        })
+    }
+    
+    
+    /**
      * 获取库存日志列表
      * @param options:Hash 参数集
      *   @field FID:Integer 主键ID
+     *   @field FOpType_in:Array 操作类型
      *   @field FStockId:Integer 仓库
      *   @field FBatchNo:String 批次号
      *   @field FBillNo:String 单据编号
@@ -66,6 +82,9 @@ class InvLog {
         }
         if (options.FID) {
             data.FilterString.push({ Left: "", FieldName: "FID", Compare: "67", Value: options.FID, Right: "", Logic: 0 })
+        }
+        if (options.FOpType_in) {
+            data.FilterString.push({ Left: "", FieldName: "FOpType", Compare: "338", Value: options.FOpType_in.join(','), Right: "", Logic: 0 })
         }
         if (options.FStockId) {
             data.FilterString.push({ Left: "", FieldName: "FStockId", Compare: "67", Value: options.FStockId, Right: "", Logic: 0 })

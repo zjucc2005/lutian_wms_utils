@@ -1,24 +1,19 @@
 /**
  * JS版本的金蝶系统API SDK
  */
+import config from '@/config'
 import store from '@/store'
 import db_model from '@/utils/db_model'
 import logger from '@/utils/logger'
 
-const config = {
-    endpoint: 'http://61.175.224.118:9090/',
-    acctid: '668349890be80b',
-    username: '陈伟斌',
-    password: 'OA2024.',
-    lcid: '2052'
-}
+let api_config = config.kd_api[config.env]
 
 const isConn = () => {
     return (store.state.conn_info && store.state.conn_expired_at && store.state.conn_expired_at > Date.now())
 }
 
 const fullURL = (path) => {
-    return `${config.endpoint}k3cloud/${path}`
+    return `${api_config.endpoint}k3cloud/${path}`
 }
 
 const fieldKeys = (model_name) => {
@@ -38,8 +33,9 @@ const conn = async () => {
         uni.request({
             url: fullURL('Kingdee.BOS.WebApi.ServicesStub.AuthService.ValidateUser.common.kdsvc'),
             method: 'POST',
-            data: { acctid: config.acctid, username: config.username, password: config.password, lcid: config.lcid },
+            data: { acctid: api_config.acctid, username: api_config.username, password: api_config.password, lcid: api_config.lcid },
             success: (res) => {
+                logger.info(`运行环境[${config.env}]`)
                 logger.dev("K3CloudApi.conn res:", res)
                 store.commit('api_conn', res.data)
                 resolve(res)

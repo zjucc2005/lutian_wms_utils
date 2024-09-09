@@ -2,7 +2,7 @@
     <view class="container">
         <uni-forms ref="login_form" :model="login_form"  :rules="login_form_rules" labelWidth="80px">
             <uni-forms-item label="仓库" name="stock_id">
-                <uni-data-picker 
+                <uni-data-picker
                     v-model="login_form.stock_id"
                     :localdata="stock_opts"
                     @change="handle_stock_change"

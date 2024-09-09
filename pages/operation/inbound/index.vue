@@ -14,7 +14,7 @@
                         <uni-data-picker v-model="inbound_task_form.batch_no" :localdata="batch_no_opts"></uni-data-picker>
                     </uni-forms-item>
                     <uni-forms-item label="单据编号" name="bill_no">
-                        <uni-easyinput v-model="inbound_task_form.bill_no" />
+                        <uni-easyinput v-model="inbound_task_form.bill_no" trim="both" />
                     </uni-forms-item>
                 </uni-forms>
             </view>
@@ -221,9 +221,6 @@
                 this.cur_inbound_task= {}
                 console.log('结束入库任务')
             }
-            // continue_inbound_task() {
-            //     store.commit('set_cur_inbound_task', this.cur_inbound_task)
-            // }
         }
     }
 </script>

@@ -24,11 +24,11 @@ const get_c_stock_locs = async (f_stock_id) => {
  * @param loc_no:String 库位号
  * @return {Hash} Promise { status: -1/0/1/, msg: '网络异常/不存在/已存在', data: [] }
  */
-const exist_c_stock_locs = async (f_stock_id, loc_nos) => {
+const exist_c_stock_locs = async (loc_nos) => {
     const data = {
         FormId: "PAEZ_C_STOCK_LOC",
         FilterString: [
-            { Left: "", FieldName: "FStockId", Compare: "67", Value: f_stock_id, Right: "", Logic: 0 },
+            // { Left: "", FieldName: "FStockId", Compare: "67", Value: f_stock_id, Right: "", Logic: 0 },
             { Left: "", FieldName: "FNumber", Compare: "338", Value: loc_nos.join(','), Right: "", Logic: 0 }
         ]
     }

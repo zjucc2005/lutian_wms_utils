@@ -50,9 +50,9 @@ const describe_inv_log = (inv_log) => {
         out_cl: '取消下架'
     }
     let list = [
-        `${op_type_dict[inv_log.FOpType]} ${inv_log.FOpQTY} ${inv_log['FStockUnitId.FName']}`,
-        `${inv_log['FMaterialId.FNumber']} / ${inv_log['FMaterialId.FName']}`,
-        `库位 ${inv_log['FStockLocId.FNumber']}`
+        `${op_type_dict[inv_log.FOpType]} ${inv_log.FOpQTY} ${inv_log['FStockUnitId.FName']} ${inv_log['FMaterialId.FNumber']}`,
+        `${inv_log['FMaterialId.FName']}, ${inv_log['FMaterialId.FSpecification']}`,
+        `库位 ${inv_log['FStockLocId.FNumber']} , 批次 ${inv_log.FBatchNo}`
     ]
     return list.join("\n")
 }

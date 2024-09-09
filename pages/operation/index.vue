@@ -1,13 +1,13 @@
 <template>
     <view>
         <uni-grid :column="2" :highlight="true">
-            <uni-grid-item @click="goTo('inbound')">
+            <uni-grid-item @click="goTo('inbound/index')">
                 <view class="grid-item-box">
                     <uni-icons type="download" class="inbound-icon" :size="80" color="#dd524d" />
                     <text class="text">入库</text>
                 </view>
             </uni-grid-item>
-            <uni-grid-item @click="goTo('outbound')">
+            <uni-grid-item @click="goTo('outbound/index')">
                 <view class="grid-item-box">
                     <uni-icons type="upload" class="outbound-icon" :size="80" color="#007aff" />
                     <text class="text">出库</text>
@@ -19,7 +19,7 @@
                     <text class="text">移库</text>
                 </view>
             </uni-grid-item>
-            <uni-grid-item @click="goTo('manage')">
+            <uni-grid-item @click="goTo('manage/index')">
                 <view class="grid-item-box">
                     <uni-icons type="gear" :size="80" color="#999" />
                     <text class="text">仓库管理</text>
@@ -39,7 +39,7 @@
         methods: {
             goTo(path) {
                 uni.navigateTo({
-                    url: `/pages/operation/${path}/index`
+                    url: `/pages/operation/${path}`
                 })
             }
         }

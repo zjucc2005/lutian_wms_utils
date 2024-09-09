@@ -50,7 +50,7 @@ const get_bd_stocks = async () => {
 const get_bd_material = async (material_no, use_org_id) => {
     const data = {
         FormId: 'BD_MATERIAL',
-        FieldKeys: 'FMaterialId,FName,FNumber,FForbidStatus,FDocumentStatus,FBaseUnitId,FBaseUnitId.FNumber,FBaseUnitId.FName,FMaterialGroup.FName,FUseOrgId,FUseOrgId.FName',
+        FieldKeys: 'FMaterialId,FName,FNumber,FSpecification,FForbidStatus,FDocumentStatus,FBaseUnitId,FBaseUnitId.FNumber,FBaseUnitId.FName,FMaterialGroup.FName,FUseOrgId,FUseOrgId.FName',
         FilterString: [
             { Left: "", FieldName: "FNumber", Compare: "67", Value: material_no, Right: "", Logic: 0 },
             { Left: "", FieldName: "FUseOrgId", Compare: "67", Value: use_org_id, Right: "", Logic: 0 }
@@ -81,9 +81,21 @@ const get_bd_material = async (material_no, use_org_id) => {
 //     })
 // }
 
+/** 
+ * 获取发货通知单详情
+ * @param bill_no:String 单据编号
+ * @return {Hash} Promise
+ */
+const get_sal_deliverynotice = async (bill_no) => {
+    return K3CloudApi.view('SAL_DELIVERYNOTICE', { Number: bill_no }).then(res => {
+        return Promise.resolve(res)
+    })
+}
+
 export {
     validate_staff,
     get_bd_stocks,
-    get_bd_material
+    get_bd_material,
+    get_sal_deliverynotice
     // get_bd_units,
 }
