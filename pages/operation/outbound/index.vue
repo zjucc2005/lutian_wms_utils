@@ -15,7 +15,7 @@
             </view>
         </uni-section>
         
-        <uni-section v-if="outbound_task_form.outbound_list?.length" title="待出库信息" type="circle">
+        <uni-section v-if="outbound_task_form.outbound_list?.length" title="出库物料信息" type="circle">
             <uni-list>
                 <uni-list-item
                     v-for="(obj, index) in outbound_task_form.outbound_list"
@@ -78,24 +78,24 @@
                 outbound_task_form_rules: {
                     bill_no: {
                         rules: [
-                            { required: true, errorMessage: '单据编号不能为空' }
+                            { required: true, errorMessage: '单据编号不能为空' },
+                            { minLength: 8, errorMessage: '单据编号不能小于8位' }
                         ]
                     }
                 },
-                // batch_no_opts: [],
                 goods_nav: {
                     options: [
-                        { icon: 'scan', text: '扫码' }
+                        { icon: 'search', text: '查询' }
                     ],
                     button_group: [
                         {
-                            text: '查询单据编号',
-                            backgroundColor: 'linear-gradient(90deg, #999, #606266)',
+                            text: '扫码',
+                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
                             color: '#fff'
                         },
                         {
                             text: '新建出库任务',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
                             color: '#fff'
                         }
                     ],
@@ -110,7 +110,7 @@
                         },
                         {
                             text: '继续出库任务',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
                             color: '#fff'
                         }
                     ]
@@ -119,51 +119,34 @@
         },
         onShow() {
             this.cur_outbound_task = OutboundTask.current() || {} //读取当前出库任务
+            if (this.cur_outbound_task.f_stock_id && this.cur_outbound_task.f_stock_id != store.state.cur_stock.FStockId) {
+                uni.showModal({
+                    title: "注意",
+                    content: "本机中有其他仓库的出库任务，不能操作，将终止此出库任务",
+                    showCancel: false,
+                    success: (res) => {
+                        if (res.confirm) this.finish_outbound_task()
+                    }
+                })
+            }
         },
         methods: {
-            // 新增出库任务 goods_nav
+            // >>> component
             goods_nav_click(e) {
-                if (e.index === 0) this.scan_code() // btn:扫码                                                         
+                if (e.index === 0) this.get_outbound_list_by_bill_no() // btn:查询
             },
-            goods_nav_button_click(e) {               
-                if (e.index === 0) {
-                    if (this.outbound_task_form.bill_no) {
-                        this.get_outbound_list_by_bill_no()
-                    } else {
-                        uni.showToast({ icon: 'error', title: '未输入单据编号' })
-                    }
-                } else if (e.index === 1) {                  
-                    this.$refs.outbound_task_form.validate().then(e => {                            
-                        this.create_outbound_task()
-                        uni.navigateTo({ url: '/pages/operation/outbound/allocate' })                    
-                    }).catch(err => { console.log('err', err) })
-                }
+            goods_nav_button_click(e) {
+                if (e.index === 0) this.scan_code() // btn:扫码
+                if (e.index === 1) this.create_outbound_task() // btn:新建出库任务
             },
-            // 继续出库任务 goods_nav
             goods_nav_click_2(e) {
-                console.log('click e:', e)
-                console.log('data:', this.$data)
-                uni.navigateTo({
-                    url: './task'
-                })
+                if (e.index === 0) uni.navigateTo({ url: '/pages/operation/outbound/task' })
             },
             goods_nav_button_click_2(e) {
-                if (e.index === 0) {
-                    uni.showActionSheet({
-                        title: '',
-                        itemList: ['结束出库任务'],
-                        popover: {},
-                        success: (e) => {
-                            if (e.tapIndex === 0) this.finish_outbound_task()
-                        }
-                    })
-                } else if (e.index === 1) {         
-                    // this.continue_inbound_task() // 继续出库任务
-                    uni.navigateTo({
-                        url: '/pages/operation/outbound/allocate'
-                    })
-                }
+                if (e.index === 0) this.if_finish_outbound_task()
+                if (e.index === 1) uni.navigateTo({ url: '/pages/operation/outbound/allocate' })
             },
+            // >>> action
             handle_bill_no_change() {
                 this.get_outbound_list_by_bill_no()
             },
@@ -181,6 +164,7 @@
             },
             get_outbound_list_by_bill_no() {
                 const bill_no = this.outbound_task_form.bill_no
+                if (!bill_no) return
                 if (bill_no.startsWith('FHTZD')) {
                     // 发货通知单
                     uni.showLoading({ title: 'Loading' })
@@ -188,6 +172,8 @@
                         this.handle_fhtzd_data(res)
                         uni.hideLoading()
                     })
+                } else {
+                    uni.showToast({ icon: 'error', title: '未找到单据信息' })
                 }
             },
             handle_fhtzd_data(response) { 
@@ -206,27 +192,38 @@
                     })
                     this.outbound_task_form.outbound_list = outbound_list
                     // console.log('sale info:', data.SAL_DELIVERYNOTICEENTRY)
-                    // console.log('$data:', this.$data)
                 } else {
                     uni.showToast({ icon: 'error', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
                 }
             },
             create_outbound_task() {
-                const options = {
-                    f_stock_id: store.state.cur_stock.FStockId,
-                    staff_no: store.state.cur_staff.FNumber,
-                    bill_no: this.outbound_task_form.bill_no,
-                    outbound_list: this.outbound_task_form.outbound_list
-                }
-                console.log('create_outbound_task options:', options)
-                let outbound_task = new OutboundTask(options)
-                outbound_task.save()
-                this.cur_outbound_task = outbound_task  // 赋值cur_outbound_task，解决VUE设置空值对象时console报错
-                console.log('新建出库任务', outbound_task)
+                this.$refs.outbound_task_form.validate().then(e => {
+                    const options = {
+                        f_stock_id: store.state.cur_stock.FStockId,
+                        staff_no: store.state.cur_staff.FNumber,
+                        bill_no: this.outbound_task_form.bill_no,
+                        outbound_list: this.outbound_task_form.outbound_list
+                    }
+                    console.log('create_outbound_task options:', options)
+                    let outbound_task = new OutboundTask(options)
+                    outbound_task.save()
+                    this.cur_outbound_task = outbound_task // 赋值cur_outbound_task，解决VUE设置空值对象时console报错
+                    // console.log('新建出库任务', outbound_task)
+                    uni.navigateTo({ url: '/pages/operation/outbound/allocate' })                    
+                }).catch(err => { console.log('validate err', err) })                
+            },
+            if_finish_outbound_task() {
+                uni.showActionSheet({
+                    itemList: ['结束出库任务'],
+                    success: (e) => {
+                        if (e.tapIndex === 0) this.finish_outbound_task()
+                    }
+                })
             },
             finish_outbound_task() {
                 OutboundTask.destroy_all()
                 this.cur_outbound_task= {}
+                this.outbound_task_form = { bill_no: '', outbound_list: [] }
                 console.log('结束出库任务')
             }
         }

@@ -23,7 +23,7 @@
                     :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
                 >
                     <template v-slot:header>
-                        <view style="display: flex; align-items: center;">
+                        <view class="uni-list-item-header">
                             <checkbox :value="inv.FID.toString()" :checked="inv.checked" :disabled="inv.disabled" />
                         </view>
                     </template>
@@ -44,7 +44,7 @@
                     :rightText="`已下架 ${[inv_log.FOpQTY, inv_log['FStockUnitId.FName']].join(' ')}` "
                 >
                     <template v-slot:header>
-                        <view style="display: flex; align-items: center;">
+                        <view class="uni-list-item-header">
                             <checkbox :value="inv_log.FID.toString()" :checked="true" :disabled="true" />
                         </view>
                     </template>
@@ -76,7 +76,6 @@
                 cur_outbound_task: {},
                 invs: [], // 加载库存信息，预览自动分配的待下架信息
                 inv_logs: [], // 加载库存变更日志，获取已下架信息
-                a: 0,
                 goods_nav: {
                     options: [
                         { icon: 'more-filled', text: '更多' }
@@ -84,12 +83,12 @@
                     button_group: [
                         {
                             text: '自动分配',
-                            backgroundColor: 'linear-gradient(90deg, #999, #606266)',
+                            backgroundColor: 'linear-gradient(90deg, #FFCD1E, #FF8A18)',
                             color: '#fff'
                         },
                         {
-                            text: '确认下架',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                            text: '批量下架',
+                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
                             color: '#fff'
                         }
                     ]
@@ -97,59 +96,46 @@
             }
         },
         mounted() {
-            this.cur_stock = store.state.cur_stock // 加载当前仓库
-            this.cur_staff = store.state.cur_staff // 加载当前员工
-            this.cur_outbound_task = uni.getStorageSync('cur_outbound_task')
+            this.cur_stock = store.state.cur_stock
+            this.cur_staff = store.state.cur_staff
+            this.cur_outbound_task = uni.getStorageSync('cur_outbound_task')  
             this.load_invs()
-            this.load_inv_logs()
-            console.log('mounted:', this.$data)
+            console.log('onShow:', this.$data)
+        },
+        onShow() {
+            
         },
         methods: {
-            // component 相关
+            // >>> component
             goods_nav_click(e) {
-                if (e.index === 0) {
-                    this.more_actions() // btn:更多     
-                }                         
+                if (e.index === 0) this.more_actions() // btn:更多
             },
             goods_nav_button_click(e) {
-                if (e.index === 0) {
-                    this.auto_allocate_confirm() // btn:自动分配
-                } else if (e.index === 1) {
-                    this.batch_submit_confirm() // btn:确认下架
-                }
+                if (e.index === 0) this.if_auto_allocate() // btn:自动分配
+                if (e.index === 1) this.if_submit_batch_unmount() // btn:批量下架
             },
             // action 相关
             more_actions() {
                 uni.showActionSheet({
-                    title: '',
-                    itemList: ['扫描下架', '出库任务', '操作日志', 'debug'],
-                    popover: {},
+                    itemList: ['扫描下架', '出库详情', '操作日志'],
                     success: (e) => {
                         console.log('showActionSheet e:', e)
-                        if (e.tapIndex === 0) {
-                            uni.navigateTo({ url: './unmount' })
-                        } else if (e.tapIndex === 1) {
-                            uni.navigateTo({ url: './task' })
-                        } else if (e.tapIndex === 2) {
-                            uni.navigateTo({ url: './logs' })
-                        } else if (e.tapIndex === 3) {
-                            console.log('this.$data:', this.$data)
-                        }
+                        if (e.tapIndex === 0) uni.navigateTo({ url: '/pages/operation/outbound/unmount' })
+                        if (e.tapIndex === 1) uni.navigateTo({ url: '/pages/operation/outbound/task' })
+                        if (e.tapIndex === 2) uni.navigateTo({ url: '/pages/operation/outbound/logs' })
                     }
                 })
             },
-            auto_allocate_confirm() {
+            if_auto_allocate() {
                 if (this.invs.some(inv => inv.checked)) {
                     uni.showModal({
                         title: "自动分配注意事项",
                         content: "当前已有库存分配信息，开始自动分配后，将会清除之前的分配并产生新的分配，自动分配遵循先入先出原则",
-                        confirmText: "确定",
-                        cancelText: "取消",
                         success: (res) => {
                             if (res.confirm) this.auto_allocate()
                         },
                         fail: (err) => {
-                            console.log('uni.showModal call fail:', err)
+                            console.log('if_auto_allocate fail:', err)
                         }
                     })
                 } else {
@@ -180,25 +166,23 @@
                     obj.checked_qty = sum_checked_qty
                 })
             },
-            batch_submit_confirm() {
+            if_submit_batch_unmount() {
                 if (this.invs.some(inv => inv.checked)) {
                     uni.showModal({
                         title: "确认下架注意事项",
                         content: '请仔细核对下架信息，确认下架操作后，将会批量扣减库存。',
-                        confirmText: "确定",
-                        cancelText: "取消",
                         success: (res) => {
-                            if (res.confirm) this.batch_submit()
+                            if (res.confirm) this.submit_batch_unmount()
                         },
                         fail: (err) => {
-                            console.log('uni.showModal call fail:', err)
+                            console.log('if_submit_batch_unmount fail:', err)
                         }
                     })
                 } else {
                     uni.showToast({ title: '未勾选任何库存' })
                 }                
             },
-            batch_submit() {
+            submit_batch_unmount() {
                 uni.showLoading({ title: 'Loading' })
                 let inv_logs = []
                 this.invs.filter(inv => inv.checked).forEach(inv => {
@@ -272,6 +256,7 @@
                 const meta = { order: 'FBatchNo ASC, FStockLocId.FNumber ASC' }
                 Inv.query(options, meta).then(res => {
                     this.invs = res.data
+                    this.load_inv_logs()
                 })
             },
             // InvLog 相关
@@ -302,7 +287,7 @@
             filter_invs(material_no) {
                 return this.invs.filter(x => x['FMaterialId.FNumber'] == material_no)
             },
-            filter_inv_logs (material_no) {
+            filter_inv_logs(material_no) {
                 return this.inv_logs.filter(x => x['FMaterialId.FNumber'] == material_no && x.FOpType == 'out' && !x.status )
             }
         }
@@ -313,6 +298,11 @@
     .uni-section-right-text {
         color: #999;
         font-size: 12px;
+    }
+    .uni-list-item-header {
+        display: flex; 
+        align-items: center;
+        margin-right: 6px;
     }
     .uni-list-item-footer {
         display: flex;

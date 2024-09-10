@@ -3,28 +3,28 @@
         <uni-grid :column="2" :highlight="true">
             <uni-grid-item @click="goTo('inbound/index')">
                 <view class="grid-item-box">
-                    <uni-icons type="download" class="inbound-icon" :size="80" color="#dd524d" />
-                    <text class="text">入库</text>
+                    <image src="/static/icon/inbound.png" mode="widthFix" class="grid-item-icon"></image>
+                    <text class="grid-item-text">入库</text>
                 </view>
             </uni-grid-item>
             <uni-grid-item @click="goTo('outbound/index')">
                 <view class="grid-item-box">
-                    <uni-icons type="upload" class="outbound-icon" :size="80" color="#007aff" />
-                    <text class="text">出库</text>
+                    <image src="/static/icon/outbound.png" mode="widthFix" class="grid-item-icon"></image>
+                    <text class="grid-item-text">出库</text>
                 </view>
             </uni-grid-item>
             <uni-grid-item>
                 <view class="grid-item-box">
-                    <uni-icons type="compose" :size="80" color="#777" />
-                    <text class="text">移库</text>
+                    <image src="/static/icon/move.png" mode="widthFix" class="grid-item-icon"></image>
+                    <text class="grid-item-text">移库</text>
                 </view>
             </uni-grid-item>
             <uni-grid-item @click="goTo('manage/index')">
                 <view class="grid-item-box">
-                    <uni-icons type="gear" :size="80" color="#999" />
-                    <text class="text">仓库管理</text>
+                    <image src="/static/icon/gear.png" mode="widthFix" class="grid-item-icon"></image>
+                    <text class="grid-item-text">仓库管理</text>
                 </view>
-            </uni-grid-item>          
+            </uni-grid-item>
         </uni-grid>
     </view>
 </template>
@@ -38,9 +38,7 @@
         },
         methods: {
             goTo(path) {
-                uni.navigateTo({
-                    url: `/pages/operation/${path}`
-                })
+                uni.navigateTo({ url: `/pages/operation/${path}` })
             }
         }
     }
@@ -57,13 +55,14 @@
         justify-content: center;
         padding: 15px 0;
     }
-    .text {
+    .grid-item-text {
         font-size: 16px;
+        color: #666;
+        font-weight: bold;
+        margin-top: 6px;
+        
     }
-    .inbound-icon {
-        transform: rotate(90deg);
-    }
-    .outbound-icon {
-        transform: rotate(90deg);
+    .grid-item-icon {
+        width: 80px;
     }
 </style>

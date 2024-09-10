@@ -12,7 +12,6 @@ class InboundTask {
         this.batch_no = options.batch_no               // 批次号
         this.bill_no = options.bill_no                 // 单据编号
         this.inbound_list = options.inbound_list || [] // 入库总览，物料清单
-        this.inbound_operation = []                    // 入库操作
     }
     
     static current() { return uni.getStorageSync('cur_inbound_task') }

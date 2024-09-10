@@ -2,7 +2,7 @@
     <view>
         <uni-section
             title="下架" type="line"
-            :sub-title="unmount_form.material_name ? [unmount_form.material_name, unmount_form.material_spec].join('\n') : ''">
+            :sub-title="unmount_form.material_name ? [unmount_form.material_name, unmount_form.material_spec].join('\n') : ['-', '-'].join('\n')">
             <view class="container">
                 <uni-forms ref="unmount_form" :model="unmount_form" :rules="unmount_form_rules" labelWidth="80px">
                     <uni-forms-item label="物料编号" name="material_no">
@@ -181,12 +181,12 @@
                     button_group: [
                         {
                             text: '扫码',
-                            backgroundColor: 'linear-gradient(90deg, #999, #606266)',
+                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
                             color: '#fff'
                         },
                         {
                             text: '提交下架',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
                             color: '#fff'
                         }
                     ]
@@ -220,23 +220,37 @@
             },
             swipe_action_click(e, inv_log_id) {
                 console.log('swipe_action_click e:', e, inv_log_id)
-               if (e.index === 0) this.cancel_unmount(inv_log_id) // 取消操作
+                if (e.index === 0) this.cancel_unmount(inv_log_id) // 取消操作
             },
             // >>> action
             more_actions(){
                 uni.showActionSheet({
-                    title: '',
-                    itemList: ['入库任务', '操作日志', 'debug'],
+                    itemList: ['出库详情', '操作日志'],
                     success: (e) => {
-                        // console.log('showActionSheet e:', e)
-                        if (e.tapIndex === 0) uni.navigateTo({ url: './task' })
-                        if (e.tapIndex === 1) uni.navigateTo({ url: './logs' })
-                        if (e.tapIndex === 2) console.log('data:', this.$data)
+                        if (e.tapIndex === 0) uni.navigateTo({ url: '/pages/operation/outbound/task' })
+                        if (e.tapIndex === 1) uni.navigateTo({ url: '/pages/operation/outbound/logs' })
                     }
                 })
             },
-            scan_code() {
-                
+            scan_code() {                
+                uni.scanCode({
+                    success: (res) => {
+                         console.log("uni.scanCode res:", res)
+                        if (is_material_no_format(res.result)) {
+                            this.unmount_form.material_no = res.result
+                            this.handle_material_no_change()
+                        } else if (is_loc_no_std_format(res.result)) {
+                            this.unmount_form.loc_no = res.result
+                        } else {
+                            if(!this.unmount_form.material_no) {
+                                this.unmount_form.material_no = res.result
+                                this.handle_material_no_change()
+                            } else if (!this.unmount_form.loc_no) {
+                                this.unmount_form.loc_no = res.result
+                            }
+                        }
+                    }
+                })
             },
             submit_unmount() {
                 this.$refs.unmount_form.validate().then(e => {
@@ -358,6 +372,7 @@
                     if (refer_inv_log) refer_inv_log.status = '已取消'
                 }
                 this.inv_logs.unshift(c_inv_log)
+                if (this.inv_logs.length > 5) this.inv_logs = this.inv_logs.slice(0, 5)  // 保留有限条最新日志
             },
             auto_allocate() {
                 // 自动分配下架库存，根据批次号先入先出

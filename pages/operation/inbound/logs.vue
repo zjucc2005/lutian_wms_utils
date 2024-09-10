@@ -26,7 +26,7 @@
 <script>
     import store from '@/store'
     import InvLog from '@/utils/model/inv_log'
-    import { describe_inv_log } from '@/utils';
+    import { describe_inv_log } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     export default {
         data() {
@@ -46,8 +46,8 @@
             }
         },
         mounted() {
-            this.cur_stock = store.state.cur_stock // 加载当前仓库
-            this.cur_staff = store.state.cur_staff // 加载当前员工
+            this.cur_stock = store.state.cur_stock
+            this.cur_staff = store.state.cur_staff
             this.cur_inbound_task = uni.getStorageSync('cur_inbound_task')
             this.load_inv_logs()
         },
@@ -62,11 +62,9 @@
                 })
             },
             swipe_action_click(e, inv_log_id) {
-               if (e.index === 0) {
-                   this.cancel(inv_log_id) // 取消
-               }
+               if (e.index === 0) this.submit_cancel(inv_log_id) // 取消
             },
-            cancel(inv_log_id) {
+            submit_cancel(inv_log_id) {
                 let inv_log = this.inv_logs.find(x => x.FID === inv_log_id)
                 if (inv_log.FOpType == 'in' && !inv_log.status) {
                     let inv_log = new InvLog({

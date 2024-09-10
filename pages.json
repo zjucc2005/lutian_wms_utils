@@ -62,7 +62,7 @@
         },
         {
             "path": "pages/operation/inbound/task",
-            "style": { "navigationBarTitleText": "入库 - 任务" }
+            "style": { "navigationBarTitleText": "入库 - 详情" }
         },
         {
             "path": "pages/operation/inbound/mount",
@@ -75,6 +75,10 @@
         {
             "path": "pages/operation/outbound/index",
             "style": { "navigationBarTitleText": "出库"}
+        },
+        {
+            "path": "pages/operation/outbound/task",
+            "style": { "navigationBarTitleText": "出库 - 详情" }
         },
         {
             "path": "pages/operation/outbound/allocate",
@@ -104,7 +108,6 @@
             "path": "pages/my/index",
             "style":  { "navigationBarTitleText": "我"}
         }
-        
     ],
     "globalStyle": {
         "navigationBarTextStyle": "black",
@@ -123,7 +126,7 @@
         "list": [
             {
                 "pagePath": "pages/login",
-                "text": "启动页",
+                "text": "登录页",
                 "iconfont": {
                     "text": "\ue65d",
                     "color": "#7A7E83",
