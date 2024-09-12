@@ -173,7 +173,7 @@
                         uni.hideLoading()
                     })
                 } else {
-                    uni.showToast({ icon: 'error', title: '未找到单据信息' })
+                    uni.showToast({ icon: 'none', title: '未找到单据信息' })
                 }
             },
             handle_fhtzd_data(response) { 
@@ -193,7 +193,7 @@
                     this.outbound_task_form.outbound_list = outbound_list
                     // console.log('sale info:', data.SAL_DELIVERYNOTICEENTRY)
                 } else {
-                    uni.showToast({ icon: 'error', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
+                    uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
                 }
             },
             create_outbound_task() {

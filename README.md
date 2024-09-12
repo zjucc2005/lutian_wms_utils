@@ -1,2 +1,5 @@
-# WMS APP with Kingdee API
-Developer: Cai Chang
+# WMS APP using Kingdee API
+## 
+### 
+#### 
+###### Author: Cai Chang

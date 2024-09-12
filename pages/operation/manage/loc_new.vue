@@ -116,10 +116,7 @@
                 console.log('goods_nav_button_click e:', e)
                 if (e.index === 0) {
                     if (this.loc_nos.length === 0) {
-                        uni.showToast({
-                            icon: 'error',
-                            title: '没有新增库位'
-                        })
+                        uni.showToast({ icon: 'none', title: '没有新增库位' })
                         return
                     }
                     let loc_nos = this.loc_nos.map(x => x.value)
@@ -139,12 +136,12 @@
                                 this.loc_nos = []
                             })
                         } else if (res.status === 1) {                            
-                            uni.showToast({ icon: 'error', title: res.msg })
+                            uni.showToast({ icon: 'none', title: res.msg })
                             this.loc_nos.forEach(x => {
                                 if (res.data.indexOf(x.value) > -1) x.status = '已存在' // 库位号已存在，给出提示
                             })
                         } else if (res.status === -1) {
-                            uni.showToast({ icon: 'error', title: res.msg })
+                            uni.showToast({ icon: 'none', title: res.msg })
                         }
                     })                  
                 }
@@ -155,9 +152,9 @@
                         // console.log("uni.scanCode res:", res)                       
                         let text = res.result.trim() // 字符串trim，字符数大于4
                         if (text.length < 4) {
-                            uni.showToast({ icon: 'error', title: '长度需大于4位' })
+                            uni.showToast({ icon: 'none', title: '长度需大于4位' })
                         } else if (this.loc_nos.indexOf(text) > -1) {
-                            uni.showToast({ icon: 'error', title: '重复扫码' })
+                            uni.showToast({ icon: 'none', title: '重复扫码' })
                         } else {
                             this.loc_nos.push({ value: text, status: '' })
                         }

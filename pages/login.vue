@@ -24,9 +24,10 @@
     </view>
 </template>
 
-<script>
-    import { validate_staff, get_bd_stocks } from '@/utils/api'
+<script> 
     import store from '@/store'
+    import { validate_staff, get_bd_stocks } from '@/utils/api'
+    import { StockLoc } from '@/utils/model'
     export default {
         data() {
             return {
@@ -110,18 +111,24 @@
             handle_stock_change(e) {
                 this.login_form.org_id = e.detail.value[0]?.value
             },
-            submit_login(ref) {
+            submit_login() {
                 this.$refs.login_form.validate().then(e => {
                     const store_data = {
                         stock: this.bd_stocks.find(d => d.FStockId === this.login_form.stock_id),
                         staff: this.staff
                     }
                     store.commit('staff_login', store_data)
+                    this.after_login()
                     uni.showToast({ title: '登录成功' })
                     uni.reLaunch({ url: '/pages/operation/index' })                  
                 }).catch(err => {
                     uni.hideLoading()
                     console.log('submit_login err:', err);
+                })
+            },
+            after_login() {
+                StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
+                    store.commit('set_stock_locs', res.data)
                 })
             }
         }

@@ -19,7 +19,7 @@
                 })
                 this.init_system_info()
             },
-            init_system_info () {
+            init_system_info() {
                 uni.getSystemInfo({
                     success: (res) => { store.commit('set_system_info', res) }
                 })

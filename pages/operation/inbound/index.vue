@@ -138,7 +138,7 @@
                         console.log(e.content.text, this.inbound_task_form.bill_no)
                         this.get_inbound_list_by_bill_no() // icon:查询
                     } else {
-                        uni.showToast({ icon: 'error', title: '请输入单据编号' })
+                        uni.showToast({ icon: 'none', title: '请输入单据编号' })
                     }
                 }                                                        
             },

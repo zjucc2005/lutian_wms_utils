@@ -5,8 +5,15 @@
             :key="index"
             :title="obj.material_no"
             :sub-title="[obj.material_name, obj.material_spec].join('\n')"
-            type="square"
+            
         >
+            <template v-slot:decoration>
+                <uni-icons
+                    @click="search_invs(obj.material_no)"
+                    type="search" size="30" color="#007aff"
+                    class="uni-section-icon"
+                />
+            </template>
             <template v-slot:right>
                 <view class="uni-section-right-text">
                     <text v-if="obj.unmounted_qty || obj.checked_qty">{{ obj.unmounted_qty + obj.checked_qty }} /</text>
@@ -35,7 +42,6 @@
                     </template>
                 </uni-list-item>
                 </checkbox-group>
-            </uni-list>
                 <uni-list-item
                     v-for="(inv_log, index) in filter_inv_logs(obj.material_no)"
                     :key="index"
@@ -49,8 +55,6 @@
                         </view>
                     </template>
                 </uni-list-item>
-            <uni-list>
-                
             </uni-list>
         </uni-section>
         
@@ -259,6 +263,9 @@
                     this.load_inv_logs()
                 })
             },
+            search_invs(material_no) {
+                uni.navigateTo({ url: '/pages/operation/manage/inv_search?t=' + material_no })
+            },
             // InvLog 相关
             load_inv_logs() {
                 InvLog.query(
@@ -295,6 +302,9 @@
 </script>
 
 <style lang="scss">
+    .uni-section-icon {
+        margin-right: 10px;
+    }
     .uni-section-right-text {
         color: #999;
         font-size: 12px;

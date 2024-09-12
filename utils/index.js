@@ -114,7 +114,7 @@ const parse_stock_locs = (stock_locs=[]) => {
                     grid.index = index
                     grid.name = name
                 } else {
-                    grid = { x, y, page, index, name, status: '', style: 'default' }
+                    grid = { x, y, page, index, name, status: '', style: x > shelf.bound.x ? 'none' : 'default' }
                     shelf.grids.push(grid)
                 }
             }
@@ -156,7 +156,6 @@ const parse_stock_locs_with_invs = (stock_locs=[], invs=[]) => {
         if (shelf) {
             shelf.disabled = false
             let grid = shelf.grids.find(g => g.no == inv['FStockLocId.FNumber'])
-            console.log('find grid:', grid)
             grid.style = 'error'
             grid.qty += inv.FQty
         }
@@ -173,9 +172,9 @@ const parse_stock_locs_with_invs = (stock_locs=[], invs=[]) => {
                     grid.page = page
                     grid.index = index
                     grid.name = name
-                    // grid.no = no
+                    grid.no = no
                 } else {
-                    grid = { x, y, page, index, name, no, qty: 0, status: '', style: 'default' }
+                    grid = { x, y, page, index, name, no, qty: 0, status: '', style: x > shelf.bound.x ? 'none' : 'default' }
                     shelf.grids.push(grid)
                 }
             }
@@ -204,7 +203,7 @@ const get_swiper_pages = (shelf) => {
 }
 
 const get_swiper_height = (shelf) => {
-    let screen_width = store.state.system_info.screenWidth // 获取屏幕宽度
+    let screen_width = store.state.system_info.windowWidth // 获取屏幕宽度
     return Math.ceil(screen_width / 10 * (shelf.bound.y + 0.7)) // swiper高度不会被内容撑开，需指定swiper高度
 }
 

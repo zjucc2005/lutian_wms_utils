@@ -105,7 +105,7 @@
                                                 }
                                                 return bd_material
                                             } else {
-                                                return callback('不存在此物料编码')
+                                                return callback(`[${this.cur_stock['FUseOrgId.FName']}]不存在此物料编码`)
                                             }
                                         })
                                     } else {

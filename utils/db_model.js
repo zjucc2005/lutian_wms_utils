@@ -404,6 +404,7 @@
             FMaterialId: "物料ID",
             'FMaterialId.FNumber': "物料编码",
             'FMaterialId.FName': "物料名称",
+            'FMaterialId.FSpecification': '规格型号',
             FQty: "数量",
             FStockUnitId: "计量单位ID",
             'FStockUnitId.FName': '计量单位',
