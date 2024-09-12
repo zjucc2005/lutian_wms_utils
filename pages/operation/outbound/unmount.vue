@@ -62,8 +62,7 @@
 <script>
     import store from '@/store';
     import { get_bd_material } from '@/utils/api';
-    import { get_c_stock_locs } from '@/utils/api/c_stock_loc';
-    import { Inv, InvLog } from '@/utils/model';
+    import { Inv, InvLog, StockLoc } from '@/utils/model';
     import { is_material_no_format, is_loc_no_std_format, is_decimal_unit, describe_inv_log } from '@/utils';
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     export default {
@@ -148,7 +147,7 @@
                                     if (!this.unmount_form.decimal_unit && !Number.isInteger(value)) {        
                                         return callback('下架数量必须为整数')
                                     }
-                                    return Inv.query({ 
+                                    return Inv.query({
                                         FStockId: this.cur_stock.FStockId,
                                         'FMaterialId.FNumber': this.unmount_form.material_no,
                                         'FStockLocId.FNumber': this.unmount_form.loc_no, 
@@ -202,7 +201,7 @@
                 { page: 1, per_page: 5, order: 'FCreateTime DESC' }).then(res => {
                 res.data.reverse().forEach(log => this.unshift_inv_log(log))
             })
-            get_c_stock_locs(this.cur_stock.FStockId).then(res => {
+            StockLoc.query({ FStockId: this.cur_stock.FStockId }).then(res => {
                 this.stock_locs = res.data // 加载当前仓库的库位数据
             })
         },

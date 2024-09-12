@@ -25,7 +25,7 @@ class Inv {
      *   @field order:String
      * @return {Hash} Promise
      */
-    static query(options, meta={}) {
+    static query(options={}, meta={}) {
         const data = {
             FormId: "PAEZ_C_INV",
             FilterString: []
@@ -56,15 +56,11 @@ class Inv {
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
         }
         if (meta.order) data.OrderString = meta.order
-        return K3CloudApi.bill_query(data).then(res => {
-            return Promise.resolve(res)
-        })
+        return K3CloudApi.bill_query(data)
     }
     
     static find(id) {
-        return this.query({ FID: id }, { limit: 1 }).then( res => {
-            return Promise.resolve(res)
-        })
+        return this.query({ FID: id }, { limit: 1 })
     }
 }
 

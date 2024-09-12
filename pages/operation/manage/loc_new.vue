@@ -50,13 +50,14 @@
 
 <script>
     import store from '@/store'
-    import { post_c_stock_locs, exist_c_stock_locs } from '@/utils/api/c_stock_loc'
+    import { StockLoc } from '@/utils/model'
     export default {
         data() {
             return {
                 cur_stock: {},
                 loc_nos: [
-                    { value: 'T-B01-101', status: '' }
+                    { value: 'T-B01-011', status: '' },
+                    { value: 'T-B01-022', status: '' },
                 ],
                 loc_form: {
                     loc_nos: [
@@ -122,61 +123,43 @@
                         return
                     }
                     let loc_nos = this.loc_nos.map(x => x.value)
-                    exist_c_stock_locs(loc_nos).then(res => {
+                    // StockLoc.exist_loc_nos(loc_nos)
+                    StockLoc.exist_loc_nos(loc_nos).then(res => {
                         console.log('exist res', res)
                         if (res.status === 0) {                            
-                            const model = this.loc_nos.map(loc_no => {
-                                return {
-                                    FName: loc_no.value,
-                                    FNumber: loc_no.value,
-                                    FStockId: {
-                                        FStockId: this.cur_stock.FStockId
-                                    }  
-                                }
-                            })
-                            post_c_stock_locs(model).then(res => {
-                                uni.showToast({
-                                    title: '保存成功'
+                            const stock_locs = this.loc_nos.map(loc_no => {
+                                return new StockLoc({
+                                    FStockId: this.cur_stock.FStockId,
+                                    FNumber: loc_no.value
                                 })
+                            })
+                            StockLoc.batch_save(stock_locs).then(res => {
+                                console.log('res:', res)
+                                uni.showToast({ title: '保存成功' })
                                 this.loc_nos = []
                             })
                         } else if (res.status === 1) {                            
-                            uni.showToast({
-                                icon: 'error',
-                                title: res.msg
-                            })
+                            uni.showToast({ icon: 'error', title: res.msg })
                             this.loc_nos.forEach(x => {
-                                if (res.data.indexOf(x.value) > -1) {
-                                    x.status = '已存在' // 库位号已存在，给出提示
-                                }
+                                if (res.data.indexOf(x.value) > -1) x.status = '已存在' // 库位号已存在，给出提示
                             })
                         } else if (res.status === -1) {
-                            uni.showToast({
-                                icon: 'error',
-                                title: res.msg
-                            })
+                            uni.showToast({ icon: 'error', title: res.msg })
                         }
                     })                  
                 }
             },
             handle_scan_code() {
-                let _this_ = this;
                 uni.scanCode({
-                    success: function (res) {
+                    success: (res) => {
                         // console.log("uni.scanCode res:", res)                       
                         let text = res.result.trim() // 字符串trim，字符数大于4
                         if (text.length < 4) {
-                            uni.showToast({
-                                icon: 'error',
-                                title: '长度需大于4位'
-                            })
-                        } else if (_this_.loc_nos.indexOf(text) > -1) {
-                            uni.showToast({
-                                icon: 'error',
-                                title: '重复扫码'
-                            })
+                            uni.showToast({ icon: 'error', title: '长度需大于4位' })
+                        } else if (this.loc_nos.indexOf(text) > -1) {
+                            uni.showToast({ icon: 'error', title: '重复扫码' })
                         } else {
-                            _this_.loc_nos.push({ value: text, status: '' })
+                            this.loc_nos.push({ value: text, status: '' })
                         }
                     }
                 });  

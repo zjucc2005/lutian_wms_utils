@@ -32,7 +32,7 @@
                 :options="goods_nav.options" 
                 :button-group="goods_nav.button_group"
                 @click="goods_nav_click"
-                @buttonClick="goods_nav_buttonClick"
+                @buttonClick="goods_nav_button_click"
             />
         </view>
     </view>
@@ -51,7 +51,7 @@
                 :options="goods_nav.options_2" 
                 :button-group="goods_nav.button_group_2"
                 @click="goods_nav_click_2"
-                @buttonClick="goods_nav_buttonClick_2"
+                @buttonClick="goods_nav_button_click_2"
             />
         </view>
     </view>
@@ -142,14 +142,14 @@
                     }
                 }                                                        
             },
-            goods_nav_buttonClick(e) {
+            goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码
                 if (e.index === 1) this.create_inbound_task() // btn:新建入库任务
             },           
             goods_nav_click_2(e) {
                 if (e.index === 0) uni.navigateTo({ url: '/pages/operation/inbound/task' }) // btn:详情
             },
-            goods_nav_buttonClick_2(e) {
+            goods_nav_button_click_2(e) {
                 if (e.index === 0) this.if_finish_inbound_task() // btn:结束入库任务
                 if (e.index === 1) this.continue_inbound_task() // btn:继续入库任务
             },

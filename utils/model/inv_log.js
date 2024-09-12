@@ -40,14 +40,12 @@ class InvLog {
         const data = {
             model: this
         }
-        // console.log('Invlog.save data', data)
-        return K3CloudApi.save('PAEZ_C_INV_LOG', data).then(res => {
-            return Promise.resolve(res)
-        })
+        return K3CloudApi.save('PAEZ_C_INV_LOG', data)
     }
     
     /**
      * 批量保存库存日志（到数据库）
+     * @param inv_logs:Array[InvLog]
      * @return {Hash} Promise
      */
     static batch_save(inv_logs=[]) {
@@ -55,17 +53,14 @@ class InvLog {
             model: inv_logs,
             ValidateRepeatJson: true
         }
-        return K3CloudApi.batch_save('PAEZ_C_INV_LOG', data).then(res => {
-            return Promise.resolve(res)
-        })
+        return K3CloudApi.batch_save('PAEZ_C_INV_LOG', data)
     }
-    
     
     /**
      * 获取库存日志列表
      * @param options:Hash 参数集
      *   @field FID:Integer 主键ID
-     *   @field FOpType_in:Array 操作类型
+     *   @field FOpType_in:Array[String] 操作类型
      *   @field FStockId:Integer 仓库
      *   @field FBatchNo:String 批次号
      *   @field FBillNo:String 单据编号
@@ -75,7 +70,7 @@ class InvLog {
      *   @field order:String
      * @return {Hash} Promise
      */
-    static query(options, meta) {
+    static query(options={}, meta={}) {
         const data = {
             FormId: "PAEZ_C_INV_LOG",
             FilterString: []
@@ -100,15 +95,11 @@ class InvLog {
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
         }
         if (meta.order) data.OrderString = meta.order
-        return K3CloudApi.bill_query(data).then(res => {
-            return Promise.resolve(res)
-        })
+        return K3CloudApi.bill_query(data)
     }
     
     static find(id) {
-        return this.query({ FID: id }, { limit: 1 }).then( res => {
-            return Promise.resolve(res)
-        })
+        return this.query({ FID: id }, { limit: 1 })
     }
 }
 

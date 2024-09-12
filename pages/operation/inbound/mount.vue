@@ -61,8 +61,7 @@
 <script>
     import store from '@/store';
     import { get_bd_material } from '@/utils/api';
-    import { get_c_stock_locs } from '@/utils/api/c_stock_loc';
-    import { InvLog } from '@/utils/model';
+    import { InvLog, StockLoc } from '@/utils/model';
     import { is_material_no_format, is_loc_no_std_format, is_decimal_unit, describe_inv_log } from '@/utils';
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     export default {
@@ -72,7 +71,7 @@
                 cur_staff: {},
                 cur_inbound_task: {},
                 inv_logs: [],
-                c_stock_locs: [],
+                stock_locs: [],
                 bd_materials: [], // 物料基础数据Array，cache
                 mount_form: {
                     material_no: '',
@@ -125,10 +124,10 @@
                             { required: true, errorMessage: '库位号不能为空' },
                             {
                                 validateFunction: (rule, value, data, callback) => {
-                                    let c_stock_loc = this.c_stock_locs.find(x => x.FNumber == value)
-                                    if (!c_stock_loc) {
+                                    let stock_loc = this.stock_locs.find(x => x.FNumber == value)
+                                    if (!stock_loc) {
                                         return callback('不存在此库位号')
-                                    } else if (c_stock_loc.FDocumentStatus != 'C') {
+                                    } else if (stock_loc.FDocumentStatus != 'C') {
                                         return callback('此库位号未审核')
                                     }
                                 }
@@ -178,16 +177,16 @@
             }
         },
         mounted() {
-            this.cur_stock = store.state.cur_stock // 加载当前仓库
-            this.cur_staff = store.state.cur_staff // 加载当前员工
+            this.cur_stock = store.state.cur_stock
+            this.cur_staff = store.state.cur_staff
             this.cur_inbound_task = uni.getStorageSync('cur_inbound_task')
             InvLog.query(
                 { FStockId: this.cur_stock.FStockId, FBatchNo: this.cur_inbound_task.batch_no, FOpType_in: ['in', 'in_cl'] }, 
                 { page: 1, per_page: 5, order: 'FCreateTime DESC' }).then(res => {
                 res.data.reverse().forEach(log => this.unshift_inv_log(log))
             })
-            get_c_stock_locs(this.cur_stock.FStockId).then(res => {
-                this.c_stock_locs = res.data // 加载当前仓库的库位数据
+            StockLoc.query({ FStockId: this.cur_stock.FStockId }).then(res => {
+                this.stock_locs = res.data // 加载当前仓库的库位数据
             })
         },
         methods: {
@@ -232,9 +231,7 @@
             },
             more_actions() {
                 uni.showActionSheet({
-                    title: '',
                     itemList: ['入库详情', '操作日志'],
-                    popover: {},
                     success: (e) => {
                         console.log('showActionSheet e:', e)
                         if (e.tapIndex === 0) uni.navigateTo({ url: '/pages/operation/inbound/task' })
@@ -265,11 +262,11 @@
             submit_mount() {
                 this.$refs.mount_form.validate().then(e => {
                     let bd_material = this.bd_materials.find(x => x.FNumber == this.mount_form.material_no)
-                    let c_stock_loc = this.c_stock_locs.find(x => x.FNumber == this.mount_form.loc_no)
+                    let stock_loc = this.stock_locs.find(x => x.FNumber == this.mount_form.loc_no)
                     let inv_log = new InvLog({
                         FOpType: 'in',
                         FStockId: this.cur_stock.FStockId,
-                        FStockLocNo: c_stock_loc.FNumber,
+                        FStockLocNo: stock_loc.FNumber,
                         FMaterialId: bd_material.FMaterialId,
                         FOpQTY: this.mount_form.op_qty * 1,
                         FBatchNo: this.cur_inbound_task.batch_no,

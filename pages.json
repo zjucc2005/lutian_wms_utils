@@ -93,8 +93,16 @@
             "style": { "navigationBarTitleText": "出库 - 操作日志" }
         },
         {
+            "path": "pages/operation/move/index",
+            "style": { "navigationBarTitleText": "移库" }
+        },
+        {
             "path": "pages/operation/manage/index",
             "style": { "navigationBarTitleText": "仓库管理" }
+        },
+        {
+            "path": "pages/operation/manage/inv_search",
+            "style": { "navigationBarTitleText": "仓库管理 - 库存查询" }
         },
         {
             "path": "pages/operation/manage/locs",
