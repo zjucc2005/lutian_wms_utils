@@ -114,7 +114,7 @@
         },
         {
             "path": "pages/my/index",
-            "style":  { "navigationBarTitleText": "我"}
+            "style": { "navigationBarTitleText": "我"}
         }
     ],
     "globalStyle": {

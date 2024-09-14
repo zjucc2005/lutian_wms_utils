@@ -5,7 +5,7 @@
             :sub-title="`${cur_stock['FGroup.FName']} - ${cur_stock.FName}`"
             type="line"
             style="padding-bottom: 60px;"
-        >   
+        >           
 <!--            <uni-swipe-action v-if="false" ref="stock_loc_swipe">
                 <uni-swipe-action-item
                     v-for="(stock_loc, index) in stock_locs"
@@ -102,9 +102,6 @@
                 this.stock_locs = store.state.stock_locs
                 this.grid_shelves = parse_stock_locs(store.state.stock_locs)
             })
-        },          
-        onShow() {
-            // this.load_stock_locs()           
         },
         methods: {
             filter_swiper_grids,
@@ -122,7 +119,7 @@
                             if (e.tapIndex === 1) {}
                         }
                     })
-                }                         
+                }
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.refresh()
@@ -166,7 +163,7 @@
                     uni.showToast({ icon: 'none', title: '请不要频繁刷新' })
                     return
                 }
-                uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading' })               
                 StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
                     this.stock_locs = res.data
                     this.grid_shelves = parse_stock_locs(res.data)

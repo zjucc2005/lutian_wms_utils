@@ -82,10 +82,12 @@
                     this.bd_stocks = store.state.bd_stocks
                     this.set_stock_opts()
                 } else {
+                    uni.showLoading({ title: 'Loading' })
                     get_bd_stocks().then(res => {
                         store.commit('set_bd_stocks', res.data)
                         this.bd_stocks = res.data
                         this.set_stock_opts()
+                        uni.hideLoading()
                     })
                 }
             },
@@ -98,9 +100,10 @@
                         org = { text: d['FUseOrgId.FName'], value: d.FUseOrgId, children: [] }
                         stock_opts.push(org)
                     }
-                    let group = org.children.find(x => x.value === d.FGroup)
+                    // DEBUG: data-picker 会扁平化数据，再去查找父级，父级value相同时数据会乱, group.value重新组合以保证唯一性
+                    let group = org.children.find(x => x.value === [d.FUseOrgId, d.FGroup].join(','))
                     if (!group) {
-                        group = { text: d['FGroup.FName'] || '未分组', value: d.FGroup, children: [] }
+                        group = { text: d['FGroup.FName'] || '未分组', value: [d.FUseOrgId, d.FGroup].join(','), children: [] }
                         org.children.push(group)
                     }
                     group.children.push({ text: d.FName, value: d.FStockId })

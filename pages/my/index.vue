@@ -1,6 +1,10 @@
 <template>
     <view>
         <uni-list class="mb-1">
+            <uni-list-item title="位置"
+                :show-extra-icon="true" 
+                :extra-icon="{ color: '#007bff', size: '24', type: 'location' }"
+                @click="open_location" clickable showArrow />
             <uni-list-item title="选项1"
                 :show-extra-icon="true" 
                 :extra-icon="{ color: '#28a745', size: '24', type: 'paperplane' }"
@@ -35,6 +39,30 @@
         methods: {
             test () {
                 console.log('test')
+            },
+            goTo(path) {
+                uni.navigateTo({ url: `/pages/my/${path}` })
+            },
+            open_location () {
+                uni.getLocation({
+                    type: 'gcj02', // 国测局数据
+                    success: (res) => {
+                        console.log('uni.getLocation', res)
+                        this.location = {
+                            longitude: res.longitude,
+                            latitude: res.latitude
+                        }
+                        uni.openLocation({
+                            longitude: res.longitude,
+                            latitude: res.latitude,
+                            name: '我的位置',
+                            // address: value.address
+                            success: (res) => {
+                                console.log('uni.openLocation', res)
+                            }
+                        })
+                    }
+                })
             },
             logout() {
                 const that = this
