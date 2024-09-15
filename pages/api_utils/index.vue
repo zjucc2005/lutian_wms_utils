@@ -28,6 +28,8 @@
                 <uni-list-item title="store.state" clickable showArrow @click="goDetailPage('store', 'store')"></uni-list-item>
                 <uni-list-item title="getSystemInfo" clickable showArrow @click="goDetailPage('store', 'get_system_info')"></uni-list-item>
                 <uni-list-item title="scanCode" clickable @click="scanCode"></uni-list-item>
+                <uni-list-item title="share" clickable @click="share"></uni-list-item>
+                <uni-list-item title="播放声音" clickable @click="playAudio"></uni-list-item>
             </uni-list>
         </uni-section>
     </view>
@@ -77,6 +79,15 @@
                 uni.navigateTo({ url: url })
             },
             scanCode() {
+                // #ifdef APP-PLUS
+                const myScanCode = uni.requireNativePlugin('My-ScanCode')
+                myScanCode.scanCode({
+                    prompt: '扫码提示语'
+                }, (res) => {
+                    console.log('myScanCode res:', res)
+                })
+                // #endif
+                // #ifndef APP-PLUS
                 uni.scanCode({
                     success: function (res) {
                         console.log("uni.scanCode res:", res)
@@ -88,6 +99,28 @@
                         })
                     }
                 });
+                // #endif
+            },
+            share() {
+                // 在安卓上能用
+                uni.share({
+                	provider: "weixin",
+                	scene: "WXSceneSession",
+                	type: 1,
+                	summary: "我正在使用HBuilderX开发uni-app，赶紧跟我一起来体验！",
+                	success: function (res) {
+                		console.log("success:", res)
+                	},
+                	fail: function (err) {
+                		console.log("fail:", err)
+                	}
+                });
+            },
+            playAudio() {
+                uni.showToast({ icon: 'none', title: '播放声音'})
+                const audio = uni.createInnerAudioContext();
+                audio.src = '/static/audio/success.mp3';
+                audio.play();
             },
             api_call_test() {
                 console.log('API调用 - 目前无测试代码')
@@ -102,8 +135,7 @@
                 // const data = {
                 //     Ids: '100013'
                 // }
-                // K3CloudApi.delete(form_id, data).then(res => {
-                    
+                // K3CloudApi.delete(form_id, data).then(res => {                
                 // })
                 // get_bd_material('1.06.08.03.0006', 100007)
             }

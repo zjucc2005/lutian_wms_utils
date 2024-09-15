@@ -183,7 +183,7 @@
                         }
                     })
                 } else {
-                    uni.showToast({ title: '未勾选任何库存' })
+                    uni.showToast({ icon: 'none', title: '未勾选任何库存' })
                 }                
             },
             submit_batch_unmount() {
@@ -206,13 +206,14 @@
             },
             handle_inv_check(e, obj) {
                 // console.log('handle_inv_check e, obj', e, obj)
+                let invs = this.invs.filter(inv => inv['FMaterialId.FNumber'] == obj.material_no) // 筛选当前物料的库存
                 let unmount_qty = obj.base_unit_qty - obj.unmounted_qty // 待下架数量
                 let sum_checked_qty = 0 // 已勾选数量                
                 let cur_checked_ids = e.detail.value.map(v => v * 1) // 当前勾选的
                 let prev_checked_ids = [] // 之前勾选，当前仍保持勾选的
                 let new_checked_id = null
                 // 清除去勾选的check信息，记录之前保持勾选的
-                this.invs.forEach(inv => {
+                invs.forEach(inv => {
                     if (inv.checked) {
                         if (cur_checked_ids.includes(inv.FID)) {
                             prev_checked_ids.push(inv.FID)
@@ -230,7 +231,7 @@
                 if (new_checked_id) {
                     // 处理新check信息
                     // console.log('新增的check id', new_checked_id)
-                    let new_check_inv = this.invs.find(inv => inv.FID == new_checked_id)
+                    let new_check_inv = invs.find(inv => inv.FID == new_checked_id)
                     let checking_qty = Math.min(new_check_inv.FQty, unmount_qty - sum_checked_qty) // [new_check_inv.FQty, unmount_qty - sum_checked_qty].sort((x,y) => x-y)[0]
                     new_check_inv.checked = true
                     new_check_inv.checked_qty = checking_qty
@@ -238,7 +239,7 @@
                 }                
                 if (sum_checked_qty < unmount_qty) {
                     // 如果check数量不足，则优先从已check的补足
-                    this.invs.forEach(inv => {
+                    invs.forEach(inv => {
                         if (prev_checked_ids.includes(inv.FID) && (inv.FQty - inv.checked_qty > 0)) {
                             let checking_qty = Math.min(inv.FQty - inv.checked_qty, unmount_qty - sum_checked_qty) // [inv.FQty - inv.checked_qty, unmount_qty - sum_checked_qty].sort((x,y) => x-y)[0]
                             inv.checked_qty += checking_qty
@@ -246,7 +247,7 @@
                         }
                     })                    
                 } else {
-                    this.invs.forEach(inv => inv.disabled = !inv.checked) // check数量足够时，禁用其他check选项
+                    invs.forEach(inv => inv.disabled = !inv.checked) // check数量足够时，禁用其他check选项
                 }
                 obj.checked_qty = sum_checked_qty
             },

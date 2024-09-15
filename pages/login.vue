@@ -1,9 +1,9 @@
 <template>
     <view class="container">
-        <view class="logo-wrapper">            
-            <image src="@/static/logo.png"></image>
+        <view class="logo-wrapper">
+            <image src="/static/logo.png"></image>
             <view>LOGO</view>
-        </view>   
+        </view>
         <uni-forms ref="login_form" :model="login_form"  :rules="login_form_rules" labelWidth="80px">
             <uni-forms-item label="仓库" name="stock_id">
                 <uni-data-picker
@@ -62,7 +62,7 @@
                                             return callback('姓名或工号或分属组织错误')
                                         }
                                         uni.hideLoading()
-                                    })                                  
+                                    })
                                 }
                             }
                         ]
@@ -100,10 +100,11 @@
                         org = { text: d['FUseOrgId.FName'], value: d.FUseOrgId, children: [] }
                         stock_opts.push(org)
                     }
-                    // DEBUG: data-picker 会扁平化数据，再去查找父级，父级value相同时数据会乱, group.value重新组合以保证唯一性
-                    let group = org.children.find(x => x.value === [d.FUseOrgId, d.FGroup].join(','))
+                    // DEBUG: data-picker 会扁平化数据，再去查找父级，父级value相同时数据会乱, group.value重新组装以保证唯一性
+                    let group_value = [d.FUseOrgId, d.FGroup].join(',')
+                    let group = org.children.find(x => x.value == group_value)
                     if (!group) {
-                        group = { text: d['FGroup.FName'] || '未分组', value: [d.FUseOrgId, d.FGroup].join(','), children: [] }
+                        group = { text: d['FGroup.FName'] || '未分组', value: group_value, children: [] }
                         org.children.push(group)
                     }
                     group.children.push({ text: d.FName, value: d.FStockId })
