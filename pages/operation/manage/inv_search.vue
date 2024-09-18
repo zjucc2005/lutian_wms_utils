@@ -65,6 +65,9 @@
     import { get_bd_material } from '@/utils/api'
     import { Inv, StockLoc } from '@/utils/model'
     import { is_material_no_format, is_loc_no_std_format, parse_stock_locs_with_invs, filter_swiper_grids, get_swiper_pages, get_swiper_height } from '@/utils'
+    // #ifdef APP-PLUS
+    const myScanCode = uni.requireNativePlugin('My-ScanCode')
+    // #endif
     export default {
         props: {
             t: {
@@ -169,13 +172,20 @@
                 }
             },
             scan_code() {
+                // #ifdef APP-PLUS
+                myScanCode.scanCode({}, (res) => {
+                    if (res.success == 'true') this.handle_scan_code(res.result)
+                })
+                // #endif               
+                // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        this.handle_scan_result(res.result)
+                        this.handle_scan_code(res.result)
                     }
-                })
+                });
+                // #endif
             },
-            handle_scan_result(text) {
+            handle_scan_code(text) {
                 console.log('handle scan result:', text)
                 if (!text) return
                 if (this.stock_locs.length) {

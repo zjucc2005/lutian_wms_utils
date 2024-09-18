@@ -64,6 +64,9 @@
     import { InvLog, StockLoc } from '@/utils/model';
     import { is_material_no_format, is_loc_no_std_format, is_decimal_unit, describe_inv_log } from '@/utils';
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+    // #ifdef APP-PLUS
+    const myScanCode = uni.requireNativePlugin('My-ScanCode')
+    // #endif  
     export default {
         data() {
             return {
@@ -240,24 +243,35 @@
                 })
             },
             scan_code() {
+                // #ifdef APP-PLUS
+                myScanCode.scanCode({}, (res) => {
+                    console.log('myScanCode res:', res)
+                    if (res.success == 'true') this.handle_scan_code(res.result)
+                })
+                // #endif               
+                // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                         console.log("uni.scanCode res:", res)
-                        if (is_material_no_format(res.result)) {
-                            this.mount_form.material_no = res.result
-                            this.handle_material_no_change()
-                        } else if (is_loc_no_std_format(res.result)) {
-                            this.mount_form.loc_no = res.result
-                        } else {
-                            if(!this.mount_form.material_no) {
-                                this.mount_form.material_no = res.result
-                                this.handle_material_no_change()
-                            } else if (!this.mount_form.loc_no) {
-                                this.mount_form.loc_no = res.result
-                            }
-                        }
+                        console.log("uni.scanCode res:", res)
+                        this.handle_scan_code(res.result)
                     }
-                })
+                });
+                // #endif
+            },
+            handle_scan_code(text) {
+                if (is_material_no_format(text)) {
+                    this.mount_form.material_no = text
+                    this.handle_material_no_change()
+                } else if (is_loc_no_std_format(text)) {
+                    this.mount_form.loc_no = text
+                } else {
+                    if(!this.mount_form.material_no) {
+                        this.mount_form.material_no = text
+                        this.handle_material_no_change()
+                    } else if (!this.mount_form.loc_no) {
+                        this.mount_form.loc_no = text
+                    }
+                }
             },
             submit_mount() {
                 this.$refs.mount_form.validate().then(e => {

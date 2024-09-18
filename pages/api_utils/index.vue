@@ -82,9 +82,15 @@
                 // #ifdef APP-PLUS
                 const myScanCode = uni.requireNativePlugin('My-ScanCode')
                 myScanCode.scanCode({
-                    prompt: '扫码提示语'
+                    // prompt: '扫码提示语'
                 }, (res) => {
                     console.log('myScanCode res:', res)
+                    uni.showModal({
+                        title: res.scanType,
+                        content: res.result,
+                        showCancel: false,
+                        confirmText: "确定"
+                    })
                 })
                 // #endif
                 // #ifndef APP-PLUS

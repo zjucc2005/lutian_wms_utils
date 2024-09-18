@@ -18,6 +18,9 @@
 </template>
 
 <script>
+    // #ifdef APP-PLUS
+    const myScanCode = uni.requireNativePlugin('My-ScanCode')
+    // #endif
     export default {
         data() {
             return {
@@ -29,11 +32,20 @@
                 uni.navigateTo({ url: `./${path}` })
             },
             handle_inv_search() {
+                // #ifdef APP-PLUS
+                myScanCode.scanCode({}, (res) => {
+                    // console.log('myScanCode res:', res)
+                    if (res.success == 'true') uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
+                })
+                // #endif               
+                // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
+                        // console.log("uni.scanCode res:", res)
                         uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
                     }
-                })
+                });
+                // #endif
             }
         }
     }

@@ -67,6 +67,9 @@
     import { get_sal_deliverynotice } from '@/utils/api'
     import { OutboundTask } from '@/utils/model'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+    // #ifdef APP-PLUS
+    const myScanCode = uni.requireNativePlugin('My-ScanCode')
+    // #endif
     export default {
         data() {
             return {
@@ -154,13 +157,24 @@
                 this.outbound_task_form.outbound_list = []
             },
             scan_code() {
+                // #ifdef APP-PLUS
+                myScanCode.scanCode({}, (res) => {
+                    console.log('myScanCode res:', res)
+                    if (res.success == 'true') this.handle_scan_code(res.result)
+                })
+                // #endif               
+                // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        // console.log("uni.scanCode res:", res)
-                        this.outbound_task_form.bill_no = res.result
-                        if (res.result) this.get_outbound_list_by_bill_no()
+                        console.log("uni.scanCode res:", res)
+                        this.handle_scan_code(res.result)
                     }
-                })
+                });
+                // #endif
+            },
+            handle_scan_code(text) {
+                this.outbound_task_form.bill_no = text
+                if (text) this.get_outbound_list_by_bill_no()
             },
             get_outbound_list_by_bill_no() {
                 const bill_no = this.outbound_task_form.bill_no
@@ -193,6 +207,7 @@
                     this.outbound_task_form.outbound_list = outbound_list
                     // console.log('sale info:', data.SAL_DELIVERYNOTICEENTRY)
                 } else {
+                    this.outbound_task_form.outbound_list = []
                     uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
                 }
             },

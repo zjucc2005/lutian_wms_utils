@@ -61,6 +61,9 @@
     import store from '@/store'
     import { InboundTask } from '@/utils/model'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+    // #ifdef APP-PLUS
+    const myScanCode = uni.requireNativePlugin('My-ScanCode')
+    // #endif  
     export default {
         data() {
             return {
@@ -170,28 +173,37 @@
                 console.log('bill_no_change e', e)
             },
             scan_code() {
+                // #ifdef APP-PLUS
+                myScanCode.scanCode({}, (res) => {
+                    console.log('myScanCode res:', res)
+                    if (res.success == 'true') this.handle_scan_code(res.result)
+                })
+                // #endif               
+                // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
                         console.log("uni.scanCode res:", res)
-                        // if 有符合条件的单据编号，直接提取
-                        // else split 字符串，供选择
-                        let arr = res.result.split(/\|{2}|,|;/)
-                        if (arr.length === 1) {
-                            this.inbound_task_form.bill_no = arr[0]
-                            this.get_inbound_list_by_bill_no()
-                        } else {
-                            uni.showActionSheet({
-                                title: '扫码结果',
-                                itemList: arr,
-                                success: (e) => {
-                                    this.inbound_task_form.bill_no = arr[e.tapIndex]
-                                    this.get_inbound_list_by_bill_no()
-                                }
-                            })
-                        }
+                        this.handle_scan_code(res.result)
                     }
-                });  
-            },               
+                });
+                // #endif
+            },
+            handle_scan_code(text) {
+                let arr = text.split(/\|{2}|,|;/)
+                if (arr.length === 1) {
+                    this.inbound_task_form.bill_no = arr[0]
+                    this.get_inbound_list_by_bill_no()
+                } else {
+                    uni.showActionSheet({
+                        title: '扫码结果',
+                        itemList: arr,
+                        success: (e) => {
+                            this.inbound_task_form.bill_no = arr[e.tapIndex]
+                            this.get_inbound_list_by_bill_no()
+                        }
+                    })
+                }
+            },
             get_inbound_list_by_bill_no() {
                 console.log('[该功能待定]根据单据编号查询入库信息', this.inbound_task_form.bill_no)
             },
