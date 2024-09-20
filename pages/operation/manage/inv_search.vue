@@ -78,6 +78,7 @@
             return {
                 mode: '', // material_no/loc_no
                 display_mode: '', // grid/list
+                scan_mode: '', // material_no/loc_no，可以指定扫描的是哪种编码
                 no: '',                
                 material: {
                     material_no: '',
@@ -113,7 +114,7 @@
             // if (options.t) this.handle_scan_result(options.t.trim()) // options.t 是从上一个页面扫描传过来的参数
             this.cur_stock = store.state.cur_stock
             this.stock_locs = store.state.stock_locs
-            if (options.t) this.handle_scan_result(options.t)
+            if (options.t) this.handle_scan_code(options.t)
         },
         mounted() {
             
@@ -150,8 +151,8 @@
                     itemList: ['扫描物料编码查询', '扫描库位编码查询', 'DEBUG'],
                     success: (e) => {
                         console.log('showActionSheet e:', e)
-                        if (e.tapIndex === 0) {}
-                        if (e.tapIndex === 1) {}
+                        if (e.tapIndex === 0) this.scan_code('material_no')
+                        if (e.tapIndex === 1) this.scan_code('loc_no')
                         if (e.tapIndex === 2) console.log('this.$data:', this.$data)
                     }
                 })
@@ -171,7 +172,8 @@
                     this.goods_nav.button_group[0].text = '网格显示'
                 }
             },
-            scan_code() {
+            scan_code(scan_mode='') {
+                this.scan_mode = scan_mode
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
                     if (res.success == 'true') this.handle_scan_code(res.result)
@@ -186,7 +188,7 @@
                 // #endif
             },
             handle_scan_code(text) {
-                console.log('handle scan result:', text)
+                console.log('handle scan code:', text)
                 if (!text) return
                 if (this.stock_locs.length) {
                     this.case_load_invs(text.trim())
@@ -198,7 +200,12 @@
                 }                              
             },
             case_load_invs(text) {
-                if (is_material_no_format(text)) {
+                if (this.scan_mode == 'material_no') {
+                    this.load_invs_by_material_no(text)
+                    this.load_material(text)
+                } else if (this.scan_mode == 'loc_no') {
+                    this.load_invs_by_loc_no(text)
+                } else if (is_material_no_format(text)) {
                     this.load_invs_by_material_no(text)
                     this.load_material(text)
                 } else if (is_loc_no_std_format(text)) {

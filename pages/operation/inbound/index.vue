@@ -59,6 +59,7 @@
 
 <script>
     import store from '@/store'
+    import { play_audio_prompt } from '@/utils'
     import { InboundTask } from '@/utils/model'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     // #ifdef APP-PLUS
@@ -209,6 +210,7 @@
             },
             create_inbound_task() {
                 this.$refs.inbound_task_form.validate().then(e => {
+                    play_audio_prompt('success')
                     const options = {
                         f_stock_id: store.state.cur_stock.FStockId,
                         inbound_date: this.inbound_task_form.inbound_date,
@@ -237,6 +239,7 @@
                 console.log('结束入库任务')
             },
             continue_inbound_task() {
+                play_audio_prompt('success')
                 uni.navigateTo({ url: '/pages/operation/inbound/mount' })
             }
         }

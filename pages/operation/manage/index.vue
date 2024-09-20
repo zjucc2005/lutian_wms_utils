@@ -44,7 +44,7 @@
                         // console.log("uni.scanCode res:", res)
                         uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
                     }
-                });
+                })
                 // #endif
             }
         }

@@ -27,9 +27,12 @@
             <uni-list>
                 <uni-list-item title="store.state" clickable showArrow @click="goDetailPage('store', 'store')"></uni-list-item>
                 <uni-list-item title="getSystemInfo" clickable showArrow @click="goDetailPage('store', 'get_system_info')"></uni-list-item>
-                <uni-list-item title="scanCode" clickable @click="scanCode"></uni-list-item>
-                <uni-list-item title="share" clickable @click="share"></uni-list-item>
+                <uni-list-item title="Chart" clickable @click="goDetailPage('store', 'chart')"></uni-list-item>
+                <uni-list-item title="scanCode(安卓原生插件)" clickable @click="scanCode"></uni-list-item>
+                <uni-list-item title="share(微信开放平台APPID)" clickable @click="share"></uni-list-item>
                 <uni-list-item title="播放声音" clickable @click="playAudio"></uni-list-item>
+                <uni-list-item title="振动(不能用)" click @click="vibrate"></uni-list-item>
+                <uni-list-item title="getLocation(需要商业授权)" click @click="getLocation"></uni-list-item>
             </uni-list>
         </uni-section>
     </view>
@@ -115,10 +118,11 @@
                 	type: 1,
                 	summary: "我正在使用HBuilderX开发uni-app，赶紧跟我一起来体验！",
                 	success: function (res) {
-                		console.log("success:", res)
+                		console.log("success:", res)                        
                 	},
                 	fail: function (err) {
                 		console.log("fail:", err)
+                        uni.showToast({ icon: 'none', title: err.errMsg })
                 	}
                 });
             },
@@ -127,6 +131,28 @@
                 const audio = uni.createInnerAudioContext();
                 audio.src = '/static/audio/success.mp3';
                 audio.play();
+            },
+            vibrate() {
+                uni.showToast({ icon: 'none', title: '振动'})
+                uni.vibrate({
+                    success: (res) => {
+                        console.log('uni.vibrate res:', res)
+                    },
+                    fail: (err) => {
+                        console.log('uni.vibrate err:', err)
+                    }
+                })
+            },
+            getLocation() {
+                uni.getLocation({
+                    type: 'wgs84', // wgs84/gcj02
+                    success: (res) => {
+                        console.log('uni.getLocation res:', res)
+                    },
+                    fail: (err) => {
+                        console.log('uni.getLocation err:', err)
+                    }
+                })
             },
             api_call_test() {
                 console.log('API调用 - 目前无测试代码')

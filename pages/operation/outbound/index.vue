@@ -67,6 +67,7 @@
     import { get_sal_deliverynotice } from '@/utils/api'
     import { OutboundTask } from '@/utils/model'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+import { play_audio_prompt } from '../../../utils'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
     // #endif
@@ -147,7 +148,7 @@
             },
             goods_nav_button_click_2(e) {
                 if (e.index === 0) this.if_finish_outbound_task()
-                if (e.index === 1) uni.navigateTo({ url: '/pages/operation/outbound/allocate' })
+                if (e.index === 1) this.continue_outbound_task()
             },
             // >>> action
             handle_bill_no_change() {
@@ -187,6 +188,7 @@
                         uni.hideLoading()
                     })
                 } else {
+                    this.outbound_task_form.outbound_list = []
                     uni.showToast({ icon: 'none', title: '未找到单据信息' })
                 }
             },
@@ -213,6 +215,7 @@
             },
             create_outbound_task() {
                 this.$refs.outbound_task_form.validate().then(e => {
+                    play_audio_prompt('success')
                     const options = {
                         f_stock_id: store.state.cur_stock.FStockId,
                         staff_no: store.state.cur_staff.FNumber,
@@ -226,6 +229,10 @@
                     // console.log('新建出库任务', outbound_task)
                     uni.navigateTo({ url: '/pages/operation/outbound/allocate' })                    
                 }).catch(err => { console.log('validate err', err) })                
+            },
+            continue_outbound_task() {
+                play_audio_prompt('success')
+                uni.navigateTo({ url: '/pages/operation/outbound/allocate' })
             },
             if_finish_outbound_task() {
                 uni.showActionSheet({

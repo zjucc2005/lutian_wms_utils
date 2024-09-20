@@ -9,6 +9,78 @@
             "style":  { "navigationBarTitleText": "仓库作业" }
         },      
         {
+            "path": "pages/operation/inbound/index",
+            "style":  { "navigationBarTitleText": "入库" }
+        },
+        {
+            "path": "pages/operation/inbound/task",
+            "style": { "navigationBarTitleText": "入库 - 详情" }
+        },
+        {
+            "path": "pages/operation/inbound/mount",
+            "style":  { "navigationBarTitleText": "入库 - 扫描上架" }
+        },
+        {
+            "path": "pages/operation/inbound/logs",
+            "style": { "navigationBarTitleText": "入库 - 操作日志" }
+        },
+        {
+            "path": "pages/operation/outbound/index",
+            "style": { "navigationBarTitleText": "出库"}
+        },
+        {
+            "path": "pages/operation/outbound/task",
+            "style": { "navigationBarTitleText": "出库 - 详情" }
+        },
+        {
+            "path": "pages/operation/outbound/allocate",
+            "style": { "navigationBarTitleText": "出库 - 分配预览" }
+        },
+        {
+            "path": "pages/operation/outbound/unmount",
+            "style": { "navigationBarTitleText": "出库 - 扫描下架" }
+        },
+        {
+            "path": "pages/operation/outbound/logs",
+            "style": { "navigationBarTitleText": "出库 - 操作日志" }
+        },
+        {
+            "path": "pages/operation/move/index",
+            "style": { "navigationBarTitleText": "移库" }
+        },
+        {
+            "path": "pages/operation/move/move_out",
+            "style": { "navigationBarTitleText": "移库 - 扫描下架" }
+        },
+        {
+            "path": "pages/operation/move/move_in",
+            "style": { "navigationBarTitleText": "移库 - 扫描上架" }
+        },
+        {
+            "path": "pages/operation/move/move_cart",
+            "style": { "navigationBarTitleText": "移库 - 移库中" }
+        },
+        {
+            "path": "pages/operation/manage/index",
+            "style": { "navigationBarTitleText": "仓库管理" }
+        },
+        {
+            "path": "pages/operation/manage/inv_search",
+            "style": { "navigationBarTitleText": "仓库管理 - 库存查询" }
+        },
+        {
+            "path": "pages/operation/manage/locs",
+            "style": { "navigationBarTitleText": "仓库管理 - 库位管理" }
+        },
+        {
+            "path": "pages/operation/manage/loc_new",
+            "style": { "navigationBarTitleText": "仓库管理 - 新增库位" }
+        },
+        {
+            "path": "pages/my/index",
+            "style": { "navigationBarTitleText": "我"}
+        },
+        {
             "path": "pages/api_utils/index",
             "style": { "navigationBarTitleText": "API调试" }
         },
@@ -57,64 +129,8 @@
             "style":  { "navigationBarTitleText": "getSystemInfo"}
         },
         {
-            "path": "pages/operation/inbound/index",
-            "style":  { "navigationBarTitleText": "入库" }
-        },
-        {
-            "path": "pages/operation/inbound/task",
-            "style": { "navigationBarTitleText": "入库 - 详情" }
-        },
-        {
-            "path": "pages/operation/inbound/mount",
-            "style":  { "navigationBarTitleText": "入库 - 扫描上架" }
-        },
-        {
-            "path": "pages/operation/inbound/logs",
-            "style": { "navigationBarTitleText": "入库 - 操作日志" }
-        },
-        {
-            "path": "pages/operation/outbound/index",
-            "style": { "navigationBarTitleText": "出库"}
-        },
-        {
-            "path": "pages/operation/outbound/task",
-            "style": { "navigationBarTitleText": "出库 - 详情" }
-        },
-        {
-            "path": "pages/operation/outbound/allocate",
-            "style": { "navigationBarTitleText": "出库 - 分配预览" }
-        },
-        {
-            "path": "pages/operation/outbound/unmount",
-            "style": { "navigationBarTitleText": "出库 - 扫描下架" }
-        },
-        {
-            "path": "pages/operation/outbound/logs",
-            "style": { "navigationBarTitleText": "出库 - 操作日志" }
-        },
-        {
-            "path": "pages/operation/move/index",
-            "style": { "navigationBarTitleText": "移库" }
-        },
-        {
-            "path": "pages/operation/manage/index",
-            "style": { "navigationBarTitleText": "仓库管理" }
-        },
-        {
-            "path": "pages/operation/manage/inv_search",
-            "style": { "navigationBarTitleText": "仓库管理 - 库存查询" }
-        },
-        {
-            "path": "pages/operation/manage/locs",
-            "style": { "navigationBarTitleText": "仓库管理 - 库位管理" }
-        },
-        {
-            "path": "pages/operation/manage/loc_new",
-            "style": { "navigationBarTitleText": "仓库管理 - 新增库位" }
-        },
-        {
-            "path": "pages/my/index",
-            "style": { "navigationBarTitleText": "我"}
+            "path": "pages/api_utils/store/chart",
+            "style": { "navigationBarTitleText": "Chart" }
         }
     ],
     "globalStyle": {

@@ -45,7 +45,7 @@
             },
             open_location () {
                 uni.getLocation({
-                    type: 'gcj02', // 国测局数据
+                    type: 'gcj02', // wgs84/gcj02
                     success: (res) => {
                         console.log('uni.getLocation', res)
                         this.location = {

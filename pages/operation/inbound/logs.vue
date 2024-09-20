@@ -25,6 +25,7 @@
 
 <script>
     import store from '@/store'
+    import { play_audio_prompt } from '@/utils'
     import InvLog from '@/utils/model/inv_log'
     import { describe_inv_log } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
@@ -67,7 +68,7 @@
             submit_cancel(inv_log_id) {
                 let inv_log = this.inv_logs.find(x => x.FID === inv_log_id)
                 if (inv_log.FOpType == 'in' && !inv_log.status) {
-                    let inv_log = new InvLog({
+                    let new_inv_log = new InvLog({
                         FOpType: 'in_cl',
                         FStockId: inv_log.FStockId,
                         FStockLocNo: inv_log['FStockLocId.FNumber'],
@@ -78,7 +79,8 @@
                         FOpStaffNo: this.cur_staff.FNumber,
                         FReferId: inv_log.FID
                     })
-                    inv_log.save().then(save_res => {
+                    new_inv_log.save().then(save_res => {
+                        play_audio_prompt('success')
                         this.after_save(save_res)
                         this.$refs.inv_log_swipe.closeAll() // 关闭滑动操作
                     })

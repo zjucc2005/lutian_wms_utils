@@ -8,6 +8,27 @@ const to_raw = (reactive_obj) => {
 }
 
 /**
+ * 播放提示音
+ */
+const play_audio = (src) => {
+    let audio = uni.createInnerAudioContext()
+    audio.src = src
+    audio.play()
+}
+
+const play_audio_prompt = (type) => {
+    const src = {
+        success: '/static/audio/success.mp3',
+        warn: '/static/audio/warn.mp3'
+    }[type]
+    if (src) {
+        play_audio(src)
+    } else {
+        throw new Error('invalid type')
+    }
+}
+
+/**
  * 判断物料编码格式
  * @return {Boolean}
  */
@@ -209,6 +230,7 @@ const get_swiper_height = (shelf) => {
 
 export {
     to_raw,
+    play_audio_prompt,
     is_material_no_format,
     is_loc_no_std_format,
     is_decimal_unit,

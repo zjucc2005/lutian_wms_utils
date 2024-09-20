@@ -5,7 +5,7 @@
             :sub-title="mount_form.material_name ? [mount_form.material_name, mount_form.material_spec].join('\n') : ['-', '-'].join('\n')">
             <view class="container">
                 <uni-forms ref="mount_form" :model="mount_form" :rules="mount_form_rules" labelWidth="80px">
-                    <uni-forms-item label="物料编号" name="material_no">
+                    <uni-forms-item label="物料编号" name="material_no" required>
                         <uni-easyinput 
                             v-model="mount_form.material_no"
                             trim="both"
@@ -13,15 +13,18 @@
                             @clear="handle_material_no_change"
                         />
                     </uni-forms-item>
-                    <uni-forms-item label="库位号" name="loc_no">
+                    <uni-forms-item label="库位号" name="loc_no" required>
                         <uni-easyinput v-model="mount_form.loc_no" trim="both" />
                     </uni-forms-item>
-                    <uni-forms-item label="上架数量" name="op_qty">
+                    <uni-forms-item label="上架数量" name="op_qty" required>
                         <uni-easyinput v-model="mount_form.op_qty" type="number">
                             <template #right>
                                 <text class="easyinput-suffix-text">{{ mount_form.base_unit_name }}</text>
                             </template>
                         </uni-easyinput>
+                    </uni-forms-item>
+                    <uni-forms-item label="备注" name="remark">
+                        <uni-easyinput v-model="mount_form.remark" trim="both" />
                     </uni-forms-item>
                 </uni-forms>
             </view>
@@ -60,6 +63,7 @@
 
 <script>
     import store from '@/store';
+    import { play_audio_prompt } from '@/utils';
     import { get_bd_material } from '@/utils/api';
     import { InvLog, StockLoc } from '@/utils/model';
     import { is_material_no_format, is_loc_no_std_format, is_decimal_unit, describe_inv_log } from '@/utils';
@@ -84,7 +88,8 @@
                     op_qty: '',
                     base_unit: 'Pcs',
                     base_unit_name: 'Pcs',
-                    decimal_unit: false
+                    decimal_unit: false,
+                    remark: ''
                 },              
                 mount_form_rules: {
                     material_no: {
@@ -273,7 +278,7 @@
                     }
                 }
             },
-            submit_mount() {
+            submit_mount() {               
                 this.$refs.mount_form.validate().then(e => {
                     let bd_material = this.bd_materials.find(x => x.FNumber == this.mount_form.material_no)
                     let stock_loc = this.stock_locs.find(x => x.FNumber == this.mount_form.loc_no)
@@ -285,9 +290,11 @@
                         FOpQTY: this.mount_form.op_qty * 1,
                         FBatchNo: this.cur_inbound_task.batch_no,
                         FBillNo: this.cur_inbound_task.bill_no,
-                        FOpStaffNo: this.cur_staff.FNumber
+                        FOpStaffNo: this.cur_staff.FNumber,
+                        FRemark: this.mount_form.remark
                     })
                     inv_log.save().then(save_res => {
+                        play_audio_prompt('success')
                         this.after_save(save_res)
                         this.reset_form() // 重置表单
                     })
@@ -295,10 +302,11 @@
                     console.log('submit mount err:', err);
                 })
             },
-            submit_cancel(inv_log_id) {
-                let inv_log = this.inv_logs.find(x => x.FID === inv_log_id)
+            submit_cancel(inv_log_id) {                
+                let inv_log = this.inv_logs.find(x => x.FID == inv_log_id)
+                console.log('submit_cancel inv_log', inv_log)
                 if (inv_log.FOpType == 'in' && !inv_log.status) {
-                    let inv_log = new InvLog({
+                    let new_inv_log = new InvLog({
                         FOpType: 'in_cl',
                         FStockId: inv_log.FStockId,
                         FStockLocNo: inv_log['FStockLocId.FNumber'],
@@ -307,13 +315,15 @@
                         FBatchNo: inv_log.FBatchNo,
                         FBillNo: inv_log.FBillNo,
                         FOpStaffNo: this.cur_staff.FNumber,
-                        FReferId: inv_log.FID                   
+                        FReferId: inv_log.FID
                     })
-                    inv_log.save().then(save_res => {
+                    new_inv_log.save().then(save_res => {
+                        play_audio_prompt('success')
                         this.after_save(save_res)
                         this.$refs.inv_log_swipe.closeAll() // 关闭滑动操作
                     })
                 } else {
+                    play_audio_prompt('warn')
                     uni.showToast({ icon: 'error', title: 'ERROR' })
                 }
             },
@@ -355,7 +365,8 @@
                     op_qty: '',
                     base_unit: 'Pcs',
                     base_unit_name: 'Pcs',
-                    decimal_unit: false
+                    decimal_unit: false,
+                    remark: ''
                 }
                 uni.pageScrollTo({ scrollTop: 0 })
             },
@@ -373,14 +384,5 @@
 </script>
 
 <style>
-    .easyinput-suffix-text {
-        color: #666;
-        padding: 0 10px;
-    }
-    .uni-list-item-right-text {
-        color: #dd524d;
-        font-size: 12px;
-        display: flex;
-        align-items: center;
-    }
+
 </style>

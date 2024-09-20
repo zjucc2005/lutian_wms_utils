@@ -24,7 +24,7 @@ class InvLog {
         this.FStockLocId = { FNumber: options.FStockLocNo } 
         this.FMaterialId = { FMaterialId: options.FMaterialId }
         this.FOpQTY = options.FOpQTY
-        this.FInvIncre = ['in_cl', 'out'].includes(options.FOpType) ? -options.FOpQTY : options.FOpQTY
+        this.FInvIncre = ['in_cl', 'out', 'mv_out'].includes(options.FOpType) ? -options.FOpQTY : options.FOpQTY
         this.FBatchNo = options.FBatchNo
         this.FBillNo = options.FBillNo || ''
         this.FRemark = options.FRemark || ''

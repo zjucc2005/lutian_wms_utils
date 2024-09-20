@@ -1,7 +1,7 @@
 <template>
     <view class="container">
         <view class="logo-wrapper">
-            <image src="/static/logo.png"></image>
+            <image src="/static/logo-wms.png"></image>
             <view>LOGO</view>
         </view>
         <uni-forms ref="login_form" :model="login_form"  :rules="login_form_rules" labelWidth="80px">
@@ -26,6 +26,7 @@
 
 <script> 
     import store from '@/store'
+    import { play_audio_prompt } from '@/utils'
     import { validate_staff, get_bd_stocks } from '@/utils/api'
     import { StockLoc } from '@/utils/model'
     export default {
@@ -117,6 +118,7 @@
             },
             submit_login() {
                 this.$refs.login_form.validate().then(e => {
+                    play_audio_prompt('success')
                     const store_data = {
                         stock: this.bd_stocks.find(d => d.FStockId === this.login_form.stock_id),
                         staff: this.staff

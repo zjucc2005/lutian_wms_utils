@@ -71,6 +71,7 @@
 
 <script>
     import store from '@/store'
+    import { play_audio_prompt } from '@/utils'
     import { Inv, InvLog } from '@/utils/model'
     export default {
         data() {
@@ -101,13 +102,12 @@
         },
         mounted() {
             this.cur_stock = store.state.cur_stock
-            this.cur_staff = store.state.cur_staff
-            this.cur_outbound_task = uni.getStorageSync('cur_outbound_task')  
-            this.load_invs()
+            this.cur_staff = store.state.cur_staff          
             console.log('onShow:', this.$data)
         },
         onShow() {
-            
+            this.cur_outbound_task = uni.getStorageSync('cur_outbound_task')
+            this.load_invs()
         },
         methods: {
             // >>> component
@@ -146,7 +146,7 @@
                     this.auto_allocate()
                 }               
             },
-            auto_allocate() {
+            auto_allocate() {                
                 this.invs.forEach(inv => {
                     inv.checked = false
                     inv.checked_qty = 0
@@ -187,6 +187,7 @@
                 }                
             },
             submit_batch_unmount() {
+                play_audio_prompt('success')
                 uni.showLoading({ title: 'Loading' })
                 let inv_logs = []
                 this.invs.filter(inv => inv.checked).forEach(inv => {
@@ -202,7 +203,11 @@
                     })
                     inv_log.save()
                 })
+                this.after_save()
                 uni.hideLoading()
+            },
+            after_save() {
+                this.load_invs()
             },
             handle_inv_check(e, obj) {
                 // console.log('handle_inv_check e, obj', e, obj)
@@ -272,16 +277,17 @@
                 InvLog.query(
                     { FStockId: this.cur_stock.FStockId, FBillNo: this.cur_outbound_task.bill_no, FOpType_in: ['out', 'out_cl'] }, 
                     { page: 1, per_page: 5, order: 'FCreateTime DESC' }).then(res => {
-                    res.data.reverse().forEach(log => this.unshift_inv_log(log))
-                    this.cur_outbound_task.outbound_list.forEach(obj => {
-                        let unmounted_qty = 0
-                        this.filter_inv_logs(obj.material_no).forEach(inv_log => unmounted_qty += inv_log.FOpQTY)
-                        obj.unmounted_qty = unmounted_qty
-                        obj.checked_qty = 0 // init
-                        if (unmounted_qty > obj.base_unit_qty) {
-                            this.filter_invs(obj.material_no).forEach(inv => inv.disabled = true)
-                        }
-                    })
+                        this.inv_logs = []
+                        res.data.reverse().forEach(log => this.unshift_inv_log(log))
+                        this.cur_outbound_task.outbound_list.forEach(obj => {
+                            let unmounted_qty = 0
+                            this.filter_inv_logs(obj.material_no).forEach(inv_log => unmounted_qty += inv_log.FOpQTY)
+                            obj.unmounted_qty = unmounted_qty
+                            obj.checked_qty = 0 // init
+                            if (unmounted_qty > obj.base_unit_qty) {
+                                this.filter_invs(obj.material_no).forEach(inv => inv.disabled = true)
+                            }
+                        })
                 })
             },
             // 日志逐条插入列表中，判断是否取消
