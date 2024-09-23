@@ -16,7 +16,7 @@
             <uni-grid-item @click="goTo('move/index')">
                 <view class="grid-item-box">
                     <image src="/static/icon/move.png" mode="widthFix" class="grid-item-icon"></image>
-                    <text class="grid-item-text">移库</text>
+                    <text class="grid-item-text">库存调整</text>
                 </view>
             </uni-grid-item>
             <uni-grid-item @click="goTo('manage/index')">

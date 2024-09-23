@@ -189,7 +189,6 @@
             submit_batch_unmount() {
                 play_audio_prompt('success')
                 uni.showLoading({ title: 'Loading' })
-                let inv_logs = []
                 this.invs.filter(inv => inv.checked).forEach(inv => {
                     let inv_log = new InvLog({
                         FOpType: 'out',

@@ -7,7 +7,7 @@
         {
             "path": "pages/operation/index",
             "style":  { "navigationBarTitleText": "仓库作业" }
-        },      
+        },
         {
             "path": "pages/operation/inbound/index",
             "style":  { "navigationBarTitleText": "入库" }
@@ -46,19 +46,11 @@
         },
         {
             "path": "pages/operation/move/index",
-            "style": { "navigationBarTitleText": "移库" }
-        },
-        {
-            "path": "pages/operation/move/move_out",
-            "style": { "navigationBarTitleText": "移库 - 扫描下架" }
-        },
-        {
-            "path": "pages/operation/move/move_in",
-            "style": { "navigationBarTitleText": "移库 - 扫描上架" }
+            "style": { "navigationBarTitleText": "库存调整" }
         },
         {
             "path": "pages/operation/move/move_cart",
-            "style": { "navigationBarTitleText": "移库 - 移库中" }
+            "style": { "navigationBarTitleText": "库存调整 - 计划" }
         },
         {
             "path": "pages/operation/manage/index",

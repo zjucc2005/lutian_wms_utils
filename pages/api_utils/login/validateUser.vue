@@ -15,7 +15,7 @@
             }
         },
         mounted() {
-            K3CloudApi.login().then(res => {
+            K3CloudApi.conn().then(res => {
                 this.res = res;
             })
         },

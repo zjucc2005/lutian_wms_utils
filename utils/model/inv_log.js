@@ -19,7 +19,7 @@ import K3CloudApi from '@/utils/k3cloudapi';
 class InvLog {
     constructor(options={}) {
         this.FOpSN = store.state.snowflake.next_id()       
-        this.FOpType = options.FOpType  // in, in_cl, out, out_cl
+        this.FOpType = options.FOpType  // in, in_cl, out, out_cl, mv_out, mv_in
         this.FStockId = { FStockId: options.FStockId } 
         this.FStockLocId = { FNumber: options.FStockLocNo } 
         this.FMaterialId = { FMaterialId: options.FMaterialId }
