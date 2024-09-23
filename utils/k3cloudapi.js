@@ -20,11 +20,49 @@ const fieldKeys = (model_name) => {
     return Object.getOwnPropertyNames(db_model[model_name].fields)
 }
 
+const conn = async () => {
+    if (config.env == 'dev') {
+        return conn_login_by_app_secret()
+    } else {
+        return conn_validate_user()
+    }
+}
+
+const conn_login_by_app_secret = async () => {
+    return new Promise((resolve, reject) => {
+        if (isConn()) {
+            // logger.dev("load store.state.conn_info:", store.state.conn_info)
+            return resolve(store.state.conn_info)
+        }
+        uni.request({
+            url: fullURL('Kingdee.BOS.WebApi.ServicesStub.AuthService.LoginByAppSecret.common.kdsvc'),
+            method: 'POST',
+            data: { 
+                acctid: api_config.acctid, 
+                username: api_config.username, 
+                appid: api_config.appid,
+                appsecret: api_config.appsecret,
+                lcid: api_config.lcid ,
+            },
+            success: (res) => {
+                logger.info(`运行环境[${config.env}]`)
+                logger.dev("K3CloudApi.conn_login_by_app_secret res:", res)
+                store.commit('api_conn', res.data)
+                resolve(res)
+            },
+            fail: (err) => {
+                console.log("K3CloudApi.conn_login_by_app_secret fail:", err)
+                reject(err)
+            }
+        })
+    })
+}
+
 /**
- * API会话连接
+ * API会话连接，用户名密码方式
  * @return { Hash } Promise
  */
-const conn = async () => {
+const conn_validate_user = async () => {
     return new Promise((resolve, reject) => {
         if (isConn()) {
             // logger.dev("load store.state.conn_info:", store.state.conn_info)
@@ -36,12 +74,12 @@ const conn = async () => {
             data: { acctid: api_config.acctid, username: api_config.username, password: api_config.password, lcid: api_config.lcid },
             success: (res) => {
                 logger.info(`运行环境[${config.env}]`)
-                logger.dev("K3CloudApi.conn res:", res)
+                logger.dev("K3CloudApi.conn_validate_user res:", res)
                 store.commit('api_conn', res.data)
                 resolve(res)
             },
             fail: (err) => {
-                console.log("K3CloudApi.conn fail:", err)
+                console.log("K3CloudApi.conn_validate_user fail:", err)
                 reject(err)
             }
         })
@@ -75,7 +113,7 @@ const view = async (form_id, data) => {
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.view res:", res)
-                    store.commit('reset_api_conn')
+                    // store.commit('reset_api_conn')
                     resolve(res)
                 },
                 fail: (err) => {
@@ -114,7 +152,7 @@ const _delete_ = async (form_id, data) => {
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.delete res:", res)
-                    store.commit('reset_api_conn')
+                    // store.commit('reset_api_conn')
                     resolve(res)
                 },
                 fail: (err) => {
@@ -160,7 +198,7 @@ const save = async (form_id, data) => {
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.save res:", res)
-                    store.commit('reset_api_conn')
+                    // store.commit('reset_api_conn')
                     resolve(res)
                 },
                 fail: (err) => {
@@ -206,7 +244,7 @@ const batch_save = async (form_id, data) => {
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.batch_save res:", res)
-                    store.commit('reset_api_conn')
+                    // store.commit('reset_api_conn')
                     resolve(res)
                 },
                 fail: (err) => {
@@ -252,7 +290,7 @@ const execute_bill_query = async (data) => {
                 data: { data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.execute_bill_query res:", res)
-                    store.commit('reset_api_conn')
+                    // store.commit('reset_api_conn')
                     resolve(res)
                 },
                 fail: (err) => {
@@ -298,7 +336,7 @@ const bill_query = async (data) => {
                 data: { data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.bill_query res:", res)
-                    store.commit('reset_api_conn')
+                    // store.commit('reset_api_conn')
                     resolve(res)
                 },
                 fail: (err) => {

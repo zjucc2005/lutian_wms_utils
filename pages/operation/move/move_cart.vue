@@ -93,7 +93,7 @@
                 this.move_cart = move_cart.destroy()
                 this.refresh_cart_info()
                 uni.$emit('syncMoveCart', { msg: 'sync_move_cart' })
-                uni.navigateBack()
+                // uni.navigateBack()
             },
             if_submit_move() {
                 if (this.move_cart.move_list.length) {
@@ -112,14 +112,14 @@
                 }   
             },
             async submit_move() {
-                play_audio_prompt('success')
-                uni.showLoading({ title: 'Loading' })
                 try {
+                    play_audio_prompt('success')
+                    uni.showLoading({ title: 'Loading' })
                     let move_cart = new MoveCart(this.move_cart)
                     await move_cart.exec({ staff_no: this.cur_staff.FNumber })
                     uni.showToast({ title: '提交成功' })
                     this.move_cart = MoveCart.current()
-                    this.refresh_cart_info()                   
+                    this.refresh_cart_info()
                     uni.$emit('syncMoveCart', { msg: 'sync_move_cart' })
                     console.log('submit_move ok')
                 } catch(err) {

@@ -274,11 +274,12 @@
                 this.stock_loc_opts = stock_loc_opts
             },
             preview_cart() {
-                if (this.move_cart.move_list.length) {
-                    uni.navigateTo({ url: '/pages/operation/move/move_cart' })
-                } else {
-                    uni.showToast({ icon: 'none', title: '当前计划为空' })
-                }
+                uni.navigateTo({ url: '/pages/operation/move/move_cart' })
+                // if (this.move_cart.move_list.length) {
+                //     uni.navigateTo({ url: '/pages/operation/move/move_cart' })
+                // } else {
+                //     uni.showToast({ icon: 'none', title: '当前计划为空' })
+                // }
             },
             scan_code() {
                 // #ifdef APP-PLUS

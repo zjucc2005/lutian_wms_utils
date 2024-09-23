@@ -24,13 +24,13 @@ const store = createStore({
         bd_materials: []           // 基础数据，物料
     },
     mutations: {
-        api_conn(state, conn_info) {
+        api_conn(state, conn_info, duration) {
             state.conn_info = conn_info
-            store.commit('reset_api_conn')
+            state.conn_expired_at = Date.now() + 600 * 1000
         },
-        reset_api_conn(state) {
-            state.conn_expired_at = Date.now() + 20 * 60 * 1000 // 20分钟
-        },
+        // reset_api_conn(state, duration = 0) {
+        //     state.conn_expired_at = Date.now() + duration
+        // },
         staff_login(state, params) {
             state.cur_stock = params.stock
             state.cur_staff = params.staff
