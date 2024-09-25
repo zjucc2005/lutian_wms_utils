@@ -17,22 +17,56 @@
                             :popup-title="inbound_task_form.inbound_date ? '请选择' : '请先选择入库日期'"
                         />
                     </uni-forms-item>
-                    <uni-forms-item label="单据编号" name="bill_no">
+                    <uni-forms-item label="单据编号" name="bill_no" required>
                         <uni-easyinput 
                             v-model="inbound_task_form.bill_no"
                             @change="handle_bill_no_change"
+                            @clear="handle_bill_no_change"
+                            prefixIcon="search"
                             trim="both"
                         />
                     </uni-forms-item>
                 </uni-forms>
             </view>
         </uni-section>
+        
+        <uni-section 
+            v-if="inbound_task_form.inbound_list.length" 
+            title="入库物料信息" type="line" style="padding-bottom: 60px;"
+        >
+            <uni-list>
+                <uni-list-item
+                    v-for="(obj, index) in inbound_task_form.inbound_list"
+                    :key="index"
+                    :rightText="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
+                    :disabled="obj.dest_stock_id != cur_stock.FStockId"
+                >
+                    <template v-slot:body>
+                        <view class="uni-list-item__content uni-list-item__content--center">
+                            <text class="uni-list-item__content-title">{{ obj.material_no }}</text>
+                            <view class="uni-list-item__content-note">
+                                <view>{{ obj.material_name }}</view> 
+                                <view>{{ obj.material_spec }}</view>
+                                <view>
+                                    <uni-icons type="home" color="#999"></uni-icons>
+                                    <text class="src-stock">{{ obj.src_stock_name }}</text>
+                                    <uni-icons type="redo" color="#007bff" style="margin: 0 5px;"></uni-icons> 
+                                    <uni-icons type="home" color="#007bff" ></uni-icons>
+                                    <text class="dest-stock">{{ obj.dest_stock_name }}</text>
+                                </view>
+                            </view>
+                        </view>
+                    </template>
+                </uni-list-item>
+            </uni-list>
+        </uni-section>
+        
         <view class="uni-goods-nav-wrapper">
             <uni-goods-nav 
                 :options="goods_nav.options" 
                 :button-group="goods_nav.button_group"
                 @click="goods_nav_click"
-                @buttonClick="goods_nav_button_click"
+                @button-click="goods_nav_button_click"
             />
         </view>
     </view>
@@ -46,12 +80,43 @@
             </uni-list>
         </uni-section>
         
+        <uni-section
+            v-if="cur_inbound_task.inbound_list.length" 
+            title="入库物料信息" type="line" style="padding-bottom: 60px;"
+        >
+            <uni-list>
+                <uni-list-item
+                    v-for="(obj, index) in cur_inbound_task.inbound_list"
+                    :key="index"
+                    :rightText="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
+                    :disabled="obj.dest_stock_id != cur_stock.FStockId"
+                >
+                    <template v-slot:body>
+                        <view class="uni-list-item__content uni-list-item__content--center">
+                            <text class="uni-list-item__content-title">{{ obj.material_no }}</text>
+                            <view class="uni-list-item__content-note">
+                                <view>{{ obj.material_name }}</view> 
+                                <view>{{ obj.material_spec }}</view>
+                                <view>
+                                    <uni-icons type="home" color="#999"></uni-icons>
+                                    <text class="src-stock">{{ obj.src_stock_name }}</text>
+                                    <uni-icons type="redo" color="#007bff" style="margin: 0 5px;"></uni-icons> 
+                                    <uni-icons type="home" color="#007bff" ></uni-icons>
+                                    <text class="dest-stock">{{ obj.dest_stock_name }}</text>
+                                </view>
+                            </view>
+                        </view>
+                    </template>
+                </uni-list-item>
+            </uni-list>
+        </uni-section>
+        
         <view class="uni-goods-nav-wrapper">
             <uni-goods-nav 
                 :options="goods_nav.options_2" 
                 :button-group="goods_nav.button_group_2"
                 @click="goods_nav_click_2"
-                @buttonClick="goods_nav_button_click_2"
+                @button-click="goods_nav_button_click_2"
             />
         </view>
     </view>
@@ -60,6 +125,7 @@
 <script>
     import store from '@/store'
     import { play_audio_prompt } from '@/utils'
+    import { get_transfer_direct } from '@/utils/api'
     import { InboundTask } from '@/utils/model'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     // #ifdef APP-PLUS
@@ -68,11 +134,13 @@
     export default {
         data() {
             return {
+                cur_stock: {},
                 cur_inbound_task: {},
                 inbound_task_form: {
                     inbound_date: '',
                     batch_no: '',
-                    bill_no: ''
+                    bill_no: '',
+                    inbound_list: []
                 },
                 inbound_task_form_rules: {
                     inbound_date: {
@@ -83,6 +151,18 @@
                     batch_no: {
                         rules: [
                             { required: true, errorMessage: '批次号不能为空' },
+                        ]
+                    },
+                    bill_no: {
+                        rules: [
+                            { required: true, errorMessage: '单据编号不能为空' },
+                            {
+                                validateFunction: (rule, value, data, callback) => {
+                                    if (!this.inbound_task_form.inbound_list.length) {
+                                        return callback('未找到单据信息')
+                                    }
+                                }
+                            }           
                         ]
                     }
                 },
@@ -121,9 +201,10 @@
                 }
             }
         },
-        onShow() {
+        mounted() {
+            this.cur_stock = store.state.cur_stock
             this.cur_inbound_task = InboundTask.current() || {} //读取当前入库任务
-            if (this.cur_inbound_task.f_stock_id && this.cur_inbound_task.f_stock_id != store.state.cur_stock.FStockId) {
+            if (this.cur_inbound_task.stock_id && this.cur_inbound_task.stock_id != store.state.cur_stock.FStockId) {
                 uni.showModal({
                     title: "注意",
                     content: "本机中有其他仓库的入库任务，不能操作，将终止此入库任务",
@@ -172,6 +253,7 @@
             },
             handle_bill_no_change(e) {
                 console.log('bill_no_change e', e)
+                this.get_inbound_list_by_bill_no()
             },
             scan_code() {
                 // #ifdef APP-PLUS
@@ -206,16 +288,55 @@
                 }
             },
             get_inbound_list_by_bill_no() {
-                console.log('[该功能待定]根据单据编号查询入库信息', this.inbound_task_form.bill_no)
+                const bill_no = this.inbound_task_form.bill_no
+                if (!bill_no) {
+                    this.inbound_task_form.inbound_list = []
+                    return
+                }
+                if (bill_no.startsWith('ZJDB')) { // 直接调拨单
+                    uni.showLoading({ title: 'Loading' })
+                    get_transfer_direct(bill_no).then(res => {
+                        this.handle_zjdbd_data(res)
+                        uni.hideLoading()
+                    })
+                } else {
+                    this.inbound_task_form.inbound_list = []
+                    uni.showToast({ icon: 'none', title: '未找到单据信息' })
+                }
+            },
+            handle_zjdbd_data(response) {
+                if (response.data.Result.ResponseStatus.IsSuccess) {
+                    const data = response.data.Result.Result                   
+                    let inbound_list = []
+                    data.TransferDirectEntry.forEach(obj => {
+                        inbound_list.push({
+                            material_no: obj.MaterialId.Number,
+                            material_name: obj.MaterialId.Name[0]?.Value,
+                            material_spec: obj.MaterialId.Specification[0]?.Value,
+                            base_unit_qty: obj.BaseQty,
+                            base_unit_name: obj.BaseUnitId.Name[0]?.Value,
+                            base_unit_no: obj.BaseUnitId.Number,
+                            src_stock_id: obj.SrcStockId.Id,
+                            src_stock_name: obj.SrcStockId.Name[0]?.Value,
+                            dest_stock_id: obj.DestStockId.Id,
+                            dest_stock_name: obj.DestStockId.Name[0]?.Value                            
+                        })
+                    })
+                    this.inbound_task_form.inbound_list = inbound_list
+                } else {
+                    this.inbound_task_form.inbound_list = []
+                    uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
+                }
             },
             create_inbound_task() {
                 this.$refs.inbound_task_form.validate().then(e => {
                     play_audio_prompt('success')
                     const options = {
-                        f_stock_id: store.state.cur_stock.FStockId,
+                        stock_id: store.state.cur_stock.FStockId,
                         inbound_date: this.inbound_task_form.inbound_date,
                         batch_no: this.inbound_task_form.batch_no,
-                        bill_no: this.inbound_task_form.bill_no
+                        bill_no: this.inbound_task_form.bill_no,
+                        inbound_list: this.inbound_task_form.inbound_list
                     }
                     let inbound_task = new InboundTask(options)
                     inbound_task.save()
@@ -235,7 +356,7 @@
             finish_inbound_task() {
                 InboundTask.destroy_all()               
                 this.cur_inbound_task = {}
-                this.inbound_task_form = { inbound_date: '', batch_no: '', bill_no: '' }
+                this.inbound_task_form = { inbound_date: '', batch_no: '', bill_no: '', inbound_list: [] }
                 console.log('结束入库任务')
             },
             continue_inbound_task() {
@@ -246,6 +367,42 @@
     }
 </script>
 
-<style>
+<style lang="scss">
+    .uni-list-item__content {
+        /* #ifndef APP-NVUE */
+        display: flex;
+        /* #endif */
+        padding-right: 8px;
+        flex: 1;
+        color: #3b4144;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+    }
     
+    .uni-list-item__content--center {
+        justify-content: center;
+    }
+    
+    .uni-list-item__content-title {
+        font-size: $uni-font-size-base;
+        color: #3b4144;
+        overflow: hidden;
+    }
+    
+    .uni-list-item__content-note {
+        margin-top: 6rpx;
+        color: $uni-text-color-grey;
+        font-size: $uni-font-size-sm;
+        overflow: hidden;
+        .dest-stock {
+            color: $uni-color-primary;
+            &.disabled {
+                color: $uni-color-error;
+            }
+        }
+        .batch_no {
+            color: $uni-color-primary;
+        }
+    }
 </style>

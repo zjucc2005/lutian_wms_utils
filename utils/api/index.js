@@ -66,10 +66,20 @@ const get_sal_deliverynotice = async (bill_no) => {
     return K3CloudApi.view('SAL_DELIVERYNOTICE', { Number: bill_no })
 }
 
+/** 
+ * 获取直接调拨单详情
+ * @param bill_no:String 单据编号
+ * @return {Hash} Promise
+ */
+const get_transfer_direct = async (bill_no) => {
+    return K3CloudApi.view('STK_TransferDirect', { Number: bill_no })
+}
+
 export {
     validate_staff,
     get_bd_stocks,
     get_bd_material,
-    get_sal_deliverynotice
+    get_sal_deliverynotice,
+    get_transfer_direct
     // get_bd_units,
 }

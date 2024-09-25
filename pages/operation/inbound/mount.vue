@@ -9,12 +9,20 @@
                         <uni-easyinput 
                             v-model="mount_form.material_no"
                             trim="both"
+                            prefix-icon="list"
+                            @icon-click="handle_icon_click('material_no')"
                             @change="handle_material_no_change"
                             @clear="handle_material_no_change"
                         />
                     </uni-forms-item>
                     <uni-forms-item label="库位号" name="loc_no" required>
-                        <uni-easyinput v-model="mount_form.loc_no" trim="both" />
+                        <!-- <uni-easyinput v-model="mount_form.loc_no" trim="both" /> -->
+                        <uni-data-picker
+                            v-model="mount_form.loc_no"
+                            :localdata="stock_loc_opts"
+                            split="-"
+                            popup-title="请选择库位"
+                        />
                     </uni-forms-item>
                     <uni-forms-item label="上架数量" name="op_qty" required>
                         <uni-easyinput v-model="mount_form.op_qty" type="number">
@@ -55,7 +63,7 @@
                 :options="goods_nav.options" 
                 :button-group="goods_nav.button_group"
                 @click="goods_nav_click"
-                @buttonClick="goods_nav_button_click"
+                @button-click="goods_nav_button_click"
             />
         </view>
     </view>
@@ -65,7 +73,7 @@
     import store from '@/store';
     import { play_audio_prompt } from '@/utils';
     import { get_bd_material } from '@/utils/api';
-    import { InvLog, StockLoc } from '@/utils/model';
+    import { InboundTask, InvLog, StockLoc } from '@/utils/model';
     import { is_material_no_format, is_loc_no_std_format, is_decimal_unit, describe_inv_log } from '@/utils';
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     // #ifdef APP-PLUS
@@ -79,6 +87,7 @@
                 cur_inbound_task: {},
                 inv_logs: [],
                 stock_locs: [],
+                stock_loc_opts: [],
                 bd_materials: [], // 物料基础数据Array，cache
                 mount_form: {
                     material_no: '',
@@ -98,6 +107,9 @@
                             {
                                 validateFunction: (rule, value, data, callback) => {
                                     let material_no = value
+                                    if (!this.cur_inbound_task.inbound_list.find(x => x.material_no == material_no)) {
+                                        return callback('当前出库任务中无此物料编码')
+                                    }
                                     let bd_material = this.bd_materials.find(x => x.FNumber == material_no)
                                     if (!bd_material) {
                                         return get_bd_material(material_no, this.cur_stock.FUseOrgId).then(res => {
@@ -187,14 +199,13 @@
         mounted() {
             this.cur_stock = store.state.cur_stock
             this.cur_staff = store.state.cur_staff
-            this.cur_inbound_task = uni.getStorageSync('cur_inbound_task')
+            this.cur_inbound_task = InboundTask.current()
+            this.stock_locs = store.state.stock_locs // 加载当前仓库的库位数据
+            this.stock_loc_opts = store.state.stock_loc_opts
             InvLog.query(
                 { FStockId: this.cur_stock.FStockId, FBatchNo: this.cur_inbound_task.batch_no, FOpType_in: ['in', 'in_cl'] }, 
                 { page: 1, per_page: 5, order: 'FCreateTime DESC' }).then(res => {
                 res.data.reverse().forEach(log => this.unshift_inv_log(log))
-            })
-            StockLoc.query({ FStockId: this.cur_stock.FStockId }).then(res => {
-                this.stock_locs = res.data // 加载当前仓库的库位数据
             })
         },
         methods: {
@@ -213,6 +224,19 @@
                 if (e.index === 1) this.submit_mount() // btn:提交上架
             },
             // >>> action
+            handle_icon_click(type) {
+                // console.log("handle_icon_click type:", type)
+                if (type == 'material_no') {
+                    let list = this.cur_inbound_task.inbound_list.map(x => x.material_no)
+                    uni.showActionSheet({
+                        itemList: list,
+                        success: (e) => {
+                            this.mount_form.material_no = list[e.tapIndex]
+                            this.handle_material_no_change()
+                        }
+                    })
+                }   
+            },
             handle_material_no_change() {
                 // console.log('handle_material_no_change e:', e)
                 let material_no = this.mount_form.material_no
@@ -239,11 +263,12 @@
             },
             more_actions() {
                 uni.showActionSheet({
-                    itemList: ['入库详情', '操作日志'],
+                    itemList: ['入库详情', '操作日志', 'debug'],
                     success: (e) => {
                         console.log('showActionSheet e:', e)
                         if (e.tapIndex === 0) uni.navigateTo({ url: '/pages/operation/inbound/task' })
                         if (e.tapIndex === 1) uni.navigateTo({ url: '/pages/operation/inbound/logs' })
+                        if (e.tapIndex === 2) console.log("this.$data", this.$data)
                     }
                 })
             },
@@ -327,7 +352,6 @@
                     uni.showToast({ icon: 'error', title: 'ERROR' })
                 }
             },
-            // >>> function
             set_base_unit(bd_material) {
                 if (bd_material) {
                     this.mount_form.material_name = bd_material.FName

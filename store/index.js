@@ -21,6 +21,7 @@ const store = createStore({
         snowflake: null,           // 雪花算法实例，全局运行一个实例      
         bd_stocks: [],             // 基础数据，仓库，bd_开头的数据均采用api获取时的状态，不做数据处理
         stock_locs: [],            // 基础数据，库位，登录时获取，在库位管理处可重新获取（刷新）
+        stock_loc_opts: [],        // 基础数据，库位，uni-data-picker 用格式
         bd_materials: []           // 基础数据，物料
     },
     mutations: {
@@ -52,6 +53,33 @@ const store = createStore({
         },
         set_stock_locs(state, stock_locs) {
             state.stock_locs = stock_locs
+            const stock_loc_opts = []
+            stock_locs.forEach(stock_loc => {
+                let loc_no = stock_loc.FNumber
+                let loc_no_arr = loc_no.split('-')
+                let depot = stock_loc_opts.find(opt => opt.value == loc_no_arr[0])
+                if (!depot) {
+                    depot = { text: loc_no_arr[0], value: loc_no_arr[0], children: [] }
+                    stock_loc_opts.push(depot)
+                }
+                if (loc_no_arr.length > 1) {
+                    let shelf = depot.children.find(s => s.value == loc_no_arr[1])
+                    if (!shelf) {
+                        shelf = { text: loc_no_arr[1], value: loc_no_arr[1], children: [] }
+                        depot.children.push(shelf)
+                    }
+                    if (loc_no_arr.length > 2) {
+                        shelf.children.push({ text: loc_no_arr.slice(2).join('-'), value: loc_no })
+                    }
+                }                   
+            })
+            stock_loc_opts.forEach(depot => {
+                depot.children.sort((x, y) => x.text - y.text)
+                depot.children.forEach(shelf => {
+                    shelf.children.sort((x, y) => x.text - y.text)
+                })
+            })
+            state.stock_loc_opts = stock_loc_opts
         }
     },
     getters: {

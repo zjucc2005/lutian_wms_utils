@@ -238,40 +238,12 @@
             },
             // >>> action
             load_stock_locs() {
-                StockLoc.query({ FStockId: this.cur_stock.FStockId }).then(res => {
-                    this.stock_locs = res.data // 加载当前仓库的库位数据
-                    this.set_stock_loc_opts() // 生成库位tree数据
-                })
-            },
-            set_stock_loc_opts() {
-                // depot-shelf-grid
-                const stock_loc_opts = []
-                this.stock_locs.forEach(stock_loc => {
-                    let loc_no = stock_loc.FNumber
-                    let loc_no_arr = loc_no.split('-')
-                    let depot = stock_loc_opts.find(opt => opt.value == loc_no_arr[0])
-                    if (!depot) {
-                        depot = { text: loc_no_arr[0], value: loc_no_arr[0], children: [] }
-                        stock_loc_opts.push(depot)
-                    }
-                    if (loc_no_arr.length > 1) {
-                        let shelf = depot.children.find(s => s.value == loc_no_arr[1])
-                        if (!shelf) {
-                            shelf = { text: loc_no_arr[1], value: loc_no_arr[1], children: [] }
-                            depot.children.push(shelf)
-                        }
-                        if (loc_no_arr.length > 2) {
-                            shelf.children.push({ text: loc_no_arr.slice(2).join('-'), value: loc_no })
-                        }
-                    }                   
-                })
-                stock_loc_opts.forEach(depot => {
-                    depot.children.sort((x, y) => x.text - y.text)
-                    depot.children.forEach(shelf => {
-                        shelf.children.sort((x, y) => x.text - y.text)
-                    })
-                })
-                this.stock_loc_opts = stock_loc_opts
+                this.stock_locs = store.state.stock_locs // 加载当前仓库的库位数据
+                this.stock_loc_opts = store.state.stock_loc_opts
+                // StockLoc.query({ FStockId: this.cur_stock.FStockId }).then(res => {
+                //     this.stock_locs = res.data // 加载当前仓库的库位数据
+                //     this.set_stock_loc_opts() // 生成库位tree数据
+                // })
             },
             preview_cart() {
                 uni.navigateTo({ url: '/pages/operation/move/move_cart' })

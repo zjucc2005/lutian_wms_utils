@@ -6,6 +6,7 @@
                     <uni-forms-item label="单据编号" name="bill_no" required>
                         <uni-easyinput 
                             v-model="outbound_task_form.bill_no" 
+                            prefixIcon="search"
                             trim="both"
                             @change="handle_bill_no_change"
                             @clear="handle_bill_no_clear"
@@ -15,7 +16,7 @@
             </view>
         </uni-section>
         
-        <uni-section v-if="outbound_task_form.outbound_list?.length" title="出库物料信息" type="circle">
+        <uni-section v-if="outbound_task_form.outbound_list?.length" title="出库物料信息" type="line" style="padding-bottom: 60px;">
             <uni-list>
                 <uni-list-item
                     v-for="(obj, index) in outbound_task_form.outbound_list"
@@ -123,7 +124,7 @@ import { play_audio_prompt } from '../../../utils'
         },
         onShow() {
             this.cur_outbound_task = OutboundTask.current() || {} //读取当前出库任务
-            if (this.cur_outbound_task.f_stock_id && this.cur_outbound_task.f_stock_id != store.state.cur_stock.FStockId) {
+            if (this.cur_outbound_task.stock_id && this.cur_outbound_task.stock_id != store.state.cur_stock.FStockId) {
                 uni.showModal({
                     title: "注意",
                     content: "本机中有其他仓库的出库任务，不能操作，将终止此出库任务",
@@ -217,7 +218,7 @@ import { play_audio_prompt } from '../../../utils'
                 this.$refs.outbound_task_form.validate().then(e => {
                     play_audio_prompt('success')
                     const options = {
-                        f_stock_id: store.state.cur_stock.FStockId,
+                        stock_id: store.state.cur_stock.FStockId,
                         staff_no: store.state.cur_staff.FNumber,
                         bill_no: this.outbound_task_form.bill_no,
                         outbound_list: this.outbound_task_form.outbound_list

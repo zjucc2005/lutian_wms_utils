@@ -28,6 +28,10 @@ const conn = async () => {
     }
 }
 
+/**
+ * API会话连接，Secret方式
+ * @return { Hash } Promise
+ */
 const conn_login_by_app_secret = async () => {
     return new Promise((resolve, reject) => {
         if (isConn()) {
@@ -113,11 +117,92 @@ const view = async (form_id, data) => {
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.view res:", res)
-                    // store.commit('reset_api_conn')
                     resolve(res)
                 },
                 fail: (err) => {
                     console.log("K3CloudApi.view fail:", err)
+                    reject(err)
+                }
+            })
+        })   
+    })
+}
+
+/**
+ * 提交表单数据接口
+ * @param form_id:String 表单id，必须
+ * @param data:Hash
+ *   @field CreateOrgId:Integer 创建者组织内码（非必录）
+ *   @field Numbers:Array 单据编码集合，数组类型，格式：[No1,No2,...]（使用编码时必录）
+ *   @field Ids:String 单据内码集合，字符串类型，格式："Id1,Id2,..."（使用内码时必录）
+ *   @field SelectedPostId:Integer 工作流发起员工岗位内码，整型（非必录） 注（员工身兼多岗时不传参默认取第一个岗位）
+ *   @field UseOrgId:Integer 使用者组织内码（非必录）
+ *   @field NetworkCtrl:Boolean 是否启用网控，布尔类型，默认false（非必录）
+ *   @field IgnoreInterationFlag:Boolean 是否允许忽略交互，布尔类型，默认true（非必录）
+ * @return { Hash } Promise
+ */
+const submit = async (form_id, data) => {
+    const _data_  = {
+        CreateOrgId: 0,
+        Numbers: [],
+        Ids: "",
+        NetworkCtrl: "",
+        ...data
+    }
+    return conn().then(_ => {
+        return new Promise((resolve, reject) => {
+            logger.dev("K3CloudApi.submit req:", _data_)
+            uni.request({
+                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Submit.common.kdsvc'),
+                method: 'POST',
+                data: { formid: form_id, data: _data_ },
+                success: (res) => {
+                    logger.dev("K3CloudApi.submit res:", res)
+                    resolve(res)
+                },
+                fail: (err) => {
+                    console.log("K3CloudApi.submit fail:", err)
+                    reject(err)
+                }
+            })
+        })   
+    })
+}
+
+/**
+ * 审核表单数据接口
+ * @param form_id:String 表单id，必须
+ * @param data:Hash
+ *   @field CreateOrgId:Integer 创建者组织内码（非必录）
+ *   @field Numbers:Array 单据编码集合，数组类型，格式：[No1,No2,...]（使用编码时必录）
+ *   @field Ids:String 单据内码集合，字符串类型，格式："Id1,Id2,..."（使用内码时必录）
+ *   @field InterationFlags:String 交互标志集合，字符串类型，分号分隔，格式："flag1;flag2;..."（非必录） 例如（允许负库存标识：STK_InvCheckResult）
+ *   @field UseOrgId:Integer 使用者组织内码（非必录）
+ *   @field NetworkCtrl:Boolean 是否启用网控，布尔类型，默认false（非必录）
+ *   @field IsVerifyProcInst:Boolean 是否检验单据关联运行中的工作流实例，布尔类型，默认true（非必录）
+ *   @field IgnoreInterationFlag:Boolean 是否允许忽略交互，布尔类型，默认true（非必录）
+ *   @field UseBatControlTimes:Boolean 是否应用单据参数设置分批处理，默认false
+ * @return { Hash } Promise
+ */
+const audit = async (form_id, data) => {
+    const _data_  = {
+        Numbers: [],
+        Ids: "",
+        ...data
+    }
+    return conn().then(_ => {
+        return new Promise((resolve, reject) => {
+            logger.dev("K3CloudApi.audit req:", _data_)
+            uni.request({
+                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Audit.common.kdsvc'),
+                method: 'POST',
+                data: { formid: form_id, data: _data_ },
+                success: (res) => {
+                    logger.dev("K3CloudApi.audit res:", res)
+                    resolve(res)
+                },
+                fail: (err) => {
+                    console.log("K3CloudApi.audit fail:", err)
                     reject(err)
                 }
             })
@@ -137,22 +222,19 @@ const view = async (form_id, data) => {
  */
 const _delete_ = async (form_id, data) => {
     const _data_  = {
-        CreateOrgId: 0,
         Numbers: [],
         Ids: "",
-        NetworkCtrl: "",
         ...data
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.view req:", _data_)
+            logger.dev("K3CloudApi.delete req:", _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Delete.common.kdsvc'),
                 method: 'POST',
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.delete res:", res)
-                    // store.commit('reset_api_conn')
                     resolve(res)
                 },
                 fail: (err) => {
@@ -198,7 +280,6 @@ const save = async (form_id, data) => {
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.save res:", res)
-                    // store.commit('reset_api_conn')
                     resolve(res)
                 },
                 fail: (err) => {
@@ -244,7 +325,6 @@ const batch_save = async (form_id, data) => {
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.batch_save res:", res)
-                    // store.commit('reset_api_conn')
                     resolve(res)
                 },
                 fail: (err) => {
@@ -290,7 +370,6 @@ const execute_bill_query = async (data) => {
                 data: { data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.execute_bill_query res:", res)
-                    // store.commit('reset_api_conn')
                     resolve(res)
                 },
                 fail: (err) => {
@@ -336,7 +415,6 @@ const bill_query = async (data) => {
                 data: { data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.bill_query res:", res)
-                    // store.commit('reset_api_conn')
                     resolve(res)
                 },
                 fail: (err) => {
@@ -351,6 +429,8 @@ const bill_query = async (data) => {
 const K3CloudApi = {
     conn,
     view,
+    submit,
+    audit,
     delete: _delete_,
     save,
     batch_save,

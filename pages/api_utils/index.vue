@@ -156,18 +156,23 @@
             },
             api_call_test() {
                 console.log('API调用 - 目前无测试代码')
-                const data = {
-                    // Number: 'FHTZD074960',
-                    Number: 'FHTZD078950'
-                }
-                K3CloudApi.view('SAL_DELIVERYNOTICE', data).then(res => {
-                    console.log('res.data.Result.Result.SAL_DELIVERYNOTICEENTRY', res.data.Result.Result.SAL_DELIVERYNOTICEENTRY)
+                // const data = {
+                //     // Number: 'FHTZD074960',
+                //     Number: 'FHTZD078950'
+                // }
+                // K3CloudApi.view('SAL_DELIVERYNOTICE', { Number: 'FHTZD074960' }).then(res => {
+                //     console.log('res.data.Result.Result.SAL_DELIVERYNOTICEENTRY', res.data.Result.Result.SAL_DELIVERYNOTICEENTRY)
+                // })
+                K3CloudApi.view('STK_TransferDirect', { Number: 'ZJDB198948' }).then(res => {
+                    console.log('res.data', res.data)
                 })
+                // K3CloudApi.save('PAEZ_C_INV_LOG', { model: { FID: '100232', FRemark: '用save更新成功' }})
+                
                 // const form_id = 'PAEZ_C_INV_LOG'
                 // const data = {
                 //     Ids: '100013'
                 // }
-                // K3CloudApi.delete(form_id, data).then(res => {                
+                // K3CloudApi.delete(form_id, data).then(res => {
                 // })
                 // get_bd_material('1.06.08.03.0006', 100007)
             }

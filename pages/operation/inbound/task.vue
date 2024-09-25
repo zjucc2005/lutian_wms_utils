@@ -11,7 +11,33 @@
             </uni-list>
         </uni-section>
         
-        <uni-section title="已上架信息" type="line">
+        <uni-section title="上架物料信息" type="line">
+            <uni-list>
+                <uni-list-item
+                    v-for="(obj, index) in cur_inbound_task.inbound_list"
+                    :key="index"
+                    :rightText="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
+                    :disabled="obj.dest_stock_id != cur_stock.FStockId"
+                >
+                    <template v-slot:body>
+                        <view class="uni-list-item__content uni-list-item__content--center">
+                            <text class="uni-list-item__content-title">{{ obj.material_no }}</text>
+                            <view class="uni-list-item__content-note">
+                                <view>{{ obj.material_name }}</view> 
+                                <view>{{ obj.material_spec }}</view>
+                                <view>
+                                    <uni-icons type="home" color="#999"></uni-icons>
+                                    <text class="src-stock">{{ obj.src_stock_name }}</text>
+                                    <uni-icons type="redo" color="#007bff" style="margin: 0 5px;"></uni-icons> 
+                                    <uni-icons type="home" color="#007bff" ></uni-icons>
+                                    <text class="dest-stock">{{ obj.dest_stock_name }}</text>
+                                </view>
+                            </view>
+                        </view>
+                    </template>
+                </uni-list-item>
+            </uni-list>
+            
             <uni-list>
                 <uni-list-item
                     v-for="(obj, index) in mount_infos"
@@ -35,7 +61,7 @@
 
 <script>
     import store from '@/store'
-    import { InvLog } from '@/utils/model' 
+    import { InboundTask, InvLog } from '@/utils/model' 
     export default {
         data() {
             return {
@@ -50,7 +76,7 @@
         mounted() {
             this.cur_stock = store.state.cur_stock
             this.cur_staff = store.state.cur_staff
-            this.cur_inbound_task = uni.getStorageSync('cur_inbound_task')
+            this.cur_inbound_task = InboundTask.current()
             this.load_inv_logs()
         },
         methods: {
