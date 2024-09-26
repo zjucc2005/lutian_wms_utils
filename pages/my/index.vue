@@ -1,6 +1,6 @@
 <template>
     <view>
-        <uni-list class="mb-1">
+        <uni-list class="uni-mb-10">
             <uni-list-item title="位置"
                 :show-extra-icon="true" 
                 :extra-icon="{ color: '#007bff', size: '24', type: 'location' }"

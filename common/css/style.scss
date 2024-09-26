@@ -2,10 +2,6 @@
     padding: 0 0.9375rem;
 }
 
-.mb-1 {
-    margin-bottom: 0.625rem;
-}
-
 .text-sm {
     font-size: 12px;
     line-height: 16px;
@@ -36,6 +32,10 @@
     right: var(--window-right);
     /* #endif */
     bottom: 0;
+}
+
+.above-uni-goods-nav {
+    padding-bottom: 60px;
 }
 
 .shelf_swiper {

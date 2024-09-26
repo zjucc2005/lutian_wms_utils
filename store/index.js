@@ -18,6 +18,8 @@ const store = createStore({
         conn_expired_at: null,     // API连接过期时间
         cur_stock: {},             // >>> 当前作业仓库
         cur_staff: {},             // >>> 当前作业员工
+        role: 'admin',             // 用户角色，admin/staff
+        process_version: 'v2',     // 流程版本
         snowflake: null,           // 雪花算法实例，全局运行一个实例      
         bd_stocks: [],             // 基础数据，仓库，bd_开头的数据均采用api获取时的状态，不做数据处理
         stock_locs: [],            // 基础数据，库位，登录时获取，在库位管理处可重新获取（刷新）

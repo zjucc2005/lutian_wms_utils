@@ -439,5 +439,32 @@
             FCInvId: "关联C_INV",
             FReferId: "自关联ID"
         }
+    },
+    PAEZ_C_INV_PLAN: {
+        fields: {
+            FID: "FID",
+            FDocumentStatu: "FDocumentStatus",
+            FOpSN: "操作序列号",
+            FOpType: "库存操作类型",
+            FStockId: "仓库ID",
+            FStockLocId: "仓位号ID",
+            'FStockLocId.FNumber': "仓位号",
+            FMaterialId: "物料编码ID",
+            'FMaterialId.FNumber': "物料编码",
+            'FMaterialId.FName': "物料名称",
+            'FMaterialId.FSpecification': '规格型号',
+            FOpQTY: "操作数量",
+            FStockUnitId: "计量单位ID",
+            'FStockUnitId.FName': '计量单位',
+            FInvIncre: "库存变更数量",
+            FInvQTY: "库存批次流水",
+            FBatchNo: "库存批次号",
+            FBillNo: "单据编号",
+            FRemark: "操作备注",
+            FOpStaffNo: "操作员工编号",
+            FCreateTime: "数据新建时间",
+            FCInvId: "关联C_INV",
+            FReferId: "自关联ID"
+        }
     }
 }

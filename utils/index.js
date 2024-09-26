@@ -19,7 +19,8 @@ const play_audio = (src) => {
 const play_audio_prompt = (type) => {
     const src = {
         success: '/static/audio/success.mp3',
-        warn: '/static/audio/warn.mp3'
+        warn: '/static/audio/warn.mp3',
+        delete: '/static/audio/delete.mp3'
     }[type]
     if (src) {
         play_audio(src)

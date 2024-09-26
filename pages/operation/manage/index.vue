@@ -1,6 +1,6 @@
 <template>
     <view>
-        <uni-list class="mb-1">
+        <uni-list>
             <uni-list-item title="库存查询"
                 :show-extra-icon="true"
                 :extra-icon="{ color: '#007bff', size: '24', type: 'search' }"

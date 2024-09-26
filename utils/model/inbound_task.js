@@ -1,4 +1,5 @@
 import store from '@/store';
+import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
 
 /**
  * 前端入库任务模型
@@ -13,7 +14,7 @@ class InboundTask {
         this.stock_id = options.stock_id                   // 仓库ID
         this.staff_no = options.staff_no                   // 员工编号
         this.inbound_date = options.inbound_date           // 入库日期
-        this.batch_no = options.batch_no                   // 批次号
+        this.batch_no = options.batch_no || formatDate(this.created_at, 'yyyyMMdd') // 批次号
         this.bill_no = options.bill_no                     // 单据编号
         this.inbound_list = options.inbound_list || []     // 入库总览，物料清单
     }

@@ -126,7 +126,7 @@
                     store.commit('staff_login', store_data)
                     this.after_login()
                     uni.showToast({ title: '登录成功' })
-                    uni.reLaunch({ url: '/pages/operation/index' })                  
+                    uni.reLaunch({ url: '/pages/operation/index_v2' })                  
                 }).catch(err => {
                     uni.hideLoading()
                     console.log('submit_login err:', err);

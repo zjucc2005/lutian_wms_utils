@@ -123,6 +123,23 @@
         {
             "path": "pages/api_utils/store/chart",
             "style": { "navigationBarTitleText": "Chart" }
+        },
+        // 仓库流程 VERSION 2
+        {
+            "path": "pages/operation/index_v2",
+            "style": { "navigationBarTitleText" : "仓库作业" }
+        },
+        {
+            "path": "pages/operation/inbound/v2/index",
+            "style": { "navigationBarTitleText" : "入库" }
+        },
+        {
+            "path": "pages/operation/inbound/v2/plan_new",
+            "style": { "navigationBarTitleText" : "入库 - 新增入库计划" }
+        },
+        {
+            "path": "pages/operation/inbound/v2/plan_new_entry",
+            "style":  { "navigationBarTitleText" : "入库 - 新增入库计划" }
         }
     ],
     "globalStyle": {
@@ -153,7 +170,18 @@
             },
             {
                 "pagePath": "pages/operation/index",
-                "text": "仓库",
+                "text": "仓库V1",
+                "iconfont": {
+                    "text": "\ue662",
+                    "color": "#7A7E83",
+                    "selectedText": "\ue662",
+                    "fontSize": "24px",
+                    "selectedColor": "#007aff"
+                }
+            },
+            {
+                "pagePath": "pages/operation/index_v2",
+                "text": "仓库V2",
                 "iconfont": {
                     "text": "\ue662",
                     "color": "#7A7E83",
