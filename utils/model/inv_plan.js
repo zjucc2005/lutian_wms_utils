@@ -1,5 +1,6 @@
-import store from '@/store';
-import K3CloudApi from '@/utils/k3cloudapi';
+import store from '@/store'
+import K3CloudApi from '@/utils/k3cloudapi'
+import InvLog from './inv_log'
 
 /**
  * 前端库存计划模型
@@ -58,8 +59,32 @@ class InvPlan {
     }
     
     /**
+     * 批量提交库存计划（到数据库）
+     * @param ids:Array[Integer]
+     * @return {Hash} Promise
+     */
+    static async submit(ids=[]) {
+        const data = {
+            Ids: ids.join(',')
+        }
+        return K3CloudApi.submit('PAEZ_C_INV_PLAN', data)
+    }
+    
+    /**
+     * 批量审核库存计划（到数据库）
+     * @param ids:Array[Integer]
+     * @return {Hash} Promise
+     */
+    static async audit(ids=[]) {
+        const data = {
+            Ids: ids.join(',')
+        }
+        return K3CloudApi.audit('PAEZ_C_INV_PLAN', data)
+    }
+    
+    /**
      * 批量删除库存计划
-     * @param ids:Array
+     * @param ids:Array[Integer]
      * @return {Hash} Promise
      */
     static async delete(ids=[]) {
@@ -143,6 +168,57 @@ class InvPlan {
     
     static async find(id) {
         return this.query({ FID: id }, { limit: 1 })
+    }
+    
+    /**
+     * 执行库存计划，生成库存变更日志
+     * @param inv_plan:Hash 接口获取的数据库实例
+     * @return {Hash} Promise
+     */
+    static async execute(inv_plan) {
+        if (['in', 'out'].includes(inv_plan.FOpType)) {
+            let options = {
+                FOpType: inv_plan.FOpType,
+                FStockId: inv_plan.FStockId,
+                FStockLocNo: inv_plan['FStockLocId.FNumber'],
+                FMaterialId: inv_plan.FMaterialId,
+                FOpQTY: inv_plan.FOpQTY,
+                FBatchNo: inv_plan.FBatchNo,
+                FBillNo: inv_plan.FBillNo,
+                FOpStaffNo: inv_plan.FOpStaffNo,
+                FRemark: inv_plan.FRemark
+            }
+            let inv_log = new InvLog(options)
+            await inv_log.save()
+        }
+        else if (inv_plan.FOpType == 'mv') {
+            let src_options = {
+                FOpType: 'mv_out',
+                FStockId: inv_plan.FStockId,
+                FStockLocNo: inv_plan['FStockLocId.FNumber'],
+                FMaterialId: inv_plan.FMaterialId,
+                FOpQTY: inv_plan.FOpQTY,
+                FBatchNo: inv_plan.FBatchNo,
+                FBillNo: inv_plan.FBillNo,
+                FOpStaffNo: inv_plan.FOpStaffNo,
+                FRemark: inv_plan.FRemark
+            }
+            let src_inv_log = new InvLog(src_options)
+            await src_inv_log.save()
+            let dest_options = {
+                FOpType: 'mv_in',
+                FStockId: inv_plan.FStockId,
+                FStockLocNo: inv_plan['FDestStockLocId.FNumber'],
+                FMaterialId: inv_plan.FMaterialId,
+                FOpQTY: inv_plan.FOpQTY,
+                FBatchNo: inv_plan.FBatchNo,
+                FBillNo: inv_plan.FBillNo,
+                FOpStaffNo: inv_plan.FOpStaffNo,
+                FRemark: inv_plan.FRemark
+            }
+            let dest_inv_log = new InvLog(dest_options)
+            await dest_inv_log.save()
+        }
     }
 }
 

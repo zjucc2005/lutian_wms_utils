@@ -449,6 +449,8 @@
             FStockId: "仓库ID",
             FStockLocId: "仓位号ID",
             'FStockLocId.FNumber': "仓位号",
+            FDestStockLocId: "目标仓位号ID",
+            'FDestStockLocId.FNumber': "目标仓位号",
             FMaterialId: "物料编码ID",
             'FMaterialId.FNumber': "物料编码",
             'FMaterialId.FName': "物料名称",

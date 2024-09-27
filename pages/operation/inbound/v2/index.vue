@@ -1,15 +1,70 @@
 <template>
-    <view>
-        <uni-section title="进行中的计划" type="square" class="above-uni-goods-nav">
-            
+    <view v-if="$store.state.role == 'admin'">
+        <uni-section title="进行中的入库计划" type="square" class="above-uni-goods-nav">
+            <uni-list>
+                <uni-list-item
+                    v-for="(group_item, index) in inv_plan_groups"
+                    :key="index"
+                    :right-text="group_item.created_at"
+                    show-arrow
+                    @click="operate_plan(group_item.bill_no)" clickable
+                >
+                    <template v-slot:body>
+                        <view class="uni-list-item__body">
+                            <text class="title">{{ group_item.bill_no }}</text>
+                            <view class="note">
+                                <progress
+                                    :percent="group_item.qty_b * 100 / (group_item.qty_b + group_item.qty_a)" 
+                                    stroke-width="2"
+                                    :active-color="group_item.qty_b / (group_item.qty_b + group_item.qty_a) == 1 ? '#4cd964' : '#f0ad4e'"
+                                    :active="true"
+                                />
+                                <text class="qty">已入库： {{ group_item.qty_b }} / {{ group_item.qty_a + group_item.qty_b }}</text>
+                            </view>
+                        </view>
+                    </template>
+                </uni-list-item>
+            </uni-list>
         </uni-section>
         
         <view class="uni-goods-nav-wrapper">
             <uni-goods-nav 
                 :options="goods_nav.options" 
-                :button-group="goods_nav.button_group"
+                :button-group="goods_nav.admin_button_group"
                 @click="goods_nav_click"
-                @button-click="goods_nav_button_click"
+                @button-click="goods_nav_admin_button_click"
+            />
+        </view>
+    </view>
+    
+    <view v-if="$store.state.role == 'staff'">
+        <uni-section title="进行中的入库计划" type="square" class="above-uni-goods-nav">
+            <uni-list>
+                <uni-list-item
+                    v-for="(group_item, index) in inv_plan_groups"
+                    :key="index"
+                    :right-text="group_item.created_at"
+                    show-arrow
+                    @click="operate_plan(group_item.bill_no)" clickable
+                >                    
+                    <template v-slot:body>
+                        <view class="uni-list-item__body">
+                            <text class="title">{{ group_item.bill_no }}</text>
+                            <view class="note">
+                                <text>剩余：{{ group_item.qty_a }}</text>
+                            </view>
+                        </view>
+                    </template>
+                </uni-list-item>
+            </uni-list>
+        </uni-section>
+        
+        <view class="uni-goods-nav-wrapper">
+            <uni-goods-nav 
+                :options="goods_nav.options" 
+                :button-group="goods_nav.staff_button_group"
+                @click="goods_nav_click"
+                @button-click="goods_nav_staff_button_click"
             />
         </view>
     </view>
@@ -19,6 +74,7 @@
     import store from '@/store'
     import { InvPlan } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
+    import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
     // #endif
@@ -33,9 +89,9 @@
                     options: [
                         { icon: 'refreshempty', text: '刷新' }
                     ],
-                    button_group: [
+                    admin_button_group: [
                         {
-                            text: '新增入库计划（扫码）',
+                            text: '扫码查询',
                             backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
                             color: '#fff'
                         },
@@ -45,18 +101,10 @@
                             color: '#fff'
                         }
                     ],
-                    options_2: [
-                        { icon: 'bars', text: '详情' }
-                    ],
-                    button_group_2: [
+                    staff_button_group: [
                         {
-                            text: '结束入库任务',
-                            backgroundColor: 'linear-gradient(90deg, #AAA, #606266)',
-                            color: '#fff'
-                        },
-                        {
-                            text: '继续入库任务',
-                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
+                            text: '扫码查询',
+                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
                             color: '#fff'
                         }
                     ]
@@ -74,12 +122,15 @@
                     console.log('this', this)
                 }
             },
-            goods_nav_button_click(e) {
+            goods_nav_admin_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码
                 if (e.index === 1) {
                     play_audio_prompt('success')
                     uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_new' }) // btn:新建入库计划
                 }
+            },
+            goods_nav_staff_button_click(e) {
+                if (e.index === 0) this.scan_code() // btn:扫码
             },
             async refresh() {
                 if (this.last_refresh_time + this.refresh_interval > Date.now()) {
@@ -92,13 +143,13 @@
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') uni.navigateTo({ url: `/pages/operation/inbound/v2/plan_new?t=${res.result}`})
+                    if (res.success == 'true') this.operate_plan(res.result)
                 })
                 // #endif               
                 // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        uni.navigateTo({ url: `/pages/operation/inbound/v2/plan_new?t=${res.result}`})
+                        this.operate_plan(res.result)
                     }
                 })
                 // #endif
@@ -112,18 +163,54 @@
                 }
                 uni.showLoading({ title: 'Loading' })
                 InvPlan.query(options, {}).then(res => {
+                    uni.hideLoading()
                     this.inv_plans = res.data
                     this._set_inv_plan_groups(res.data)
-                    uni.hideLoading()
                 })
             },
             _set_inv_plan_groups(inv_plans) {
-                this.inv_plan_groups = inv_plans
+                let inv_plan_groups = []
+                inv_plans.forEach(inv_plan => {
+                    let group_item = inv_plan_groups.find(x => x.bill_no == inv_plan.FBillNo)
+                    if (group_item) {
+                        if (inv_plan.FDocumentStatu == 'A') group_item.qty_a += inv_plan.FOpQTY
+                        if (inv_plan.FDocumentStatu == 'B') group_item.qty_b += inv_plan.FOpQTY
+                    } else {
+                        group_item = {
+                            bill_no: inv_plan.FBillNo,
+                            created_at: formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd'),
+                            qty_a: inv_plan.FDocumentStatu == 'A' ? inv_plan.FOpQTY : 0,
+                            qty_b: inv_plan.FDocumentStatu == 'B' ? inv_plan.FOpQTY : 0
+                        }
+                        inv_plan_groups.push(group_item)
+                    }
+                })
+                this.inv_plan_groups = inv_plan_groups
+            },
+            operate_plan(bill_no) {
+                if (!this.inv_plan_groups.find(x => x.bill_no == bill_no)) {
+                    uni.showToast({ icon: 'none', title: '未找到单据编号' })
+                    return
+                }
+                uni.navigateTo({
+                    url: `/pages/operation/inbound/v2/plan_show?t=${bill_no}`,
+                    events: {
+                        reloadInvPlans: (data) => {
+                            if (data.reload) {
+                                console.log('重载数据')
+                                this.load_inv_plans()
+                            }
+                        }
+                    },
+                    success: (res) => {
+                        
+                    }
+                })
             }
         }
     }
 </script>
 
-<style>
+<style lang="scss">
 
 </style>

@@ -1,6 +1,7 @@
 <template>
     <view>
         <uni-notice-bar single show-icon scrollable text="扫码获取单据中物料清单后，下一步新增计划明细" />
+        
         <uni-section title="查询单据编号" type="square">
             <uni-search-bar
                 v-model="search_form.bill_no"
@@ -10,7 +11,6 @@
                 @clear="handle_search"
             />
         </uni-section>
-        
         <uni-section
             v-if="inbound_task.inbound_list?.length" 
             title="入库物料信息" type="square"
@@ -20,15 +20,15 @@
                 <uni-list-item
                     v-for="(obj, index) in inbound_task.inbound_list"
                     :key="index"
-                    :rightText="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
-                    @click="handle_new_entry(obj.material_no)" clickable
+                    @click="handle_new_entry(obj.material_no)"
+                    :clickable="obj.dest_stock_id == $store.state.cur_stock.FStockId"
                     show-arrow
                     :disabled="obj.dest_stock_id != $store.state.cur_stock.FStockId"
                 >
                     <template v-slot:body>
-                        <view class="uni-list-item__content uni-list-item__content--center">
-                            <text class="uni-list-item__content-title">{{ obj.material_no }}</text>
-                            <view class="uni-list-item__content-note">
+                        <view class="uni-list-item__body">
+                            <text class="title">{{ obj.material_no }}</text>
+                            <view class="note">
                                 <view>{{ obj.material_name }}</view> 
                                 <view>{{ obj.material_spec }}</view>
                                 <view>
@@ -40,6 +40,17 @@
                                 </view>
                                 <view>批次：{{ obj.batch_no }}</view>
                             </view>
+                        </view>
+                    </template>
+                    <template v-slot:footer>
+                        <view class="uni-list-item__foot">
+                            <text>{{ obj.base_unit_qty }} {{ obj.base_unit_name }}</text>
+                            <progress 
+                                :percent="calc_percentage(obj)" 
+                                stroke-width="2"
+                                :active-color="calc_percentage(obj) == 100 ? '#4cd964' : '#f0ad4e'"
+                                :active="true"
+                            />
                         </view>
                     </template>
                 </uni-list-item>
@@ -54,6 +65,12 @@
                 @buttonClick="goods_nav_button_click"
             />
         </view>
+        
+        <cover-image 
+            v-if="is_completed" 
+            src="/static/icon/yiwancheng_stamp.png"
+            class="cover-image">
+        </cover-image>
     </view>
 </template>
 
@@ -62,7 +79,7 @@
     import { InboundTask, InvPlan } from '@/utils/model'
     import { get_transfer_direct } from '@/utils/api'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
-    import { play_audio_prompt } from '../../../../utils'
+    import { play_audio_prompt } from '@/utils'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
     // #endif
@@ -72,10 +89,12 @@
                 search_form: {
                     bill_no: ''
                 },
+                inv_plans: [],
                 inbound_task: {},
+                is_completed: false,
                 goods_nav: {
                     options: [
-                        { icon: 'cart', text: '计划', info: 10000 }
+                        { icon: 'cart', text: '计划', info: '' }
                     ],
                     button_group: [
                         {
@@ -105,7 +124,7 @@
             // >>> binding
             goods_nav_click(e) {
                 if (e.index === 0) {
-                    console.log('this.$data', this.$data)
+                    // console.log('this.$data', this.$data)
                 }
             },
             goods_nav_button_click(e) {
@@ -130,26 +149,43 @@
                 })
                 // #endif
             },
-            handle_search(e) {
+            async handle_search(e) {
+                this.is_completed = false
+                this.inbound_task = new InboundTask()
                 if (this.search_form.bill_no) {
-                    this.load_bill()
-                } else {
-                    this.inbound_task = new InboundTask()
+                    this.search_form.bill_no = this.search_form.bill_no.trim()
+                    await this.load_bill()
+                    await this.load_inv_plans()
                 }
             },
             async load_bill() {
                 let bill_no = this.search_form.bill_no
                 if (bill_no.startsWith('ZJDB')) { // 直接调拨单
                     uni.showLoading({ title: 'Loading' })
-                    get_transfer_direct(bill_no).then(res => {
-                        this._handle_zjdbd_data(res)
+                    return get_transfer_direct(bill_no).then(res => {
                         uni.hideLoading()
+                        this._handle_zjdbd_data(res)
                     }).catch(err => {
                         uni.showToast({ icon: 'none', title: err })
                     })
                 } else {
                     this.inbound_task = new InboundTask()
                     uni.showToast({ icon: 'none', title: '未找到单据信息' })
+                }
+            },
+            async load_inv_plans() {
+                let bill_no = this.search_form.bill_no
+                if (bill_no.startsWith('ZJDB')) {
+                    InvPlan.query({
+                        FStockId: store.state.cur_stock.FStockId,
+                        FBillNo: bill_no,
+                        FOpType: 'in',
+                    }, {}).then(res => { 
+                        this.inv_plans = res.data
+                        this._calc_progress(res.data) // 判定计划比率和是否已完成
+                    })
+                } else {
+                    this.inv_plans = []
                 }
             },
             _handle_zjdbd_data(response) {
@@ -169,7 +205,8 @@
                             src_stock_name: obj.SrcStockId.Name[0]?.Value,
                             dest_stock_id: obj.DestStockId.Id,
                             dest_stock_name: obj.DestStockId.Name[0]?.Value,
-                            batch_no: formatDate(obj.BusinessDate || Date.now(), 'yyyyMMdd') // 优先继承调拨单中入库时间作为批次号
+                            batch_no: formatDate(obj.BusinessDate || Date.now(), 'yyyyMMdd'), // 优先继承调拨单中入库时间作为批次号
+                            planned_qty: 0
                         })
                     })
                     this.inbound_task.bill_no = data.BillNo
@@ -202,47 +239,38 @@
                         res.eventChannel.emit('sendInboundTask', { inbound_task: this.inbound_task, material_no: material_no })
                     }
                 })
+            },
+            calc_percentage(obj) {
+                let planned_qty = 0
+                this.inv_plans.forEach(inv_plan => {
+                    if (inv_plan.FMaterialId == obj.material_id) {
+                        planned_qty += inv_plan.FOpQTY
+                    }
+                })
+                return (planned_qty / obj.base_unit_qty) * 100
+            },
+            _calc_progress(inv_plans) {
+                let inbound_qty = this.inbound_task.inbound_list.map(x => x.base_unit_qty).concat([0]).reduce((x,y) => x + y)
+                let plan_qty = 0
+                let complete_qty = 0
+                inv_plans.forEach(x => {
+                    plan_qty += x.FOpQTY
+                    if (x.FDocumentStatu == 'C') complete_qty += x.FOpQTY
+                })
+                let plan_percentage = Math.floor(plan_qty / inbound_qty * 100)
+                this.goods_nav.options[0].info = `${plan_percentage}%`
+                this.is_completed = inbound_qty == complete_qty
             }
         }
     }
 </script>
 
 <style lang="scss">
-    .uni-list-item__content {
-        /* #ifndef APP-NVUE */
-        display: flex;
-        /* #endif */
-        padding-right: 8px;
-        flex: 1;
-        color: #3b4144;
-        flex-direction: column;
-        justify-content: space-between;
-        overflow: hidden;
-    }
-    
-    .uni-list-item__content--center {
-        justify-content: center;
-    }
-    
-    .uni-list-item__content-title {
-        font-size: $uni-font-size-base;
-        color: #3b4144;
-        overflow: hidden;
-    }
-    
-    .uni-list-item__content-note {
-        margin-top: 6rpx;
-        color: $uni-text-color-grey;
-        font-size: $uni-font-size-sm;
-        overflow: hidden;
-        .dest-stock {
-            color: $uni-color-primary;
-            &.disabled {
-                color: $uni-color-error;
-            }
-        }
-        .batch_no {
-            color: $uni-color-primary;
-        }
+    .cover-image {
+        position: absolute;
+        top: 80px;
+        right: 50px;
+        width: 128px;
+        height: 128px;
     }
 </style>

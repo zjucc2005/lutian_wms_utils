@@ -1,6 +1,11 @@
 <template>
     <view>
-        <uni-section title="新增计划明细" type="square">
+        <uni-section
+            type="square"
+            title="新增计划明细"
+            :sub-title="inbound_task.bill_no"
+            sub-title-color="#007aff"
+            >
             <uni-list v-if="plan_form.material_no">
                 <template
                     v-for="(obj, index) in inbound_task.inbound_list"
@@ -12,9 +17,9 @@
                         @click="handle_material_no_click()" clickable
                     >
                         <template v-slot:body>
-                            <view class="uni-list-item__content uni-list-item__content--center">
-                                <text class="uni-list-item__content-title">{{ obj.material_no }}</text>
-                                <view class="uni-list-item__content-note">
+                            <view class="uni-list-item__body">
+                                <text class="title">{{ obj.material_no }}</text>
+                                <view class="note">
                                     <view>{{ obj.material_name }}</view> 
                                     <view>{{ obj.material_spec }}</view>
                                     <view>
@@ -65,13 +70,16 @@
             </view>
         </uni-section>
         
-        <uni-section title="当前计划明细" type="square" class="above-uni-goods-nav">
+        <uni-section type="square" title="当前计划明细" class="above-uni-goods-nav">
+            <template v-slot:right>
+                <text class="sum_op_qty">总和： {{ sum_inv_plan_op_qty() }} {{ plan_form.base_unit_name }}</text>
+            </template>
             <uni-swipe-action ref="inv_plan_swipe">
                 <uni-swipe-action-item
                     v-for="(inv_plan, index) in inv_plans"
                     :key="index"
                     :threshold="60"
-                    :right-options="inv_plan.FDocumentStatu == 'A' ? swipe_options : swipe_options"
+                    :right-options="inv_plan.FDocumentStatu == 'A' ? swipe_options : []"
                     @click="swipe_action_click($event, inv_plan)"
                 >
                     <uni-list-item
@@ -81,9 +89,9 @@
                         :note="inv_plan.FRemark"
                     >
                         <template v-slot:footer>
-                            <view class="uni-list-item__footer">
+                            <view class="uni-list-item__foot">
                                 <text class="op_qty">{{ inv_plan.FOpQTY }} {{ inv_plan['FStockUnitId.FName'] }}</text>
-                                <text v-if="inv_plan['FDocumentStatu'] != 'A'" class="status">{{ status_dict[inv_plan['FDocumentStatu']] }}</text>
+                                <text class="status">{{ inv_plan.status }}</text>
                             </view>
                         </template>
                     </uni-list-item>
@@ -136,6 +144,10 @@
                                     if (stock_loc.FDocumentStatus != 'C') {
                                         return callback('此库位号未审核')
                                     }
+                                    let inv_plan = this.inv_plans.find(x => x['FStockLocId.FNumber'] == value)
+                                    if (inv_plan) {
+                                        return callback('此库位号已有计划明细')
+                                    }
                                 }
                             }
                         ]
@@ -150,8 +162,9 @@
                                     if (!this.plan_form.decimal_unit && !Number.isInteger(value)) {
                                         return callback('计划上架数量必须为整数')
                                     }
-                                    let obj = this.inbound_task.inbound_list.find(x => x.material_no = this.plan_form.material_no)
-                                    if (value > obj.base_unit_qty) {
+                                    let inbound_obj = this.inbound_task.inbound_list.find(x => x.material_no == this.plan_form.material_no)
+                                    let planned_qty = this.sum_inv_plan_op_qty()
+                                    if (value + planned_qty > inbound_obj.base_unit_qty) {
                                         return callback('计划上架数量超过上限')
                                     }
                                 }
@@ -213,7 +226,7 @@
                 if (e.index === 1) this.submit_save() // btn:保存
             },
             handle_material_no_click() {
-                let list = this.inbound_task.inbound_list.map(x => x.material_no)
+                let list = this.inbound_task.inbound_list.filter(x => x.dest_stock_id == store.state.cur_stock.FStockId).map(x => x.material_no)
                 uni.showActionSheet({
                     itemList: list,
                     success: (e) => {
@@ -230,6 +243,7 @@
             submit_save() {
                 this.$refs.plan_form.validate().then(_ => {
                     let obj = this.inbound_task.inbound_list.find(x => x.material_no == this.plan_form.material_no)
+                    this.inv_plans.find(x =>x)
                     let inv_plan = new InvPlan({
                         FOpType: 'in',
                         FStockId: store.state.cur_stock.FStockId,
@@ -245,6 +259,7 @@
                     uni.showLoading({ title: 'Loading' })
                     inv_plan.save().then(res => {
                         play_audio_prompt('success')
+                        uni.hideLoading()
                         if (res.data.Result.ResponseStatus.IsSuccess) {
                             this.load_inv_plans(obj.material_no)
                             uni.showToast({ title: '保存成功' }) 
@@ -260,11 +275,11 @@
                 if (inv_plan.FDocumentStatu == 'A') {
                     uni.showLoading({ title: 'Loading' })
                     InvPlan.delete([inv_plan.FID]).then(res => {
+                        uni.hideLoading()
                         if (res.data.Result.ResponseStatus.IsSuccess) {
+                            play_audio_prompt('delete')
                             let index = this.inv_plans.findIndex(x => x.FID == inv_plan.FID)
                             this.inv_plans.splice(index, 1)
-                            play_audio_prompt('delete')
-                            uni.hideLoading()
                         } else {
                             uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
                         }
@@ -283,8 +298,16 @@
                     FOpType: 'in',
                 }, { order: 'FCreateTime DESC' }).then(res => { 
                     this.inv_plans = res.data
+                    this.inv_plans.forEach(inv_plan => {
+                        if (inv_plan.FDocumentStatu != 'A') {
+                            inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
+                        }
+                    })
                     uni.hideLoading()
                 })
+            },
+            sum_inv_plan_op_qty() {
+                return this.inv_plans.map(x => x.FOpQTY).concat([0]).reduce((x, y) => x + y)
             },
             set_plan_form(material_no) {
                 let obj = this.inbound_task.inbound_list.find(x => x.material_no == material_no)
@@ -312,53 +335,8 @@
 </script>
 
 <style lang="scss">
-    .uni-list-item__content {
-        /* #ifndef APP-NVUE */
-        display: flex;
-        /* #endif */
-        padding-right: 8px;
-        flex: 1;
-        color: #3b4144;
-        flex-direction: column;
-        justify-content: space-between;
-        overflow: hidden;
-    }
-    
-    .uni-list-item__content--center {
-        justify-content: center;
-    }
-    
-    .uni-list-item__content-title {
-        font-size: $uni-font-size-base;
-        color: #3b4144;
-        overflow: hidden;
-    }
-    
-    .uni-list-item__content-note {
-        margin-top: 6rpx;
+    .sum_op_qty {
         color: $uni-text-color-grey;
         font-size: $uni-font-size-sm;
-        overflow: hidden;
-        .dest-stock {
-            color: $uni-color-primary;
-            &.disabled {
-                color: $uni-color-error;
-            }
-        }
-        .batch_no {
-            color: $uni-color-primary;
-        }
-    }
-    .uni-list-item__footer {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        font-size: $uni-font-size-sm;
-        .op_qty {
-            color: $uni-text-color-grey;  
-        }
-        .status {
-            color: $uni-color-error;
-        }
     }
 </style>

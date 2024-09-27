@@ -140,6 +140,10 @@
         {
             "path": "pages/operation/inbound/v2/plan_new_entry",
             "style":  { "navigationBarTitleText" : "入库 - 新增入库计划" }
+        },
+        {
+            "path": "pages/operation/inbound/v2/plan_show",
+            "style": { "navigationBarTitleText": "入库 - 入库计划" }
         }
     ],
     "globalStyle": {
