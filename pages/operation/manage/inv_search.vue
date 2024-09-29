@@ -1,54 +1,62 @@
 <template>
-    <uni-section title="查询结果" type="line"
+    <uni-section title="查询结果" type="square"
         :sub-title="set_section_sub_title()"
-    >
-        <view v-if="mode == 'material_no'">
-            <uni-collapse v-if="display_mode == 'grid'" :open="true">
-                <uni-collapse-item v-for="shelf in grid_shelves.filter(shelf => !shelf.disabled)" :title="shelf.name" :open="true" title-border="show">
-                    <view class="content">
-                        <swiper :indicator-dots="true" :style="{ height: `${get_swiper_height(shelf)}px` }" class="shelf_swiper">
-                            <swiper-item v-for="page in get_swiper_pages(shelf)" :key="page">
-                                <uni-grid :column="10" :show-border="false">
-                                    <uni-grid-item
-                                        v-for="grid in filter_swiper_grids(shelf, page)"
-                                        :key="grid.index"
-                                        :index="grid.index"
-                                    >
-                                        <view :class="['grid-item-box', grid.style]">
-                                            <view class="name">{{ grid.name }}</view>
-                                            <view v-if="grid.qty" class="qty">{{ grid.qty }}</view>
-                                        </view>
-                                    </uni-grid-item>
-                                </uni-grid>
-                            </swiper-item>
-                        </swiper>
-                    </view>
-                </uni-collapse-item>
-            </uni-collapse>
+        class="above-uni-goods-nav"
+        >
+        <uni-collapse v-if="display_mode == 'grid'" :open="true">
+            <uni-collapse-item v-for="shelf in grid_shelves.filter(shelf => !shelf.disabled)" :title="shelf.name" :open="true" title-border="show">
+                <view class="content">
+                    <swiper :indicator-dots="true" :style="{ height: `${get_swiper_height(shelf)}px` }" class="shelf_swiper">
+                        <swiper-item v-for="page in get_swiper_pages(shelf)" :key="page">
+                            <uni-grid :column="10" :show-border="false">
+                                <uni-grid-item
+                                    v-for="grid in filter_swiper_grids(shelf, page)"
+                                    :key="grid.index"
+                                    :index="grid.index"
+                                >
+                                    <view :class="['grid-item-box', grid.style]">
+                                        <view class="name">{{ grid.name }}</view>
+                                        <view v-if="grid.qty" class="qty">{{ grid.qty }}</view>
+                                    </view>
+                                </uni-grid-item>
+                            </uni-grid>
+                        </swiper-item>
+                    </swiper>
+                </view>
+            </uni-collapse-item>
+        </uni-collapse>
             
-            <uni-list v-if="display_mode == 'list'">
-                <uni-list-item
-                    v-for="(inv, index) in invs"
-                    :key="index"
-                    :title="inv['FStockLocId.FNumber']"
-                    :note="inv.FBatchNo"
-                    :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
+        <uni-list v-if="mode == 'material_no' && display_mode == 'list'">
+            <uni-list-item
+                v-for="(inv, index) in invs"
+                :key="index"
+                :title="inv['FStockLocId.FNumber']"
+                :note="inv.FBatchNo"
+                :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
                 >
-                </uni-list-item>
-            </uni-list>
-        </view>
-        <view v-if="mode == 'loc_no'">
-            <uni-list v-if="display_mode == 'list'">
-                <uni-list-item
-                    v-for="(inv, index) in invs"
-                    :key="index"
-                    :title="inv['FMaterialId.FNumber']"
-                    :note="[inv['FMaterialId.FName'], inv['FMaterialId.FSpecification'], `批次号：${inv.FBatchNo}`].join('\n')"
-                    :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
+            </uni-list-item>
+        </uni-list>
+        
+        <uni-list v-if="mode == 'loc_no' && display_mode == 'list'">
+            <uni-list-item
+                v-for="(inv, index) in invs"
+                :key="index"
+                :title="inv['FMaterialId.FNumber']"
+                :note="[
+                    `名称：${inv['FMaterialId.FName']}`, 
+                    `规格：${inv['FMaterialId.FSpecification']}`, 
+                    `批次：${inv.FBatchNo}`
+                ].join('\n')"
+                :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
                 >
-                </uni-list-item>
-            </uni-list>
-        </view>
+            </uni-list-item>
+        </uni-list>
+        
+        <uni-load-more 
+            v-if="invs.length == 0"
+            status="nomore"
+            :content-text="{ contentnomore: '没有相关数据' }"
+        />
     </uni-section>
     <view class="uni-goods-nav-wrapper">
         <uni-goods-nav 
@@ -86,20 +94,14 @@
                     material_spec: '',
                     base_unit_name: ''
                 },
-                cur_stock: {},
-                stock_locs: [],
                 grid_shelves: [],
                 invs: [],
                 goods_nav: {
                     options: [
-                        { icon: 'more-filled', text: '更多' }
+                        { icon: 'more-filled', text: '更多' },
+                        { icon: 'map', text: '网格' }
                     ],
                     button_group: [
-                        {
-                            text: '列表显示',
-                            backgroundColor: 'linear-gradient(90deg, #AAA, #606266)',
-                            color: '#fff'
-                        },
                         {
                             text: '扫码查询',
                             backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
@@ -110,67 +112,39 @@
             }
         },
         onLoad(options) {
-            console.log('onLoad options:', options)
-            // if (options.t) this.handle_scan_result(options.t.trim()) // options.t 是从上一个页面扫描传过来的参数
-            this.cur_stock = store.state.cur_stock
-            this.stock_locs = store.state.stock_locs
             if (options.t) this.handle_scan_code(options.t)
         },
         mounted() {
-            
+            // this.handle_scan_code('3.08.02.01.10.0013') // 调试用
         },
         methods: {
             filter_swiper_grids,
             get_swiper_pages,
             get_swiper_height,
-            // >>> component
             goods_nav_click(e) {
-                if (e.index === 0) this.more_actions() // btn:更多
+                if (e.index == 0) this.more_actions() // btn:更多
+                if (e.index == 1) this.switch_display_mode() // btn:切换显示 网格/列表
             },
             goods_nav_button_click(e) {
-                if (e.index === 0) this.switch_display_mode() // btn:切换显示
-                if (e.index === 1) this.scan_code() // btn:扫码
-            },
-            // >>> action
-            set_section_sub_title() {
-                let text_list = []
-                if (this.mode == 'material_no') {
-                    text_list = [ 
-                        this.material.material_no, 
-                        `名称：${this.material.material_name}`, 
-                        `规格：${this.material.material_spec}`,
-                        `计量单位：${this.material.base_unit_name}`
-                    ]
-                } else if (this.mode == 'loc_no') {
-                    text_list = [ `库位号：${this.no}` ]
-                }
-                return text_list.join('\n')
+                if (e.index == 0) this.scan_code() // btn:扫码
             },
             more_actions() {
                 uni.showActionSheet({
-                    itemList: ['扫描物料编码查询', '扫描库位编码查询', 'DEBUG'],
+                    itemList: ['扫码查询（物料编号）', '扫码查询（库位号）'],
                     success: (e) => {
-                        console.log('showActionSheet e:', e)
                         if (e.tapIndex === 0) this.scan_code('material_no')
                         if (e.tapIndex === 1) this.scan_code('loc_no')
-                        if (e.tapIndex === 2) console.log('this.$data:', this.$data)
                     }
                 })
             },
             switch_display_mode() {
-                if (this.mode == 'loc_no') {
-                    uni.showToast({ icon: 'none', title: '不支持网格显示' })
-                    return
-                }
-                this.set_display_mode(this.display_mode == 'grid' ? 'list' : 'grid')               
-            },
-            set_display_mode(display_mode) {
-                this.display_mode = display_mode
-                if (display_mode == 'grid') {
-                    this.goods_nav.button_group[0].text = '列表显示'
-                } else if (display_mode == 'list') {
-                    this.goods_nav.button_group[0].text = '网格显示'
-                }
+                uni.showActionSheet({
+                    itemList: ['网格显示', '列表显示'],
+                    success: (e) => {
+                        if (e.tapIndex === 0) this.set_display_mode('grid')
+                        if (e.tapIndex === 1) this.set_display_mode('list')
+                    }
+                })              
             },
             scan_code(scan_mode='') {
                 this.scan_mode = scan_mode
@@ -187,19 +161,51 @@
                 });
                 // #endif
             },
-            handle_scan_code(text) {
-                console.log('handle scan code:', text)
-                if (!text) return
-                if (this.stock_locs.length) {
-                    this.case_load_invs(text.trim())
-                } else {
-                    StockLoc.query({ FStockId: this.cur_stock.FStockId }).then(res => {
-                        this.stock_locs = res.data
-                        this.case_load_invs(text.trim())
-                    })
-                }                              
+            async load_material(material_no) {
+                this.material = { material_no: material_no }
+                return get_bd_material(material_no, store.state.cur_stock.FUseOrgId).then(res => {
+                    if (res.data[0]) {
+                        let bd_material = res.data[0]
+                        this.material = {
+                            material_no: bd_material.FNumber,
+                            material_name: bd_material.FName,
+                            material_spec: bd_material.FSpecification,
+                            base_unit_name: bd_material['FBaseUnitId.FName']
+                        }
+                    }
+                })
             },
-            case_load_invs(text) {
+            async load_invs_by_material_no(material_no) {
+                const options = {
+                    FStockId: store.state.cur_stock.FStockId,
+                    'FMaterialId.FNumber': material_no,
+                    FQty_gt: 0,
+                }
+                return Inv.query(options, { order: 'FBatchNo ASC, FStockLocId.FNumber ASC' }).then(res => { 
+                    this.invs = res.data
+                    this.mode = 'material_no'
+                    this.set_display_mode('grid')
+                    this.no = material_no
+                    this.grid_shelves = parse_stock_locs_with_invs(store.state.stock_locs, res.data)
+                })
+            },
+            async load_invs_by_loc_no(loc_no) {
+                const options = {
+                    FStockId: store.state.FStockId,
+                    'FStockLocId.FNumber': loc_no,
+                    FQty_gt: 0
+                }
+                return Inv.query(options, { order: 'FMaterialId.FNumber ASC, FBatchNo ASC' }).then(res => { 
+                    this.invs = res.data
+                    this.mode = 'loc_no'
+                    this.set_display_mode('list')
+                    this.no = loc_no
+                    this.grid_shelves = parse_stock_locs_with_invs(store.state.stock_locs, res.data)
+                })
+            },
+            handle_scan_code(text) {
+                text = text.trim()
+                if (!text) return
                 if (this.scan_mode == 'material_no') {
                     this.load_invs_by_material_no(text)
                     this.load_material(text)
@@ -216,46 +222,31 @@
                     this.no = ''
                     this.grid_shelves = []
                     uni.showToast({ icon: 'none', title: '未知格式的编码' })
+                }                   
+            },
+            set_display_mode(display_mode) {
+                this.display_mode = display_mode
+                if (display_mode == 'grid') {
+                    this.goods_nav.options[1].icon = 'map'
+                    this.goods_nav.options[1].text = '网格'
+                } else if (display_mode == 'list') {
+                    this.goods_nav.options[1].icon = 'list'
+                    this.goods_nav.options[1].text = '列表'
                 }
             },
-            load_material(material_no) {
-                this.material = { material_no: material_no }
-                get_bd_material(material_no, this.cur_stock.FUseOrgId).then(res => {
-                    if (res.data[0]) {
-                        let bd_material = res.data[0]
-                        this.material = {
-                            material_no: bd_material.FNumber,
-                            material_name: bd_material.FName,
-                            material_spec: bd_material.FSpecification,
-                            base_unit_name: bd_material['FBaseUnitId.FName']
-                        }
-                    }
-                })
-            },
-            load_invs_by_material_no(material_no) {
-                Inv.query({
-                    FStockId: this.cur_stock.FStockId,
-                    'FMaterialId.FNumber': material_no,
-                    FQty_gt: 0 }, {}
-                ).then(res => { 
-                    this.invs = res.data
-                    this.mode = 'material_no'
-                    this.set_display_mode('grid')
-                    this.no = material_no
-                    this.grid_shelves = parse_stock_locs_with_invs(this.stock_locs, this.invs)
-                })
-            },
-            load_invs_by_loc_no(loc_no) {
-                Inv.query({
-                    FStockId: this.cur_stock.FStockId,
-                    'FStockLocId.FNumber': loc_no,
-                    FQty_gt: 0 }, {}
-                ).then(res => { 
-                    this.invs = res.data
-                    this.mode = 'loc_no'
-                    this.set_display_mode('list')
-                    this.no = loc_no
-                })
+            set_section_sub_title() {
+                let text_list = []
+                if (this.mode == 'material_no') {
+                    text_list = [ 
+                        this.material.material_no, 
+                        `名称：${this.material.material_name}`, 
+                        `规格：${this.material.material_spec}`,
+                        `单位：${this.material.base_unit_name}`
+                    ]
+                } else if (this.mode == 'loc_no') {
+                    text_list = [ `库位：${this.no}` ]
+                }
+                return text_list.join('\n')
             }
         }
     }
