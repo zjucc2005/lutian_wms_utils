@@ -1,8 +1,6 @@
 <template>
     <view>
-        <uni-section
-            type="square"
-            title="新增计划明细"
+        <uni-section type="square" title="新增计划明细"
             :sub-title="inbound_task.bill_no"
             sub-title-color="#007aff"
             >
@@ -20,8 +18,8 @@
                             <view class="uni-list-item__body">
                                 <text class="title">{{ obj.material_no }}</text>
                                 <view class="note">
-                                    <view>{{ obj.material_name }}</view> 
-                                    <view>{{ obj.material_spec }}</view>
+                                    <view>名称：{{ obj.material_name }}</view> 
+                                    <view>规格：{{ obj.material_spec }}</view>
                                     <view>
                                         <uni-icons type="home" color="#999"></uni-icons>
                                         <text class="src-stock">{{ obj.src_stock_name }}</text>
@@ -41,7 +39,7 @@
                     :show-extra-icon="true"
                     :extra-icon="{ color: '#007bff', size: '24', type: 'list' }"
                     title="点击选择物料"
-                    @click="handle_material_no_click()" clickable
+                    @click="handle_material_no_click" clickable
                 />
             </uni-list>
                         
@@ -113,7 +111,10 @@
 <script>
     import store from '@/store'
     import { InvPlan } from '@/utils/model'
-    import { is_decimal_unit, play_audio_prompt } from '@/utils'
+    import { is_material_no_format, is_loc_no_std_format, is_decimal_unit, play_audio_prompt } from '@/utils'
+    // #ifdef APP-PLUS
+    const myScanCode = uni.requireNativePlugin('My-ScanCode')
+    // #endif
     export default {
         data() {
             return {
@@ -182,7 +183,7 @@
                 ],
                 goods_nav: {
                     options: [
-                        { icon: 'list', text: '选择物料' }
+                        { icon: 'list', text: '物料' }
                     ],
                     button_group: [
                         {
@@ -239,6 +240,33 @@
             },
             scan_code() {
                 console.log('debug', this.$data)
+                // #ifdef APP-PLUS
+                myScanCode.scanCode({}, (res) => {
+                    if (res.success == 'true') this.handle_scan_code(res.result)
+                })
+                // #endif               
+                // #ifndef APP-PLUS
+                uni.scanCode({
+                    success: (res) => {
+                        this.handle_scan_code(res.result)
+                    }
+                })
+                // #endif
+            },
+            handle_scan_code(text) {
+                if (is_material_no_format(text)) {
+                    this.set_plan_form(text)
+                    this.load_inv_plans(text)
+                } else if (is_loc_no_std_format(text)) {
+                    this.plan_form.loc_no = text
+                } else {
+                    if(!this.plan_form.material_no) {
+                        this.set_plan_form(text)
+                        this.load_inv_plans(text)
+                    } else if (!plan.mount_form.loc_no) {
+                        this.mount_form.loc_no = text
+                    }
+                }
             },
             submit_save() {
                 this.$refs.plan_form.validate().then(_ => {
@@ -326,9 +354,6 @@
                 this.plan_form.op_qty = ''
                 this.plan_form.remark = ''
                 uni.pageScrollTo({ scrollTop: 0 })
-            },
-            unshift_inv_plan(inv_plan) {
-                console.log('unshift_inv_plan', inv_plan)
             }
         }
     }

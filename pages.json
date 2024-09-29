@@ -144,6 +144,22 @@
         {
             "path": "pages/operation/inbound/v2/plan_show",
             "style": { "navigationBarTitleText": "入库 - 入库计划" }
+        },
+        {
+            "path": "pages/operation/outbound/v2/index",
+            "style": { "navigationBarTitleText": "出库" }
+        },
+        {
+            "path": "pages/operation/outbound/v2/plan_new",
+            "style": { "navigationBarTitleText": "出库 - 新增出库计划" }
+        },
+        {
+            "path": "pages/operation/outbound/v2/plan_new_entry",
+            "style": { "navigationBarTitleText": "出库 - 新增出库计划" }
+        },
+        {
+            "path": "pages/operation/outbound/v2/plan_show",
+            "style": { "navigationBarTitleText": "出库 - 出库计划" }
         }
     ],
     "globalStyle": {

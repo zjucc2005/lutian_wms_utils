@@ -9,7 +9,7 @@ import store from '@/store';
 class OutboundTask {
     constructor(options={}) {
         this.created_at = options.created_at || Date.now() // 创建日期
-        this.stock_id = options.stock_id               // 仓库ID
+        this.stock_id = options.stock_id                   // 仓库ID
         this.staff_no = options.staff_no                   // 员工编号        
         this.bill_no = options.bill_no                     // 单据编号
         this.outbound_list = options.outbound_list || []   // 出库总览，物料清单

@@ -55,10 +55,7 @@
         data() {
             return {
                 cur_stock: {},
-                loc_nos: [
-                    { value: 'T-B01-011', status: '' },
-                    { value: 'T-B01-022', status: '' },
-                ],
+                loc_nos: [],
                 loc_form: {
                     loc_nos: [
                         {
@@ -94,6 +91,12 @@
         },
         mounted() {
             this.cur_stock = store.state.cur_stock
+            this.gen_loc_nos('DS', 'A01', 20, 3).forEach(x => {
+                this.loc_nos.push({ value: x, status: '' })
+            })
+            this.gen_loc_nos('DS', 'A02', 20, 3).forEach(x => {
+                this.loc_nos.push({ value: x, status: '' })
+            })
         },
         methods: {
             swipe_action_click(e, list_index) {
@@ -135,7 +138,7 @@
                                 uni.showToast({ title: '保存成功' })
                                 this.loc_nos = []
                             })
-                        } else if (res.status === 1) {                            
+                        } else if (res.status === 1) {
                             uni.showToast({ icon: 'none', title: res.msg })
                             this.loc_nos.forEach(x => {
                                 if (res.data.indexOf(x.value) > -1) x.status = '已存在' // 库位号已存在，给出提示
@@ -161,6 +164,29 @@
                     }
                 });  
             },
+            gen_loc_nos(code, area, col, row) {
+                if (code.length > 2) {
+                    throw new Error('仓库编号长度最大为2')
+                }
+                if (col < 1 || col > 99) {
+                    throw new Error('列数只能在1~99')
+                }
+                if (row > 3) {
+                    throw new Error('行数不能大于3')
+                }
+                
+                let loc_nos = []
+                for (let i = 0; i < col; i++) {
+                    for (let j = 0; j < row; j++) {
+                        if (i < 9) {
+                            loc_nos.push(`${code}-${area}-0${i+1}${j+1}`)
+                        } else {
+                            loc_nos.push(`${code}-${area}-${i+1}${j+1}`)
+                        }
+                    }
+                }
+                return loc_nos
+            }
             // form_add() {
             //     this.loc_form.loc_nos.push({
             //     	value: '',

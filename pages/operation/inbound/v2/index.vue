@@ -1,4 +1,5 @@
 <template>
+    <!-- <uni-notice-bar single show-icon scrollable text="请选择入库计划进行操作" /> -->
     <view v-if="$store.state.role == 'admin'">
         <uni-section title="进行中的入库计划" type="square" class="above-uni-goods-nav">
             <uni-list>
@@ -117,10 +118,7 @@
         methods: {
             // >>> binding
             goods_nav_click(e) {
-                if (e.index === 0) {
-                    this.refresh() // btn:刷新
-                    console.log('this', this)
-                }
+                if (e.index === 0) this.refresh() // btn:刷新
             },
             goods_nav_admin_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码

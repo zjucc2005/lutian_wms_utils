@@ -39,6 +39,7 @@
 </template>
 
 <script>
+    import store from '@/store'
     import K3CloudApi from '@/utils/k3cloudapi'
     import { get_bd_material } from '../../utils/api'
     import { Inv } from '@/utils/model'
@@ -175,6 +176,22 @@
                 // K3CloudApi.delete(form_id, data).then(res => {
                 // })
                 // get_bd_material('1.06.08.03.0006', 100007)
+                let inv_log = new InvLog({
+                    FOpType: 'in',
+                    FStockId: store.state.cur_stock.FStockId,
+                    FStockLocNo: 'T-B01-101',
+                    FMaterialId: bd_material.FMaterialId,
+                    FOpQTY: this.mount_form.op_qty * 1,
+                    FBatchNo: this.cur_inbound_task.batch_no,
+                    FBillNo: this.cur_inbound_task.bill_no,
+                    FOpStaffNo: this.cur_staff.FNumber,
+                    FRemark: this.mount_form.remark
+                })
+                inv_log.save().then(save_res => {
+                    play_audio_prompt('success')
+                    this.after_save(save_res)
+                    this.reset_form() // 重置表单
+                })
             }
         }
     }

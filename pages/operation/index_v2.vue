@@ -7,7 +7,7 @@
                     <text class="grid-item-text">入库</text>
                 </view>
             </uni-grid-item>
-            <uni-grid-item @click="goTo('outbound/index')">
+            <uni-grid-item @click="goTo('outbound/v2/index')">
                 <view class="grid-item-box">
                     <image src="/static/icon/chuku.png" mode="widthFix" class="grid-item-icon"></image>
                     <text class="grid-item-text">出库</text>
@@ -36,6 +36,7 @@
 </template>
 
 <script>
+    import { play_audio_prompt } from '@/utils'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
     // #endif
@@ -47,6 +48,7 @@
         },
         methods: {
             goTo(path) {
+                play_audio_prompt('success')
                 uni.navigateTo({ url: `/pages/operation/${path}` })
             },
             inv_search() {

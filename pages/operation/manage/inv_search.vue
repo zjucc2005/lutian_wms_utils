@@ -137,8 +137,8 @@
                 if (this.mode == 'material_no') {
                     text_list = [ 
                         this.material.material_no, 
-                        this.material.material_name, 
-                        this.material.material_spec,
+                        `名称：${this.material.material_name}`, 
+                        `规格：${this.material.material_spec}`,
                         `计量单位：${this.material.base_unit_name}`
                     ]
                 } else if (this.mode == 'loc_no') {
