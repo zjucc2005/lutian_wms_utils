@@ -108,7 +108,7 @@
                                 validateFunction: (rule, value, data, callback) => {
                                     let material_no = value
                                     if (!this.cur_inbound_task.inbound_list.find(x => x.material_no == material_no)) {
-                                        return callback('当前出库任务中无此物料编码')
+                                        // return callback('当前出库任务中无此物料编码')
                                     }
                                     let bd_material = this.bd_materials.find(x => x.FNumber == material_no)
                                     if (!bd_material) {
