@@ -1,6 +1,6 @@
 <template>
     <view>
-        <uni-section type="square" title="单据编号"
+        <uni-section type="square" title="新增计划明细"
             :sub-title="outbound_task.bill_no"
             sub-title-color="#007aff"
             >
@@ -37,8 +37,33 @@
                     title="点击选择物料"
                     @click="material_no_click" clickable
                 />
-            </uni-list>         
+            </uni-list>
         </uni-section>
+        
+        <!-- plan form -->
+        <view v-if="op_mode == 'scan'" class="container">
+            <uni-forms ref="plan_form" :model="plan_form" :rules="plan_form_rules" labelWidth="80px">
+                <uni-forms-item name="material_no" style="height: 0;"></uni-forms-item>
+                <uni-forms-item label="库位号" name="loc_no" required>
+                    <uni-data-picker
+                        v-model="plan_form.loc_no"
+                        :localdata="$store.state.stock_loc_opts"
+                        split="-"
+                        popup-title="请选择库位"
+                    />
+                </uni-forms-item>
+                <uni-forms-item label="下架数量" name="op_qty" required>
+                    <uni-easyinput v-model="plan_form.op_qty" type="number">
+                        <template #right>
+                            <text class="easyinput-suffix-text">{{ plan_form.base_unit_name }}</text>
+                        </template>
+                    </uni-easyinput>
+                </uni-forms-item>
+                <uni-forms-item label="备注" name="remark">
+                    <uni-easyinput v-model="plan_form.remark" trim="both" />
+                </uni-forms-item>
+            </uni-forms>
+        </view>
        
         <uni-section type="square" title="当前计划明细"
             v-if="inv_plans.length"
@@ -158,6 +183,54 @@
                     base_unit_name: 'Pcs',
                     decimal_unit: false
                 },
+                plan_form_rules: {
+                    material_no: {
+                        rules: [
+                            { required: true, errorMessage: '物料编号不能为空'},
+                        ]
+                    },
+                    loc_no: {
+                        rules: [
+                            { required: true, errorMessage: '库位号不能为空' },
+                            {
+                                validateFunction: (rule, value, data, callback) => {
+                                    let stock_loc = store.state.stock_locs.find(x => x.FNumber == value)
+                                    if (stock_loc.FDocumentStatus != 'C') {
+                                        return callback('此库位号未审核')
+                                    }
+                                    let inv_plan = this.inv_plans.find(x => x['FStockLocId.FNumber'] == value)
+                                    if (inv_plan) {
+                                        return callback('此库位号已有计划明细')
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    op_qty: {
+                        rules: [
+                            { required: true, errorMessage: '计划上架数量不能为空' },
+                            { format: 'number', errorMessage: '计划上架数量只能输入数字' },
+                            { 
+                                validateFunction: (rule, value, data, callback) => {
+                                    if (value <= 0) return callback('计划上架数量必须大于0')
+                                    if (!this.plan_form.decimal_unit && !Number.isInteger(value)) {
+                                        return callback('计划上架数量必须为整数')
+                                    }
+                                    let outbound_obj = this.outbound_task.outbound_list.find(x => x.material_no == this.plan_form.material_no)
+                                    let planned_qty = this._sum_planned_qty()
+                                    if (planned_qty + value > outbound_obj.base_unit_qty) {
+                                        return callback('计划下架数量超过上限')
+                                    }
+                                    let invs = this.invs.filter(inv => inv['FStockLocId.FNumber'] == this.plan_form.loc_no)
+                                    let inv_qty = invs.map(inv => inv.FQty).concat([0]).reduce((x, y) => x + y)
+                                    if (planned_qty + value > inv_qty) {
+                                        return callback('库存数量不足')
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
                 swipe_options: [
                     { text: '删除', style: { backgroundColor: '#dd524d' } }
                 ],
@@ -173,7 +246,7 @@
                             color: '#fff'
                         },
                         {
-                            text: '保存',
+                            text: '新增',
                             backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
                             color: '#fff'
                         }
@@ -196,33 +269,19 @@
             this.set_op_mode('check')
         },
         methods: {
-            // >>> binding
             swipe_action_click(e, inv_plan) {
                if (e.index === 0) this.submit_delete(inv_plan) // btn:删除
             },
             goods_nav_click(e) {
                 if (e.index == 0) this.material_no_click() // btn:选择物料
-                if (e.index == 1) {
-                    uni.showActionSheet({
-                        itemList: ['勾选模式', '扫码模式'],
-                        success: (e) => {
-                            play_audio_prompt('success')
-                            if (e.tapIndex == 0) this.set_op_mode('check')
-                            if (e.tapIndex == 1) this.set_op_mode('scan')
-                        }
-                    })
-                }
+                if (e.index == 1) this.mode_click() // btn:选择模式
             },
             goods_nav_button_click(e) {
                 if (e.index == 0) {
                     if (this.op_mode == 'check') this.if_auto_allocate() // btn:一键分配
-                    // if (this.op_mode == 'scan') this.scan_code() // btn:扫码
+                    if (this.op_mode == 'scan') this.scan_code() // btn:扫码
                 } 
-                // if (e.index === 1) this.submit_save() // btn:保存
-                if (e.index == 1) {
-                    this.submit_save()
-                    // console.log('this.$data', this.$data)
-                } 
+                if (e.index == 1) this.submit_save() // btn:保存
             },
             checkbox_click(e) {
                 let inv = this.invs.find(x => x.FID == e.target.dataset.id)
@@ -261,14 +320,46 @@
                     }
                 })
             },
-            // >>> async
+            mode_click() {
+                uni.showActionSheet({
+                    itemList: ['勾选模式', '扫码模式'],
+                    success: (e) => {
+                        play_audio_prompt('success')
+                        if (e.tapIndex == 0) this.set_op_mode('check')
+                        if (e.tapIndex == 1) this.set_op_mode('scan')
+                    }
+                })
+            },
+            if_auto_allocate() {
+                uni.showModal({
+                    title: '一键分配注意事项',
+                    content: '一键分配会按先入先出原则，自动生成当前单据中所有物料的出库计划。如果之前已有部分计划，则将计划补充完整。',
+                    success: (res) => {
+                        if (res.confirm) this.auto_allocate()
+                    },
+                    fail: (err) => {}
+                })
+            },
+            scan_code() {
+                // #ifdef APP-PLUS
+                myScanCode.scanCode({}, (res) => {
+                    if (res.success == 'true') this.handle_scan_code(res.result)
+                })
+                // #endif               
+                // #ifndef APP-PLUS
+                uni.scanCode({
+                    success: (res) => {
+                        this.handle_scan_code(res.result)
+                    }
+                })
+                // #endif
+            },
             async auto_allocate() {
                 // 自动分配处理逻辑
                 // 1. 遍历所有物料，生成计划
-                // 2. 如果已有部分计划，则只生成剩余部分
-                // 3. 如果某物料库存不足，则暂时忽略，待其余处理完毕，切换至该物料的页面，并提示，duration: 5000
-                // console.log('this.$data', this.$data)
-                console.log('开始一键分配')
+                // 2. 如果已有部分计划，则只生成剩余部分？
+                // 3. 如果某物料库存不足，则暂时忽略，待其余处理完毕，切换至该物料的页面，并提示
+                console.log('>>> 一键分配开始')
                 uni.showLoading({ title: 'Loading' })
                 let lack_material = ''
                 for (let i = 0; i < this.outbound_task.outbound_list.length; i++) { 
@@ -277,26 +368,33 @@
                     this.set_plan_form(obj.material_no)
                     await this.load_inv_plans(obj.material_no)
                     let planned_qty = this._sum_planned_qty() // 已计划数
-                    // let planned_qty = inv_plans.map(x => x.FOpQTY).concat([0]).reduce((x, y) => x + y)
                     if (planned_qty >= obj.base_unit_qty) continue // 若已计划数满足需求，则跳过此条
                     await this.load_invs(obj.material_no)
-                    let plan_qty = obj.base_unit_qty- planned_qty // 待计划数
+                    let plan_qty = obj.base_unit_qty - planned_qty // 待计划数
                     for (let j = 0; j < this.invs.length; j++) {
                         if (plan_qty == 0) break
                         let inv = this.invs[j]
-                        let checking_qty = Math.min(inv.FQty, plan_qty)
-                        plan_qty -= checking_qty
-                        let inv_plan = new InvPlan({
-                            FOpType: 'out',
-                            FStockId: store.state.cur_stock.FStockId,
-                            FStockLocNo: inv['FStockLocId.FNumber'],
-                            FMaterialId: inv.FMaterialId,
-                            FOpQTY: checking_qty,
-                            FBatchNo: inv.FBatchNo,
-                            FBillNo: this.outbound_task.bill_no,
-                            FOpStaffNo: store.state.cur_staff.FNumber
-                        })
-                        await inv_plan.save()
+                        let inv_plan = this.inv_plans.find(x => inv['FStockLocId.FNumber'] == x['FStockLocId.FNumber'] && inv.FBatchNo == x.FBatchNo)
+                        if (inv_plan) {
+                            // 已有部分计划数，更新其数量
+                            let checking_qty = Math.min(inv.FQty - inv_plan.FOpQTY, plan_qty)
+                            plan_qty -= checking_qty
+                            await InvPlan.update(inv_plan.FID, { FOpQTY: inv_plan.FOpQTY + checking_qty })
+                        } else {
+                            let checking_qty = Math.min(inv.FQty, plan_qty)
+                            plan_qty -= checking_qty
+                            let inv_plan = new InvPlan({
+                                FOpType: 'out',
+                                FStockId: store.state.cur_stock.FStockId,
+                                FStockLocNo: inv['FStockLocId.FNumber'],
+                                FMaterialId: inv.FMaterialId,
+                                FOpQTY: checking_qty,
+                                FBatchNo: inv.FBatchNo,
+                                FBillNo: this.outbound_task.bill_no,
+                                FOpStaffNo: store.state.cur_staff.FNumber
+                            })
+                            await inv_plan.save()
+                        }
                     }
                     if (plan_qty > 0) {
                         lack_material = lack_material || obj.material_no // 若库存不足，则记录
@@ -311,6 +409,7 @@
                     this.load_data(this.outbound_task.outbound_list[0].material_no)
                     uni.showToast({ title: '一键分配完毕' })
                 }
+                console.log('>>> 一键分配结束')
             },
             async load_data(material_no) {
                 await this.load_invs(material_no)
@@ -338,7 +437,7 @@
                     'FMaterialId.FNumber': material_no,
                     FOpType: 'out',
                 }
-                const meta = { order: 'FBatchNo ASC' }
+                const meta = { order: 'FBatchNo ASC, FStockLocId.FNumber ASC' }
                 uni.showLoading({ title: 'Loading' })
                 return InvPlan.query(options, meta).then(res => {
                     uni.hideLoading()
@@ -371,7 +470,6 @@
             },
             async submit_save() {
                 if (this.op_mode == 'check') {
-                    console.log('this.invs', this.invs)
                     let checked_invs = this.invs.filter(inv => inv.checked && inv.checked_qty > 0)
                     if (checked_invs.length == 0) {
                         uni.showToast({ icon: 'none', title: '选择库存数为0' })
@@ -400,24 +498,71 @@
                     this._update_inv_status() // 根据已建计划，更新库存列表的界面和操作限制
                 }
                 if (this.op_mode == 'scan') {
-                    console.log('scan模式保存')
+                    try {
+                        let validate_res = await this.$refs.plan_form.validate()
+                        console.log('validate plan form:', this.plan_form)
+                        let obj = this.outbound_task.outbound_list.find(x => x.material_no == this.plan_form.material_no)
+                        // 1. 查询库存，指定物料+库位
+                        // 2. 类似自动分配
+                        let plan_qty = this.plan_form.op_qty * 1
+                        for (let i = 0; i < this.invs.length; i++) {
+                            if (plan_qty == 0) break
+                            let inv = this.invs[i]
+                            if (inv['FStockLocId.FNumber'] == this.plan_form.loc_no) {
+                                let checking_qty = Math.min(inv.FQty, plan_qty)
+                                plan_qty -= checking_qty
+                                let inv_plan = new InvPlan({
+                                    FOpType: 'out',
+                                    FStockId: store.state.cur_stock.FStockId,
+                                    FStockLocNo: inv['FStockLocId.FNumber'],
+                                    FMaterialId: inv.FMaterialId,
+                                    FOpQTY: checking_qty,
+                                    FBatchNo: inv.FBatchNo,
+                                    FBillNo: this.outbound_task.bill_no,
+                                    FOpStaffNo: store.state.cur_staff.FNumber
+                                })
+                                await inv_plan.save()
+                            }
+                        }
+                        this.plan_form.loc_no = ''
+                        this.plan_form.op_qty = ''
+                        await this.load_inv_plans(this.plan_form.material_no)
+                        this._update_inv_status()
+                    } catch (err) {  }
                 }
             },
-            // >>> normal
-            if_auto_allocate() {
-                uni.showModal({
-                    title: '一键分配注意事项',
-                    content: '一键分配会按先入先出原则，自动生成当前单据中所有物料的出库计划。如果之前已有部分计划，则将计划补充完整。',
-                    success: (res) => {
-                        if (res.confirm) this.auto_allocate()
-                    },
-                    fail: (err) => {}
-                })
+            handle_scan_code(text) {
+                let type = ''
+                if (is_material_no_format(text)) {
+                    type = 'material_no'
+                } else if (is_loc_no_std_format(text)) {
+                    type = 'loc_no'
+                } else if (!this.plan_form.material_no) {
+                    type = 'material_no'
+                } else if (!plan.mount_form.loc_no) {
+                    type = 'loc_no'
+                } 
+                if (type == 'material_no') {
+                    let obj = this.outbound_task.outbound_list.find(x => x.material_no == text.trim())
+                    if (obj) {
+                        this.set_plan_form(obj.material_no)
+                        this.load_data(obj.material_no)
+                    } else {
+                        uni.showToast({ icon: 'none', title: '单据中没有该物料' })
+                    }
+                } else if (type == 'loc_no') {                    
+                    let stock_loc = store.state.stock_locs.find(x => x.FNumber == text.trim())
+                    if (stock_loc) {
+                        this.plan_form.loc_no = stock_loc.FNumber
+                    } else {
+                        uni.showToast({ icon: 'none', title: '未知库位号' })
+                    }
+                } else {
+                    uni.showToast({ icon: 'none', title: '未知号码' })
+                } 
             },
             search_invs(material_no) {
-                if (!material_no) {
-                    uni.showToast({ icon: 'none', title: '请先选择物料' })
-                }
+                if (!material_no) uni.showToast({ icon: 'none', title: '请先选择物料' })
                 uni.navigateTo({ url: '/pages/operation/manage/inv_search?t=' + material_no })
             },
             set_op_mode(mode) {
@@ -446,7 +591,6 @@
                     this.plan_form.decimal_unit = false
                 }
             },
-            // >>> helper
             _sum_checked_qty() {
                 return this.invs.map(x => x.checked_qty || 0).concat([0]).reduce((x, y) => x + y)
             },
@@ -460,7 +604,7 @@
                     inv.checked_qty = 0
                     inv.planned_qty = 0
                     this.inv_plans.forEach(inv_plan => {
-                        if (inv['FStockLocId.FNumber'] == inv_plan['FStockLocId.FNumber'] && inv.FBatchNo == inv_plan.FBatchNo) {
+                        if (inv_plan['FStockLocId.FNumber'] == inv['FStockLocId.FNumber'] && inv_plan.FBatchNo ==  inv.FBatchNo && ['A', 'B'].includes(inv_plan.FDocumentStatu)) {
                             inv.planned_qty += inv_plan.FOpQTY
                             if (inv.planned_qty >= inv.FQty) inv.disabled = true
                         }

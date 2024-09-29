@@ -46,6 +46,21 @@ class InvPlan {
     }
     
     /**
+     * 更新库存计划（到数据库）
+     * @param options:Hash
+     * @return {Hash} Promise
+     */
+    static async update(id, options={}) {
+        const data = {
+            model: {
+                FID: id,
+                ...options
+            }
+        }
+        return K3CloudApi.save('PAEZ_C_INV_PLAN', data)
+    }
+    
+    /**
      * 批量保存库存计划（到数据库）
      * @param inv_plans:Array[InvPlan]
      * @return {Hash} Promise

@@ -9,7 +9,7 @@
                     :right-text="group_item.created_at"
                     show-arrow
                     @click="operate_plan(group_item.bill_no)" clickable
-                >
+                    >
                     <template v-slot:body>
                         <view class="uni-list-item__body">
                             <text class="title">{{ group_item.bill_no }}</text>
@@ -20,7 +20,7 @@
                                     :active-color="group_item.qty_b / (group_item.qty_b + group_item.qty_a) == 1 ? '#4cd964' : '#f0ad4e'"
                                     :active="true"
                                 />
-                                <text class="qty">已入库： {{ group_item.qty_b }} / {{ group_item.qty_a + group_item.qty_b }}</text>
+                                <text class="qty">已上架： {{ group_item.qty_b }} / {{ group_item.qty_a + group_item.qty_b }}</text>
                             </view>
                         </view>
                     </template>
@@ -47,7 +47,7 @@
                     :right-text="group_item.created_at"
                     show-arrow
                     @click="operate_plan(group_item.bill_no)" clickable
-                >                    
+                    >                    
                     <template v-slot:body>
                         <view class="uni-list-item__body">
                             <text class="title">{{ group_item.bill_no }}</text>
@@ -116,27 +116,15 @@
             this.load_inv_plans() 
         },
         methods: {
-            // >>> binding
             goods_nav_click(e) {
                 if (e.index === 0) this.refresh() // btn:刷新
             },
             goods_nav_admin_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码
-                if (e.index === 1) {
-                    play_audio_prompt('success')
-                    uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_new' }) // btn:新建入库计划
-                }
+                if (e.index === 1) this.new_plan() // btn:新增入库计划
             },
             goods_nav_staff_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码
-            },
-            async refresh() {
-                if (this.last_refresh_time + this.refresh_interval > Date.now()) {
-                    uni.showToast({ icon: 'none', title: '请不要频繁刷新' })
-                    return
-                }
-                await this.load_inv_plans()
-                this.last_refresh_time = Date.now()
             },
             scan_code() {
                 // #ifdef APP-PLUS
@@ -153,37 +141,30 @@
                 // #endif
             },          
             async load_inv_plans() {
-                let options = { FStockId: store.state.cur_stock.FStockId }
+                let options = { FStockId: store.state.cur_stock.FStockId, FOpType: 'in' }
                 if (store.state.role == 'admin') {       
                     options.FDocumentStatus_in = ['A', 'B']
                 } else {
                     options.FDocumentStatus = 'A'
                 }
                 uni.showLoading({ title: 'Loading' })
-                InvPlan.query(options, {}).then(res => {
+                return InvPlan.query(options, { order: 'FCreateTime ASC' }).then(res => {
                     uni.hideLoading()
                     this.inv_plans = res.data
                     this._set_inv_plan_groups(res.data)
                 })
             },
-            _set_inv_plan_groups(inv_plans) {
-                let inv_plan_groups = []
-                inv_plans.forEach(inv_plan => {
-                    let group_item = inv_plan_groups.find(x => x.bill_no == inv_plan.FBillNo)
-                    if (group_item) {
-                        if (inv_plan.FDocumentStatu == 'A') group_item.qty_a += inv_plan.FOpQTY
-                        if (inv_plan.FDocumentStatu == 'B') group_item.qty_b += inv_plan.FOpQTY
-                    } else {
-                        group_item = {
-                            bill_no: inv_plan.FBillNo,
-                            created_at: formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd'),
-                            qty_a: inv_plan.FDocumentStatu == 'A' ? inv_plan.FOpQTY : 0,
-                            qty_b: inv_plan.FDocumentStatu == 'B' ? inv_plan.FOpQTY : 0
-                        }
-                        inv_plan_groups.push(group_item)
-                    }
-                })
-                this.inv_plan_groups = inv_plan_groups
+            async refresh() {
+                if (this.last_refresh_time + this.refresh_interval > Date.now()) {
+                    uni.showToast({ icon: 'none', title: '请不要频繁刷新' })
+                    return
+                }
+                await this.load_inv_plans()
+                this.last_refresh_time = Date.now()
+            },
+            new_plan() {
+                play_audio_prompt('success')
+                uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_new' })
             },
             operate_plan(bill_no) {
                 if (!this.inv_plan_groups.find(x => x.bill_no == bill_no)) {
@@ -204,6 +185,25 @@
                         
                     }
                 })
+            },
+            _set_inv_plan_groups(inv_plans) {
+                let inv_plan_groups = []
+                inv_plans.forEach(inv_plan => {
+                    let group_item = inv_plan_groups.find(x => x.bill_no == inv_plan.FBillNo)
+                    if (group_item) {
+                        if (inv_plan.FDocumentStatu == 'A') group_item.qty_a += inv_plan.FOpQTY
+                        if (inv_plan.FDocumentStatu == 'B') group_item.qty_b += inv_plan.FOpQTY
+                    } else {
+                        group_item = {
+                            bill_no: inv_plan.FBillNo,
+                            created_at: formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd'),
+                            qty_a: inv_plan.FDocumentStatu == 'A' ? inv_plan.FOpQTY : 0,
+                            qty_b: inv_plan.FDocumentStatu == 'B' ? inv_plan.FOpQTY : 0
+                        }
+                        inv_plan_groups.push(group_item)
+                    }
+                })
+                this.inv_plan_groups = inv_plan_groups
             }
         }
     }

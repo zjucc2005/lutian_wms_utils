@@ -42,31 +42,31 @@
                     @click="handle_material_no_click" clickable
                 />
             </uni-list>
-                        
-            <view class="container">
-                <uni-forms ref="plan_form" :model="plan_form" :rules="plan_form_rules" labelWidth="80px">
-                    <uni-forms-item name="material_no" style="height: 0;"></uni-forms-item>
-                    <uni-forms-item label="库位号" name="loc_no" required>
-                        <uni-data-picker
-                            v-model="plan_form.loc_no"
-                            :localdata="$store.state.stock_loc_opts"
-                            split="-"
-                            popup-title="请选择库位"
-                        />
-                    </uni-forms-item>
-                    <uni-forms-item label="上架数量" name="op_qty" required>
-                        <uni-easyinput v-model="plan_form.op_qty" type="number">
-                            <template #right>
-                                <text class="easyinput-suffix-text">{{ plan_form.base_unit_name }}</text>
-                            </template>
-                        </uni-easyinput>
-                    </uni-forms-item>
-                    <uni-forms-item label="备注" name="remark">
-                        <uni-easyinput v-model="plan_form.remark" trim="both" />
-                    </uni-forms-item>
-                </uni-forms>
-            </view>
         </uni-section>
+        <!-- plan form -->
+        <view class="container">
+            <uni-forms ref="plan_form" :model="plan_form" :rules="plan_form_rules" labelWidth="80px">
+                <uni-forms-item name="material_no" style="height: 0;"></uni-forms-item>
+                <uni-forms-item label="库位号" name="loc_no" required>
+                    <uni-data-picker
+                        v-model="plan_form.loc_no"
+                        :localdata="$store.state.stock_loc_opts"
+                        split="-"
+                        popup-title="请选择库位"
+                    />
+                </uni-forms-item>
+                <uni-forms-item label="上架数量" name="op_qty" required>
+                    <uni-easyinput v-model="plan_form.op_qty" type="number">
+                        <template #right>
+                            <text class="easyinput-suffix-text">{{ plan_form.base_unit_name }}</text>
+                        </template>
+                    </uni-easyinput>
+                </uni-forms-item>
+                <uni-forms-item label="备注" name="remark">
+                    <uni-easyinput v-model="plan_form.remark" trim="both" />
+                </uni-forms-item>
+            </uni-forms>
+        </view>
         
         <uni-section type="square" title="当前计划明细" class="above-uni-goods-nav">
             <template v-slot:right>
@@ -192,7 +192,7 @@
                             color: '#fff'
                         },
                         {
-                            text: '保存',
+                            text: '新增',
                             backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
                             color: '#fff'
                         }
@@ -264,14 +264,13 @@
                         this.set_plan_form(text)
                         this.load_inv_plans(text)
                     } else if (!plan.mount_form.loc_no) {
-                        this.mount_form.loc_no = text
+                        this.plan_form.loc_no = text
                     }
                 }
             },
             submit_save() {
                 this.$refs.plan_form.validate().then(_ => {
                     let obj = this.inbound_task.inbound_list.find(x => x.material_no == this.plan_form.material_no)
-                    this.inv_plans.find(x =>x)
                     let inv_plan = new InvPlan({
                         FOpType: 'in',
                         FStockId: store.state.cur_stock.FStockId,
@@ -283,7 +282,7 @@
                         FOpStaffNo: store.state.cur_staff.FNumber,
                         FRemark: this.plan_form.remark
                     })
-                    console.log('inv_plan', inv_plan)
+                    // console.log('inv_plan', inv_plan)
                     uni.showLoading({ title: 'Loading' })
                     inv_plan.save().then(res => {
                         play_audio_prompt('success')
@@ -299,7 +298,7 @@
                 }).catch(err => {})
             },
             submit_delete(inv_plan) {
-                console.log('submit_delete', inv_plan)
+                // console.log('submit_delete', inv_plan)
                 if (inv_plan.FDocumentStatu == 'A') {
                     uni.showLoading({ title: 'Loading' })
                     InvPlan.delete([inv_plan.FID]).then(res => {

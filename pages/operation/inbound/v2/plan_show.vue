@@ -1,17 +1,17 @@
 <template>
     <view v-if="$store.state.role == 'admin'">
-        <uni-section type="square" title="入库计划" class="above-uni-goods-nav">
+        <uni-section title="入库计划" type="square" class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
                     v-for="(inv_plan, index) in inv_plans"
                     :key="index"
-                >
+                    >
                     <template v-slot:header>
                         <view class="uni-list-item__head">
                             <checkbox
                                 :checked="inv_plan.checked"
                                 :disabled="inv_plan.disabled"
-                                @click="handle_checkbox_click"
+                                @click="checkbox_click"
                                 :data-id="inv_plan.FID"
                             />
                         </view>
@@ -51,18 +51,18 @@
     </view>
     
     <view v-if="$store.state.role == 'staff'">
-        <uni-section type="square" title="入库计划" class="above-uni-goods-nav">
+        <uni-section title="入库计划" type="square" class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
                     v-for="(inv_plan, index) in inv_plans"
                     :key="index"
-                >
+                    >
                     <template v-slot:header>
                         <view class="uni-list-item__head">
                             <checkbox 
                                 :checked="inv_plan.checked"
                                 :disabled="inv_plan.disabled"
-                                @click="handle_checkbox_click"
+                                @click="checkbox_click"
                                 :data-id="inv_plan.FID"
                             />
                         </view>
@@ -114,7 +114,7 @@
         },
         data() {
             return {
-                bill_no: 'ZJDB198948',
+                bill_no: '',
                 inv_plans: [],
                 goods_nav: {
                     options: [
@@ -122,7 +122,7 @@
                     ],
                     admin_button_group: [
                         {
-                            text: '确认完成',
+                            text: '审核确认',
                             backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
                             color: '#fff'
                         }
@@ -147,15 +147,11 @@
             
         },
         methods: {
-            // >>> binding
             goods_nav_click(e) {
-                if (e.index === 0) {
-                    this.check_all() // btn:全选
-                    console.log('this', this)
-                }
+                if (e.index === 0) this.check_all() // btn:全选
             },
             goods_nav_admin_button_click(e) {
-                if (e.index == 0) this.submit_audit() // btn:确认完成
+                if (e.index == 0) this.submit_audit() // btn:审核确认
             },
             goods_nav_staff_button_click(e) {
                 if (e.index == 0) this.submit_submit() // btn:提交
@@ -166,57 +162,12 @@
                     if (!inv_plan.disabled) inv_plan.checked = !checked_all
                 })
             },
-            handle_checkbox_click(e) {
+            checkbox_click(e) {
                 console.log('checkbox_click e', e)
                 let inv_plan = this.inv_plans.find(x => x.FID == e.target.dataset.id)
                 if (inv_plan && !inv_plan.disabled) {
                     inv_plan.checked = !inv_plan.checked
                 }  
-            },
-            async submit_audit() {
-                let checked_inv_plans = this.inv_plans.filter(x => x.checked)
-                let ids = checked_inv_plans.map(x => x.FID)
-                // console.log('checked ids', ids)
-                if (ids.length) {
-                    uni.showLoading({ title: 'Loading' })
-                    let response = await InvPlan.audit(ids)
-                    if (response.data.Result.ResponseStatus.IsSuccess) {
-                        for (let i = 0; i < checked_inv_plans.length; i++) {
-                            await InvPlan.execute(checked_inv_plans[i])
-                        }
-                        await this.load_inv_plans()
-                        const eventChannel = this.getOpenerEventChannel();
-                        eventChannel.emit('reloadInvPlans', { reload: true })
-                        uni.hideLoading()
-                    } else {
-                        uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
-                    }
-                } else {
-                    uni.showToast({
-                        icon: 'none', title: '未选择任何条目'
-                    })
-                }
-            },
-            async submit_submit() {
-                let ids = this.inv_plans.filter(x => x.checked).map(x => x.FID)
-                // console.log('checked ids', ids)
-                if (ids.length) {
-                    uni.showLoading({ title: 'Loading' })
-                    InvPlan.submit(ids).then(res => {
-                        if (res.data.Result.ResponseStatus.IsSuccess) {
-                            this.load_inv_plans()
-                            const eventChannel = this.getOpenerEventChannel();
-                            eventChannel.emit('reloadInvPlans', { reload: true })
-                        } else {
-                            uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
-                        }
-                    })
-                } else {
-                    uni.showToast({
-                        icon: 'none', title: '未选择任何条目'
-                    })
-                }
-                
             },
             async load_inv_plans() {
                 let options = { 
@@ -245,6 +196,52 @@
                     })
                 })
             },
+            async submit_audit() {
+                if (this.inv_plans.find(x => x.FDocumentStatu == 'A')) {
+                    uni.showToast({ icon: 'none', title: '还有未提交的条目' })
+                    return
+                }
+                let checked_inv_plans = this.inv_plans.filter(x => x.checked)
+                let ids = checked_inv_plans.map(x => x.FID)
+                if (ids.length) {
+                    uni.showLoading({ title: 'Loading' })
+                    let response = await InvPlan.audit(ids)
+                    if (response.data.Result.ResponseStatus.IsSuccess) {
+                        for (let i = 0; i < checked_inv_plans.length; i++) {
+                            await InvPlan.execute(checked_inv_plans[i])
+                        }
+                        await this.load_inv_plans()
+                        const eventChannel = this.getOpenerEventChannel();
+                        eventChannel.emit('reloadInvPlans', { reload: true })
+                        uni.hideLoading()
+                    } else {
+                        uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
+                    }
+                } else {
+                    uni.showToast({
+                        icon: 'none', title: '未选择任何条目'
+                    })
+                }
+            },
+            async submit_submit() {
+                let ids = this.inv_plans.filter(x => x.checked).map(x => x.FID)
+                if (ids.length) {
+                    uni.showLoading({ title: 'Loading' })
+                    InvPlan.submit(ids).then(res => {
+                        if (res.data.Result.ResponseStatus.IsSuccess) {
+                            this.load_inv_plans()
+                            const eventChannel = this.getOpenerEventChannel();
+                            eventChannel.emit('reloadInvPlans', { reload: true })
+                        } else {
+                            uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
+                        }
+                    })
+                } else {
+                    uni.showToast({
+                        icon: 'none', title: '未选择任何条目'
+                    })
+                }
+            }
         }
     }
 </script>
