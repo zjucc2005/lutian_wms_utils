@@ -13,7 +13,7 @@
                     <text class="grid-item-text">出库</text>
                 </view>
             </uni-grid-item>
-            <uni-grid-item @click="goTo('move/index')">
+            <uni-grid-item @click="goTo('move/v2/index')">
                 <view class="grid-item-box">
                     <image src="/static/icon/kucuntiaozheng.png" mode="widthFix" class="grid-item-icon"></image>
                     <text class="grid-item-text">库存调整</text>
@@ -21,16 +21,22 @@
             </uni-grid-item>
             <uni-grid-item @click="inv_search">
                 <view class="grid-item-box">
-                    <image src="/static/icon/kucunchaxun.png" mode="widthFix" class="grid-item-icon"></image>
+                    <image src="/static/icon/saomiao.png" mode="widthFix" class="grid-item-icon"></image>
                     <text class="grid-item-text">库存查询</text>
                 </view>
             </uni-grid-item>
-            <uni-grid-item @click="goTo('manage/index')">
+            <uni-grid-item @click="goTo('manage/locs')">
+                <view class="grid-item-box">
+                    <image src="/static/icon/kuweiguanli.png" mode="widthFix" class="grid-item-icon"></image>
+                    <text class="grid-item-text">库位管理</text>
+                </view>
+            </uni-grid-item>
+<!--            <uni-grid-item @click="goTo('manage/index')">
                 <view class="grid-item-box">
                     <image src="/static/icon/qita.png" mode="widthFix" class="grid-item-icon"></image>
                     <text class="grid-item-text">其他功能</text>
                 </view>
-            </uni-grid-item>
+            </uni-grid-item> -->
         </uni-grid>
     </view>
 </template>

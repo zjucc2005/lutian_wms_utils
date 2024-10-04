@@ -1,6 +1,6 @@
 <template>
     <view>
-        <uni-notice-bar single show-icon scrollable text="扫码获取单据中物料清单后，下一步新增计划明细" />
+        <uni-notice-bar single scrollable text="扫码获取单据中物料清单后，下一步新增计划明细" />
         
         <uni-section title="查询单据编号" type="square">
             <uni-search-bar

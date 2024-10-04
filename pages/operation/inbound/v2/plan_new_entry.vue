@@ -77,7 +77,7 @@
                     v-for="(inv_plan, index) in inv_plans"
                     :key="index"
                     :threshold="60"
-                    :right-options="inv_plan.FDocumentStatu == 'A' ? swipe_options : []"
+                    :right-options="swipe_options"
                     @click="swipe_action_click($event, inv_plan)"
                 >
                     <uni-list-item
@@ -298,7 +298,6 @@
                 }).catch(err => {})
             },
             submit_delete(inv_plan) {
-                // console.log('submit_delete', inv_plan)
                 if (inv_plan.FDocumentStatu == 'A') {
                     uni.showLoading({ title: 'Loading' })
                     InvPlan.delete([inv_plan.FID]).then(res => {
@@ -312,7 +311,8 @@
                         }
                     })
                 } else {
-                    uni.showToast({ icon: 'error', title: 'ERROR' })
+                    this.$refs.inv_plan_swipe.closeAll()
+                    uni.showToast({ icon: 'error', title: '只能删除新增的计划' })
                 }
             },
             // >>>

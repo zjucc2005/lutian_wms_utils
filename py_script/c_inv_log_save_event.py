@@ -51,7 +51,8 @@ def update_inv_log(inv_log, inv_id):
 def query_inv(inv_log):
     sql = """
     SELECT * FROM PAEZ_t_C_INV
-    WHERE FSTOCKID = {f_stock_id}
+    WHERE FFormId = 'PAEZ_C_INV'
+    AND FSTOCKID = {f_stock_id}
     AND FSTOCKLOCID = {f_stock_loc_id}
     AND FMATERIALID = {f_material_id}
     AND FBATCHNO = {f_batch_no};

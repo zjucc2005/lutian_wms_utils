@@ -22,9 +22,8 @@
                             <view class="note">
                                 <view>名称：{{ inv_plan['FMaterialId.FName'] }}</view> 
                                 <view>规格：{{ inv_plan['FMaterialId.FSpecification'] }}</view>
-                                <view>库位：
-                                    <uni-icons type="location" color="#007bff" ></uni-icons>
-                                    <text class="loc_no">{{ inv_plan['FStockLocId.FNumber'] }}</text>
+                                <view>
+                                    库位：<text class="loc_no">{{ inv_plan['FStockLocId.FNumber'] }}</text>
                                 </view>
                                 <view>批次：{{ inv_plan['FBatchNo'] }}</view>
                             </view>
@@ -32,8 +31,11 @@
                     </template>
                     <template v-slot:footer>
                         <view class="uni-list-item__foot">
-                            <text>{{ inv_plan['FOpQTY'] }} {{ inv_plan['FStockUnitId.FName'] }}</text>
-                            <text class="status">{{ inv_plan.status }}</text>
+                            <view class="op_qty">
+                                <uni-icons type="arrow-up" size="18" color="#dd524d"></uni-icons>
+                                <text>{{ inv_plan['FOpQTY'] }} {{ inv_plan['FStockUnitId.FName'] }}</text>
+                            </view>
+                            <text :class="['status', inv_plan.disabled ? 'disabled' : '']">{{ inv_plan.status }}</text>
                         </view>
                     </template>
                 </uni-list-item>
@@ -84,7 +86,7 @@
                     <template v-slot:footer>
                         <view class="uni-list-item__foot">
                             <text>{{ inv_plan['FOpQTY'] }} {{ inv_plan['FStockUnitId.FName'] }}</text>
-                            <text class="status">{{ inv_plan.status }}</text>
+                            <text :class="['status', inv_plan.disabled ? 'disabled' : '']">{{ inv_plan.status }}</text>
                         </view>
                     </template>
                 </uni-list-item>
@@ -182,7 +184,7 @@
                     this.inv_plans.forEach(inv_plan => {
                         inv_plan.checked = false
                         if (store.state.role == 'admin') {
-                            inv_plan.disabled = !['A', 'B'].includes(inv_plan.FDocumentStatu)
+                            inv_plan.disabled = inv_plan.FDocumentStatu != 'B'
                             if (inv_plan.FDocumentStatu != 'B') {
                                 inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
                             } 

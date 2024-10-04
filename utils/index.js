@@ -100,24 +100,24 @@ const parse_stock_locs = (stock_locs=[]) => {
             let x = loc_no_arr[2].slice(0,2) * 1
             let y = loc_no_arr[2][2] * 1
             let status = ''
-            let style = 'info'
+            let style = 'default'
             if (stock_loc.FForbidStatus != 'A') { 
                 status = '已禁用'
-                style = 'default' 
+                style = '' 
             } else if (stock_loc.FDocumentStatus != 'C') {
                 status = '未审核'
-                style = 'warn'
+                style = ''
             }
             let shelf = grid_shelves.find(d => d.name == name)
             if (shelf) {
                 shelf.bound.x = Math.max(shelf.bound.x, x)
                 shelf.bound.y = Math.max(shelf.bound.y, y)
-                shelf.grids.push({ x, y, status, style })
+                shelf.grids.push({ x, y, status, style, no: stock_loc.FNumber })
             } else {
                 grid_shelves.push({
                     name: name,
                     bound: { x, y },
-                    grids: [{ x, y, status, style }]
+                    grids: [{ x, y, status, style, no: stock_loc.FNumber }]
                 })
             }
         } else {
@@ -130,13 +130,14 @@ const parse_stock_locs = (stock_locs=[]) => {
             for(let y=1;y<=shelf.bound.y;y+=1) {
                 let { page, index } = get_grid_page_and_index(shelf.bound, { x, y })
                 let name = get_grid_name({x, y})
+                let no = [shelf.name, name].join('-')
                 let grid = shelf.grids.find(g => g.x == x && g.y == y)
                 if (grid) {
                     grid.page = page
                     grid.index = index
                     grid.name = name
                 } else {
-                    grid = { x, y, page, index, name, status: '', style: x > shelf.bound.x ? 'none' : 'default' }
+                    grid = { x, y, page, index, name, no, status: '', style: x > shelf.bound.x ? 'none' : 'default' }
                     shelf.grids.push(grid)
                 }
             }
@@ -178,7 +179,7 @@ const parse_stock_locs_with_invs = (stock_locs=[], invs=[]) => {
         if (shelf) {
             shelf.disabled = false
             let grid = shelf.grids.find(g => g.no == inv['FStockLocId.FNumber'])
-            grid.style = 'error'
+            grid.style = 'success'
             grid.qty += inv.FQty
         }
     })

@@ -4,7 +4,10 @@
         class="above-uni-goods-nav"
         >
         <uni-collapse v-if="display_mode == 'grid'" :open="true">
-            <uni-collapse-item v-for="shelf in grid_shelves.filter(shelf => !shelf.disabled)" :title="shelf.name" :open="true" title-border="show">
+            <uni-collapse-item
+                v-for="shelf in grid_shelves.filter(shelf => !shelf.disabled)"
+                :title="shelf.name" :open="true" title-border="show"
+                >
                 <view class="content">
                     <swiper :indicator-dots="true" :style="{ height: `${get_swiper_height(shelf)}px` }" class="shelf_swiper">
                         <swiper-item v-for="page in get_swiper_pages(shelf)" :key="page">
@@ -13,7 +16,7 @@
                                     v-for="grid in filter_swiper_grids(shelf, page)"
                                     :key="grid.index"
                                     :index="grid.index"
-                                >
+                                    >
                                     <view :class="['grid-item-box', grid.style]">
                                         <view class="name">{{ grid.name }}</view>
                                         <view v-if="grid.qty" class="qty">{{ grid.qty }}</view>

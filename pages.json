@@ -135,15 +135,15 @@
         },
         {
             "path": "pages/operation/inbound/v2/plan_new",
-            "style": { "navigationBarTitleText" : "入库 - 新增入库计划" }
+            "style": { "navigationBarTitleText" : "入库 - 新增计划" }
         },
         {
             "path": "pages/operation/inbound/v2/plan_new_entry",
-            "style":  { "navigationBarTitleText" : "入库 - 新增入库计划" }
+            "style":  { "navigationBarTitleText" : "入库 - 新增计划" }
         },
         {
             "path": "pages/operation/inbound/v2/plan_show",
-            "style": { "navigationBarTitleText": "入库 - 入库计划" }
+            "style": { "navigationBarTitleText": "入库 - 计划" }
         },
         {
             "path": "pages/operation/outbound/v2/index",
@@ -151,15 +151,23 @@
         },
         {
             "path": "pages/operation/outbound/v2/plan_new",
-            "style": { "navigationBarTitleText": "出库 - 新增出库计划" }
+            "style": { "navigationBarTitleText": "出库 - 新增计划" }
         },
         {
             "path": "pages/operation/outbound/v2/plan_new_entry",
-            "style": { "navigationBarTitleText": "出库 - 新增出库计划" }
+            "style": { "navigationBarTitleText": "出库 - 新增计划" }
         },
         {
             "path": "pages/operation/outbound/v2/plan_show",
-            "style": { "navigationBarTitleText": "出库 - 出库计划" }
+            "style": { "navigationBarTitleText": "出库 - 计划" }
+        },
+        {
+            "path": "pages/operation/move/v2/index",
+            "style": { "navigationBarTitleText": "库存调整 - 计划" }
+        },
+        {
+            "path": "pages/operation/move/v2/plan_new",
+            "style": { "navigationBarTitleText": "库存调整 - 新增计划" }
         }
     ],
     "globalStyle": {

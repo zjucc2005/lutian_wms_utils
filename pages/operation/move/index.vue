@@ -19,7 +19,7 @@
             </uni-list>
         </uni-section>
         
-        <uni-section v-if="invs.length" title="库存列表" type="line">
+        <uni-section v-if="invs.length" title="库存列表" type="line" class="above-uni-goods-nav">
             <uni-list>
                 <template
                     v-for="(inv, index) in invs"
@@ -129,7 +129,7 @@
     import store from '@/store'
     import { play_audio_prompt } from '@/utils'
     import { get_bd_material } from '@/utils/api'
-    import { Inv, StockLoc, MoveCart } from '@/utils/model'
+    import { Inv, MoveCart } from '@/utils/model'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
     // #endif 

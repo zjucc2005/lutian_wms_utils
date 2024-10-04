@@ -1,6 +1,8 @@
 <template>
     <view v-if="$store.state.role == 'admin'">
-        <uni-section title="进行中的出库计划" type="square" class="above-uni-goods-nav">
+        <uni-section title="进行中的出库计划" type="square"
+            sub-title="单据编号"
+            class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
                     v-for="(group_item, index) in inv_plan_groups"

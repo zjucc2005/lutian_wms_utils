@@ -2,8 +2,7 @@
     <view>
         <uni-section type="square" title="新增计划明细"
             :sub-title="outbound_task.bill_no"
-            sub-title-color="#007aff"
-            >
+            sub-title-color="#007aff">
             <uni-list v-if="plan_form.material_no">
                 <template
                     v-for="(obj, index) in outbound_task.outbound_list"
@@ -67,8 +66,7 @@
        
         <uni-section type="square" title="当前计划明细"
             v-if="inv_plans.length"
-            :class="op_mode == 'scan' ? 'above-uni-goods-nav' : ''"
-            >
+            :class="op_mode == 'scan' ? 'above-uni-goods-nav' : ''">
             <template v-slot:right>
                 <view class="uni-section__right">
                     <view >
@@ -81,7 +79,7 @@
                     v-for="(inv_plan, index) in inv_plans"
                     :key="index"
                     :threshold="60"
-                    :right-options="inv_plan.FDocumentStatu == 'A' ? swipe_options : []"
+                    :right-options="swipe_options"
                     @click="swipe_action_click($event, inv_plan)"
                     >
                     <uni-list-item
@@ -101,7 +99,7 @@
             </uni-swipe-action>
         </uni-section>
         
-        <uni-section title="当前库存信息"
+        <uni-section title="库存信息"
             v-if="op_mode == 'check'"
             class="above-uni-goods-nav">
             <template v-slot:decoration>
@@ -137,7 +135,7 @@
                         </view>
                     </template>
                     <template v-slot:footer>
-                        <view class="uni-list-item__foot" style="text-align: right;">
+                        <view class="uni-list-item__foot">
                             <text class="op_qty">
                                 <template v-if="inv.planned_qty">({{ inv.FQty - inv.planned_qty }})</template>
                                 {{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}
@@ -451,7 +449,6 @@
                 })
             },
             async submit_delete(inv_plan) {
-                // console.log('submit_delete', inv_plan)
                 if (inv_plan.FDocumentStatu == 'A') {
                     uni.showLoading({ title: 'Loading' })
                     return InvPlan.delete([inv_plan.FID]).then(res => {
@@ -465,7 +462,8 @@
                         }
                     })
                 } else {
-                    uni.showToast({ icon: 'error', title: 'ERROR' })
+                    this.$refs.inv_plan_swipe.closeAll()
+                    uni.showToast({ icon: 'error', title: '只能删除新增的计划' })
                 }
             },
             async submit_save() {
@@ -493,8 +491,8 @@
                         }
                     }
                     uni.hideLoading()
-                    await this.load_inv_plans(this.plan_form.material_no)
                     play_audio_prompt('success')
+                    await this.load_inv_plans(this.plan_form.material_no)
                     this._update_inv_status() // 根据已建计划，更新库存列表的界面和操作限制
                 }
                 if (this.op_mode == 'scan') {
