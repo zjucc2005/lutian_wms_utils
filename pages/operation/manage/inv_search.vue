@@ -3,30 +3,14 @@
         :sub-title="set_section_sub_title()"
         class="above-uni-goods-nav"
         >
+        
         <uni-collapse v-if="display_mode == 'grid'" :open="true">
-            <uni-collapse-item
-                v-for="shelf in grid_shelves.filter(shelf => !shelf.disabled)"
-                :title="shelf.name" :open="true" title-border="show"
-                >
-                <view class="content">
-                    <swiper :indicator-dots="true" :style="{ height: `${get_swiper_height(shelf)}px` }" class="shelf_swiper">
-                        <swiper-item v-for="page in get_swiper_pages(shelf)" :key="page">
-                            <uni-grid :column="10" :show-border="false">
-                                <uni-grid-item
-                                    v-for="grid in filter_swiper_grids(shelf, page)"
-                                    :key="grid.index"
-                                    :index="grid.index"
-                                    >
-                                    <view :class="['grid-item-box', grid.style]">
-                                        <view class="name">{{ grid.name }}</view>
-                                        <view v-if="grid.qty" class="qty">{{ grid.qty }}</view>
-                                    </view>
-                                </uni-grid-item>
-                            </uni-grid>
-                        </swiper-item>
-                    </swiper>
-                </view>
-            </uni-collapse-item>
+            <cc-shelf
+                :stock_locs="$store.state.stock_locs"
+                :invs="invs"
+                :column="10"
+                only-inv
+                open />
         </uni-collapse>
             
         <uni-list v-if="mode == 'material_no' && display_mode == 'list'">
@@ -34,7 +18,7 @@
                 v-for="(inv, index) in invs"
                 :key="index"
                 :title="inv['FStockLocId.FNumber']"
-                :note="inv.FBatchNo"
+                :note="`批次：${inv.FBatchNo}`"
                 :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
                 >
             </uni-list-item>
@@ -75,15 +59,19 @@
     import store from '@/store'
     import { get_bd_material } from '@/utils/api'
     import { Inv, StockLoc } from '@/utils/model'
-    import { is_material_no_format, is_loc_no_std_format, parse_stock_locs_with_invs, filter_swiper_grids, get_swiper_pages, get_swiper_height } from '@/utils'
+    import { is_material_no_format, is_loc_no_std_format } from '@/utils'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
     // #endif
+    import ccShelf from '@/components/cc-shelf/cc-shelf.vue'
     export default {
         props: {
             t: {
                 type: String
             }
+        },
+        components: {
+            ccShelf
         },
         data() {
             return {
@@ -97,7 +85,6 @@
                     material_spec: '',
                     base_unit_name: ''
                 },
-                grid_shelves: [],
                 invs: [],
                 goods_nav: {
                     options: [
@@ -121,9 +108,6 @@
             // this.handle_scan_code('3.08.02.01.10.0013') // 调试用
         },
         methods: {
-            filter_swiper_grids,
-            get_swiper_pages,
-            get_swiper_height,
             goods_nav_click(e) {
                 if (e.index == 0) this.more_actions() // btn:更多
                 if (e.index == 1) this.switch_display_mode() // btn:切换显示 网格/列表
@@ -189,7 +173,6 @@
                     this.mode = 'material_no'
                     this.set_display_mode('grid')
                     this.no = material_no
-                    this.grid_shelves = parse_stock_locs_with_invs(store.state.stock_locs, res.data)
                 })
             },
             async load_invs_by_loc_no(loc_no) {
@@ -203,7 +186,6 @@
                     this.mode = 'loc_no'
                     this.set_display_mode('list')
                     this.no = loc_no
-                    this.grid_shelves = parse_stock_locs_with_invs(store.state.stock_locs, res.data)
                 })
             },
             handle_scan_code(text) {
@@ -223,7 +205,6 @@
                     this.invs = []
                     this.mode = ''
                     this.no = ''
-                    this.grid_shelves = []
                     uni.showToast({ icon: 'none', title: '未知格式的编码' })
                 }                   
             },

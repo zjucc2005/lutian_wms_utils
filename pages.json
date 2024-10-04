@@ -54,19 +54,19 @@
         },
         {
             "path": "pages/operation/manage/index",
-            "style": { "navigationBarTitleText": "仓库管理" }
+            "style": { "navigationBarTitleText": "管理" }
         },
         {
             "path": "pages/operation/manage/inv_search",
-            "style": { "navigationBarTitleText": "仓库管理 - 库存查询" }
+            "style": { "navigationBarTitleText": "库存查询" }
         },
         {
             "path": "pages/operation/manage/locs",
-            "style": { "navigationBarTitleText": "仓库管理 - 库位管理" }
+            "style": { "navigationBarTitleText": "管理 - 库位管理" }
         },
         {
             "path": "pages/operation/manage/loc_new",
-            "style": { "navigationBarTitleText": "仓库管理 - 新增库位" }
+            "style": { "navigationBarTitleText": "管理 - 新增库位" }
         },
         {
             "path": "pages/my/index",

@@ -1,5 +1,5 @@
 <template>
-    <view v-if="!cur_inbound_task.batch_no">
+    <view v-if="!cur_inbound_task.inbound_date">
         <uni-section title="入库设定" type="line">
             <view class="container">
                 <uni-forms ref="inbound_task_form" :model="inbound_task_form" :rules="inbound_task_form_rules" labelWidth="80px">
@@ -156,13 +156,13 @@
                     bill_no: {
                         rules: [
                             { required: true, errorMessage: '单据编号不能为空' },
-                            {
-                                validateFunction: (rule, value, data, callback) => {
-                                    if (!this.inbound_task_form.inbound_list.length) {
-                                        return callback('未找到单据信息')
-                                    }
-                                }
-                            }           
+                            // {
+                            //     validateFunction: (rule, value, data, callback) => {
+                            //         if (!this.inbound_task_form.inbound_list.length) {
+                            //             return callback('未找到单据信息')
+                            //         }
+                            //     }
+                            // }           
                         ]
                     }
                 },

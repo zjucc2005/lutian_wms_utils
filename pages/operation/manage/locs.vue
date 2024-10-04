@@ -8,31 +8,11 @@
             ].join(' / ')"
             class="above-uni-goods-nav"
             >
-            <uni-collapse>
-                <uni-collapse-item
-                    v-for="shelf in grid_shelves"
-                    :title="shelf.name" :open="true" title-border="show"
-                    >
-                    <view class="content">
-                        <swiper :indicator-dots="true" :style="{ height: `${get_swiper_height(shelf)}px` }" class="shelf_swiper">
-                            <swiper-item v-for="page in get_swiper_pages(shelf)" :key="page">
-                                <uni-grid :column="10" :show-border="false" @change="change">
-                                    <uni-grid-item
-                                        v-for="grid in filter_swiper_grids(shelf, page)"
-                                        :key="grid.index"
-                                        :index="grid.index"
-                                        >
-                                        <view :class="['grid-item-box', grid.style]">
-                                            <view class="name">{{ grid.name }}</view>
-                                            <view class="qty">{{ grid.qty }}</view>
-                                        </view>
-                                    </uni-grid-item>
-                                </uni-grid>
-                            </swiper-item>
-                        </swiper>
-                    </view>
-                </uni-collapse-item>
-            </uni-collapse>
+            <cc-shelf 
+                :stock_locs="$store.state.stock_locs"
+                :invs="invs"
+                :column="10"
+                :open="cc_shelf_open"/>
         </uni-section>
                 
         <view class="uni-goods-nav-wrapper">
@@ -49,18 +29,22 @@
 <script>
     import store from '@/store'
     import { StockLoc } from '@/utils/model'
-    import { is_loc_no_std_format, parse_stock_locs, filter_swiper_grids, get_swiper_pages, get_swiper_height } from '@/utils'
+    import { play_audio_prompt } from '@/utils'
+    import ccShelf from '@/components/cc-shelf/cc-shelf.vue'
     export default {
+        components: {
+            ccShelf
+        },
         data() {
             return {
-                stock_locs: [],
-                grid_shelves: [],
+                invs: [],
+                cc_shelf_open: true,
                 last_refresh_time: 0,
                 refresh_interval: 30 * 1000, // 30s
-                status_dict: { A: '已新增', B: '已提交', C: '已审核' },
                 goods_nav: {
                     options: [
-                        { icon: 'refreshempty', text: '刷新' }
+                        { icon: 'refreshempty', text: '刷新' },
+                        { icon: 'up', text: '折叠' }
                     ],
                     button_group: [
                         {
@@ -73,20 +57,20 @@
             }
         },
         mounted() {
-            this.$nextTick(_ => {
-                this.grid_shelves = parse_stock_locs(store.state.stock_locs)
-            })
         },
         methods: {
-            filter_swiper_grids,
-            get_swiper_pages,
-            get_swiper_height,
             // >>> component
             goods_nav_click(e) {
-                if (e.index == 0) this.refresh()
+                if (e.index === 0) this.refresh()
+                if (e.index === 1) this.toggle_cc_shelf()
             },
             goods_nav_button_click(e) {
-                if (e.index == 0) uni.navigateTo({ url: '/pages/operation/manage/loc_new' })
+                if (e.index === 0) this.new_loc_no()
+                // uni.navigateTo({ url: '/pages/operation/manage/loc_new' })
+            },
+            new_loc_no () {
+                play_audio_prompt('success')
+                uni.navigateTo({ url: '/pages/operation/manage/loc_new' })
             },
             refresh() {
                 console.log('data', this.$data)
@@ -96,14 +80,21 @@
                 }
                 uni.showLoading({ title: 'Loading' })               
                 StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
-                    this.grid_shelves = parse_stock_locs(res.data)
                     store.commit('set_stock_locs', res.data)
                     this.last_refresh_time = Date.now()
                     uni.showToast({ title: '已刷新' })
                 })
             },
-            change(e) {
-                console.log('change e:', e)
+            toggle_cc_shelf () {
+                if (this.cc_shelf_open) {
+                    this.cc_shelf_open = false
+                    this.goods_nav.options[1].icon = 'down'
+                    this.goods_nav.options[1].text = '展开'
+                } else {
+                    this.cc_shelf_open = true
+                    this.goods_nav.options[1].icon = 'up'
+                    this.goods_nav.options[1].text = '折叠'
+                }
             }
         }
     }

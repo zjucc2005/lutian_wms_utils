@@ -38,7 +38,6 @@
                     <template v-slot:footer>
                         <view class="uni-list-item__foot">
                             <view class="op_qty">
-                                <uni-icons type="redo" size="18" color="#007bff"></uni-icons>
                                 <text class="op_qty">{{ inv_plan['FOpQTY'] }} {{ inv_plan['FStockUnitId.FName'] }}</text>
                             </view>
                             <text :class="['status', inv_plan.disabled ? 'disabled' : '']">{{ inv_plan.status }}</text>

@@ -110,7 +110,7 @@
                 @close="close_move_dialog"
                 @confirm="confirm_move_dialog"
                 :beforeClose="true"
-            >
+                >
                 <view class="move-form">
                     <uni-forms ref="move_form" :model="move_form" :rules="move_form_rules">
                         <uni-row>

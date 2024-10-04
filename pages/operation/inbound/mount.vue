@@ -146,6 +146,7 @@
                                 validateFunction: (rule, value, data, callback) => {
                                     let stock_loc = this.stock_locs.find(x => x.FNumber == value)
                                     if (!stock_loc) {
+                                        console.log('this.mount_form', this.mount_form)
                                         return callback('不存在此库位号')
                                     } else if (stock_loc.FDocumentStatus != 'C') {
                                         return callback('此库位号未审核')

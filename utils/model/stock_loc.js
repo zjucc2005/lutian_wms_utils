@@ -21,7 +21,7 @@ class StockLoc {
      * 保存库位（到数据库）
      * @return {Hash} Promise
      */
-    save() {
+    async save() {
         const data = {
             model: this
         }
@@ -33,7 +33,7 @@ class StockLoc {
      * @param stock_locs:Array[StockLoc]
      * @return {Hash} Promise
      */
-    static batch_save(stock_locs=[]) {
+    static async batch_save(stock_locs=[]) {
         const data = {
             model: stock_locs,
             ValidateRepeatJson: true
@@ -41,12 +41,36 @@ class StockLoc {
         return K3CloudApi.batch_save('PAEZ_C_STOCK_LOC', data)
     }
     
+    /**
+     * 批量提交库位（到数据库）
+     * @param numbers:Array[String]
+     * @return {Hash} Promise
+     */
+    static async submit(numbers=[]) {
+        const data = {
+            Numbers: numbers
+        }
+        return K3CloudApi.submit('PAEZ_C_STOCK_LOC', data)
+    }
+    
+    /**
+     * 批量审核库位（到数据库）
+     * @param numbers:Array[String]
+     * @return {Hash} Promise
+     */
+    static async audit(numbers=[]) {
+        const data = {
+            Numbers: numbers
+        }
+        return K3CloudApi.audit('PAEZ_C_STOCK_LOC', data)
+    }
+    
     /** 
-     * 删除仓位(批量)
+     * 批量删除库位
      * @param ids:Array 
      * @return {Hash} Promise
      */
-    static delete(ids=[]) {
+    static async delete(ids=[]) {
         const data = {
             Ids: ids.join(',')
         }
@@ -65,10 +89,11 @@ class StockLoc {
      *   @field order:String
      * @return {Hash} Promise
      */    
-    static query(options={}, meta={}) {
+    static async query(options={}, meta={}) {
         const data = {
             FormId: "PAEZ_C_STOCK_LOC",
-            FilterString: []
+            FilterString: [],
+            Limit: 10000
         }
         if (options.FStockId) {
             data.FilterString.push({ Left: "", FieldName: "FStockId", Compare: "67", Value: options.FStockId, Right: "", Logic: 0 })
@@ -92,7 +117,7 @@ class StockLoc {
      * @param loc_nos:Array 库位号
      * @return {Hash} Promise { status: -1/0/1/, msg: '网络异常/不存在/已存在', data: [] }
      */
-    static exist_loc_nos(loc_nos) {
+    static async exist_loc_nos(loc_nos) {
         return this.query({ FNumber_in: loc_nos }).then(res => {
             return Promise.resolve(response_with_existence(res, '库位号'))
         })

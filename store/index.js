@@ -59,15 +59,15 @@ const store = createStore({
             stock_locs.forEach(stock_loc => {
                 let loc_no = stock_loc.FNumber
                 let loc_no_arr = loc_no.split('-')
-                let depot = stock_loc_opts.find(opt => opt.value == loc_no_arr[0])
+                let depot = stock_loc_opts.find(opt => opt.text == loc_no_arr[0])
                 if (!depot) {
                     depot = { text: loc_no_arr[0], value: loc_no_arr[0], children: [] }
                     stock_loc_opts.push(depot)
                 }
                 if (loc_no_arr.length > 1) {
-                    let shelf = depot.children.find(s => s.value == loc_no_arr[1])
+                    let shelf = depot.children.find(s => s.text == loc_no_arr[1])
                     if (!shelf) {
-                        shelf = { text: loc_no_arr[1], value: loc_no_arr[1], children: [] }
+                        shelf = { text: loc_no_arr[1], value: loc_no_arr.slice(0, 2).join('-'), children: [] }
                         depot.children.push(shelf)
                     }
                     if (loc_no_arr.length > 2) {
