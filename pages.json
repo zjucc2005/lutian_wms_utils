@@ -104,12 +104,16 @@
             "style": { "navigationBarTitleText": "管理" }
         },
         {
+            "path": "pages/operation/manage/invs",
+            "style": { "navigationBarTitleText": "库存" }
+        },
+        {
             "path": "pages/operation/manage/inv_search",
             "style": { "navigationBarTitleText": "库存查询" }
         },
         {
             "path": "pages/operation/manage/locs",
-            "style": { "navigationBarTitleText": "管理 - 库位管理" }
+            "style": { "navigationBarTitleText": "管理 - 库位" }
         },
         {
             "path": "pages/operation/manage/loc_new",
@@ -174,6 +178,10 @@
         {
             "path": "pages/operation/statistics/index",
             "style": { "navigationBarTitleText": "统计" }
+        },
+        {
+            "path": "pages/operation/statistics/inventory_record",
+            "style": { "navigationBarTitleText": "出入库数量统计" }
         }
     ],
     "globalStyle": {

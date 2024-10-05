@@ -25,6 +25,12 @@
                     <text class="grid-item-text">库存查询</text>
                 </view>
             </uni-grid-item>
+            <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/invs')">
+                <view class="grid-item-box">
+                    <image src="/static/icon/kucun.png" mode="widthFix" class="grid-item-icon"></image>
+                    <text class="grid-item-text">库存总览</text>
+                </view>
+            </uni-grid-item>
             <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/locs')">
                 <view class="grid-item-box">
                     <image src="/static/icon/kuweiguanli.png" mode="widthFix" class="grid-item-icon"></image>

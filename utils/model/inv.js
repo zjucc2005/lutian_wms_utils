@@ -62,6 +62,48 @@ class Inv {
     static find(id) {
         return this.query({ FID: id }, { limit: 1 })
     }
+    
+    /**
+     * 获取全部库存列表数据
+     * @param options:Hash 参数
+     *   @field FStockId:Integer 仓库
+     * @param meta:Hash
+     *   @field page:Integer
+     *   @field per_page:Integer
+     *   @field order:String
+     * @return {Hash} Promise
+     */
+    static async get_all(options={}) {
+        let meta = { page: 1, per_page: 10000, order: 'FMaterialId.FNumber ASC, FCreateTime ASC' }
+        let sum_data = []
+        sum_data = await this._get_all_recurse(options, meta, sum_data)
+        return sum_data
+    }
+    static async _get_all_recurse(options={}, meta={}, sum_data=[]) {
+        const data = {
+            FormId: "PAEZ_C_INV",
+            // FieldKeys: '',
+            FilterString: []
+        }
+        if (options.FStockId) {
+            data.FilterString.push({ Left: "", FieldName: "FStockId", Compare: "67", Value: options.FStockId, Right: "", Logic: 0 })
+        }
+        data.FilterString.push({ Left: "", FieldName: "FQty", Compare: "21", Value: 0, Right: "", Logic: 0 })
+        if (meta.per_page) {
+            data.Limit = meta.per_page
+            if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
+        }
+        if (meta.order) data.OrderString = meta.order
+        let res = await K3CloudApi.bill_query(data)
+        sum_data = sum_data.concat(res.data)
+        if (res.data.length === meta.per_page) {
+            meta.page += 1 // 翻页
+            return this._get_all_recurse(options, meta, sum_data)
+        } else {
+            return sum_data 
+        }
+    }
+    
 }
 
 export default Inv

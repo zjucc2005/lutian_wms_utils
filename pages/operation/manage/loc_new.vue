@@ -213,31 +213,26 @@
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
-                    // if (res.success == 'true') this.handle_scan_code(res.result)
+                    if (res.success == 'true') this.handle_scan_code(res.result)
                 })
                 // #endif               
                 // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        // this.handle_scan_code(res.result)
+                        this.handle_scan_code(res.result)
                     }
                 });
                 // #endif
             },
-            handle_scan_code() {
-                uni.scanCode({
-                    success: (res) => {
-                        // console.log("uni.scanCode res:", res)                       
-                        let text = res.result.trim() // 字符串trim，字符数大于4
-                        if (text.length < 4) {
-                            uni.showToast({ icon: 'none', title: '长度需大于4位' })
-                        } else if (this.loc_nos.indexOf(text) > -1) {
-                            uni.showToast({ icon: 'none', title: '重复扫码' })
-                        } else {
-                            this.loc_nos.push({ value: text, status: '' })
-                        }
-                    }
-                });  
+            handle_scan_code(text) {
+                text = text.trim().toUpperCase()
+                if (text.length < 4) {
+                    uni.showToast({ icon: 'none', title: '长度需大于4位' })
+                } else if (this.loc_nos.find(x => x.value === text)) {
+                    uni.showToast({ icon: 'none', title: '重复扫码' })
+                } else {
+                    this.loc_nos.push({ value: text, status: '' })
+                }
             },
             if_submit_batch_save() {
                 uni.showModal({
