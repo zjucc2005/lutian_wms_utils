@@ -2,48 +2,54 @@
     <view>
         <uni-section
             title="下架" type="line"
-            :sub-title="move_out_form.material_name ? [move_out_form.material_name, move_out_form.material_spec].join('\n') : ['-', '-'].join('\n')">
+            :sub-title="unmount_form.material_name ? [unmount_form.material_name, unmount_form.material_spec].join('\n') : ['-', '-'].join('\n')">
             <view class="container">
-                <uni-forms ref="move_out_form" :model="move_out_form" :rules="move_out_form_rules" labelWidth="80px">
+                <uni-forms ref="unmount_form" :model="unmount_form" :rules="unmount_form_rules" labelWidth="80px">
                     <uni-forms-item label="物料编号" name="material_no" required>
                         <uni-easyinput 
-                            v-model="move_out_form.material_no"
+                            v-model="unmount_form.material_no"
                             trim="both"
                             @change="handle_material_no_change"
                             @clear="handle_material_no_change"
                         />
                     </uni-forms-item>
                     <uni-forms-item label="库位号" name="loc_no" required>
-                        <uni-easyinput v-model="move_out_form.loc_no" trim="both" />
+                        <uni-easyinput v-model="unmount_form.loc_no" trim="both" />
                     </uni-forms-item>
                     <uni-forms-item label="下架数量" name="op_qty" required>
-                        <uni-easyinput v-model="move_out_form.op_qty" type="number">
+                        <uni-easyinput v-model="unmount_form.op_qty" type="number">
                             <template #right>
-                                <text class="easyinput-suffix-text">{{ move_out_form.base_unit_name }}</text>
+                                <text class="easyinput-suffix-text">{{ unmount_form.base_unit_name }}</text>
                             </template>
                         </uni-easyinput>
                     </uni-forms-item>
                     <uni-forms-item label="备注" name="remark">
-                        <uni-easyinput v-model="move_out_form.remark" trim="both" />
+                        <uni-easyinput v-model="unmount_form.remark" trim="both" />
                     </uni-forms-item>
                 </uni-forms>
             </view>
         </uni-section>
         
-        <uni-section title="最近操作日志" type="line" style="padding-bottom: 60px;">
-             <uni-swipe-action ref="inv_log_swipe">
-                <uni-list-item 
+       <uni-section title="最近操作日志" type="line" style="padding-bottom: 60px;">
+            <uni-swipe-action ref="inv_log_swipe">
+                <uni-swipe-action-item
                     v-for="(inv_log, index) in inv_logs"
                     :key="index"
-                    :title="formatDate(inv_log.FCreateTime, 'yyyy-MM-dd hh:mm:ss')"
-                    :note="describe_inv_log(inv_log)"
-                    :rightText="inv_log.status">
-                    <template v-slot:footer>
-                        <text class="uni-list-item-right-text">{{ inv_log.status }}</text>
-                    </template>
-                </uni-list-item>
-             </uni-swipe-action>
-         </uni-section>
+                    :threshold="60"
+                    :right-options="inv_log.FOpType == 'out' && !inv_log.status ? log_options : []"
+                    @click="swipe_action_click($event, inv_log.FID)"
+                >
+                    <uni-list-item 
+                        :title="formatDate(inv_log.FCreateTime, 'yyyy-MM-dd hh:mm:ss')"
+                        :note="describe_inv_log(inv_log)"
+                        :rightText="inv_log.status">
+                        <template v-slot:footer>
+                            <text class="uni-list-item-right-text">{{ inv_log.status }}</text>
+                        </template>
+                    </uni-list-item>
+                </uni-swipe-action-item>
+            </uni-swipe-action>
+        </uni-section>
         
         <view class="uni-goods-nav-wrapper">
             <uni-goods-nav 
@@ -70,12 +76,12 @@
             return {
                 cur_stock: {},
                 cur_staff: {},
-                move_cart: {},
+                cur_outbound_task: {},
                 invs: [],
                 inv_logs: [],
                 stock_locs: [],
                 bd_materials: [], // 物料基础数据Array，cache
-                move_out_form: {
+                unmount_form: {
                     material_no: '',
                     material_name: '',
                     material_spec: '',
@@ -86,7 +92,7 @@
                     decimal_unit: false,
                     remark: ''
                 },
-                move_out_form_rules: {
+                unmount_form_rules: {
                     material_no: {
                         rules: [
                             { required: true, errorMessage: '物料编号不能为空'},
@@ -145,13 +151,13 @@
                             { 
                                 validateFunction: (rule, value, data, callback) => {
                                     if (value <= 0) return callback('下架数量必须大于0')
-                                    if (!this.move_out_form.decimal_unit && !Number.isInteger(value)) {        
+                                    if (!this.unmount_form.decimal_unit && !Number.isInteger(value)) {        
                                         return callback('下架数量必须为整数')
                                     }
                                     return Inv.query({
                                         FStockId: this.cur_stock.FStockId,
-                                        'FMaterialId.FNumber': this.move_out_form.material_no,
-                                        'FStockLocId.FNumber': this.move_out_form.loc_no, 
+                                        'FMaterialId.FNumber': this.unmount_form.material_no,
+                                        'FStockLocId.FNumber': this.unmount_form.loc_no, 
                                         FQty_gt: 0 }, { order: 'FBatchNo ASC' },
                                     ).then(res => {
                                         this.invs = res.data
@@ -166,10 +172,17 @@
                         ]
                     }
                 },
+                log_options: [
+                    {
+                        text: '取消',
+                        style: {
+                            backgroundColor: '#f56c6c'
+                        }
+                    }
+                ],
                 goods_nav: {
                     options: [
-                        { icon: 'more-filled', text: '更多' },
-                        { icon: 'cart', text: '移库中', info: 8 },
+                        { icon: 'more-filled', text: '更多' }
                     ],
                     button_group: [
                         {
@@ -186,25 +199,42 @@
                 }
             }
         },
+        mounted() {
+            this.cur_stock = store.state.cur_stock // 加载当前仓库
+            this.cur_staff = store.state.cur_staff // 加载当前员工
+            this.cur_outbound_task = uni.getStorageSync('cur_outbound_task')
+            InvLog.query(
+                { FStockId: this.cur_stock.FStockId, FBillNo: this.cur_outbound_task.bill_no, FOpType_in: ['out', 'out_cl'] }, 
+                { page: 1, per_page: 5, order: 'FCreateTime DESC' }).then(res => {
+                res.data.reverse().forEach(log => this.unshift_inv_log(log))
+            })
+            StockLoc.query({ FStockId: this.cur_stock.FStockId }).then(res => {
+                this.stock_locs = res.data // 加载当前仓库的库位数据
+            })
+        },
         methods: {
             // >>> import
             describe_inv_log,
             formatDate,
             // >>> component
             goods_nav_click(e) {
-                if (e.index === 0) this.more_actions() // btn:更多
-                if (e.index === 1) uni.navigateTo({ url: '/pages/operation/move/move_cart' })
+                if (e.index === 0) this.more_actions() // btn:更多  
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码
                 if (e.index === 1) this.submit_unmount() // btn:提交下架
             },
+            swipe_action_click(e, inv_log_id) {
+                console.log('swipe_action_click e:', e, inv_log_id)
+                if (e.index === 0) this.cancel_unmount(inv_log_id) // 取消操作
+            },
             // >>> action
             more_actions(){
                 uni.showActionSheet({
-                    itemList: ['操作日志'],
+                    itemList: ['出库详情', '操作日志'],
                     success: (e) => {
-                        if (e.tapIndex === 0) uni.navigateTo({ url: '/pages/operation/move/logs' })
+                        if (e.tapIndex === 0) uni.navigateTo({ url: '/pages/operation/outbound/v1/task' })
+                        if (e.tapIndex === 1) uni.navigateTo({ url: '/pages/operation/outbound/v1/logs' })
                     }
                 })
             },
@@ -226,26 +256,26 @@
             },
             handle_scan_code(text) {
                 if (is_material_no_format(text)) {
-                    this.move_out_form.material_no = text
+                    this.unmount_form.material_no = text
                     this.handle_material_no_change()
                 } else if (is_loc_no_std_format(text)) {
-                    this.move_out_form.loc_no = text
+                    this.unmount_form.loc_no = text
                 } else {
-                    if(!this.move_out_form.material_no) {
-                        this.move_out_form.material_no = text
+                    if(!this.unmount_form.material_no) {
+                        this.unmount_form.material_no = text
                         this.handle_material_no_change()
-                    } else if (!this.move_out_form.loc_no) {
-                        this.move_out_form.loc_no = text
+                    } else if (!this.unmount_form.loc_no) {
+                        this.unmount_form.loc_no = text
                     }
                 }
             },
             submit_unmount() {
-                this.$refs.move_out_formm.validate().then(e => {
+                this.$refs.unmount_form.validate().then(e => {
                     console.log('submit unmount e:', e)
                     this.auto_allocate()
                     this.invs.filter(inv => inv.checked).forEach(inv => {
                         let inv_log = new InvLog({
-                            FOpType: 'mv_out',
+                            FOpType: 'out',
                             FStockId: inv.FStockId,
                             FStockLocNo: inv['FStockLocId.FNumber'],
                             FMaterialId: inv.FMaterialId,
@@ -263,8 +293,30 @@
                     console.log('submit unmount err:', err);
                 })
             },
+            cancel_unmount(inv_log_id) {
+                let inv_log = this.inv_logs.find(x => x.FID === inv_log_id)
+                if (inv_log.FOpType == 'out' && !inv_log.status) {
+                    let new_inv_log = new InvLog({
+                        FOpType: 'out_cl',
+                        FStockId: inv_log.FStockId,
+                        FStockLocNo: inv_log['FStockLocId.FNumber'],
+                        FMaterialId: inv_log.FMaterialId,
+                        FOpQTY: inv_log.FOpQTY,
+                        FBatchNo: inv_log.FBatchNo,
+                        FBillNo: inv_log.FBillNo,
+                        FOpStaffNo: this.cur_staff.FNumber,
+                        FReferId: inv_log.FID
+                    })
+                    new_inv_log.save().then(save_res => {
+                        this.after_save(save_res)
+                        this.$refs.inv_log_swipe.closeAll() // 关闭滑动操作
+                    })
+                } else {
+                    uni.showToast({ icon: 'error', title: 'ERROR' })
+                }
+            },
             handle_material_no_change() {
-                let material_no = this.move_out_formm.material_no
+                let material_no = this.unmount_form.material_no
                 if (!material_no) {
                     this.set_base_unit()
                     return
@@ -287,23 +339,24 @@
                     })
                 }
             },
+            // function
             set_base_unit(bd_material) {
                 if (bd_material) {
-                    this.move_out_form.material_name = bd_material.FName
-                    this.move_out_form.material_spec = bd_material.FSpecification
-                    this.move_out_form.base_unit = bd_material['FBaseUnitId.FNumber']
-                    this.move_out_form.base_unit_name = bd_material['FBaseUnitId.FName']
-                    this.move_out_form.decimal_unit = is_decimal_unit(bd_material['FBaseUnitId.FName'])
+                    this.unmount_form.material_name = bd_material.FName
+                    this.unmount_form.material_spec = bd_material.FSpecification
+                    this.unmount_form.base_unit = bd_material['FBaseUnitId.FNumber']
+                    this.unmount_form.base_unit_name = bd_material['FBaseUnitId.FName']
+                    this.unmount_form.decimal_unit = is_decimal_unit(bd_material['FBaseUnitId.FName'])
                 } else {
-                    this.move_out_form.material_name = ''
-                    this.move_out_form.material_spec = ''
-                    this.move_out_form.base_unit = 'Pcs'
-                    this.move_out_form.base_unit_name = 'Pcs'
-                    this.move_out_form.decimal_unit = false
+                    this.unmount_form.material_name = ''
+                    this.unmount_form.material_spec = ''
+                    this.unmount_form.base_unit = 'Pcs'
+                    this.unmount_form.base_unit_name = 'Pcs'
+                    this.unmount_form.decimal_unit = false
                 }
             },
             reset_form() {
-                this.move_out_form = {
+                this.unmount_form = {
                     material_no: '',
                     material_name: '',
                     material_spec: '',
@@ -340,7 +393,7 @@
             },
             auto_allocate() {
                 // 自动分配下架库存，根据批次号先入先出
-                let op_qty = this.move_out_form.op_qty
+                let op_qty = this.unmount_form.op_qty
                 let sum_checked_qty = 0
                 this.invs.forEach(inv => {
                     if (sum_checked_qty < op_qty) {
@@ -357,5 +410,5 @@
 </script>
 
 <style>
-
+    
 </style>

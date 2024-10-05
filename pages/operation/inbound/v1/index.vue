@@ -232,7 +232,7 @@
                 if (e.index === 1) this.create_inbound_task() // btn:新建入库任务
             },           
             goods_nav_click_2(e) {
-                if (e.index === 0) uni.navigateTo({ url: '/pages/operation/inbound/task' }) // btn:详情
+                if (e.index === 0) uni.navigateTo({ url: '/pages/operation/inbound/v1/task' }) // btn:详情
             },
             goods_nav_button_click_2(e) {
                 if (e.index === 0) this.if_finish_inbound_task() // btn:结束入库任务
@@ -342,7 +342,7 @@
                     inbound_task.save()
                     this.cur_inbound_task = inbound_task  // 赋值cur_inbound_task，解决VUE设置空值对象时console报错
                     // console.log('新建入库任务', inbound_task)
-                    uni.navigateTo({ url: '/pages/operation/inbound/mount' })
+                    uni.navigateTo({ url: '/pages/operation/inbound/v1/mount' })
                 }).catch(err => console.log('err', err))
             },
             if_finish_inbound_task() {
@@ -361,7 +361,7 @@
             },
             continue_inbound_task() {
                 play_audio_prompt('success')
-                uni.navigateTo({ url: '/pages/operation/inbound/mount' })
+                uni.navigateTo({ url: '/pages/operation/inbound/v1/mount' })
             }
         }
     }

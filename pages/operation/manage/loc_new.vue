@@ -205,7 +205,7 @@
                         }
                     })
                     this.close_new_dialog()
-                })     
+                }).catch(err => {})
             },
             open_new_dialog() {
                 this.$refs.new_dialog.open()

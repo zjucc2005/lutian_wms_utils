@@ -67,8 +67,8 @@
     import store from '@/store'
     import { get_sal_deliverynotice } from '@/utils/api'
     import { OutboundTask } from '@/utils/model'
+    import { play_audio_prompt } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
-import { play_audio_prompt } from '../../../utils'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
     // #endif
@@ -145,7 +145,7 @@ import { play_audio_prompt } from '../../../utils'
                 if (e.index === 1) this.create_outbound_task() // btn:新建出库任务
             },
             goods_nav_click_2(e) {
-                if (e.index === 0) uni.navigateTo({ url: '/pages/operation/outbound/task' })
+                if (e.index === 0) uni.navigateTo({ url: '/pages/operation/outbound/v1/task' })
             },
             goods_nav_button_click_2(e) {
                 if (e.index === 0) this.if_finish_outbound_task()
@@ -228,12 +228,12 @@ import { play_audio_prompt } from '../../../utils'
                     outbound_task.save()
                     this.cur_outbound_task = outbound_task // 赋值cur_outbound_task，解决VUE设置空值对象时console报错
                     // console.log('新建出库任务', outbound_task)
-                    uni.navigateTo({ url: '/pages/operation/outbound/allocate' })                    
+                    uni.navigateTo({ url: '/pages/operation/outbound/v1/allocate' })                    
                 }).catch(err => { console.log('validate err', err) })                
             },
             continue_outbound_task() {
                 play_audio_prompt('success')
-                uni.navigateTo({ url: '/pages/operation/outbound/allocate' })
+                uni.navigateTo({ url: '/pages/operation/outbound/v1/allocate' })
             },
             if_finish_outbound_task() {
                 uni.showActionSheet({

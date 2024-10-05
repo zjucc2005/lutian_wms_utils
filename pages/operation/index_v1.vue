@@ -1,19 +1,19 @@
 <template>
     <view>
         <uni-grid :column="2" :highlight="true">
-            <uni-grid-item @click="goTo('inbound')">
+            <uni-grid-item @click="goTo('inbound/v1/index')">
                 <view class="grid-item-box">
                     <image src="/static/icon/inbound.png" mode="widthFix" class="grid-item-icon"></image>
                     <text class="grid-item-text">入库</text>
                 </view>
             </uni-grid-item>
-            <uni-grid-item @click="goTo('outbound')">
+            <uni-grid-item @click="goTo('outbound/v1/index')">
                 <view class="grid-item-box">
                     <image src="/static/icon/outbound.png" mode="widthFix" class="grid-item-icon"></image>
                     <text class="grid-item-text">出库</text>
                 </view>
             </uni-grid-item>
-            <uni-grid-item @click="goTo('move')">
+            <uni-grid-item @click="goTo('move/v1/index')">
                 <view class="grid-item-box">
                     <image src="/static/icon/move.png" mode="widthFix" class="grid-item-icon"></image>
                     <text class="grid-item-text">库存调整</text>
@@ -38,7 +38,7 @@
         },
         methods: {
             goTo(path) {
-                uni.navigateTo({ url: `/pages/operation/${path}/index` })
+                uni.navigateTo({ url: `/pages/operation/${path}` })
             }
         }
     }

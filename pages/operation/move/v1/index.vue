@@ -246,7 +246,7 @@
                 // })
             },
             preview_cart() {
-                uni.navigateTo({ url: '/pages/operation/move/move_cart' })
+                uni.navigateTo({ url: '/pages/operation/move/v1/move_cart' })
                 // if (this.move_cart.move_list.length) {
                 //     uni.navigateTo({ url: '/pages/operation/move/move_cart' })
                 // } else {

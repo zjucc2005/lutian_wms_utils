@@ -124,9 +124,9 @@
                     itemList: ['扫描下架', '出库详情', '操作日志'],
                     success: (e) => {
                         console.log('showActionSheet e:', e)
-                        if (e.tapIndex === 0) uni.navigateTo({ url: '/pages/operation/outbound/unmount' })
-                        if (e.tapIndex === 1) uni.navigateTo({ url: '/pages/operation/outbound/task' })
-                        if (e.tapIndex === 2) uni.navigateTo({ url: '/pages/operation/outbound/logs' })
+                        if (e.tapIndex === 0) uni.navigateTo({ url: '/pages/operation/outbound/v1/unmount' })
+                        if (e.tapIndex === 1) uni.navigateTo({ url: '/pages/operation/outbound/v1/task' })
+                        if (e.tapIndex === 2) uni.navigateTo({ url: '/pages/operation/outbound/v1/logs' })
                     }
                 })
             },

@@ -56,13 +56,13 @@
                                 validateFunction: (rule, value, data, callback) => {
                                     uni.showLoading({ title: 'loading' })
                                     return validate_staff(this.login_form.staff_name, this.login_form.staff_no, this.login_form.org_id).then(staff => {
+                                        uni.hideLoading()
                                         if (staff) {
                                             if (staff.FForbiddenStatus != '0') return callback("账号禁用")
                                             this.staff = staff
                                         } else {
                                             return callback('姓名或工号或分属组织错误')
                                         }
-                                        uni.hideLoading()
                                     })
                                 }
                             }
@@ -128,7 +128,6 @@
                     uni.showToast({ title: '登录成功' })
                     uni.reLaunch({ url: '/pages/operation/index_v2' })                  
                 }).catch(err => {
-                    uni.hideLoading()
                     console.log('submit_login err:', err);
                 })
             },

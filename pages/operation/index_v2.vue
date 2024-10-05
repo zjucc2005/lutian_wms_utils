@@ -25,13 +25,13 @@
                     <text class="grid-item-text">库存查询</text>
                 </view>
             </uni-grid-item>
-            <uni-grid-item @click="goTo('manage/locs')">
+            <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/locs')">
                 <view class="grid-item-box">
                     <image src="/static/icon/kuweiguanli.png" mode="widthFix" class="grid-item-icon"></image>
                     <text class="grid-item-text">库位管理</text>
                 </view>
             </uni-grid-item>
-            <uni-grid-item >
+            <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('statistics/index')">
                 <view class="grid-item-box">
                     <image src="/static/icon/tongji.png" mode="widthFix" class="grid-item-icon"></image>
                     <text class="grid-item-text">统计</text>

@@ -267,8 +267,8 @@
                     itemList: ['入库详情', '操作日志', 'debug'],
                     success: (e) => {
                         console.log('showActionSheet e:', e)
-                        if (e.tapIndex === 0) uni.navigateTo({ url: '/pages/operation/inbound/task' })
-                        if (e.tapIndex === 1) uni.navigateTo({ url: '/pages/operation/inbound/logs' })
+                        if (e.tapIndex === 0) uni.navigateTo({ url: '/pages/operation/inbound/v1/task' })
+                        if (e.tapIndex === 1) uni.navigateTo({ url: '/pages/operation/inbound/v1/logs' })
                         if (e.tapIndex === 2) console.log("this.$data", this.$data)
                     }
                 })

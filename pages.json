@@ -4,54 +4,101 @@
             "path": "pages/login",
             "style":  { "navigationBarTitleText" : "登录" }
         },
+        // 仓库流程 VERSION 1
         {
-            "path": "pages/operation/index",
+            "path": "pages/operation/index_v1",
             "style":  { "navigationBarTitleText": "仓库作业" }
         },
         {
-            "path": "pages/operation/inbound/index",
+            "path": "pages/operation/inbound/v1/index",
             "style":  { "navigationBarTitleText": "入库" }
         },
         {
-            "path": "pages/operation/inbound/task",
+            "path": "pages/operation/inbound/v1/task",
             "style": { "navigationBarTitleText": "入库 - 详情" }
         },
         {
-            "path": "pages/operation/inbound/mount",
+            "path": "pages/operation/inbound/v1/mount",
             "style":  { "navigationBarTitleText": "入库 - 扫描上架" }
         },
         {
-            "path": "pages/operation/inbound/logs",
+            "path": "pages/operation/inbound/v1/logs",
             "style": { "navigationBarTitleText": "入库 - 操作日志" }
         },
         {
-            "path": "pages/operation/outbound/index",
+            "path": "pages/operation/outbound/v1/index",
             "style": { "navigationBarTitleText": "出库"}
         },
         {
-            "path": "pages/operation/outbound/task",
+            "path": "pages/operation/outbound/v1/task",
             "style": { "navigationBarTitleText": "出库 - 详情" }
         },
         {
-            "path": "pages/operation/outbound/allocate",
+            "path": "pages/operation/outbound/v1/allocate",
             "style": { "navigationBarTitleText": "出库 - 分配预览" }
         },
         {
-            "path": "pages/operation/outbound/unmount",
+            "path": "pages/operation/outbound/v1/unmount",
             "style": { "navigationBarTitleText": "出库 - 扫描下架" }
         },
         {
-            "path": "pages/operation/outbound/logs",
+            "path": "pages/operation/outbound/v1/logs",
             "style": { "navigationBarTitleText": "出库 - 操作日志" }
         },
         {
-            "path": "pages/operation/move/index",
+            "path": "pages/operation/move/v1/index",
             "style": { "navigationBarTitleText": "库存调整" }
         },
         {
-            "path": "pages/operation/move/move_cart",
+            "path": "pages/operation/move/v1/move_cart",
             "style": { "navigationBarTitleText": "库存调整 - 计划" }
         },
+        // 仓库流程 VERSION 2
+        {
+            "path": "pages/operation/index_v2",
+            "style": { "navigationBarTitleText" : "仓库作业" }
+        },
+        {
+            "path": "pages/operation/inbound/v2/index",
+            "style": { "navigationBarTitleText" : "入库" }
+        },
+        {
+            "path": "pages/operation/inbound/v2/plan_new",
+            "style": { "navigationBarTitleText" : "入库 - 新增计划" }
+        },
+        {
+            "path": "pages/operation/inbound/v2/plan_new_entry",
+            "style":  { "navigationBarTitleText" : "入库 - 新增计划" }
+        },
+        {
+            "path": "pages/operation/inbound/v2/plan_show",
+            "style": { "navigationBarTitleText": "入库 - 计划" }
+        },
+        {
+            "path": "pages/operation/outbound/v2/index",
+            "style": { "navigationBarTitleText": "出库" }
+        },
+        {
+            "path": "pages/operation/outbound/v2/plan_new",
+            "style": { "navigationBarTitleText": "出库 - 新增计划" }
+        },
+        {
+            "path": "pages/operation/outbound/v2/plan_new_entry",
+            "style": { "navigationBarTitleText": "出库 - 新增计划" }
+        },
+        {
+            "path": "pages/operation/outbound/v2/plan_show",
+            "style": { "navigationBarTitleText": "出库 - 计划" }
+        },
+        {
+            "path": "pages/operation/move/v2/index",
+            "style": { "navigationBarTitleText": "库存调整 - 计划" }
+        },
+        {
+            "path": "pages/operation/move/v2/plan_new",
+            "style": { "navigationBarTitleText": "库存调整 - 新增计划" }
+        },
+        // 管理
         {
             "path": "pages/operation/manage/index",
             "style": { "navigationBarTitleText": "管理" }
@@ -124,50 +171,9 @@
             "path": "pages/api_utils/store/chart",
             "style": { "navigationBarTitleText": "Chart" }
         },
-        // 仓库流程 VERSION 2
         {
-            "path": "pages/operation/index_v2",
-            "style": { "navigationBarTitleText" : "仓库作业" }
-        },
-        {
-            "path": "pages/operation/inbound/v2/index",
-            "style": { "navigationBarTitleText" : "入库" }
-        },
-        {
-            "path": "pages/operation/inbound/v2/plan_new",
-            "style": { "navigationBarTitleText" : "入库 - 新增计划" }
-        },
-        {
-            "path": "pages/operation/inbound/v2/plan_new_entry",
-            "style":  { "navigationBarTitleText" : "入库 - 新增计划" }
-        },
-        {
-            "path": "pages/operation/inbound/v2/plan_show",
-            "style": { "navigationBarTitleText": "入库 - 计划" }
-        },
-        {
-            "path": "pages/operation/outbound/v2/index",
-            "style": { "navigationBarTitleText": "出库" }
-        },
-        {
-            "path": "pages/operation/outbound/v2/plan_new",
-            "style": { "navigationBarTitleText": "出库 - 新增计划" }
-        },
-        {
-            "path": "pages/operation/outbound/v2/plan_new_entry",
-            "style": { "navigationBarTitleText": "出库 - 新增计划" }
-        },
-        {
-            "path": "pages/operation/outbound/v2/plan_show",
-            "style": { "navigationBarTitleText": "出库 - 计划" }
-        },
-        {
-            "path": "pages/operation/move/v2/index",
-            "style": { "navigationBarTitleText": "库存调整 - 计划" }
-        },
-        {
-            "path": "pages/operation/move/v2/plan_new",
-            "style": { "navigationBarTitleText": "库存调整 - 新增计划" }
+            "path": "pages/operation/statistics/index",
+            "style": { "navigationBarTitleText": "统计" }
         }
     ],
     "globalStyle": {
@@ -197,7 +203,7 @@
                 }
             },
             {
-                "pagePath": "pages/operation/index",
+                "pagePath": "pages/operation/index_v1",
                 "text": "仓库V1",
                 "iconfont": {
                     "text": "\ue662",
