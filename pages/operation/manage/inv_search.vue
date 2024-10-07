@@ -3,7 +3,6 @@
         :sub-title="set_section_sub_title()"
         class="above-uni-goods-nav"
         >
-        
         <uni-collapse v-if="display_mode == 'grid'" :open="true">
             <cc-shelf
                 :stock_locs="$store.state.stock_locs"

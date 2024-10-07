@@ -5,8 +5,8 @@
         <uni-section title="查询单据编号" type="square">
             <uni-search-bar
                 v-model="search_form.bill_no"
-                bgColor="#EEEEEE"
-                cancelButton="none"
+                bg-color="#EEEEEE"
+                cancel-button="none"
                 @confirm="handle_search"
                 @clear="handle_search"
             />
@@ -190,6 +190,10 @@
                     uni.showToast({ icon: 'none', title: '未找到单据信息' })
                     return
                 }
+                if (this.is_completed) {
+                    uni.showToast({ icon: 'none', title: '该单据已完成' })
+                    return
+                }
                 uni.navigateTo({
                     url: '/pages/operation/inbound/v2/plan_new_entry',
                     events: {
@@ -235,7 +239,7 @@
                     const data = response.data.Result.Result
                     let inbound_list = []
                     data.TransferDirectEntry.forEach(obj => {
-                        let inbound_obj = inbound_list.find(x => x.material_id == obj.MaterialID.Id)
+                        let inbound_obj = inbound_list.find(x => x.material_id == obj.MaterialID_Id)
                         if (inbound_obj) {
                             inbound_obj.base_unit_qty += obj.BaseQty // 合同相同物料ID
                         } else {

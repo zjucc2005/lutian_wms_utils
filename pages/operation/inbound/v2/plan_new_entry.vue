@@ -8,12 +8,12 @@
                 <template
                     v-for="(obj, index) in inbound_task.inbound_list"
                     :key="index"
-                >
+                    >
                     <uni-list-item                   
                         v-if="obj.material_no == plan_form.material_no"
                         :right-text="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
                         @click="handle_material_no_click()" clickable
-                    >
+                        >
                         <template v-slot:body>
                             <view class="uni-list-item__body">
                                 <text class="title">{{ obj.material_no }}</text>
@@ -79,13 +79,13 @@
                     :threshold="60"
                     :right-options="swipe_options"
                     @click="swipe_action_click($event, inv_plan)"
-                >
+                    >
                     <uni-list-item
                         :show-extra-icon="true"
                         :extra-icon="{ color: '#dd524d', size: '24', type: 'arrow-up' }"
                         :title="inv_plan['FStockLocId.FNumber']"
                         :note="inv_plan.FRemark"
-                    >
+                        >
                         <template v-slot:footer>
                             <view class="uni-list-item__foot">
                                 <text class="op_qty">{{ inv_plan.FOpQTY }} {{ inv_plan['FStockUnitId.FName'] }}</text>
@@ -120,7 +120,6 @@
             return {
                 inbound_task: {},
                 inv_plans: [],
-                status_dict: { A: '已保存', B: '已提交', C: '已完成' },
                 plan_form: {
                     material_no: '',
                     loc_no: '',
@@ -165,7 +164,7 @@
                                     }
                                     let inbound_obj = this.inbound_task.inbound_list.find(x => x.material_no == this.plan_form.material_no)
                                     let planned_qty = this.sum_inv_plan_op_qty()
-                                    if (value + planned_qty > inbound_obj.base_unit_qty) {
+                                    if (inbound_obj && value + planned_qty > inbound_obj.base_unit_qty) {
                                         return callback('计划上架数量超过上限')
                                     }
                                 }

@@ -57,6 +57,38 @@ const get_bd_material = async (material_no, use_org_id) => {
     return K3CloudApi.bill_query(data)
 }
 
+const get_all_bd_materials = async (use_org_id) => {
+    let options = { FUseOrgId: use_org_id }
+    let meta = { page: 1, per_page: 10000, order: 'FNumber ASC' }
+    let sum_data = []
+    sum_data = await _get_all_bd_materials_recurse(options, meta, sum_data)
+    return sum_data
+}
+
+const _get_all_bd_materials_recurse = async (options={}, meta={}, sum_data=[]) => {
+    const data = {
+        FormId: "BD_MATERIAL",
+        // FieldKeys: '',
+        FilterString: []
+    }
+    if (options.FUseOrgId) {
+        data.FilterString.push({ Left: "", FieldName: "FUseOrgId", Compare: "67", Value: options.FUseOrgId, Right: "", Logic: 0 })
+    }
+    if (meta.per_page) {
+        data.Limit = meta.per_page
+        if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
+    }
+    if (meta.order) data.OrderString = meta.order
+    let res = await K3CloudApi.bill_query(data)
+    sum_data = sum_data.concat(res.data)
+    if (res.data.length === meta.per_page) {
+        meta.page += 1 // 翻页
+        return _get_all_bd_materials_recurse(options, meta, sum_data)
+    } else {
+        return sum_data 
+    }
+}
+
 /** 
  * 获取发货通知单详情
  * @param bill_no:String 单据编号
@@ -79,6 +111,7 @@ export {
     validate_staff,
     get_bd_stocks,
     get_bd_material,
+    get_all_bd_materials,
     get_sal_deliverynotice,
     get_transfer_direct
     // get_bd_units,

@@ -145,6 +145,11 @@
                     </template>
                 </uni-list-item>
             </uni-list>
+            <uni-load-more
+                v-if="invs.length == 0"
+                status="nomore"
+                :content-text="{ contentnomore: '没有相关数据' }"
+            />
         </uni-section>
         
         <view class="uni-goods-nav-wrapper">

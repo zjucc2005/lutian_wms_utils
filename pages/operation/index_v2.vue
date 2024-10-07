@@ -43,12 +43,12 @@
                     <text class="grid-item-text">统计</text>
                 </view>
             </uni-grid-item>
-<!--            <uni-grid-item @click="goTo('manage/index')">
+            <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/index')">
                 <view class="grid-item-box">
                     <image src="/static/icon/qita.png" mode="widthFix" class="grid-item-icon"></image>
                     <text class="grid-item-text">其他功能</text>
                 </view>
-            </uni-grid-item> -->
+            </uni-grid-item>
         </uni-grid>
     </view>
 </template>

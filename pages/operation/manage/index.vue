@@ -1,14 +1,14 @@
 <template>
     <view>
         <uni-list>
-            <uni-list-item title="库存查询"
+            <uni-list-item title="期初库存录入"
                 :show-extra-icon="true"
-                :extra-icon="{ color: '#007bff', size: '24', type: 'search' }"
-                @click="handle_inv_search" clickable showArrow />
-            <uni-list-item title="库位管理"
+                :extra-icon="{ color: '#f0ad4e', size: '24', type: 'location' }"
+                @click="goTo('inv_init')" clickable showArrow />
+<!--            <uni-list-item title="库位管理"
                 :show-extra-icon="true" 
                 :extra-icon="{ color: '#28a745', size: '24', type: 'list' }"
-                @click="goTo('locs')" clickable showArrow />         
+                @click="goTo('locs')" clickable showArrow />    -->     
    <!--         <uni-list-item title="选项3"
                 :show-extra-icon="true"
                 :extra-icon="{ color: '#dc3545', size: '24', type: 'gear' }"
@@ -18,6 +18,7 @@
 </template>
 
 <script>
+    import { play_audio_prompt } from '@/utils'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
     // #endif
@@ -29,7 +30,8 @@
         },
         methods: {
             goTo(path) {
-                uni.navigateTo({ url: `./${path}` })
+                play_audio_prompt('success')
+                uni.navigateTo({ url: `/pages/operation/manage/${path}` })
             },
             handle_inv_search() {
                 // #ifdef APP-PLUS

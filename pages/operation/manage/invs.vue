@@ -1,6 +1,12 @@
 <template>
     <uni-notice-bar single scrollable text="点击库存列表，可查询库存明细" />
-    <uni-section title="库存列表" type="square">
+    <uni-section title="当前仓库" type="square"
+        :sub-title="[
+            $store.state.cur_stock['FUseOrgId.FName'],
+            $store.state.cur_stock['FGroup.FName'],
+            $store.state.cur_stock.FName
+        ].join(' / ')"
+        >
         <uni-list>
             <uni-list-item
                 v-for="(inv_group, index) in inv_groups"

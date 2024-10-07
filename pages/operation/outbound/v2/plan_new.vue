@@ -164,11 +164,13 @@
             async load_inv_plans() {
                 let bill_no = this.search_form.bill_no
                 if (bill_no.startsWith('FHTZD')) {
+                    uni.showLoading({ title: 'Loading' })
                     return InvPlan.query({
                         FStockId: store.state.cur_stock.FStockId,
                         FBillNo: bill_no,
                         FOpType: 'out',
                     }, {}).then(res => { 
+                        uni.hideLoading()
                         this.inv_plans = res.data
                         this._calc_progress(res.data) // 判定计划比率和是否已完成
                     })
@@ -185,6 +187,10 @@
                     uni.showToast({ icon: 'none', title: '未找到单据信息' })
                     return
                 }
+                // if (this.is_completed) {
+                //     uni.showToast({ icon: 'none', title: '该单据已完成' })
+                //     return
+                // }
                 uni.navigateTo({
                     url: '/pages/operation/outbound/v2/plan_new_entry',
                     events: {
@@ -230,7 +236,7 @@
                     const data = response.data.Result.Result
                     let outbound_list = []
                     data.SAL_DELIVERYNOTICEENTRY.forEach(obj => {
-                        let outbound_obj = outbound_list.find(x => x.material_id == obj.MaterialID.Id)
+                        let outbound_obj = outbound_list.find(x => x.material_id == obj.MaterialID_Id)
                         if (outbound_obj) {
                             outbound_obj.base_unit_qty += obj.BaseUnitQty // 合同相同物料ID
                         } else {
