@@ -73,10 +73,10 @@ class Inv {
      *   @field order:String
      * @return {Hash} Promise
      */
-    static async get_all(options={}) {
-        let meta = { page: 1, per_page: 10000, order: 'FMaterialId.FNumber ASC, FCreateTime ASC' }
+    static async get_all(options={}, meta={}) {
+        let _meta = { page: 1, per_page: 10000, order: 'FMaterialId.FNumber ASC, FCreateTime ASC', ...meta }
         let sum_data = []
-        sum_data = await this._get_all_recurse(options, meta, sum_data)
+        sum_data = await this._get_all_recurse(options, _meta, sum_data)
         return sum_data
     }
     static async _get_all_recurse(options={}, meta={}, sum_data=[]) {

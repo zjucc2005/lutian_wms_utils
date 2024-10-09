@@ -1,3 +1,8 @@
+// 隐藏滚动条
+::-webkit-scrollbar {
+    display: none;
+}
+
 .container {
     padding: 0 0.9375rem;
 }
@@ -87,6 +92,9 @@
     justify-content: center;
     .op_qty {
         text-align: right;
+        &.lg {
+            font-size: $uni-font-size-lg;
+        }
     }
     .status {
         color: $uni-color-primary;

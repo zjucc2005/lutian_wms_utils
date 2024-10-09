@@ -16,6 +16,7 @@ import InvLog from './inv_log'
  *   FRemark: 'some remark',
  *   FOpStaffNo: '12345',
  *   FReferId: 1
+ *   FPalletQty: 2
  * }
  */
 class InvPlan {
@@ -31,7 +32,8 @@ class InvPlan {
         this.FBatchNo = options.FBatchNo
         this.FBillNo = options.FBillNo
         this.FRemark = options.FRemark || ''
-        this.FOpStaffNo = options.FOpStaffNo   
+        this.FOpStaffNo = options.FOpStaffNo
+        this.FPalletQty = options.FPalletQty
     }
     
     /**

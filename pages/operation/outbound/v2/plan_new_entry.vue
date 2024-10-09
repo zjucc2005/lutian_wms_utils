@@ -249,7 +249,7 @@
                             color: '#fff'
                         },
                         {
-                            text: '新增',
+                            text: '保存',
                             backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
                             color: '#fff'
                         }

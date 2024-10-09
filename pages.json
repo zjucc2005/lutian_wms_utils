@@ -87,6 +87,10 @@
             "style": { "navigationBarTitleText": "出库 - 新增计划" }
         },
         {
+            "path": "pages/operation/inbound/v2/plan_new_pallet",
+            "style": { "navigationBarTitleText": "出库 - 新增计划（托盘）" }
+        },
+        {
             "path": "pages/operation/outbound/v2/plan_show",
             "style": { "navigationBarTitleText": "出库 - 计划" }
         },
@@ -187,7 +191,6 @@
             "path": "pages/operation/statistics/inventory_record",
             "style": { "navigationBarTitleText": "出入库数量统计" }
         }
-
     ],
     "globalStyle": {
         "navigationBarTextStyle": "black",

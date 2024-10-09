@@ -133,7 +133,8 @@
                         }
                     }
                 })
-                    
+                grid_shelves.sort((x, y) => x.name >= y.name ? 1 : -1)
+                
                 if (this.onlyInv) {
                     return grid_shelves.filter(shelf => !shelf.disabled)
                 } else {

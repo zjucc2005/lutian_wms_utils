@@ -3,7 +3,7 @@
     <uni-section title="当前仓库" type="square"
         :sub-title="[
             $store.state.cur_stock['FUseOrgId.FName'],
-            $store.state.cur_stock['FGroup.FName'],
+            $store.state.cur_stock['FGroup.FName'] || '未分组',
             $store.state.cur_stock.FName
         ].join(' / ')"
         class="above-uni-goods-nav"

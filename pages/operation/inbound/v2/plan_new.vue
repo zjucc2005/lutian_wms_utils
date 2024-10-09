@@ -20,10 +20,10 @@
                 <uni-list-item
                     v-for="(obj, index) in inbound_task.inbound_list"
                     :key="index"
-                    show-arrow
                     @click="new_plan_entry(obj.material_no)"
                     :clickable="obj.dest_stock_id == $store.state.cur_stock.FStockId"
                     :disabled="obj.dest_stock_id != $store.state.cur_stock.FStockId"
+                    show-arrow
                     >
                     <template v-slot:body>
                         <view class="uni-list-item__body">
@@ -195,11 +195,16 @@
                     return
                 }
                 uni.navigateTo({
-                    url: '/pages/operation/inbound/v2/plan_new_entry',
+                    url: '/pages/operation/inbound/v2/plan_new_pallet',
                     events: {
                         reloadInvPlans: function(data) {
-                            console.log('<<< 重载数据event:reloadInvPlans')
+                            console.log('>>> 重载数据event:reloadInvPlans')
                             this.load_inv_plans()
+                        },
+                        syncInvPlans: (data) => {
+                            console.log('>>> 同步数据event:syncInvPlans')
+                            this.inv_plans = data.inv_plans
+                            this._calc_progress(data.inv_plans)
                         }
                     },
                     success: (res) => {
