@@ -125,11 +125,11 @@
             }
         },
         mounted() {
-            this.load_inv_plans() 
+            this.load_inv_plans()
         },
         methods: {
             checkbox_click(e) {
-                console.log('checkbox_click e', e)
+                // console.log('checkbox_click e', e)
                 let group_item = this.inv_plan_groups.find(x => x.bill_no == e.target.dataset.bill_no)
                 if (group_item) {
                     group_item.checked = !group_item.checked
@@ -182,16 +182,15 @@
                 this.last_refresh_time = Date.now()
             },
             async submit_audit() {
-                console.log('this.$data', this.$data)
+                // console.log('this.$data', this.$data)
                 let checked_groups = this.inv_plan_groups.filter(x => x.checked)
                 if (checked_groups.length === 0) {
                     uni.showToast({ icon: 'none', title: '未选择任何条目' })
                     return
                 }
-                console.log('checked_groups', checked_groups)
+                // console.log('checked_groups', checked_groups)
                 for (let i = 0; i < checked_groups.length; i++) {
                     let checked_inv_plans = this.inv_plans.filter(x => x.FBillNo == checked_groups[i].bill_no)
-                    
                     uni.showLoading({ title: 'Loading' })
                     let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
                     if (save_ids.length) {

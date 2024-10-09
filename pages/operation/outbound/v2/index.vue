@@ -8,9 +8,19 @@
                     v-for="(group_item, index) in inv_plan_groups"
                     :key="index"
                     :right-text="group_item.created_at"
-                    show-arrow
-                    @click="operate_plan(group_item.bill_no)" clickable
                     >
+                    <!-- show-arrow
+                    @click="operate_plan(group_item.bill_no)" clickable -->
+                    <template v-slot:header>
+                        <view class="uni-list-item__head">
+                            <checkbox
+                                :checked="group_item.checked"
+                                :disabled="group_item.disabled"
+                                @click="checkbox_click"
+                                :data-bill_no="group_item.bill_no"
+                            />
+                        </view>
+                    </template>
                     <template v-slot:body>
                         <view class="uni-list-item__body">
                             <text class="title">{{ group_item.bill_no }}</text>
@@ -93,7 +103,7 @@
                     ],
                     admin_button_group: [
                         {
-                            text: '扫码查询',
+                            text: '审核确认',
                             backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
                             color: '#fff'
                         },
@@ -114,14 +124,21 @@
             }
         },
         mounted() {
-            this.load_inv_plans() 
+            this.load_inv_plans()
         },
         methods: {
+            checkbox_click(e) {
+                // console.log('checkbox_click e', e)
+                let group_item = this.inv_plan_groups.find(x => x.bill_no == e.target.dataset.bill_no)
+                if (group_item) {
+                    group_item.checked = !group_item.checked
+                }
+            },
             goods_nav_click(e) {
                 if (e.index === 0) this.refresh() // btn:刷新
             },
             goods_nav_admin_button_click(e) {
-                if (e.index === 0) this.scan_code() // btn:扫码
+                if (e.index === 0) this.submit_audit() // btn:扫码
                 if (e.index === 1) this.new_plan() // btn:新建出库计划
             },
             goods_nav_staff_button_click(e) {
@@ -162,6 +179,35 @@
                 }
                 await this.load_inv_plans()
                 this.last_refresh_time = Date.now()
+            },
+            async submit_audit() {
+                // console.log('this.$data', this.$data)
+                let checked_groups = this.inv_plan_groups.filter(x => x.checked)
+                if (checked_groups.length === 0) {
+                    uni.showToast({ icon: 'none', title: '未选择任何条目' })
+                    return
+                }
+                // console.log('checked_groups', checked_groups)
+                for (let i = 0; i < checked_groups.length; i++) {
+                    let checked_inv_plans = this.inv_plans.filter(x => x.FBillNo == checked_groups[i].bill_no)
+                    uni.showLoading({ title: 'Loading' })
+                    let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
+                    if (save_ids.length) {
+                        await InvPlan.submit(save_ids) // 提交(admin补)
+                    }
+                    let ids = checked_inv_plans.map(x => x.FID)
+                    let response = await InvPlan.audit(ids) // 审核确认
+                    if (response.data.Result.ResponseStatus.IsSuccess) {
+                        for (let j = 0; j < checked_inv_plans.length; j++) {
+                            await InvPlan.execute(checked_inv_plans[j])
+                        }
+                        await this.load_inv_plans()
+                        uni.hideLoading()
+                    } else {
+                        uni.hideLoading()
+                        uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
+                    }
+                }
             },
             new_plan() {
                 play_audio_prompt('success')

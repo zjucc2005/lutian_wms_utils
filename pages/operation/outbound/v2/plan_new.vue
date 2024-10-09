@@ -187,10 +187,10 @@
                     uni.showToast({ icon: 'none', title: '未找到单据信息' })
                     return
                 }
-                // if (this.is_completed) {
-                //     uni.showToast({ icon: 'none', title: '该单据已完成' })
-                //     return
-                // }
+                if (this.is_completed) {
+                    uni.showToast({ icon: 'none', title: '该单据已完成' })
+                    return
+                }
                 uni.navigateTo({
                     url: '/pages/operation/outbound/v2/plan_new_entry',
                     events: {
