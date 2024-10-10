@@ -176,7 +176,7 @@
             },
             async load_invs_by_loc_no(loc_no) {
                 const options = {
-                    FStockId: store.state.FStockId,
+                    FStockId: store.state.cur_stock.FStockId,
                     'FStockLocId.FNumber': loc_no,
                     FQty_gt: 0
                 }

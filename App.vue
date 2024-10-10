@@ -1,5 +1,6 @@
 <script>
     import store from '@/store'
+    import config from '@/config'
 	export default {
 		onLaunch: function() {
 			console.log('App Launch')
@@ -17,6 +18,7 @@
                     stock: uni.getStorageSync('cur_stock'),
                     staff: uni.getStorageSync('cur_staff')
                 })
+                store.commit('set_env', config.env)
                 this.init_system_info()
             },
             init_system_info() {

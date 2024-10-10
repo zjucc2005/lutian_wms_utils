@@ -1,9 +1,9 @@
 {
-    "name" : "lutian_wms_utils",
+    "name" : "绿田WMS",
     "appid" : "__UNI__EFA5C5A",
     "description" : "绿田机械库存管理工具",
     "versionName" : "1.0.2",
-    "versionCode" : "101",
+    "versionCode" : 102,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {
@@ -42,7 +42,8 @@
                     "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>",
                     "<uses-feature android:name=\"android.hardware.camera\"/>",
                     "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>"
-                ]
+                ],
+                "minSdkVersion" : 21
             },
             /* ios打包配置 */
             "ios" : {

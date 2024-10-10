@@ -13,6 +13,7 @@ const store = createStore({
 // #endif
     state: {
                                    // >>> 表示本地持久化
+        env: 'dev',                // 运行环境
         system_info: null,         // 设备信息，开机获取
         conn_info: null,           // API连接成功返回数据
         conn_expired_at: null,     // API连接过期时间
@@ -46,6 +47,9 @@ const store = createStore({
         },
         staff_logout(state) {
             state.cur_staff = { FName: state.cur_staff.FName }  // 退出保留上一次登录的员工姓名
+        },
+        set_env(state, env) {
+            state.env = env
         },
         set_system_info(state, system_info) {
             state.system_info = system_info

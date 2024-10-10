@@ -4,7 +4,6 @@
         <uni-section title="查询物料编码" type="square">
             <uni-search-bar
                 v-model="search_form.no"
-                :focus="true"
                 bgColor="#EEEEEE"
                 cancelButton="none"
                 @confirm="handle_search"
@@ -268,23 +267,23 @@
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询
-                // if (e.index == 1) {
-                //     this.preview_cart()
-                //     console.log('debug:', this.$data) // btn:提交确认
-                // }
             },
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
-                    console.log('myScanCode res:', res)
-                    // if (res.success == 'true') this.handle_inv_search(res.result)
+                    // console.log('myScanCode res:', res)
+                    if (res.success == 'true') {
+                        this.search_form.no = res.result
+                        this.handle_search()
+                    }
                 })
                 // #endif               
                 // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        console.log('uni.scanCode res:', res)
-                        // this.handle_inv_search(res.result)
+                        // console.log('uni.scanCode res:', res)
+                        this.search_form.no = res.result
+                        this.handle_search()
                     }
                 })
                 // #endif

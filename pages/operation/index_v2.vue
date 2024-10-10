@@ -1,56 +1,55 @@
 <template>
-    <view>
-        <uni-grid :column="3" :highlight="true" :show-border="false">
-            <uni-grid-item @click="goTo('inbound/v2/index')">
-                <view class="grid-item-box">
-                    <image src="/static/icon/ruku.png" mode="widthFix" class="grid-item-icon"></image>
-                    <text class="grid-item-text">入库</text>
-                </view>
-            </uni-grid-item>
-            <uni-grid-item @click="goTo('outbound/v2/index')">
-                <view class="grid-item-box">
-                    <image src="/static/icon/chuku.png" mode="widthFix" class="grid-item-icon"></image>
-                    <text class="grid-item-text">出库</text>
-                </view>
-            </uni-grid-item>
-            <uni-grid-item @click="goTo('move/v2/index')">
-                <view class="grid-item-box">
-                    <image src="/static/icon/kucuntiaozheng.png" mode="widthFix" class="grid-item-icon"></image>
-                    <text class="grid-item-text">库存调整</text>
-                </view>
-            </uni-grid-item>
-            <uni-grid-item @click="inv_search">
-                <view class="grid-item-box">
-                    <image src="/static/icon/saomiao.png" mode="widthFix" class="grid-item-icon"></image>
-                    <text class="grid-item-text">库存查询</text>
-                </view>
-            </uni-grid-item>
-            <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/invs')">
-                <view class="grid-item-box">
-                    <image src="/static/icon/kucun.png" mode="widthFix" class="grid-item-icon"></image>
-                    <text class="grid-item-text">库存总览</text>
-                </view>
-            </uni-grid-item>
-            <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/locs')">
-                <view class="grid-item-box">
-                    <image src="/static/icon/kuweiguanli.png" mode="widthFix" class="grid-item-icon"></image>
-                    <text class="grid-item-text">库位管理</text>
-                </view>
-            </uni-grid-item>
-            <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('statistics/index')">
-                <view class="grid-item-box">
-                    <image src="/static/icon/tongji.png" mode="widthFix" class="grid-item-icon"></image>
-                    <text class="grid-item-text">统计</text>
-                </view>
-            </uni-grid-item>
-            <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/index')">
-                <view class="grid-item-box">
-                    <image src="/static/icon/qita.png" mode="widthFix" class="grid-item-icon"></image>
-                    <text class="grid-item-text">其他功能</text>
-                </view>
-            </uni-grid-item>
-        </uni-grid>
-    </view>
+    <uni-notice-bar v-if="$store.state.env != 'prod'" text="测试版" single show-icon/>
+    <uni-grid :column="3" :highlight="true" :show-border="false">
+        <uni-grid-item @click="goTo('inbound/v2/index')">
+            <view class="grid-item-box">
+                <image src="/static/icon/ruku.png" mode="widthFix" class="grid-item-icon"></image>
+                <text class="grid-item-text">入库</text>
+            </view>
+        </uni-grid-item>
+        <uni-grid-item @click="goTo('outbound/v2/index')">
+            <view class="grid-item-box">
+                <image src="/static/icon/chuku.png" mode="widthFix" class="grid-item-icon"></image>
+                <text class="grid-item-text">出库</text>
+            </view>
+        </uni-grid-item>
+        <uni-grid-item @click="goTo('move/v2/index')">
+            <view class="grid-item-box">
+                <image src="/static/icon/kucuntiaozheng.png" mode="widthFix" class="grid-item-icon"></image>
+                <text class="grid-item-text">库存调整</text>
+            </view>
+        </uni-grid-item>
+        <uni-grid-item @click="inv_search">
+            <view class="grid-item-box">
+                <image src="/static/icon/saomiao.png" mode="widthFix" class="grid-item-icon"></image>
+                <text class="grid-item-text">库存查询</text>
+            </view>
+        </uni-grid-item>
+        <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/invs')">
+            <view class="grid-item-box">
+                <image src="/static/icon/kucun.png" mode="widthFix" class="grid-item-icon"></image>
+                <text class="grid-item-text">库存总览</text>
+            </view>
+        </uni-grid-item>
+        <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/locs')">
+            <view class="grid-item-box">
+                <image src="/static/icon/kuweiguanli.png" mode="widthFix" class="grid-item-icon"></image>
+                <text class="grid-item-text">库位管理</text>
+            </view>
+        </uni-grid-item>
+        <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('statistics/index')">
+            <view class="grid-item-box">
+                <image src="/static/icon/tongji.png" mode="widthFix" class="grid-item-icon"></image>
+                <text class="grid-item-text">统计</text>
+            </view>
+        </uni-grid-item>
+        <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/index')">
+            <view class="grid-item-box">
+                <image src="/static/icon/qita.png" mode="widthFix" class="grid-item-icon"></image>
+                <text class="grid-item-text">其他功能</text>
+            </view>
+        </uni-grid-item>
+    </uni-grid>
 </template>
 
 <script>

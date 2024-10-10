@@ -1,4 +1,5 @@
 <template>
+    <uni-notice-bar v-if="$store.state.env != 'prod'" text="测试版" single show-icon/>
     <view class="container">
         <view class="logo-wrapper">
             <image src="/static/logo-wms.png"></image>
