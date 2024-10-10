@@ -265,40 +265,13 @@
         onLoad(options) {
             const eventChannel = this.getOpenerEventChannel();
             eventChannel.on('sendInboundTask', res => {
-                console.log('eventChannel.on sendInboundTask', res)
+                // console.log('eventChannel.on sendInboundTask', res)
                 this.inbound_task = res.inbound_task
                 this.load_data(res.material_no)
             })
         },
         mounted() {
             this.load_data()
-            /**
-             * 数据模型
-             * { 
-             *   material_id: 1,
-             *   pallet_infos: [{ per_qty: 30,  pallet_qty: 2 }, { per_qty: 20, pallet_qty: 1,  }]
-             * }
-             * 
-             * 表单
-             * 
-             * load_invs_all(stock_id)
-             * load_inv_plans(bill_no)
-             * cc-shelf map 模式，可选择的库位展示
-             * 
-             * 起点库位 自动分配/手动选择 -> cc-shelf map 直观辅助
-             * 
-             * 自动分配逻辑
-             * 
-             * 流程
-             * 1. 选择物料（系统分配起点库位）
-             * 2. 填写托盘信息 per_qty, pallet_qty
-             * 3. 选择起点库位（手动更换）
-             * 4. 预览计划，数量验证 sum(per_qty * pallet_qty) == material_qty
-             * 5. 保存计划
-             * 重复 1 ~ 5
-             * 
-             * >>> PC端打印
-             */
         },
         methods: {
             goods_nav_click(e) {
@@ -360,7 +333,6 @@
                     this._activate_step(2) // preview
                     play_audio_prompt('success')
                 } catch (err) {
-                    console.log('err:', typeof(err))
                     uni.showToast({ icon: 'error', title: err.message })
                 }  
             },
@@ -433,7 +405,7 @@
                 })
             },
             async submit_delete() {
-                console.log('submit_delete', this.$data)
+                // console.log('submit_delete', this.$data)
                 if (this.step_active !== 3) return
                 
                 let inv_plans = this.inv_plans.filter(inv_plan => inv_plan.FMaterialId === this.plan_form.material_id)
@@ -453,7 +425,7 @@
                 }
             },
             async submit_save() {
-                console.log('submit_save', this.$data)
+                // console.log('submit_save', this.$data)
                 if (this.step_active !== 2) return
                 uni.showLoading({ title: 'Loading' })
                 let obj = this.inbound_task.inbound_list.find(x => x.material_no == this.plan_form.material_no)

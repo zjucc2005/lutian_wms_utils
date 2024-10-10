@@ -2,7 +2,7 @@
     "name" : "lutian_wms_utils",
     "appid" : "__UNI__EFA5C5A",
     "description" : "绿田机械库存管理工具",
-    "versionName" : "1.0.1",
+    "versionName" : "1.0.2",
     "versionCode" : "101",
     "transformPx" : false,
     /* 5+App特有相关 */

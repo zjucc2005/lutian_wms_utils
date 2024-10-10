@@ -6,13 +6,13 @@
                 :extra-icon="{ type: 'tune', size: '24', color: '#007bff' }"
                 @click="goTo('inventory_record')" clickable
                 showArrow />
-            <uni-list-item title="统计2"
+            <uni-list-item title="库存周期统计"
                 :show-extra-icon="true"
-                :extra-icon="{ color: '#4cd964', size: '24', type: 'map' }"
+                :extra-icon="{ type: 'navigate', size: '24', color: '#4cd964' }"
                 clickable showArrow disabled />
-            <uni-list-item title="统计3"
+            <uni-list-item title="平均在库天数"
                 :show-extra-icon="true"
-                :extra-icon="{ color: '#dc3545', size: '24', type: 'paperplane' }"
+                :extra-icon="{ type: 'paperplane', size: '24', color: '#dc3545' }"
                 clickable showArrow disabled />
         </uni-list>
     </view>

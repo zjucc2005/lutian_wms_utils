@@ -139,7 +139,7 @@
                     admin_button_group: [
                         {
                             text: '审核确认',
-                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
+                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
                             color: '#fff'
                         },
                         {
@@ -218,40 +218,47 @@
             },
             async submit_audit() {
                 let checked_inv_plans = this.inv_plans.filter(x => x.checked)
-                let ids = checked_inv_plans.map(x => x.FID)
-                if (ids.length) {
-                    uni.showLoading({ title: 'Loading' })
-                    let response = await InvPlan.audit(ids)
-                    if (response.data.Result.ResponseStatus.IsSuccess) {
-                        for (let i = 0; i < checked_inv_plans.length; i++) {
-                            await InvPlan.execute(checked_inv_plans[i])
-                        }
-                        await this.load_inv_plans()
-                        uni.hideLoading()
-                        play_audio_prompt('success')
-                    } else {
-                        uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
-                    }
-                } else {
+                if (checked_inv_plans.length === 0) {
                     uni.showToast({ icon: 'none', title: '未选择任何条目' })
+                    return
+                }
+                uni.showLoading({ title: 'Loading' })
+                let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
+                if (save_ids.length) {
+                    await InvPlan.submit(save_ids) // 提交(admin补)
+                }
+                let ids = checked_inv_plans.map(x => x.FID)
+                let response = await InvPlan.audit(ids)
+                if (response.data.Result.ResponseStatus.IsSuccess) {
+                    for (let i = 0; i < checked_inv_plans.length; i++) {
+                        await InvPlan.execute(checked_inv_plans[i]) // 审核确认
+                    }
+                    await this.load_inv_plans()
+                    uni.hideLoading()
+                    play_audio_prompt('success')
+                } else {
+                    uni.hideLoading()
+                    uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
                 }
             },
             async submit_submit() {
-                let ids = this.inv_plans.filter(x => x.checked).map(x => x.FID)
-                if (ids.length) {
-                    uni.showLoading({ title: 'Loading' })
-                    InvPlan.submit(ids).then(res => {
-                        if (res.data.Result.ResponseStatus.IsSuccess) {
-                            uni.hideLoading()
-                            play_audio_prompt('success')
-                            this.load_inv_plans()
-                        } else {
-                            uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
-                        }
-                    })
-                } else {
+                let checked_inv_plans = this.inv_plans.filter(x => x.checked)
+                if (checked_inv_plans.length === 0) {
                     uni.showToast({ icon: 'none', title: '未选择任何条目' })
+                    return
                 }
+                uni.showLoading({ title: 'Loading' })
+                let ids = checked_inv_plans.map(x => x.FID)
+                InvPlan.submit(ids).then(res => {
+                    if (res.data.Result.ResponseStatus.IsSuccess) {
+                        uni.hideLoading()
+                        play_audio_prompt('success')
+                        this.load_inv_plans()
+                    } else {
+                        uni.hideLoading()
+                        uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
+                    }
+                })
             },
             new_plan() {
                 play_audio_prompt('success')

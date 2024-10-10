@@ -1,6 +1,6 @@
 <template>
     <view>
-        <uni-list class="uni-mb-10">
+<!--        <uni-list class="uni-mb-10">
             <uni-list-item title="位置"
                 :show-extra-icon="true" 
                 :extra-icon="{ color: '#007bff', size: '24', type: 'location' }"
@@ -17,7 +17,7 @@
                 :show-extra-icon="true"
                 :extra-icon="{ color: '#dc3545', size: '24', type: 'gear' }"
                 clickable showArrow />
-        </uni-list>
+        </uni-list> -->
         <uni-list>
             <uni-list-item title="退出"
                 :show-extra-icon="true"

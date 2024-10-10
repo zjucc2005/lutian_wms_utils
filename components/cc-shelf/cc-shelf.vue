@@ -7,7 +7,7 @@
             <view class="content">
                 <swiper :indicator-dots="true" :style="{ height: `${get_swiper_height(shelf)}px` }" class="shelf_swiper">
                     <swiper-item v-for="page in get_swiper_pages(shelf)" :key="page">
-                        <uni-grid :column="column" :show-border="false"  @change="change($event, shelf)">
+                        <uni-grid :column="column" :show-border="false" @change="grid_click($event, shelf)">
                             <uni-grid-item
                                 v-for="grid in filter_swiper_grids(shelf, page)"
                                 :key="grid.index"
@@ -24,6 +24,28 @@
             </view>
         </uni-collapse-item>
     </uni-collapse>
+    
+    <uni-drawer ref="inv_drawer" mode="left" :width="320" >
+        <view>
+            <button @click="drawer_close">关闭</button>
+            <uni-section :title="`库位：${drawer_loc_no}`" type="square">
+                <uni-list>
+                    <uni-list-item
+                        v-for="(inv, index) in invs.filter(x => x['FStockLocId.FNumber'] == drawer_loc_no)"
+                        :key="index"
+                        :title="inv['FMaterialId.FNumber']"
+                        :note="[
+                            `名称：${inv['FMaterialId.FName']}`, 
+                            `规格：${inv['FMaterialId.FSpecification']}`, 
+                            `批次：${inv.FBatchNo}`
+                        ].join('\n')"
+                        :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
+                        >
+                    </uni-list-item>
+                </uni-list>
+            </uni-section>
+        </view>
+    </uni-drawer>
 </template>
 
 <script>
@@ -65,7 +87,7 @@
         },
         data() {
             return {
-
+                drawer_loc_no: ''
             }
         },
         computed: {
@@ -171,13 +193,16 @@
                 let screen_width = store.state.system_info.windowWidth
                 return Math.ceil(screen_width / this.column * (shelf.bound.y + 0.7)) // swiper高度不会被内容撑开，需指定swiper高度
             },
-            change(e, shelf) {
+            grid_click(e, shelf) {
                 let grid = shelf.grids.find(g => g.index === e.detail.index)
                 if (grid && grid.qty) {
-                    uni.showToast({
-                        icon: 'none', title: `${grid.name},${grid.qty}`
-                    })
+                    // console.log('grid click', grid)
+                    this.drawer_loc_no = grid.no
+                    this.$refs.inv_drawer.open()
                 }
+            },
+            drawer_close() {
+                this.$refs.inv_drawer.close()
             }
         }
     }

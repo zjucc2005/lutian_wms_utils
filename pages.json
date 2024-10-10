@@ -116,6 +116,10 @@
             "style": { "navigationBarTitleText": "库存查询" }
         },
         {
+            "path": "pages/operation/manage/inv_map",
+            "style": { "navigationBarTitleText": "库存地图" }
+        },
+        {
             "path": "pages/operation/manage/inv_init",
             "style": { "navigationBarTitleText": "期初库存录入" }
         },
@@ -207,31 +211,31 @@
         "borderStyle": "black",
         "backgroundColor": "#F8F8F8",
         "list": [
-            {
-                "pagePath": "pages/login",
-                "text": "登录页",
-                "iconfont": {
-                    "text": "\ue65d",
-                    "color": "#7A7E83",
-                    "selectedText": "\ue65d",
-                    "fontSize": "24px",
-                    "selectedColor": "#007aff"
-                }
-            },
-            {
-                "pagePath": "pages/operation/index_v1",
-                "text": "仓库V1",
-                "iconfont": {
-                    "text": "\ue662",
-                    "color": "#7A7E83",
-                    "selectedText": "\ue662",
-                    "fontSize": "24px",
-                    "selectedColor": "#007aff"
-                }
-            },
+            // {
+            //     "pagePath": "pages/login",
+            //     "text": "登录页",
+            //     "iconfont": {
+            //         "text": "\ue65d",
+            //         "color": "#7A7E83",
+            //         "selectedText": "\ue65d",
+            //         "fontSize": "24px",
+            //         "selectedColor": "#007aff"
+            //     }
+            // },
+            // {
+            //     "pagePath": "pages/operation/index_v1",
+            //     "text": "仓库V1",
+            //     "iconfont": {
+            //         "text": "\ue662",
+            //         "color": "#7A7E83",
+            //         "selectedText": "\ue662",
+            //         "fontSize": "24px",
+            //         "selectedColor": "#007aff"
+            //     }
+            // },
             {
                 "pagePath": "pages/operation/index_v2",
-                "text": "仓库V2",
+                "text": "仓库",
                 "iconfont": {
                     "text": "\ue662",
                     "color": "#7A7E83",
@@ -250,18 +254,18 @@
                     "fontSize": "24px",
                     "selectedColor": "#007aff"
                 }
-            },
-            {
-                "pagePath": "pages/api_utils/index",
-                "text": "API调试",
-                "iconfont": {
-                    "text": "\ue653",
-                    "color": "#7A7E83",
-                    "selectedText": "\ue653",
-                    "fontSize": "24px",
-                    "selectedColor": "#007aff"
-                }
             }
+            // {
+            //     "pagePath": "pages/api_utils/index",
+            //     "text": "API调试",
+            //     "iconfont": {
+            //         "text": "\ue653",
+            //         "color": "#7A7E83",
+            //         "selectedText": "\ue653",
+            //         "fontSize": "24px",
+            //         "selectedColor": "#007aff"
+            //     }
+            // }
         ]
     }
 }

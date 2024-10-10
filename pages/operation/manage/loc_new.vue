@@ -1,71 +1,71 @@
 <template>
-    <view>
-        <uni-notice-bar single scrollable text="可以扫码或批量新增库位号，然后一次性点击提交保存" />
-        <uni-section 
-            title="新增库位"
-            :sub-title="`${$store.state.cur_stock['FGroup.FName']}/${$store.state.cur_stock.FName}`"
-            type="line" 
-            class="above-uni-goods-nav"
-        >
-            <uni-swipe-action ref="loc_no_swipe">
-                <uni-swipe-action-item
-                    v-for="(loc_no, index) in loc_nos"
-                    :key="index"
-                    :threshold="60"
-                    :right-options="swipe_action_options"
-                    @click="swipe_action_click($event, index)"
-                >
-                    <uni-list-item :title="loc_no.value">
-                        <template v-slot:footer>
-                            <view class="uni-list-item__foot">
-                                <text class="status disabled">{{ loc_no.status }}</text>
-                            </view>
-                        </template>
-                    </uni-list-item>
-                </uni-swipe-action-item>
-            </uni-swipe-action>
-        </uni-section>
-        
-        <view class="uni-goods-nav-wrapper">
-            <uni-goods-nav 
-                :options="goods_nav.options" 
-                :button-group="goods_nav.button_group"
-                @click="goods_nav_click"
-                @buttonClick="goods_nav_button_click"
-            />
-        </view>
-        
-        <uni-popup ref="new_dialog" type="dialog">
-            <uni-popup-dialog
-                type="info"
-                title="批量新增"
-                @close="close_new_dialog"
-                @confirm="confirm_new_dialog"
-                :beforeClose="true"
-                >
-                <view class="new-form">
-                    <uni-forms ref="new_form" :model="new_form" :rules="new_form_rules">
-                        <uni-forms-item label="仓库编号" name="depot">
-                            <uni-easyinput v-model="new_form.depot" trim="both" />
-                        </uni-forms-item>
-                        <uni-forms-item label="货架编号" name="shelf">
-                            <uni-easyinput v-model="new_form.shelf" trim="both" />
-                        </uni-forms-item>
-                        <uni-forms-item label="总列数" name="column">
-                            <uni-number-box v-model="new_form.column" :min="1" :max="99" />
-                        </uni-forms-item>
-                        <uni-forms-item label="总行数" name="row">
-                            <uni-number-box v-model="new_form.row" :min="1" :max="9" />
-                        </uni-forms-item>
-                        <uni-forms-item label="示例">
-                            <text class="example">{{ loc_no_example }}</text>
-                        </uni-forms-item>
-                    </uni-forms>
-                </view>
-                
-            </uni-popup-dialog>
-        </uni-popup>
+    <uni-notice-bar single scrollable text="可以扫码或批量新增库位号，然后一次性点击提交保存" />
+    <uni-section title="当前仓库" type="square"
+        :sub-title="[
+            $store.state.cur_stock['FUseOrgId.FName'],
+            $store.state.cur_stock['FGroup.FName'] || '未分组',
+            $store.state.cur_stock.FName
+        ].join(' / ')"
+        class="above-uni-goods-nav"
+    >
+        <uni-swipe-action ref="loc_no_swipe">
+            <uni-swipe-action-item
+                v-for="(loc_no, index) in loc_nos"
+                :key="index"
+                :threshold="60"
+                :right-options="swipe_action_options"
+                @click="swipe_action_click($event, index)"
+            >
+                <uni-list-item :title="loc_no.value">
+                    <template v-slot:footer>
+                        <view class="uni-list-item__foot">
+                            <text class="status disabled">{{ loc_no.status }}</text>
+                        </view>
+                    </template>
+                </uni-list-item>
+            </uni-swipe-action-item>
+        </uni-swipe-action>
+    </uni-section>
+    
+    <view class="uni-goods-nav-wrapper">
+        <uni-goods-nav 
+            :options="goods_nav.options" 
+            :button-group="goods_nav.button_group"
+            @click="goods_nav_click"
+            @buttonClick="goods_nav_button_click"
+        />
     </view>
+    
+    <uni-popup ref="new_dialog" type="dialog">
+        <uni-popup-dialog
+            type="info"
+            title="批量新增"
+            @close="close_new_dialog"
+            @confirm="confirm_new_dialog"
+            :beforeClose="true"
+            >
+            <view class="new-form">
+                <uni-forms ref="new_form" :model="new_form" :rules="new_form_rules">
+                    <uni-forms-item label="仓库编号" name="depot">
+                        <uni-easyinput v-model="new_form.depot" trim="both" />
+                    </uni-forms-item>
+                    <uni-forms-item label="货架编号" name="shelf">
+                        <uni-easyinput v-model="new_form.shelf" trim="both" />
+                    </uni-forms-item>
+                    <uni-forms-item label="总列数" name="column">
+                        <uni-number-box v-model="new_form.column" :min="1" :max="99" />
+                    </uni-forms-item>
+                    <uni-forms-item label="总行数" name="row">
+                        <uni-number-box v-model="new_form.row" :min="1" :max="9" />
+                    </uni-forms-item>
+                    <uni-forms-item label="示例">
+                        <text class="example">{{ loc_no_example }}</text>
+                    </uni-forms-item>
+                </uni-forms>
+            </view>
+            
+        </uni-popup-dialog>
+    </uni-popup>
 </template>
 
 <script>

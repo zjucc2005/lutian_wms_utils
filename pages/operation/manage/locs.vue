@@ -46,11 +46,11 @@
                         { icon: 'up', text: '折叠' }
                     ],
                     button_group: [
-                        {
-                            text: '库存地图',
-                            backgroundColor: 'linear-gradient(90deg, #4cd964, #42b983)',
-                            color: '#fff'
-                        },
+                        // {
+                        //     text: '库存地图',
+                        //     backgroundColor: 'linear-gradient(90deg, #4cd964, #42b983)',
+                        //     color: '#fff'
+                        // },
                         {
                             text: '新增库位',
                             backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
@@ -69,8 +69,8 @@
                 if (e.index === 1) this.toggle_cc_shelf()
             },
             goods_nav_button_click(e) {
-                if (e.index === 0) this.if_inv_map()
-                if (e.index === 1) this.new_loc_no()
+                // if (e.index === 0) this.if_inv_map()
+                if (e.index === 0) this.new_loc_no()
             },
             if_inv_map() {
                 uni.showModal({

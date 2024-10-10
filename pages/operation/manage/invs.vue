@@ -57,6 +57,11 @@
                             text: '扫码查询',
                             backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
                             color: '#fff'
+                        },
+                        {
+                            text: '库存地图',
+                            backgroundColor: 'linear-gradient(90deg, #4cd964, #42b983)',
+                            color: '#fff'
                         }
                     ]
                 }
@@ -71,6 +76,7 @@
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码
+                if (e.index === 1) this.inv_map() // btn:库存地图
             },
             scan_code() {
                 // #ifdef APP-PLUS
@@ -89,6 +95,15 @@
             search_invs(material_no) {
                 play_audio_prompt('success')
                 uni.navigateTo({ url: '/pages/operation/manage/inv_search?t=' + material_no })
+            },
+            inv_map() {
+                uni.navigateTo({
+                    url: '/pages/operation/manage/inv_map',
+                    success: (res) => {
+                        play_audio_prompt('success')
+                        res.eventChannel.emit('sendInvs', { invs: this.invs })
+                    }
+                })
             },
             async load_invs() {
                 const options = {
