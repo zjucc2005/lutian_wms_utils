@@ -33,7 +33,7 @@
         </uni-grid-item>
         <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/locs')">
             <view class="grid-item-box">
-                <image src="/static/icon/kuweiguanli.png" mode="widthFix" class="grid-item-icon"></image>
+                <image src="/static/icon/kuwei.png" mode="widthFix" class="grid-item-icon"></image>
                 <text class="grid-item-text">库位管理</text>
             </view>
         </uni-grid-item>

@@ -225,16 +225,20 @@
             background-color: $uni-text-color-disable;
         }
         &.success {
-            background-color: $uni-color-success;
+            background: linear-gradient(135deg, #4cd964, #67c23a);
+            background-color: #67c23a;
         }
         &.info {
-            background-color: $uni-color-primary;
+            background: linear-gradient(135deg, #55aaff, #3699fc);
+            background-color: #409eff;
         }
         &.warn {
-            background-color: $uni-color-warning;
+            background: linear-gradient(135deg, #f7ce50, #e6a23c);
+            background-color: #e6a23c;
         }
         &.error {
-            background-color: $uni-color-error;
+            background: linear-gradient(135deg, #f56c6c, #FE6035);
+            background-color: #f56c6c;
         }
         &.none {
             background-color: $uni-bg-color;
