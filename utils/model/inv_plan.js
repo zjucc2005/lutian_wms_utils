@@ -123,6 +123,7 @@ class InvPlan {
      *   @field FMaterialId.FNumber:String 物料编号
      *   @field FBatchNo:String 批次号
      *   @field FBillNo:String 单据编号
+     *   @field FBillNo_ne:String 单据编号
      * @param meta:Hash
      *   @field page:Integer
      *   @field per_page:Integer
@@ -174,7 +175,10 @@ class InvPlan {
         }
         if (options.FBillNo) {
             data.FilterString.push({ Left: "", FieldName: "FBillNo", Compare: "67", Value: options.FBillNo, Right: "", Logic: 0 })
-        }       
+        }
+        if (options.FBillNo_ne) {
+            data.FilterString.push({ Left: "", FieldName: "FBillNo", Compare: "83", Value: options.FBillNo_ne, Right: "", Logic: 0 })
+        }
         if (meta.per_page) {
             data.Limit = meta.per_page
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page

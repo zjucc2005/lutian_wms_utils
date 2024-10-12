@@ -231,6 +231,7 @@
                 stock_loc_opts: [], // picker 库位选项
                 invs: [],
                 inv_plans: [],
+                inv_plans_ex: [], // 其他单据未执行的计划，统计空闲库位时要考虑进去
                 inv_plans_preview: [],
                 plan_form: {
                     material_id: '',
@@ -271,7 +272,7 @@
             })
         },
         mounted() {
-            this.load_data()
+            // this.load_data()
         },
         methods: {
             goods_nav_click(e) {
@@ -288,13 +289,14 @@
                 }
             },
             handle_material_no_click() {
+                console.log('this.$data', this.$data)
                 let list = this.inbound_task.inbound_list.filter(x => x.dest_stock_id == store.state.cur_stock.FStockId).map(x => x.material_no)
                 uni.showActionSheet({
                     itemList: list,
                     success: (e) => {
                         this.plan_form.material_no = list[e.tapIndex]
                         this.init_plan_form(list[e.tapIndex])
-                        this.load_inv_plans(list[e.tapIndex])
+                        // this.load_inv_plans(list[e.tapIndex])
                         play_audio_prompt('success')
                     }
                 })
@@ -372,6 +374,7 @@
             async load_data(material_no='') {
                 await this.load_invs()
                 await this.load_inv_plans()
+                await this.load_inv_plans_ex()
                 if (material_no) this.init_plan_form(material_no)
             },
             async load_invs() {
@@ -389,7 +392,7 @@
                     FStockId: store.state.cur_stock.FStockId,
                     FBillNo: this.inbound_task.bill_no,
                     FOpType: 'in',
-                }, { order: 'FCreateTime DESC' }).then(res => {
+                }, { order: 'FCreateTime ASC' }).then(res => {
                     uni.hideLoading()
                     this.inv_plans = res.data
                     this.inv_plans.forEach(inv_plan => {
@@ -397,11 +400,24 @@
                             inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
                         }
                     })
-                    this._set_loc_nos()
+                    // this._set_loc_nos()
                     if (sync) {
                         const eventChannel = this.getOpenerEventChannel()
                         eventChannel.emit('syncInvPlans', { inv_plans: res.data }) // 同步数据到前一页
                     }
+                })
+            },
+            async load_inv_plans_ex() {
+                uni.showLoading({ title: 'Loading' })
+                return InvPlan.query({ 
+                    FStockId: store.state.cur_stock.FStockId,
+                    FBillNo_ne: this.inbound_task.bill_no,
+                    FOpType: 'in',
+                    FDocumentStatus_in: ['A', 'B']
+                }, { order: 'FCreateTime ASC' }).then(res => {
+                    uni.hideLoading()
+                    this.inv_plans_ex = res.data
+                    // this._set_loc_nos()
                 })
             },
             async submit_delete() {
@@ -456,6 +472,7 @@
                 let obj = this.inbound_task.inbound_list.find(x => x.material_no == material_no)
                 this.plan_form.per_pallet_qty = 2
                 this.plan_form.pallet_infos = [{ per_qty: '', pallet_qty: '' }]
+                this._set_loc_nos()
                 if (obj) {
                     this.plan_form.material_id = obj.material_id
                     this.plan_form.material_no = obj.material_no
@@ -494,7 +511,8 @@
             },
             _is_idle(loc_no) {
                 return !this.invs.some(inv => inv['FStockLocId.FNumber'] == loc_no ) && 
-                !this.inv_plans.some(inv_plan => inv_plan['FStockLocId.FNumber'] == loc_no)
+                !this.inv_plans.some(inv_plan => inv_plan['FStockLocId.FNumber'] == loc_no) &&
+                !this.inv_plans_ex.some(inv_plan => inv_plan['FStockLocId.FNumber'] == loc_no)
             },
             // 设定操作步骤，关联步骤条和按键的显示变更
             _activate_step(step) {

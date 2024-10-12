@@ -212,8 +212,8 @@
                             await InvPlan.execute(checked_inv_plans[i])
                         }
                         await this.load_inv_plans()
-                        const eventChannel = this.getOpenerEventChannel()
-                        eventChannel.emit('reloadInvPlans', { reload: true })
+                        // const eventChannel = this.getOpenerEventChannel()
+                        // eventChannel.emit('reloadInvPlans', { reload: true })
                         uni.hideLoading()
                     } else {
                         uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
@@ -229,8 +229,8 @@
                     InvPlan.submit(ids).then(res => {
                         if (res.data.Result.ResponseStatus.IsSuccess) {
                             this.load_inv_plans()
-                            const eventChannel = this.getOpenerEventChannel()
-                            eventChannel.emit('reloadInvPlans', { reload: true })
+                            // const eventChannel = this.getOpenerEventChannel()
+                            // eventChannel.emit('reloadInvPlans', { reload: true })
                         } else {
                             uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
                         }

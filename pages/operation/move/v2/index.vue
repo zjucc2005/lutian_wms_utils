@@ -158,8 +158,11 @@
                 }
             }
         },
-        mounted() {
+        onShow() {
             this.load_inv_plans()
+        },
+        mounted() {
+            // this.load_inv_plans()
         },
         methods: {
             // check_all() {
@@ -198,7 +201,6 @@
                     this.inv_plans.forEach(inv_plan => {
                         inv_plan.checked = false
                         if (store.state.role == 'admin') {
-                            inv_plan.disabled = inv_plan.FDocumentStatu != 'B'
                             inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
                         }
                         if (store.state.role == 'staff') {
@@ -263,16 +265,7 @@
             new_plan() {
                 play_audio_prompt('success')
                 uni.navigateTo({ 
-                    url: '/pages/operation/move/v2/plan_new',
-                    events:{
-                        reloadInvPlans: (data) => {
-                            if (data.reload) {
-                                console.log('重载数据')
-                                this.load_inv_plans()
-                            }
-                        },
-                        sucess: (res) => {}
-                    }
+                    url: '/pages/operation/move/v2/plan_new'
                 })
             }
         }

@@ -7,7 +7,7 @@
             $store.state.cur_stock.FName
         ].join(' / ')"
         class="above-uni-goods-nav"
-    >
+        >
         <uni-swipe-action ref="loc_no_swipe">
             <uni-swipe-action-item
                 v-for="(loc_no, index) in loc_nos"
@@ -15,7 +15,7 @@
                 :threshold="60"
                 :right-options="swipe_action_options"
                 @click="swipe_action_click($event, index)"
-            >
+                >
                 <uni-list-item :title="loc_no.value">
                     <template v-slot:footer>
                         <view class="uni-list-item__foot">
@@ -45,6 +45,15 @@
             :beforeClose="true"
             >
             <view class="new-form">
+                <uni-data-checkbox
+                    v-model="new_form.type" 
+                    :localdata="[
+                        { text: '标准库位', value: 'standard' },
+                        { text: '独立库位', value: 'special' },
+                    ]"
+                    class="uni-mb-10"
+                    >
+                </uni-data-checkbox>
                 <uni-forms ref="new_form" :model="new_form" :rules="new_form_rules">
                     <uni-forms-item label="仓库编号" name="depot">
                         <uni-easyinput v-model="new_form.depot" trim="both" />
@@ -52,12 +61,14 @@
                     <uni-forms-item label="货架编号" name="shelf">
                         <uni-easyinput v-model="new_form.shelf" trim="both" />
                     </uni-forms-item>
-                    <uni-forms-item label="总列数" name="column">
-                        <uni-number-box v-model="new_form.column" :min="1" :max="99" />
-                    </uni-forms-item>
-                    <uni-forms-item label="总行数" name="row">
-                        <uni-number-box v-model="new_form.row" :min="1" :max="9" />
-                    </uni-forms-item>
+                    <template v-if="new_form.type != 'special'">
+                        <uni-forms-item label="总列数" name="column">
+                            <uni-number-box v-model="new_form.column" :min="1" :max="99" />
+                        </uni-forms-item>
+                        <uni-forms-item label="总行数" name="row">
+                            <uni-number-box v-model="new_form.row" :min="1" :max="9" />
+                        </uni-forms-item>
+                    </template>
                     <uni-forms-item label="示例">
                         <text class="example">{{ loc_no_example }}</text>
                     </uni-forms-item>
@@ -81,6 +92,7 @@
                 loc_nos: [
                 ],
                 new_form: {
+                    type: 'standard', // standard/special
                     depot: '',
                     shelf: '',
                     column: 1,
@@ -104,8 +116,8 @@
                             { required: true, errorMessage: '货架编号不能为空' },
                             {
                                 validateFunction: (rule, value, data, callback) => {
-                                    if (value.length > 4) {
-                                        return callback('货架编号不能大于4位')
+                                    if (value.length > 6) {
+                                        return callback('货架编号不能大于6位')
                                     }
                                 }
                             }
@@ -160,6 +172,9 @@
                     column: this.new_form.column || '*',
                     row: this.new_form.row || '*'
                 }
+                if (this.new_form.type == 'special') {
+                    return `${obj.depot.toUpperCase()}-${obj.shelf.toUpperCase()}`
+                }
                 if (this.new_form.column && this.new_form.column < 10) {
                     obj.column = `0${this.new_form.column}`
                 }
@@ -193,13 +208,13 @@
                 })
             },
             close_new_dialog() {
-                this.new_form = { depot: '', shelf: '', column: 1, row: 1 }
+                this.new_form = { type: 'standard', depot: '', shelf: '', column: 1, row: 1 }
                 this.$refs.new_dialog.close()
             },
             confirm_new_dialog() {
                 console.log('this.new_form', this.new_form)
                 this.$refs.new_form.validate().then(_ => {
-                    this.gen_loc_nos(this.new_form.depot, this.new_form.shelf, this.new_form.column, this.new_form.row).forEach(x => {
+                    this.gen_loc_nos(this.new_form.type, this.new_form.depot, this.new_form.shelf, this.new_form.column, this.new_form.row).forEach(x => {
                         if (!this.loc_nos.find(loc_no => loc_no.value == x)) {
                             this.loc_nos.push({ value: x, status: '' })
                         }
@@ -281,16 +296,20 @@
                     }
                 } catch (err) { console.log('submit_batch_save err:', err) }
             },
-            gen_loc_nos(depot, shelf, col, row) {
+            gen_loc_nos(type, depot, shelf, col, row) {
+                let loc_nos = []
+                depot = depot.toUpperCase()
+                shelf = shelf.toUpperCase()
+                if (type == 'special') {
+                    loc_nos.push(`${depot}-${shelf}`)
+                    return loc_nos
+                }
                 if (col < 1 || col > 99) {
                     throw new Error('列数只能在1~99')
                 }
                 if (row < 1 || row > 9) {
                     throw new Error('行数只能在1~9')
                 }
-                depot = depot.toUpperCase()
-                shelf = shelf.toUpperCase()
-                let loc_nos = []
                 for (let i = 0; i < col; i++) {
                     for (let j = 0; j < row; j++) {
                         if (i < 9) {

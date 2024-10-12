@@ -320,7 +320,7 @@
                     if (res.data.Result.ResponseStatus.IsSuccess) {
                         await this.load_inv_plans(this.material.material_no)
                         this._update_inv_status()
-                        this._event_channel_reload_inv_plans()
+                        // this._event_channel_reload_inv_plans()
                         uni.showToast({ title: '保存成功' }) 
                     } else {
                         uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
@@ -399,7 +399,7 @@
                         this.$refs.inv_plan_swipe.closeAll()
                         await this.load_inv_plans(this.material.material_no)
                         this._update_inv_status()
-                        this._event_channel_reload_inv_plans()
+                        // this._event_channel_reload_inv_plans()
                     } else {
                         uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
                     }
@@ -442,11 +442,11 @@
                         }
                     })
                 })
-            },
-            _event_channel_reload_inv_plans() {
-                const eventChannel = this.getOpenerEventChannel();
-                eventChannel.emit('reloadInvPlans', { reload: true })
             }
+            // _event_channel_reload_inv_plans() {
+            //     const eventChannel = this.getOpenerEventChannel();
+            //     eventChannel.emit('reloadInvPlans', { reload: true })
+            // }
         }
     }
 </script>

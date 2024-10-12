@@ -26,25 +26,27 @@
     </uni-collapse>
     
     <uni-drawer ref="inv_drawer" mode="left" :width="320" >
-        <view>
-            <button @click="drawer_close">关闭</button>
-            <uni-section :title="`库位：${drawer_loc_no}`" type="square">
-                <uni-list>
-                    <uni-list-item
-                        v-for="(inv, index) in invs.filter(x => x['FStockLocId.FNumber'] == drawer_loc_no)"
-                        :key="index"
-                        :title="inv['FMaterialId.FNumber']"
-                        :note="[
-                            `名称：${inv['FMaterialId.FName']}`, 
-                            `规格：${inv['FMaterialId.FSpecification']}`, 
-                            `批次：${inv.FBatchNo}`
-                        ].join('\n')"
-                        :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
-                        >
-                    </uni-list-item>
-                </uni-list>
-            </uni-section>
-        </view>
+        <uni-section :title="`库位：${drawer_loc_no}`" type="square">
+            <template v-slot:right>
+                <view class="uni-section__right">
+                    <uni-icons type="closeempty" size="24" color="#333" @click="drawer_close"/>
+                </view>
+            </template>
+            <uni-list>
+                <uni-list-item
+                    v-for="(inv, index) in invs.filter(x => x['FStockLocId.FNumber'] == drawer_loc_no)"
+                    :key="index"
+                    :title="inv['FMaterialId.FNumber']"
+                    :note="[
+                        `名称：${inv['FMaterialId.FName']}`, 
+                        `规格：${inv['FMaterialId.FSpecification']}`, 
+                        `批次：${inv.FBatchNo}`
+                    ].join('\n')"
+                    :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
+                    >
+                </uni-list-item>
+            </uni-list>
+        </uni-section>
     </uni-drawer>
 </template>
 
@@ -208,6 +210,50 @@
     }
 </script>
 
-<style>
-
+<style lang="scss">
+.shelf_swiper {
+    .grid-item-box {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;        
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        border-radius: 5px;
+        border: 1px solid #fff;
+        &.default {
+            background-color: $uni-text-color-disable;
+        }
+        &.success {
+            background-color: $uni-color-success;
+        }
+        &.info {
+            background-color: $uni-color-primary;
+        }
+        &.warn {
+            background-color: $uni-color-warning;
+        }
+        &.error {
+            background-color: $uni-color-error;
+        }
+        &.none {
+            background-color: $uni-bg-color;
+            .name {
+                color: $uni-bg-color;
+            }
+        }
+        .name {
+            width: 100%;
+            font-size: $uni-font-size-sm;
+            text-align: left;
+        }
+        .qty {
+            width: 100%;
+            color: #fff;
+            font-size: $uni-font-size-base;
+            font-weight: bold;
+            text-align: right;
+        }
+    }
+}
 </style>

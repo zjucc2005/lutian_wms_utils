@@ -25,7 +25,7 @@
         onLoad(options) {
             const eventChannel = this.getOpenerEventChannel();
             eventChannel.on('sendInvs', res => {
-                console.log('eventChannel.on sendInvs', res)
+                // console.log('eventChannel.on sendInvs', res)
                 this.invs = res.invs
             })
         },

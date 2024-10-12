@@ -21,11 +21,12 @@ const fieldKeys = (model_name) => {
 }
 
 const conn = async () => {
-    if (config.env == 'dev') {
-        return conn_login_by_app_secret()
-    } else {
-        return conn_validate_user()
-    }
+    return conn_login_by_app_secret()
+    // if (config.env == 'dev') {
+    //     return conn_login_by_app_secret()
+    // } else {
+    //     return conn_validate_user()
+    // }
 }
 
 /**

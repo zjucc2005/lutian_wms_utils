@@ -1,3 +1,4 @@
+import config from '@/config'
 import Snowflake from '@/utils/snowflake'
 
 // #ifndef VUE3
@@ -13,7 +14,7 @@ const store = createStore({
 // #endif
     state: {
                                    // >>> 表示本地持久化
-        env: 'dev',                // 运行环境
+        env: config.env,           // 运行环境
         system_info: null,         // 设备信息，开机获取
         conn_info: null,           // API连接成功返回数据
         conn_expired_at: null,     // API连接过期时间
@@ -80,9 +81,9 @@ const store = createStore({
                 }                   
             })
             stock_loc_opts.forEach(depot => {
-                depot.children.sort((x, y) => x.text - y.text)
+                depot.children.sort((x, y) => x.text >= y.text ? 1 : -1)
                 depot.children.forEach(shelf => {
-                    shelf.children.sort((x, y) => x.text - y.text)
+                    shelf.children.sort((x, y) => x.text >= y.text ? 1 : -1)
                 })
             })
             state.stock_loc_opts = stock_loc_opts

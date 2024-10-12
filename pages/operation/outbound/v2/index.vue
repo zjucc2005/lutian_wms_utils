@@ -123,8 +123,11 @@
                 }
             }
         },
-        mounted() {
+        onShow() {
             this.load_inv_plans()
+        },
+        mounted() {
+            // this.load_inv_plans()
         },
         methods: {
             checkbox_click(e) {
@@ -220,14 +223,14 @@
                 }
                 uni.navigateTo({
                     url: `/pages/operation/outbound/v2/plan_show?t=${bill_no}`,
-                    events: {
-                        reloadInvPlans: (data) => {
-                            if (data.reload) {
-                                console.log('<<< 重载数据event:reloadInvPlans ')
-                                this.load_inv_plans()
-                            }
-                        }
-                    },
+                    // events: {
+                    //     reloadInvPlans: (data) => {
+                    //         if (data.reload) {
+                    //             console.log('<<< 重载数据event:reloadInvPlans ')
+                    //             this.load_inv_plans()
+                    //         }
+                    //     }
+                    // },
                     success: (res) => { }
                 })
             },

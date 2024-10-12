@@ -3,7 +3,7 @@
     <view class="container">
         <view class="logo-wrapper">
             <image src="/static/logo-wms.png"></image>
-            <view>LOGO</view>
+            <view>内销货位</view>
         </view>
         <uni-forms ref="login_form" :model="login_form"  :rules="login_form_rules" labelWidth="80px">
             <uni-forms-item label="仓库" name="stock_id">
@@ -150,8 +150,8 @@
             height: 80px;
         }
         view {
-            font-size: 12px;
-            color: #999;
+            font-size: $uni-font-size-sm;
+            color: $uni-text-color-grey;
         }
     }
 </style>
