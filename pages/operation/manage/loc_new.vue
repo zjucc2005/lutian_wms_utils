@@ -62,11 +62,11 @@
                         <uni-easyinput v-model="new_form.shelf" trim="both" />
                     </uni-forms-item>
                     <template v-if="new_form.type != 'special'">
-                        <uni-forms-item label="总列数" name="column">
-                            <uni-number-box v-model="new_form.column" :min="1" :max="99" />
-                        </uni-forms-item>
                         <uni-forms-item label="总行数" name="row">
                             <uni-number-box v-model="new_form.row" :min="1" :max="9" />
+                        </uni-forms-item>
+                        <uni-forms-item label="总列数" name="column">
+                            <uni-number-box v-model="new_form.column" :min="1" :max="99" />
                         </uni-forms-item>
                     </template>
                     <uni-forms-item label="示例">
@@ -95,8 +95,8 @@
                     type: 'standard', // standard/special
                     depot: '',
                     shelf: '',
-                    column: 1,
-                    row: 1
+                    row: 1,
+                    column: 1
                 },
                 new_form_rules: {
                     depot: {
@@ -178,7 +178,7 @@
                 if (this.new_form.column && this.new_form.column < 10) {
                     obj.column = `0${this.new_form.column}`
                 }
-                return `${obj.depot.toUpperCase()}-${obj.shelf.toUpperCase()}-011 ~ ${obj.column}${obj.row}`
+                return `${obj.depot.toUpperCase()}-${obj.shelf.toUpperCase()}-101 ~ ${obj.row}${obj.column}`
             }
         },
         methods: {
@@ -310,15 +310,21 @@
                 if (row < 1 || row > 9) {
                     throw new Error('行数只能在1~9')
                 }
-                for (let i = 0; i < col; i++) {
-                    for (let j = 0; j < row; j++) {
-                        if (i < 9) {
-                            loc_nos.push(`${depot}-${shelf}-0${i+1}${j+1}`)
-                        } else {
-                            loc_nos.push(`${depot}-${shelf}-${i+1}${j+1}`)
-                        }
+                for (let i = 0; i < row; i++) {
+                    for (let j = 0; j < col; j++) {
+                        loc_nos.push(`${depot}-${shelf}-${(i + 1) * 100 + j + 1}`)
                     }
                 }
+                
+                // for (let i = 0; i < col; i++) {
+                //     for (let j = 0; j < row; j++) {
+                //         if (i < 9) {
+                //             loc_nos.push(`${depot}-${shelf}-${j+1}0${i+1}`)
+                //         } else {
+                //             loc_nos.push(`${depot}-${shelf}-${j+1}${i+1}`)
+                //         }
+                //     }
+                // }
                 return loc_nos
             }
         }

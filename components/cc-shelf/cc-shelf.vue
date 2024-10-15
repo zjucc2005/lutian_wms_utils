@@ -99,8 +99,8 @@
                     if (this.is_loc_no_std_format(stock_loc.FNumber)) {
                         let loc_no_arr = stock_loc.FNumber.split('-')
                         let name = loc_no_arr.slice(0,2).join('-')
-                        let x = loc_no_arr[2].slice(0,2) * 1
-                        let y = loc_no_arr[2][2] * 1
+                        let x = loc_no_arr[2].slice(1,3) * 1
+                        let y = loc_no_arr[2][0] * 1
                         let status = ''
                         let style = 'default'
                         let shelf = grid_shelves.find(s => s.name == name)
@@ -179,8 +179,9 @@
             },
             // 设置grid名称
             get_grid_name(coord={}) {
-                let name = [coord.x, coord.y].join('')
-                return coord.x < 10 ? `0${name}` : name
+                // let name = [coord.x, coord.y].join('')
+                // return coord.x < 10 ? `0${name}` : name
+                return coord.y * 100 + coord.x
             },
             // 过滤swiper单页中的grids对象
             filter_swiper_grids(shelf, page) {

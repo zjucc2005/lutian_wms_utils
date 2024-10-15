@@ -40,7 +40,7 @@ const is_material_no_format = (text) => {
 
 /**
  * 判断库位号标准格式
- * 合法例子 AA，AA-A1, AA-A1-001
+ * 合法例子 AA，AA-A1, AA-A1-101
  * 不合法例子
  *   aa 大小写敏感
  *   AA_A1 分隔符只能用短横线 -

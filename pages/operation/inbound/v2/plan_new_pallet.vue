@@ -114,13 +114,28 @@
             
             <uni-list-item title="每个库位放置托盘数"
                 note="默认值为2，不建议修改"
-                @click="open_dialog('per_pallet_qty_dialog')" clickable
+                @click="open_dialog('per_pallet_qty_dialog')" 
+                :clickable="plan_form.per_pallet_qty > 0"
                 show-arrow
                 >
                 <template v-slot:footer>
                     <view class="uni-list-item__foot">
                         <view class="op_qty lg">
-                            <text class="status">{{ plan_form.per_pallet_qty }}</text>
+                            <text class="status">{{ plan_form.per_pallet_qty || '∞' }}</text>
+                        </view>
+                    </view>
+                </template>
+            </uni-list-item>
+            
+            <uni-list-item title="灵活库位"
+                note="货架库位分配完后的保留库位"
+                @click="open_dialog('flex_loc_no_dialog')" clickable
+                show-arrow
+                >
+                <template v-slot:footer>
+                    <view class="uni-list-item__foot">
+                        <view class="op_qty lg">
+                            <text class="status">{{ plan_form.flex_loc_no }}</text>
                         </view>
                     </view>
                 </template>
@@ -137,6 +152,7 @@
                     split="-"
                     popup-title="请选择起点库位"
                     :clear-icon="false"
+                    @change="op_loc_no_change"
                 />
             </view>
         </uni-popup-dialog>
@@ -145,6 +161,16 @@
         <uni-popup-dialog title="每个库位放置托盘数" type="error" :show-close="false">
             <view class="plan-form">
                 <uni-number-box v-model="plan_form.per_pallet_qty" :min="1" />
+            </view>
+        </uni-popup-dialog>
+    </uni-popup>
+    <uni-popup ref="flex_loc_no_dialog" type="dialog">
+        <uni-popup-dialog title="灵活库位" type="error" :show-close="false">
+            <view class="plan-form">
+               <uni-data-select
+                    v-model="plan_form.flex_loc_no"
+                    :localdata="loc_nos.filter(x => x.sp).map(x => {return { value: x.loc_no, text: x.loc_no }})"
+                ></uni-data-select>
             </view>
         </uni-popup-dialog>
     </uni-popup>
@@ -240,6 +266,7 @@
                     decimal_unit: false,
                     op_loc_no: '', // 起点库位(空闲)
                     per_pallet_qty: 2, // 每个库位放置托盘数
+                    flex_loc_no: '', // 灵活库位(独立库位)
                     pallet_infos: [],
                 },
                 step_options: [{ title: '选择物料' }, { title: '填写表单' }, { title: '预览' }, { title: '保存' }],
@@ -319,11 +346,18 @@
                     this.plan_form.pallet_infos.forEach(info => {
                         if (info.per_qty && info.pallet_qty) {
                             for (let i = 0; i < info.pallet_qty; i++) {
-                                if (cur_loc.pallet_infos.length >= this.plan_form.per_pallet_qty) {
-                                    inv_plans_preview.push(cur_loc)
-                                    cur_loc_no = this._next_idle_loc_no(cur_loc_no)
-                                    cur_loc = { loc_no: cur_loc_no, qty: info.per_qty, pallet_infos: [info.per_qty] }
+                                
+                                if (is_loc_no_std_format(cur_loc_no)) {
+                                    if (cur_loc.pallet_infos.length >= this.plan_form.per_pallet_qty) {
+                                        inv_plans_preview.push(cur_loc)
+                                        cur_loc_no = this._next_idle_loc_no(cur_loc_no)
+                                        cur_loc = { loc_no: cur_loc_no, qty: info.per_qty, pallet_infos: [info.per_qty] }
+                                    } else {
+                                        cur_loc.qty += info.per_qty
+                                        cur_loc.pallet_infos.push(info.per_qty)
+                                    }
                                 } else {
+                                    // 独立库位，托盘数无限制
                                     cur_loc.qty += info.per_qty
                                     cur_loc.pallet_infos.push(info.per_qty)
                                 }
@@ -370,6 +404,14 @@
             },
             open_dialog(ref) {
                 this.$refs[ref].open()
+            },
+            op_loc_no_change(e) {
+                // console.log('op_loc_no_change e', e.detail.value.slice(-1)[0])
+                if (!is_loc_no_std_format(e.detail.value.slice(-1)[0]?.value)) {
+                    this.plan_form.per_pallet_qty = 0
+                } else {
+                    this.plan_form.per_pallet_qty ||= 2
+                }
             },
             async load_data(material_no='') {
                 await this.load_invs()
@@ -504,13 +546,14 @@
                 })
                 let loc_nos = []
                 store.state.stock_locs.forEach(x => {
-                    loc_nos.push({ loc_no: x.FNumber, idle: this._is_idle(x.FNumber) })
+                    loc_nos.push({ loc_no: x.FNumber, idle: this._is_idle(x.FNumber), sp: !is_loc_no_std_format(x.FNumber) })
                 })
                 loc_nos.sort((x, y) => x.loc_no < y.loc_no ? -1 : 1)
                 this.loc_nos = loc_nos
             },
             _is_idle(loc_no) {
-                return !this.invs.some(inv => inv['FStockLocId.FNumber'] == loc_no ) && 
+                if (!is_loc_no_std_format(loc_no)) return true // 独立库位，默认闲置
+                return !this.invs.some(inv => inv['FStockLocId.FNumber'] == loc_no ) &&
                 !this.inv_plans.some(inv_plan => inv_plan['FStockLocId.FNumber'] == loc_no) &&
                 !this.inv_plans_ex.some(inv_plan => inv_plan['FStockLocId.FNumber'] == loc_no)
             },
@@ -564,10 +607,10 @@
                             }
                         }
                         
-                        // 3.如果还没有符合条件的，则从头开始获取
+                        // 3.如果还没有符合条件的，则从头开始获取，标准库位
                         if (!op_loc_no) {
                             for (let i = 0; i < _index; i++) {
-                                if (this.loc_nos[i].idle) {
+                                if (this.loc_nos[i].idle && !this.loc_nos[i].sp) {
                                     op_loc_no = this.loc_nos[i].loc_no
                                     break
                                 }
@@ -576,7 +619,7 @@
                     }
                 } else {
                     // 无参考库位，则取[最前，空闲]的库位
-                    op_loc_no = this.loc_nos.filter(x => x.idle)[0]?.loc_no || ''
+                    op_loc_no = this.loc_nos.filter(x => x.idle && !x.sp)[0]?.loc_no || ''
                 }
                 this.plan_form.op_loc_no = op_loc_no
                 console.log('>>> 分配起点库位，结果', op_loc_no)
@@ -584,12 +627,18 @@
             // 获取下一个idle库位
             _next_idle_loc_no(cur_loc_no) {
                 let cur_index = this.loc_nos.findIndex(x => x.loc_no == cur_loc_no)
-                let next_loc_no = this.loc_nos[cur_index + 1]
-                if (!next_loc_no) throw new Error('库位不足')
-                if (next_loc_no.idle) {
-                    return next_loc_no.loc_no
+                let next_obj = this.loc_nos[cur_index + 1]
+                if (!next_obj) {
+                    if (this.plan_form.flex_loc_no) {
+                        return this.plan_form.flex_loc_no // 灵活库位
+                    } else {
+                        throw new Error('库位不足')
+                    }
+                }
+                if (next_obj.idle && !next_obj.sp) {
+                    return next_obj.loc_no
                 } else {
-                    return this._next_idle_loc_no(next_loc_no.loc_no)
+                    return this._next_idle_loc_no(next_obj.loc_no) // next时忽略独立库位
                 }
             },
             // 已计划件数合计（单物料）
