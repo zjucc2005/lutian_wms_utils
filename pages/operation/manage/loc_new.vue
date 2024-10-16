@@ -116,8 +116,8 @@
                             { required: true, errorMessage: '货架编号不能为空' },
                             {
                                 validateFunction: (rule, value, data, callback) => {
-                                    if (value.length > 6) {
-                                        return callback('货架编号不能大于6位')
+                                    if (value.length > 8) {
+                                        return callback('货架编号不能大于8位')
                                     }
                                 }
                             }

@@ -86,10 +86,10 @@
                 } else {
                     uni.showLoading({ title: 'Loading' })
                     get_bd_stocks().then(res => {
+                        uni.hideLoading()
                         store.commit('set_bd_stocks', res.data)
                         this.bd_stocks = res.data
                         this.set_stock_opts()
-                        uni.hideLoading()
                     })
                 }
             },
