@@ -312,10 +312,13 @@
                 }
             },
             material_no_click() {
-                let list = this.outbound_task.outbound_list.filter(x => x.stock_id == store.state.cur_stock.FStockId).map(x => x.material_no)
+                let list = this.outbound_task.outbound_list.
+                filter(x => x.stock_id == store.state.cur_stock.FStockId).
+                map(x => this.plan_form.material_no == x.material_no ? '-> ' + x.material_no : x.material_no)
                 uni.showActionSheet({
                     itemList: list,
                     success: (e) => {
+                        if (list[e.tapIndex].startsWith('->')) return // 当前选中物料不变时，不做操作
                         play_audio_prompt('success')
                         let material_no = list[e.tapIndex]
                         this.set_plan_form(material_no)

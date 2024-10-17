@@ -8,10 +8,10 @@
                     v-for="(group_item, index) in inv_plan_groups"
                     :key="index"
                     :right-text="group_item.created_at"
+                    show-arrow
+                    @click="operate_plan(group_item.bill_no)" clickable
                     >
-                    <!-- show-arrow
-                    @click="operate_plan(group_item.bill_no)" clickable -->
-                    <template v-slot:header>
+<!--                    <template v-slot:header>
                         <view class="uni-list-item__head">
                             <checkbox
                                 :checked="group_item.checked"
@@ -20,7 +20,7 @@
                                 :data-bill_no="group_item.bill_no"
                             />
                         </view>
-                    </template>
+                    </template> -->
                     <template v-slot:body>
                         <view class="uni-list-item__body">
                             <text class="title">{{ group_item.bill_no }}</text>
@@ -102,11 +102,11 @@
                         { icon: 'refreshempty', text: '刷新' }
                     ],
                     admin_button_group: [
-                        {
-                            text: '审核确认',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
-                            color: '#fff'
-                        },
+                        // {
+                        //     text: '审核确认',
+                        //     backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                        //     color: '#fff'
+                        // },
                         {
                             text: '新增出库计划',
                             backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
@@ -141,8 +141,8 @@
                 if (e.index === 0) this.refresh() // btn:刷新
             },
             goods_nav_admin_button_click(e) {
-                if (e.index === 0) this.submit_audit() // btn:扫码
-                if (e.index === 1) this.new_plan() // btn:新建出库计划
+                // if (e.index === 0) this.submit_audit() // btn:扫码
+                if (e.index === 0) this.new_plan() // btn:新建出库计划
             },
             goods_nav_staff_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码

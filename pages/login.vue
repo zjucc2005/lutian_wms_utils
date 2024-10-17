@@ -5,14 +5,28 @@
             <image src="/static/logo-wms.png"></image>
             <view>内销货位</view>
         </view>
-        <uni-forms ref="login_form" :model="login_form"  :rules="login_form_rules" labelWidth="80px">
+        <uni-forms ref="login_form" :model="login_form"  :rules="login_form_rules" labelWidth="60px">
             <uni-forms-item label="仓库" name="stock_id">
                 <uni-data-picker
+                    ref="stock_id_data_picker"
                     v-model="login_form.stock_id"
                     :localdata="stock_opts"
                     @change="handle_stock_change"
                     popup-title="请选择所属仓库"
-                />
+                    class="hidden-data-picker"                    
+                    >
+                    <template v-slot:default>
+                        <view class="custom-data-picker-input">
+                            <text v-if="login_form?.stock_id" class="selected">
+                                {{ selected_stock_info() }}
+                            </text>
+                            <template v-else>
+                                <text class="placeholder">请选择</text>
+                            </template>
+                            <uni-icons type="down" color="#999"></uni-icons>
+                        </view>
+                    </template>
+                </uni-data-picker>
             </uni-forms-item>
             <uni-forms-item label="姓名" name="staff_name">
                 <uni-easyinput v-model="login_form.staff_name" trim="both" />
@@ -114,8 +128,20 @@
                 stock_opts.sort((x, y) => x.value - y.value) // 按组织编号排序
                 this.stock_opts = stock_opts
             },
+            show_stock_opts() {
+                this.$refs.stock_id_data_picker.show()
+            },
             handle_stock_change(e) {
                 this.login_form.org_id = e.detail.value[0]?.value
+            },
+            selected_stock_info() {
+                if (this.login_form.stock_id) {
+                    let bd_stock = store.state.bd_stocks.find(x => x.FStockId === this.login_form.stock_id)
+                    if (!bd_stock) return ''
+                    return [bd_stock['FUseOrgId.FName'], bd_stock['FGroup.FName'], bd_stock.FName].join('\n')
+                } else {
+                    return ''
+                }
             },
             submit_login() {
                 this.$refs.login_form.validate().then(e => {
@@ -151,6 +177,25 @@
         }
         view {
             font-size: $uni-font-size-sm;
+            color: $uni-text-color-grey;
+        }
+    }
+    .custom-data-picker-input {
+        padding: 5px 10px;
+        border: 1px solid #e5e5e5;
+        border-radius: 5px;
+        min-height: 25px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        font-size: $uni-font-size-base;
+        color: $uni-text-color;
+        background-color: #fff;
+        .selected {
+            flex: 1;
+        }
+        .placeholder {
+            flex: 1;
             color: $uni-text-color-grey;
         }
     }

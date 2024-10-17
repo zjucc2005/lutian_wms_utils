@@ -1,6 +1,8 @@
 <template>
     <view v-if="$store.state.role == 'admin'">
-        <uni-section title="入库计划" type="square" class="above-uni-goods-nav">
+        <uni-section title="入库计划" type="square"
+            :sub-title="bill_no"
+            class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
                     v-for="(inv_plan, index) in inv_plans"
@@ -53,7 +55,9 @@
     </view>
     
     <view v-if="$store.state.role == 'staff'">
-        <uni-section title="入库计划" type="square" class="above-uni-goods-nav">
+        <uni-section title="入库计划" type="square"
+            :sub-title="bill_no"
+            class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
                     v-for="(inv_plan, index) in inv_plans"
@@ -184,16 +188,12 @@
                     this.inv_plans.forEach(inv_plan => {
                         inv_plan.checked = false
                         if (store.state.role == 'admin') {
-                            inv_plan.disabled = inv_plan.FDocumentStatu != 'B'
-                            if (inv_plan.FDocumentStatu != 'B') {
-                                inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
-                            } 
+                            inv_plan.disabled = !['A', 'B'].includes(inv_plan.FDocumentStatu)
+                            inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
                         }
                         if (store.state.role == 'staff') {
                             inv_plan.disabled = inv_plan.FDocumentStatu != 'A'
-                            if (inv_plan.FDocumentStatu != 'A') {
-                                inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
-                            }
+                            inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
                         }
                     })
                 })
@@ -204,6 +204,10 @@
                     return
                 }
                 let checked_inv_plans = this.inv_plans.filter(x => x.checked)
+                let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
+                if (save_ids.length) {
+                    await InvPlan.submit(save_ids) // 提交(admin补)
+                }
                 let ids = checked_inv_plans.map(x => x.FID)
                 if (ids.length) {
                     uni.showLoading({ title: 'Loading' })

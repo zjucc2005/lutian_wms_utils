@@ -3,14 +3,14 @@
     import config from '@/config'
 	export default {
 		onLaunch: function() {
-			console.log('App Launch')
+			// console.log('App Launch')
             this.init_store()  // 加载本地存储的数据到store
 		},
 		onShow: function() {
-			console.log('App Show')
+			// console.log('App Show')
 		},
 		onHide: function() {
-			console.log('App Hide')
+			// console.log('App Hide')
 		},
         methods: {
             init_store() {

@@ -53,6 +53,34 @@ const is_loc_no_std_format = (text) => {
     return !!text.match(reg)
 }
 
+// 解析库存号
+// @return { depot: 'NX3', shelf: 'A01', col: 1, row: 1 }
+const parse_loc_no = (loc_no) => {
+    let arr = loc_no.split('-')
+    let res = { depot: arr[0], shelf: arr[1] }
+    if (arr[2]) {
+        res.row = Number(arr[2][0])
+        res.col = Number(arr[2].slice(1))
+    }
+    return res
+}
+// 比较两个库位号排序，优先级, 货架 > 列 > 行
+// @return {-1, 1}
+const compare_loc_no = (loc_no_x, loc_no_y) => {
+    if (loc_no_x == loc_no_y) return 0
+    let x = parse_loc_no(loc_no_x)
+    let y = parse_loc_no(loc_no_y)
+    if (x.depot < y.depot) return -1
+    if (x.depot > y.depot) return 1
+    if (x.shelf < y.shelf) return -1
+    if (x.shelf > y.shelf) return 1
+    if (x.col < y.col) return - 1
+    if (x.col > y.col) return 1
+    if (x.row < y.row) return -1
+    if (x.row > y.row) return 1
+    return 0
+}
+
 /**
  * 判断计量单位是否支持小数
  * @return {Boolean}
@@ -87,5 +115,6 @@ export {
     is_material_no_format,
     is_loc_no_std_format,
     is_decimal_unit,
+    compare_loc_no,
     describe_inv_log
 }

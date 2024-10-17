@@ -13,7 +13,7 @@
                 <uni-list-item
                     v-if="obj.material_no == plan_form.material_no && obj.dest_stock_id == $store.state.cur_stock.FStockId"
                     :right-text="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
-                    @click="handle_material_no_click()" clickable
+                    @click="material_no_click()" clickable
                     >
                     <template v-slot:body>
                         <view class="uni-list-item__body">
@@ -40,7 +40,7 @@
                 :show-extra-icon="true"
                 :extra-icon="{ type: 'list', size: '24', color: '#007bff' }"
                 title="点击选择物料"
-                @click="handle_material_no_click" clickable
+                @click="material_no_click" clickable
             />
         </uni-list>
     </uni-section>
@@ -245,7 +245,7 @@
 <script>
     import store from '@/store'
     import { Inv, InvPlan } from '@/utils/model'
-    import { play_audio_prompt, is_decimal_unit, is_loc_no_std_format } from '@/utils'
+    import { play_audio_prompt, is_decimal_unit, is_loc_no_std_format, compare_loc_no } from '@/utils'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
     // #endif
@@ -303,7 +303,7 @@
         },
         methods: {
             goods_nav_click(e) {
-                if (e.index === 0) this.handle_material_no_click() // btn:选择物料
+                if (e.index === 0) this.material_no_click() // btn:选择物料
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.preview() // btn:预览
@@ -315,16 +315,17 @@
                     }
                 }
             },
-            handle_material_no_click() {
-                console.log('this.$data', this.$data)
-                let list = this.inbound_task.inbound_list.filter(x => x.dest_stock_id == store.state.cur_stock.FStockId).map(x => x.material_no)
+            material_no_click() {
+                let list = this.inbound_task.inbound_list.
+                filter(x => x.dest_stock_id == store.state.cur_stock.FStockId).
+                map(x => this.plan_form.material_no == x.material_no ? '-> ' + x.material_no : x.material_no)
                 uni.showActionSheet({
                     itemList: list,
                     success: (e) => {
+                        if (list[e.tapIndex].startsWith('->')) return // 当前选中物料不变时，不做操作
+                        play_audio_prompt('success')
                         this.plan_form.material_no = list[e.tapIndex]
                         this.init_plan_form(list[e.tapIndex])
-                        // this.load_inv_plans(list[e.tapIndex])
-                        play_audio_prompt('success')
                     }
                 })
             },
@@ -548,7 +549,8 @@
                 store.state.stock_locs.forEach(x => {
                     loc_nos.push({ loc_no: x.FNumber, idle: this._is_idle(x.FNumber), sp: !is_loc_no_std_format(x.FNumber) })
                 })
-                loc_nos.sort((x, y) => x.loc_no < y.loc_no ? -1 : 1)
+                // loc_nos.sort((x, y) => x.loc_no < y.loc_no ? -1 : 1)
+                loc_nos.sort((x, y) => compare_loc_no(x.loc_no, y.loc_no))
                 this.loc_nos = loc_nos
             },
             _is_idle(loc_no) {
