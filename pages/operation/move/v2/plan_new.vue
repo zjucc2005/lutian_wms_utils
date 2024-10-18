@@ -2,13 +2,23 @@
     <view>
         <uni-notice-bar single scrollable text="查询物料编码获取库存信息，然后点击库存明细新增计划" />
         <uni-section title="查询物料编码" type="square">
-            <uni-search-bar
-                v-model="search_form.no"
-                bgColor="#EEEEEE"
-                cancelButton="none"
-                @confirm="handle_search"
-                @clear="handle_search"
-            />
+            <view class="searchbar-container">
+                <uni-easyinput
+                    v-model="search_form.no" 
+                    placeholder="请输入搜索内容"
+                    prefix-icon="scan"
+                    @confirm="handle_search"
+                    @clear="handle_search"
+                    @icon-click="searchbar_icon_click"
+                    primary-color="rgb(238, 238, 238)"
+                    :styles="{
+                        color: '#000',
+                        backgroundColor: 'rgb(238, 238, 238)',
+                        borderColor: 'rgb(238, 238, 238)'
+                    }"
+                />
+            </view>
+            
             <uni-list v-if="material.material_no">
                 <uni-list-item
                     :title="material.material_no"
@@ -64,9 +74,9 @@
         </uni-section>
         
         <uni-section title="库存信息" type="square"
-            v-if="invs.length" 
+            v-if="material.material_no" 
             class="above-uni-goods-nav">
-            <uni-list>
+            <uni-list v-if="invs.length">
                 <template v-for="(inv, index) in invs" :key="index">
                     <uni-list-item
                         :title="inv['FStockLocId.FNumber']"
@@ -86,9 +96,13 @@
                             </view>
                         </template>
                     </uni-list-item>
-                </template>
-                
+                </template>           
             </uni-list>
+            <uni-load-more
+                v-else
+                status="nomore"
+                :content-text="{ contentnomore: '没有相关数据' }"
+            />
         </uni-section>
         
         <view class="uni-goods-nav-wrapper">
@@ -268,6 +282,9 @@
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询
             },
+            searchbar_icon_click(e) {
+                if (e == 'prefix') this.scan_code()
+            },
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
@@ -335,6 +352,7 @@
                     this.inv_plans = []
                     return
                 }
+                this.search_form.no = this.search_form.no.trim()
                 let material_no = this.search_form.no
                 uni.showLoading({ title: 'Loading' })
                 let bd_material = await this.load_material(material_no)

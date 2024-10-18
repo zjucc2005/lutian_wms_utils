@@ -6,7 +6,14 @@
                     :show-extra-icon="true"
                     :extra-icon="{ color: '#dd524d', size: '24', type: 'link' }"
                     title="API调用(代码测试)"
-                    clickable @click="api_call_test()">
+                    clickable @click="call_test_api()">
+                </uni-list-item>
+                
+                <uni-list-item
+                    :show-extra-icon="true"
+                    :extra-icon="{ color: '#dd524d', size: '24', type: 'link' }"
+                    title="删除接口调用(代码测试)"
+                    clickable @click="call_delete_api()">
                 </uni-list-item>
             </uni-list>
             
@@ -155,7 +162,7 @@
                     }
                 })
             },
-            api_call_test() {
+            call_test_api() {
                 console.log('API调用 - 目前无测试代码')
                 // const data = {
                 //     // Number: 'FHTZD074960',
@@ -192,6 +199,19 @@
                     this.after_save(save_res)
                     this.reset_form() // 重置表单
                 })
+            },
+            call_delete_api() {
+                // let form_id = 'PAEZ_C_INV'
+                // let data = {
+                //     Ids: '100023'
+                // }
+                // K3CloudApi.delete(form_id, data)
+                
+                // let form_id = 'PAEZ_C_INV_LOG'
+                // let data = {
+                //     Ids: '100041'
+                // }
+                // K3CloudApi.delete(form_id, data)
             }
         }
     }

@@ -6,10 +6,26 @@
             $store.state.cur_stock['FGroup.FName'] || '未分组',
             $store.state.cur_stock.FName
         ].join(' / ')"
+        class="above-uni-goods-nav"
         >
+        <view class="searchbar-container">
+            <uni-easyinput
+                v-model="search_form.no" 
+                placeholder="请输入搜索内容"
+                prefix-icon="scan"
+                @icon-click="searchbar_icon_click"
+                primary-color="rgb(238, 238, 238)"
+                :styles="{
+                    color: '#000',
+                    backgroundColor: 'rgb(238, 238, 238)',
+                    borderColor: 'rgb(238, 238, 238)'
+                }"
+            />
+        </view>
+        
         <uni-list>
             <uni-list-item
-                v-for="(inv_group, index) in inv_groups"
+                v-for="(inv_group, index) in inv_groups_filtered()"
                 :key="index"
                 :title="inv_group.material_no"
                 :note="[
@@ -48,6 +64,9 @@
                 inv_groups: [],
                 last_refresh_time: 0,
                 refresh_interval: 30 * 1000, // 30s
+                search_form: {
+                    no: ''
+                },
                 goods_nav: {
                     options: [
                         { icon: 'refreshempty', text: '刷新' },
@@ -78,16 +97,21 @@
                 if (e.index === 0) this.scan_code() // btn:扫码
                 if (e.index === 1) this.inv_map() // btn:库存地图
             },
+            searchbar_icon_click(e) {
+                if (e == 'prefix') this.scan_code()
+            },
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
+                    if (res.success == 'true') this.search_form.no = res.result
+                    // uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
                 })
                 // #endif               
                 // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
+                        this.search_form.no = res.result
+                        // uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
                     }
                 })
                 // #endif
@@ -123,6 +147,15 @@
                 }
                 await this.load_invs()
                 this.last_refresh_time = Date.now()
+            },
+            inv_groups_filtered() {
+                let no = this.search_form.no.trim()
+                if (!no) return this.inv_groups
+                return this.inv_groups.filter(inv_group => {
+                    return inv_group.material_no.includes(no) ||
+                    inv_group.material_name.toUpperCase().includes(no.toUpperCase()) ||
+                    inv_group.material_spec.toUpperCase().includes(no.toUpperCase())
+                })
             },
             _set_inv_groups(data) {
                 let inv_groups = []

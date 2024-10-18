@@ -2,14 +2,23 @@
     <view>
         <uni-notice-bar single scrollable text="扫码获取单据中物料清单后，下一步新增计划明细" />
         
-        <uni-section title="查询单据编号" type="square">
-            <uni-search-bar
-                v-model="search_form.bill_no"
-                bg-color="#EEEEEE"
-                cancel-button="none"
-                @confirm="handle_search"
-                @clear="handle_search"
-            />
+        <uni-section title="查询单据编号" type="square" >
+            <view class="searchbar-container">
+                <uni-easyinput
+                    v-model="search_form.bill_no" 
+                    placeholder="请输入搜索内容"
+                    prefix-icon="scan"
+                    @confirm="handle_search"
+                    @clear="handle_search"
+                    @icon-click="searchbar_icon_click"
+                    primary-color="rgb(238, 238, 238)"
+                    :styles="{
+                        color: '#000',
+                        backgroundColor: 'rgb(238, 238, 238)',
+                        borderColor: 'rgb(238, 238, 238)'
+                    }"
+                />
+            </view>
         </uni-section>
         
         <uni-section title="入库物料信息" type="square"
@@ -122,6 +131,9 @@
                 if (e.index === 0) this.scan_code() // btn:扫码查询单据
                 if (e.index === 1) this.new_plan_entry() // btn:新建
             },
+            searchbar_icon_click(e) {
+                if (e == 'prefix') this.scan_code()
+            },
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
@@ -144,7 +156,7 @@
                 this.is_completed = false
                 this.inbound_task = new InboundTask()
                 if (this.search_form.bill_no) {
-                    this.search_form.bill_no = this.search_form.bill_no.trim()
+                    this.search_form.bill_no = this.search_form.bill_no.trim().toUpperCase()
                     await this.load_bill()
                     await this.load_inv_plans()
                 } else {
