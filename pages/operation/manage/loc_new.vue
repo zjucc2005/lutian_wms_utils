@@ -43,6 +43,7 @@
             @close="close_new_dialog"
             @confirm="confirm_new_dialog"
             :beforeClose="true"
+            style="width: 360px;"
             >
             <view class="new-form">
                 <uni-data-checkbox
@@ -315,16 +316,6 @@
                         loc_nos.push(`${depot}-${shelf}-${(i + 1) * 100 + j + 1}`)
                     }
                 }
-                
-                // for (let i = 0; i < col; i++) {
-                //     for (let j = 0; j < row; j++) {
-                //         if (i < 9) {
-                //             loc_nos.push(`${depot}-${shelf}-${j+1}0${i+1}`)
-                //         } else {
-                //             loc_nos.push(`${depot}-${shelf}-${j+1}${i+1}`)
-                //         }
-                //     }
-                // }
                 return loc_nos
             }
         }
@@ -333,6 +324,7 @@
 
 <style lang="scss">
     .new-form {
+        flex: 1;
         .example {
             line-height: 35px;
             font-weight: bold;

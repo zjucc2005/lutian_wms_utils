@@ -25,8 +25,10 @@
                                 <view>批次：{{ inv_plan.FBatchNo }}</view>
                                 <view>
                                     库位：<text class="src_loc_no">{{ inv_plan['FStockLocId.FNumber'] }}</text>
-                                    <uni-icons type="redo" size="20" color="#007bff"></uni-icons> 
-                                    <text class="dest_loc_no uni-ml-2">{{ inv_plan['FDestStockLocId.FNumber'] }}</text>
+                                    <template v-if="inv_plan.FOpType == 'mv'">
+                                        <uni-icons type="redo" size="20" color="#007bff"></uni-icons>
+                                        <text class="dest_loc_no uni-ml-2">{{ inv_plan['FDestStockLocId.FNumber'] }}</text>
+                                    </template>
                                 </view>
                             </view>
                             
@@ -38,7 +40,10 @@
                     <template v-slot:footer>
                         <view class="uni-list-item__foot">
                             <view class="op_qty">
-                                <text class="op_qty">{{ inv_plan['FOpQTY'] }} {{ inv_plan['FStockUnitId.FName'] }}</text>
+                                <text v-if="inv_plan.FOpType == 'mv'" class="text-primary">移动 </text>
+                                <text v-if="inv_plan.FOpType == 'add'" class="text-error">增加 </text>
+                                <text v-if="inv_plan.FOpType == 'sub'" class="text-success">减少 </text>
+                                <text>{{ inv_plan['FOpQTY'] }} {{ inv_plan['FStockUnitId.FName'] }}</text>
                             </view>
                             <text :class="['status', inv_plan.disabled ? 'disabled' : '']">{{ inv_plan.status }}</text>
                         </view>
@@ -188,7 +193,7 @@
                 if (e.index === 0) this.submit_submit() // btn:提交
             },        
             async load_inv_plans() {
-                let options = { FStockId: store.state.cur_stock.FStockId, FOpType: 'mv' }
+                let options = { FStockId: store.state.cur_stock.FStockId, FOpType_in: ['mv', 'add', 'sub'] }
                 if (store.state.role == 'admin') {
                     options.FDocumentStatus_in = ['A', 'B']
                 } else {

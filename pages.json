@@ -71,6 +71,10 @@
             "style":  { "navigationBarTitleText" : "入库 - 新增计划" }
         },
         {
+            "path": "pages/operation/inbound/v2/plan_new_pallet",
+            "style": { "navigationBarTitleText": "入库 - 新增计划（托盘）" }
+        },
+        {
             "path": "pages/operation/inbound/v2/plan_show",
             "style": { "navigationBarTitleText": "入库 - 计划" }
         },
@@ -85,10 +89,6 @@
         {
             "path": "pages/operation/outbound/v2/plan_new_entry",
             "style": { "navigationBarTitleText": "出库 - 新增计划" }
-        },
-        {
-            "path": "pages/operation/inbound/v2/plan_new_pallet",
-            "style": { "navigationBarTitleText": "出库 - 新增计划（托盘）" }
         },
         {
             "path": "pages/operation/outbound/v2/plan_show",

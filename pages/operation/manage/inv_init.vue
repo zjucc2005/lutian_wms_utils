@@ -136,13 +136,6 @@
                 let index = store.state.stock_locs.findIndex(x => x.FNumber == loc_no)
                 return store.state.stock_locs[index + 1]?.FNumber || store.state.stock_locs[0].FNumber
             },
-            // async load_bd_materials() {
-            //     uni.showLoading({ title: 'Loading' })
-            //     return get_all_bd_materials(store.state.cur_stock.FUseOrgId).then(res => {
-            //         uni.hideLoading()
-            //         this.bd_materials = res
-            //     })
-            // },
             // 加载/验证物料编号
             async validate_data() {
                 let is_valid = true

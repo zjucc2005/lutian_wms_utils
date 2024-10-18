@@ -197,7 +197,7 @@ class InvPlan {
      * @return {Hash} Promise
      */
     static async execute(inv_plan) {
-        if (['in', 'out'].includes(inv_plan.FOpType)) {
+        if (['in', 'out', 'add', 'sub'].includes(inv_plan.FOpType)) {
             let options = {
                 FOpType: inv_plan.FOpType,
                 FStockId: inv_plan.FStockId,

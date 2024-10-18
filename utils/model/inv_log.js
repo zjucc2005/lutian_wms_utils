@@ -19,17 +19,28 @@ import K3CloudApi from '@/utils/k3cloudapi';
 class InvLog {
     constructor(options={}) {
         this.FOpSN = store.state.snowflake.next_id()       
-        this.FOpType = options.FOpType  // in, in_cl, out, out_cl, mv_out, mv_in
+        this.FOpType = options.FOpType  // in, in_cl, out, out_cl, mv_in, mv_out, add, sub
         this.FStockId = { FStockId: options.FStockId } 
         this.FStockLocId = { FNumber: options.FStockLocNo } 
         this.FMaterialId = { FMaterialId: options.FMaterialId }
         this.FOpQTY = options.FOpQTY
-        this.FInvIncre = ['in_cl', 'out', 'mv_out'].includes(options.FOpType) ? -options.FOpQTY : options.FOpQTY
+        this.FInvIncre = ['in_cl', 'out', 'mv_out', 'sub'].includes(options.FOpType) ? -options.FOpQTY : options.FOpQTY
         this.FBatchNo = options.FBatchNo
         this.FBillNo = options.FBillNo || ''
         this.FRemark = options.FRemark || ''
         this.FOpStaffNo = options.FOpStaffNo
         this.FReferId = ['in_cl', 'out_cl'].includes(options.FOpType) ? options.FReferId : ''    
+    }
+    
+    static FOpTypeEnum = {
+        in: '入库',           // +
+        in_cl: '入库-取消',   // -
+        out: '出库',          // -
+        out_cl: '出库-取消',  // +
+        mv_in: '移库下架',    // -
+        mv_out: '移库上架',   // +
+        add: '库存批改-增加', // +
+        sub: '库存批改-减少'  // -
     }
     
     /**

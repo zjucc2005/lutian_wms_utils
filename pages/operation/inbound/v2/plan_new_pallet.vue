@@ -277,12 +277,12 @@
                     ],
                     button_group: [
                         {
-                            text: '预览',
-                            backgroundColor: 'linear-gradient(90deg, #FFCD1E, #FF8A18)',
+                            text: '返回',
+                            backgroundColor: 'linear-gradient(90deg, #AAA, #606266)',
                             color: '#fff'
                         },
                         {
-                            text: '保存',
+                            text: '预览',
                             backgroundColor: 'linear-gradient(90deg, #AAA, #606266)',
                             color: '#fff'
                         }
@@ -305,14 +305,19 @@
             goods_nav_click(e) {
                 if (e.index === 0) this.material_no_click() // btn:选择物料
             },
-            goods_nav_button_click(e) {
-                if (e.index === 0) this.preview() // btn:预览
-                if (e.index === 1) {
-                    if (this.step_active === 3) {
-                        this.if_submit_delete() // btn:删除
-                    } else {
-                        this.submit_save() // btn:保存
-                    }
+            goods_nav_button_click(e) { 
+                if (this.step_active === 0) {
+                    if (e.index === 0) uni.navigateBack()
+                    if (e.index === 1) this.preview()
+                } else if (this.step_active === 1) {
+                    if (e.index === 0) uni.navigateBack()
+                    if (e.index === 1) this.preview() // btn:预览
+                } else if (this.step_active === 2) {
+                    if (e.index === 0) this.preview_close()
+                    if (e.index === 1) this.submit_save() // btn:保存
+                } else if (this.step_active === 3) {
+                    if (e.index === 0) uni.navigateBack()
+                    if (e.index === 1) this.if_submit_delete() // btn:删除
                 }
             },
             material_no_click() {
@@ -562,14 +567,24 @@
             // 设定操作步骤，关联步骤条和按键的显示变更
             _activate_step(step) {
                 this.step_active = step
-                this.goods_nav.button_group[0].backgroundColor = 'linear-gradient(90deg, #AAA, #606266)'
-                this.goods_nav.button_group[1].text = '保存'
-                this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #AAA, #606266)'
-                if (step === 1) {
-                    this.goods_nav.button_group[0].backgroundColor = 'linear-gradient(90deg, #FFCD1E, #FF8A18)'
+                if (step === 0) {
+                    this.goods_nav.button_group[0].text = '返回'
+                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #AAA, #606266)'
+                    this.goods_nav.button_group[1].text = '预览'
+                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #AAA, #606266)'
+                } else if (step === 1) {
+                    this.goods_nav.button_group[0].text = '返回'
+                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #AAA, #606266)'
+                    this.goods_nav.button_group[1].text = '预览'
+                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #FFCD1E, #FF8A18)'
                 } else if (step === 2) {
+                    this.goods_nav.button_group[0].text = '返回'
+                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #AAA, #606266)'
+                    this.goods_nav.button_group[1].text = '保存'
                     this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #1E83FF, #0053B8)'
                 } else if (step === 3) {
+                    this.goods_nav.button_group[0].text = '返回'
+                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #AAA, #606266)'
                     this.goods_nav.button_group[1].text = '删除'
                     this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #FE6035, #EF1224)'
                 }

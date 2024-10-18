@@ -9,11 +9,20 @@
 .searchbar-container {
     padding: 10px;
 }
-.text-sm {
-    font-size: 12px;
-    line-height: 16px;
-    color: #333;
+
+.text-primary {
+    color: $uni-color-primary;
 }
+.text-success {
+    color: $uni-color-success;
+}
+.text-warning {
+    color: $uni-color-warning;
+}
+.text-error {
+    color: $uni-color-error;
+}
+
 
 .easyinput-suffix-text {
     color: #666;
