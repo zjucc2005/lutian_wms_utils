@@ -198,10 +198,10 @@
                 })
             },
             async submit_audit() {
-                if (this.inv_plans.find(x => x.FDocumentStatu == 'A')) {
-                    uni.showToast({ icon: 'none', title: '还有未提交的条目' })
-                    return
-                }
+                // if (this.inv_plans.find(x => x.FDocumentStatu == 'A')) {
+                //     uni.showToast({ icon: 'none', title: '还有未提交的条目' })
+                //     return
+                // }
                 let checked_inv_plans = this.inv_plans.filter(x => x.checked)
                 let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
                 if (save_ids.length) {

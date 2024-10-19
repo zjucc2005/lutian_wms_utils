@@ -261,7 +261,7 @@
                             inbound_obj.base_unit_qty += obj.BaseQty // 合同相同物料ID
                         } else {
                             inbound_list.push({
-                                material_id: obj.MaterialId.Id,
+                                material_id: obj.DestMaterialId_Id, // 物料编码，采用调入仓库对应的ID
                                 material_no: obj.MaterialId.Number,
                                 material_name: obj.MaterialId.Name[0]?.Value,
                                 material_spec: obj.MaterialId.Specification[0]?.Value,

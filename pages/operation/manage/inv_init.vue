@@ -52,8 +52,8 @@
                     // { material_no: '3.07.03.15.0014', loc_no: 'XFC-A01-011', qty: 60, batch_no: '20241001' }
                 ],
                 raw_data: 
-                `1.11.0132	10
-                2.02.09.0038	8`,
+                `3.01.01.01.07.0075	133
+                 3.01.01.01.07.0075	179`,
                 goods_nav: {
                     options: [
                         { icon: 'refreshempty', text: '刷新' },
@@ -102,8 +102,8 @@
                 })
             },
             async handle_raw_data() {
-                uni.showToast({ icon: 'none', title: '请联系开发人员' })
-                return
+                // uni.showToast({ icon: 'none', title: '请联系开发人员' })
+                // return
                 let arr = this.raw_data.split('\n').map(x => x.trim())
                 console.log('raw_data', arr)
                 console.log('stock_locs', store.state.stock_locs)

@@ -65,6 +65,7 @@
         </view>
        
         <uni-section type="square" title="当前计划明细"
+            sub-title="左滑计划明细可删除"
             v-if="inv_plans.length"
             :class="op_mode == 'scan' ? 'above-uni-goods-nav' : ''">
             <template v-slot:right>
@@ -153,7 +154,7 @@
         </uni-section>
         
         <view class="uni-goods-nav-wrapper">
-            <uni-goods-nav 
+            <uni-goods-nav
                 :options="goods_nav.options" 
                 :button-group="goods_nav.button_group"
                 @click="goods_nav_click"
@@ -184,7 +185,8 @@
                     remark: '',
                     base_unit: 'Pcs',
                     base_unit_name: 'Pcs',
-                    decimal_unit: false
+                    decimal_unit: false,
+                    is_complete: false
                 },
                 plan_form_rules: {
                     material_no: {
@@ -453,6 +455,9 @@
                             inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
                         }
                     })
+                    let outbound_obj = this.outbound_task.outbound_list.find(x => x.material_no == this.plan_form.material_no)
+                    this.plan_form.is_complete = this._sum_planned_qty() >= outbound_obj.base_unit_qty
+                    this._toggle_save_btn()
                     return res.data
                 })
             },
@@ -475,10 +480,15 @@
                 }
             },
             async submit_save() {
+                console.log('this.$data', this.$data)
+                if (this.plan_form.is_complete) {
+                    uni.showToast({ icon: 'none', title: '计划完毕'})
+                    return
+                }
                 if (this.op_mode == 'check') {
                     let checked_invs = this.invs.filter(inv => inv.checked && inv.checked_qty > 0)
                     if (checked_invs.length == 0) {
-                        uni.showToast({ icon: 'none', title: '选择库存数为0' })
+                        uni.showToast({ icon: 'none', title: '未勾选库存' })
                         return
                     } 
                     uni.showLoading({ title: 'Loading' })
@@ -595,6 +605,13 @@
                     this.plan_form.material_no = ''
                     this.plan_form.base_unit_name = 'Pcs'
                     this.plan_form.decimal_unit = false
+                }
+            },
+            _toggle_save_btn() {
+                if (this.plan_form.is_complete) {
+                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #AAA, #606266)'
+                } else {
+                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #1E83FF, #0053B8)'
                 }
             },
             _sum_checked_qty() {

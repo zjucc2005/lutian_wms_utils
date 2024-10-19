@@ -171,34 +171,10 @@
                 // K3CloudApi.view('SAL_DELIVERYNOTICE', { Number: 'FHTZD074960' }).then(res => {
                 //     console.log('res.data.Result.Result.SAL_DELIVERYNOTICEENTRY', res.data.Result.Result.SAL_DELIVERYNOTICEENTRY)
                 // })
-                K3CloudApi.view('STK_TransferDirect', { Number: 'ZJDB198948' }).then(res => {
-                    console.log('res.data', res.data)
-                })
-                // K3CloudApi.save('PAEZ_C_INV_LOG', { model: { FID: '100232', FRemark: '用save更新成功' }})
-                
-                // const form_id = 'PAEZ_C_INV_LOG'
-                // const data = {
-                //     Ids: '100013'
-                // }
-                // K3CloudApi.delete(form_id, data).then(res => {
+                // K3CloudApi.view('STK_TransferDirect', { Number: 'ZJDB198948' }).then(res => {
+                //     console.log('res.data', res.data)
                 // })
-                // get_bd_material('1.06.08.03.0006', 100007)
-                let inv_log = new InvLog({
-                    FOpType: 'in',
-                    FStockId: store.state.cur_stock.FStockId,
-                    FStockLocNo: 'T-B01-101',
-                    FMaterialId: bd_material.FMaterialId,
-                    FOpQTY: this.mount_form.op_qty * 1,
-                    FBatchNo: this.cur_inbound_task.batch_no,
-                    FBillNo: this.cur_inbound_task.bill_no,
-                    FOpStaffNo: this.cur_staff.FNumber,
-                    FRemark: this.mount_form.remark
-                })
-                inv_log.save().then(save_res => {
-                    play_audio_prompt('success')
-                    this.after_save(save_res)
-                    this.reset_form() // 重置表单
-                })
+                get_bd_material('3.01.01.01.13.0018', store.state.cur_stock.FUseOrgId)
             },
             call_delete_api() {
                 // let form_id = 'PAEZ_C_INV'
