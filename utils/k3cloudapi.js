@@ -427,6 +427,33 @@ const bill_query = async (data) => {
     })
 }
 
+// const compare_dict = {
+//     'str:=': 67,
+//     'int:=': 76,
+//     'str:!=': 83,
+//     'int:!=': 70,
+//     'str:>': 72,
+//     'int:>': 21,
+//     'str:>=': 42,
+//     'int:>=': 65,
+//     'str:<': 44,
+//     'int:<': 36,
+//     'str:<=': 56,
+//     'int:<=': 19
+//     'str:is_null': 100,
+//     'str:is_not_null': 52,
+//     'str:like': 81,
+//     'str:contain': 17,
+//     'str:not_contain': 34,
+//     'str:prefix': 60,
+//     'str:suffix': 211,
+//     'str:in': 338,
+//     'str:not_in': 214,
+//     'str:!=(null)': 501,
+//     'str:not_contain(null)': 502,
+//     'str:not_in(null)': 503     
+// }
+
 const K3CloudApi = {
     conn,
     view,

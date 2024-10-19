@@ -206,11 +206,11 @@
                     this.inv_plans.forEach(inv_plan => {
                         inv_plan.checked = false
                         if (store.state.role == 'admin') {
-                            inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
+                            inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
                         }
                         if (store.state.role == 'staff') {
                             inv_plan.disabled = inv_plan.FDocumentStatu != 'A'
-                            inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
+                            inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
                         }
                     })
                 })

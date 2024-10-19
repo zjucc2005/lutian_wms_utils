@@ -36,6 +36,14 @@ class InvPlan {
         this.FPalletQty = options.FPalletQty
     }
     
+    static FOpTypeEnum = {
+        in:  '入库', // +
+        out: '出库', // -
+        mv:  '移库', // 0
+        add: '增加', // +
+        sub: '减少'  // -
+    }
+    
     /**
      * 保存库存计划（到数据库）
      * @return {Hash} Promise
@@ -120,10 +128,12 @@ class InvPlan {
      *   @field FOpType:String 操作类型
      *   @field FOpType_in:Array[String] 操作类型
      *   @field FStockId:Integer 仓库
-     *   @field FMaterialId.FNumber:String 物料编号
+     *   @field FMaterialId.FNumber(_cont):String 物料编号
+     *   @field FMaterialName(_cont):String 名称
+     *   @field FModel(_cont):String 规格
      *   @field FBatchNo:String 批次号
-     *   @field FBillNo:String 单据编号
-     *   @field FBillNo_ne:String 单据编号
+     *   @field FBillNo(_ne):String 单据编号
+     *   @field FCreateTime_(ge,le):String 
      * @param meta:Hash
      *   @field page:Integer
      *   @field per_page:Integer
@@ -170,6 +180,15 @@ class InvPlan {
         if (options['FMaterialId.FNumber']) {
             data.FilterString.push({ Left: "", FieldName: "FMaterialId.FNumber", Compare: "67", Value: options['FMaterialId.FNumber'], Right: "", Logic: 0 })
         }
+        if (options['FMaterialId.FNumber_cont']) {
+            data.FilterString.push({ Left: "", FieldName: "FMaterialId.FNumber", Compare: "81", Value: options['FMaterialId.FNumber_cont'], Right: "", Logic: 0 })
+        }
+        if (options['FMaterialName_cont']) {
+            data.FilterString.push({ Left: "", FieldName: "FMaterialName", Compare: "81", Value: options['FMaterialName_cont'], Right: "", Logic: 0 })
+        }
+        if (options['FModel_cont']) {
+            data.FilterString.push({ Left: "", FieldName: "FModel", Compare: "81", Value: options['FModel_cont'], Right: "", Logic: 0 })
+        }
         if (options.FBatchNo) {
             data.FilterString.push({ Left: "", FieldName: "FBatchNo", Compare: "67", Value: options.FBatchNo, Right: "", Logic: 0 })
         }
@@ -179,6 +198,13 @@ class InvPlan {
         if (options.FBillNo_ne) {
             data.FilterString.push({ Left: "", FieldName: "FBillNo", Compare: "83", Value: options.FBillNo_ne, Right: "", Logic: 0 })
         }
+        if (options.FCreateTime_ge) {
+            data.FilterString.push({ Left: "", FieldName: "FCreateTime", Compare: "39", Value: options.FCreateTime_ge, Right: "", Logic: 0 })
+        }
+        if (options.FCreateTime_le) {
+            data.FilterString.push({ Left: "", FieldName: "FCreateTime", Compare: "16", Value: options.FCreateTime_le, Right: "", Logic: 0 })
+        }
+        
         if (meta.per_page) {
             data.Limit = meta.per_page
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page

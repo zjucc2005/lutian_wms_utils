@@ -1,7 +1,7 @@
 <template>
     <view>
         <uni-notice-bar single scrollable text="查询物料获取库存信息，然后点击库存明细新增计划" />
-        <uni-section title="查询物料编码" type="square">
+        <uni-section title="查询物料编码" type="square">            
             <view class="searchbar-container">
                 <uni-easyinput
                     v-model="search_form.no" 
@@ -16,7 +16,14 @@
                         backgroundColor: 'rgb(238, 238, 238)',
                         borderColor: 'rgb(238, 238, 238)'
                     }"
+                    class="uni-mb-5"
                 />
+                <uni-data-checkbox multiple
+                    v-model="search_form.ex_cond"
+                    :localdata="[{ text: '只查询成品', value: '3.' }]"
+                    @change="ex_cond_change"
+                    >
+                </uni-data-checkbox>
                 <!-- 搜索候选列表 -->
                 <uni-drawer ref="search_drawer" :width="320">
                     <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
@@ -298,6 +305,7 @@
                 },
                 search_form: {
                     no: '',
+                    ex_cond: uni.getStorageSync('mv_ex_cond') || [], // get
                     selected_material_id: '',
                     candidates: []
                 },
@@ -375,13 +383,16 @@
                if (e.index === 0) this.submit_delete(inv_plan) // btn:删除
             },
             goods_nav_click(e) {
-                // if (e.index === 0) this.preview_cart()
+                if (e.index === 0) console.log('this.$data', this.$data)
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询
             },
             searchbar_icon_click(e) {
                 if (e == 'prefix') this.scan_code()
+            },
+            ex_cond_change(e) {
+                uni.setStorageSync('mv_ex_cond', e.detail.value) // set
             },
             scan_code() {
                 // #ifdef APP-PLUS
@@ -421,7 +432,11 @@
                 this.inv_plans = []
                 if (!this.search_form.no) return
                 this.search_form.no = this.search_form.no.trim()
-                let options = { no: this.search_form.no, FUseOrgId: store.state.cur_stock.FUseOrgId }
+                let options = { 
+                    no: this.search_form.no, 
+                    FUseOrgId: store.state.cur_stock.FUseOrgId,
+                }
+                if (this.search_form.ex_cond.includes('3.')) options.FNumber_pre = '3.'
                 let meta = { per_page: 20, order: 'FMaterialId DESC' }
                 uni.showLoading({ title: 'Loading' })
                 search_bd_materials(options, meta).then(res => {
@@ -527,7 +542,7 @@
                     this.inv_plans = res.data
                     this.inv_plans.forEach(inv_plan => {
                         if (inv_plan.FDocumentStatu != 'A') {
-                            inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
+                            inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
                         }
                     })
                     return res.data

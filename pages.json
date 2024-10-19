@@ -194,6 +194,18 @@
         {
             "path": "pages/operation/statistics/inventory_record",
             "style": { "navigationBarTitleText": "出入库数量统计" }
+        },
+        {
+            "path": "pages/operation/list/index",
+            "style":  { "navigationBarTitleText": "列表" }
+        },
+        {
+            "path": "pages/operation/list/inv_plans",
+            "style": { 
+                "navigationBarTitleText": "列表 - 库存变更计划",
+                "enablePullDownRefresh": true,
+                "onReachBottomDistance": 50
+            }
         }
     ],
     "globalStyle": {

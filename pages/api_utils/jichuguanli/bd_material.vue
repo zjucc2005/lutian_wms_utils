@@ -40,7 +40,7 @@
                     FormId: this.model_name,
                     StartRow: this.per_page * (this.page - 1),
                     Limit: this.per_page,
-                    // FilterString: [{"Left":"","FieldName":"FName","Compare":"17","Value":"罗","Right":"","Logic":0}],
+                    FilterString: [{"Left":"","FieldName":"FNumber","Compare":"67","Value":"1.02.11.02.0001","Right":"","Logic":0}],
                     OrderString: "FMATERIALID DESC"
                 }
                 K3CloudApi.bill_query(params).then(res => {

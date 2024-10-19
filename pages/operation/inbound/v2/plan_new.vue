@@ -125,7 +125,7 @@
         },
         methods: {
             goods_nav_click(e) {
-                // if (e.index === 0) console.log('this.$data', this.$data)
+                if (e.index === 0) console.log('this.$data', this.$data)
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询单据

@@ -61,6 +61,7 @@ const get_bd_material = async (material_no, use_org_id) => {
  * 搜索物料基础数据(模糊匹配)
  * @param options:Hash 参数集
  *   @field no:String 搜索关键字
+ *   @field FNumber_pre:String 编码开头
  *   @field FUseOrgId:Integer 使用组织ID
  * @param meta:Hash 
  *   @field page:Integer
@@ -78,6 +79,9 @@ const search_bd_materials = async (options, meta) => {
             { Left: "", FieldName: "FName", Compare: "81", Value: options.no, Right:"", Logic: 1 },
             { Left: "", FieldName: "FSpecification", Compare: "81", Value: options.no, Right: ")", Logic: 0 }
         ]
+    }
+    if (options.FNumber_pre) {
+        data.FilterString.push({ Left: "", FieldName: "FNumber", Compare: "60", Value: options.FNumber_pre, Right: "", Logic: 0 })
     }
     if (meta.per_page) {
         data.Limit = meta.per_page

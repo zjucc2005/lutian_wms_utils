@@ -37,6 +37,12 @@
                 <text class="grid-item-text">库位管理</text>
             </view>
         </uni-grid-item>
+        <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('list/index')">
+            <view class="grid-item-box">
+                <image src="/static/icon/liebiao.png" mode="widthFix" class="grid-item-icon"></image>
+                <text class="grid-item-text">列表</text>
+            </view>
+        </uni-grid-item>
         <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('statistics/index')">
             <view class="grid-item-box">
                 <image src="/static/icon/tongji.png" mode="widthFix" class="grid-item-icon"></image>

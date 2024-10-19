@@ -26,7 +26,7 @@ const store = createStore({
         bd_stocks: [],             // 基础数据，仓库，bd_开头的数据均采用api获取时的状态，不做数据处理
         stock_locs: [],            // 基础数据，库位，登录时获取，在库位管理处可重新获取（刷新）
         stock_loc_opts: [],        // 基础数据，库位，uni-data-picker 用格式
-        inv_plan_status_dict: { A: '已创建', B: '已提交', C: '已审核' }
+        document_status_dict: { A: '已创建', B: '已提交', C: '已审核' }
     },
     mutations: {
         api_conn(state, conn_info, duration) {

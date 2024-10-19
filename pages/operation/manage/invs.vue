@@ -130,6 +130,7 @@
                 })
             },
             async load_invs() {
+                let t1 = Date.now()
                 const options = {
                     FStockId: store.state.cur_stock.FStockId
                 }
@@ -137,6 +138,7 @@
                 return Inv.get_all(options).then(res => {
                     uni.hideLoading()
                     this.invs = res
+                    console.log('load_invs finished in', (Date.now()-t1)/1000, 's')
                     this._set_inv_groups(res)
                 })
             },

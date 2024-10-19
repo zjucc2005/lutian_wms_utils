@@ -452,7 +452,7 @@
                     this.inv_plans = res.data
                     this.inv_plans.forEach(inv_plan => {
                         if (inv_plan.FDocumentStatu != 'A') {
-                            inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
+                            inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
                         }
                     })
                     let outbound_obj = this.outbound_task.outbound_list.find(x => x.material_no == this.plan_form.material_no)

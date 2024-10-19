@@ -445,7 +445,7 @@
                     this.inv_plans = res.data
                     this.inv_plans.forEach(inv_plan => {
                         if (inv_plan.FDocumentStatu != 'A') {
-                            inv_plan.status = store.state.inv_plan_status_dict[inv_plan.FDocumentStatu]
+                            inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
                         }
                     })
                     // this._set_loc_nos()

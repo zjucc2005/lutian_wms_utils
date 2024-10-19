@@ -184,38 +184,43 @@
                 await this.load_inv_plans()
                 this.last_refresh_time = Date.now()
             },
-            async submit_audit() {
-                // console.log('this.$data', this.$data)
-                let checked_groups = this.inv_plan_groups.filter(x => x.checked)
-                if (checked_groups.length === 0) {
-                    uni.showToast({ icon: 'none', title: '未选择任何条目' })
-                    return
-                }
-                // console.log('checked_groups', checked_groups)
-                for (let i = 0; i < checked_groups.length; i++) {
-                    let checked_inv_plans = this.inv_plans.filter(x => x.FBillNo == checked_groups[i].bill_no)
-                    uni.showLoading({ title: 'Loading' })
-                    let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
-                    if (save_ids.length) {
-                        await InvPlan.submit(save_ids) // 提交(admin补)
-                    }
-                    let ids = checked_inv_plans.map(x => x.FID)
-                    let response = await InvPlan.audit(ids) // 审核确认
-                    if (response.data.Result.ResponseStatus.IsSuccess) {
-                        for (let j = 0; j < checked_inv_plans.length; j++) {
-                            await InvPlan.execute(checked_inv_plans[j])
-                        }
-                        await this.load_inv_plans()
-                        uni.hideLoading()
-                    } else {
-                        uni.hideLoading()
-                        uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
-                    }
-                }
-            },
+            // async submit_audit() {
+            //     let checked_groups = this.inv_plan_groups.filter(x => x.checked)
+            //     if (checked_groups.length === 0) {
+            //         uni.showToast({ icon: 'none', title: '未选择任何条目' })
+            //         return
+            //     }
+            //     for (let i = 0; i < checked_groups.length; i++) {
+            //         let checked_inv_plans = this.inv_plans.filter(x => x.FBillNo == checked_groups[i].bill_no)
+            //         uni.showLoading({ title: 'Loading' })
+            //         let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
+            //         if (save_ids.length) {
+            //             await InvPlan.submit(save_ids) // 提交(admin补)
+            //         }
+            //         let ids = checked_inv_plans.map(x => x.FID)
+            //         let response = await InvPlan.audit(ids) // 审核确认
+            //         if (response.data.Result.ResponseStatus.IsSuccess) {
+            //             for (let j = 0; j < checked_inv_plans.length; j++) {
+            //                 await InvPlan.execute(checked_inv_plans[j])
+            //             }
+            //             await this.load_inv_plans()
+            //             uni.hideLoading()
+            //         } else {
+            //             uni.hideLoading()
+            //             uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
+            //         }
+            //     }
+            // },
             new_plan() {
-                play_audio_prompt('success')
-                uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_new' })
+                uni.showActionSheet({
+                    itemList: ['扫《直接调拨单》', '扫《物料标识卡》', '手工录入'],
+                    success: (e) => {
+                        console.log(e)
+                    }
+                })
+                
+                // play_audio_prompt('success')
+                // uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_new' })
             },
             operate_plan(bill_no) {
                 if (!this.inv_plan_groups.find(x => x.bill_no == bill_no)) {
