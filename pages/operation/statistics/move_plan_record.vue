@@ -1,5 +1,5 @@
 <template>
-    <uni-section title="出入库数量统计" type="square">
+    <uni-section title="库存调整(次数)统计" type="square">
         <qiun-data-charts
             :type="type"
             :opts="opts"
@@ -7,11 +7,12 @@
             ontouch
             />
     </uni-section>
-
+    
     <uni-section title="设置" type="square">
         <view class="container">
             <uni-segmented-control
-                :values="['月视图','周视图', '日视图']"
+                :current="1"
+                :values="['季视图', '月视图', '日视图']"
                 @click-item="segment_click"/>
             
             <!-- <button @click="debug" class="uni-mt-6">DEBUG</button> -->
@@ -49,7 +50,8 @@
                 chart_data: {
                     categories: [],
                     series: []
-                }
+                },
+                
             }
         },
         mounted() {
@@ -58,14 +60,14 @@
         },
         methods: {
             segment_click(e) {
-                if (e.currentIndex === 0) this._set_chart_data_month()
-                if (e.currentIndex === 1) this._set_chart_data_week()
+                if (e.currentIndex === 0) this._set_chart_data_season()
+                if (e.currentIndex === 1) this._set_chart_data_month()
                 if (e.currentIndex === 2) this._set_chart_data_day()
             },
             async load_raw_data() {
                 try {
                     let options = {
-                        FOpType_in: ['in', 'in_cl', 'out', 'out_cl'],
+                        FOpType_in: ['mv_in', 'add', 'sub'],
                         FStockId: store.state.cur_stock.FStockId,
                         FCreateTime_ge: this.stime
                     }
@@ -78,14 +80,67 @@
                     console.log('load_inv_logs err:', err)
                 }
             },
+            // 季视图数据
+            _set_chart_data_season() {
+                this.mode = 'season'
+                let categories = []
+                let sum_data = []
+                let mv_data = []
+                let add_data = []
+                let sub_data = []
+                let syear = this.stime.getFullYear()
+                let smonth = this.stime.getMonth()
+                // 取每季度首月，即 1,4,7,10 月
+                let rem = (smonth + 1) % 3
+                if (rem == 0) smonth = smonth + 1
+                if (rem == 2) smonth = smonth + 2
+                if (smonth > 11) {
+                    syear += 1
+                    smonth -= 12
+                }
+
+                for (let i = 0; i < 4; i++) {
+                    let cur_year = syear
+                    let cur_month = smonth + i * 3
+                    if (cur_month > 11) {
+                        cur_year += 1
+                        cur_month -= 12
+                    }
+                    let cur_time = new Date(cur_year, cur_month, 1)
+                    let next_year = cur_year
+                    let next_month = cur_month + 3
+                    if (next_month > 11) {
+                        next_year += 1
+                        next_month -= 12
+                    }
+                    let next_time = new Date(next_year, next_month, 1)
+                    categories.push(formatDate(cur_time, 'yy.MM'))
+                    sum_data.push(this._sum_op_type('sum', cur_time, next_time))
+                    mv_data.push(this._sum_op_type('mv_in', cur_time, next_time))
+                    add_data.push(this._sum_op_type('add', cur_time, next_time))
+                    sub_data.push(this._sum_op_type('sub', cur_time, next_time))
+                }
+                this.chart_data = {
+                    categories,
+                    series: [
+                        { name: "合计", data: sum_data },
+                        { name: "移库", data: mv_data },
+                        { name: "调增", data: add_data },
+                        { name: "调减", data: sub_data }
+                    ]
+                }
+            },
             // 月视图数据
             _set_chart_data_month() {
                 this.mode = 'month'
                 let categories = []
-                let inbound_data = []
-                let outbound_data = []
+                let sum_data = []
+                let mv_data = []
+                let add_data = []
+                let sub_data = []
                 let syear = this.stime.getFullYear()
                 let smonth = this.stime.getMonth()
+                
                 for (let i = 0; i < 12; i++) {
                     let cur_year = syear
                     let cur_month = smonth + i
@@ -102,42 +157,18 @@
                     }
                     let next_time = new Date(next_year, next_month, 1)
                     categories.push(formatDate(cur_time, 'yy.MM'))
-                    inbound_data.push(this._sum_inbound(cur_time, next_time)) 
-                    outbound_data.push(this._sum_outbound(cur_time, next_time))
+                    sum_data.push(this._sum_op_type('sum', cur_time, next_time))
+                    mv_data.push(this._sum_op_type('mv_in', cur_time, next_time))
+                    add_data.push(this._sum_op_type('add', cur_time, next_time))
+                    sub_data.push(this._sum_op_type('sub', cur_time, next_time))
                 }
                 this.chart_data = {
                     categories,
                     series: [
-                        { name: "入库", data: inbound_data },
-                        { name: "出库", data: outbound_data }
-                    ]
-                }
-            },
-            // 周视图数据, 从周一至周日为一周
-            _set_chart_data_week() {
-                this.mode = 'week'
-                let categories = []
-                let inbound_data = []
-                let outbound_data = []
-                let cur_time = this.stime
-                let wday = cur_time.getDay()
-                if (wday === 1) {
-                    cur_time = Number(cur_time)
-                } else {
-                    cur_time = Number(cur_time) + (8 - wday) * 24 * 3600 * 1000 // 不满一周的数据舍去
-                }
-                while(cur_time < Date.now()) {
-                    let next_time = cur_time + 604800000 // +7day
-                    categories.push(formatDate(cur_time, 'MM.dd'))
-                    inbound_data.push(this._sum_inbound(cur_time, next_time))
-                    outbound_data.push(this._sum_outbound(cur_time, next_time))
-                    cur_time = next_time
-                }
-                this.chart_data = {
-                    categories,
-                    series: [
-                        { name: "入库", data: inbound_data },
-                        { name: "出库", data: outbound_data }
+                        { name: "合计", data: sum_data },
+                        { name: "移库", data: mv_data },
+                        { name: "调增", data: add_data },
+                        { name: "调减", data: sub_data }
                     ]
                 }
             },
@@ -145,40 +176,38 @@
             _set_chart_data_day() {
                 this.mode = 'day'
                 let categories = []
-                let inbound_data = []
-                let outbound_data = []
+                let sum_data = []
+                let mv_data = []
+                let add_data = []
+                let sub_data = []
                 let cur_time = Number(this.stime)
                 while(cur_time < Date.now()) {
                     let next_time = cur_time + 86400000 // +1day
                     categories.push(formatDate(cur_time, 'MM.dd'))
-                    inbound_data.push(this._sum_inbound(cur_time, next_time))
-                    outbound_data.push(this._sum_outbound(cur_time, next_time))
+                    sum_data.push(this._sum_op_type('sum', cur_time, next_time))
+                    mv_data.push(this._sum_op_type('mv_in', cur_time, next_time))
+                    add_data.push(this._sum_op_type('add', cur_time, next_time))
+                    sub_data.push(this._sum_op_type('sub', cur_time, next_time))
                     cur_time = next_time
                 }
                 this.chart_data = {
                     categories,
                     series: [
-                        { name: "入库", data: inbound_data },
-                        { name: "出库", data: outbound_data }
+                        { name: "合计", data: sum_data },
+                        { name: "移库", data: mv_data },
+                        { name: "调增", data: add_data },
+                        { name: "调减", data: sub_data }
                     ]
                 }
             },
-            // 入库计数
-            _sum_inbound(stime, etime) {
+            // 计数
+            _sum_op_type(op_type, stime, etime) {
                 let sum = 0
                 this.raw_data.forEach(x => {
-                    if (['in', 'in_cl'].includes(x[0]) && x[3] >= stime && x[3] < etime) {
-                        sum += x[1]
-                    }
-                })
-                return sum
-            },
-            // 出库计数
-            _sum_outbound(stime, etime) {
-                let sum = 0
-                this.raw_data.forEach(x => {
-                    if (['out', 'out_cl'].includes(x[0]) && x[3] >= stime && x[3] < etime) {
-                        sum -= x[1]
+                    if (op_type == 'sum') {
+                        if (x[3] >= stime && x[3] < etime) sum += 1
+                    } else {
+                        if (x[0] == op_type && x[3] >= stime && x[3] < etime) sum += 1
                     }
                 })
                 return sum
@@ -190,7 +219,6 @@
                 this.stime = new Date(year - 1, month + 1, 1) // GMT+8
             },
             debug(e) {
-                // this.load_data_month(0)
                 console.log('debug', this.$data)
             }
         }

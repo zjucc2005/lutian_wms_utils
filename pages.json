@@ -196,6 +196,10 @@
             "style": { "navigationBarTitleText": "出入库数量统计" }
         },
         {
+            "path": "pages/operation/statistics/move_plan_record",
+            "style": { "navigationBarTitleText" : "库存调整统计" }
+        },
+        {
             "path": "pages/operation/list/index",
             "style":  { "navigationBarTitleText": "列表" }
         },
