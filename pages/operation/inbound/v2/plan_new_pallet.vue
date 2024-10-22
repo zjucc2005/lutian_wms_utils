@@ -23,7 +23,7 @@
                                 <view>规格：{{ obj.material_spec }}</view>
                                 <view>
                                     <uni-icons type="home" color="#999"></uni-icons>
-                                    <text class="src-stock">{{ obj.src_stock_name }}</text>
+                                    <text class="src-stock">{{ obj.src_stock_name || '?' }}</text>
                                     <uni-icons type="redo" color="#007bff" style="margin: 0 5px;"></uni-icons> 
                                     <uni-icons type="home" color="#007bff" ></uni-icons>
                                     <text class="dest-stock">{{ obj.dest_stock_name }}</text>
@@ -244,7 +244,7 @@
 
 <script>
     import store from '@/store'
-    import { Inv, InvPlan } from '@/utils/model'
+    import { InboundTask, Inv, InvPlan } from '@/utils/model'
     import { play_audio_prompt, is_decimal_unit, is_loc_no_std_format, compare_loc_no } from '@/utils'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
@@ -293,8 +293,11 @@
         onLoad(options) {
             const eventChannel = this.getOpenerEventChannel();
             eventChannel.on('sendInboundTask', res => {
-                // console.log('eventChannel.on sendInboundTask', res)
-                this.inbound_task = res.inbound_task
+                if (res.inbound_task) {
+                    this.inbound_task = res.inbound_task
+                } else {
+                    this.inbound_task = InboundTask.current()
+                }
                 this.load_data(res.material_no)
             })
         },
@@ -434,7 +437,7 @@
                     this.invs = res
                 })
             },
-            async load_inv_plans(sync=false) {
+            async load_inv_plans() {
                 uni.showLoading({ title: 'Loading' })
                 return InvPlan.query({ 
                     FStockId: store.state.cur_stock.FStockId,
@@ -448,11 +451,6 @@
                             inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
                         }
                     })
-                    // this._set_loc_nos()
-                    if (sync) {
-                        const eventChannel = this.getOpenerEventChannel()
-                        eventChannel.emit('syncInvPlans', { inv_plans: res.data }) // 同步数据到前一页
-                    }
                 })
             },
             async load_inv_plans_ex() {
@@ -482,7 +480,7 @@
                 uni.hideLoading()
                 if (res.data.Result.ResponseStatus.IsSuccess) {
                     play_audio_prompt('delete')
-                    await this.load_inv_plans(true)
+                    await this.load_inv_plans()
                     this.init_plan_form(this.plan_form.material_no)
                 } else {
                     uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
@@ -499,7 +497,7 @@
                         FOpType: 'in',
                         FStockId: store.state.cur_stock.FStockId,
                         FStockLocNo: item.loc_no,
-                        FMaterialId: obj.material_id,
+                        FMaterialId: obj.material_id, // NOTE
                         FOpQTY: item.qty * 1,
                         FBatchNo: obj.batch_no,
                         FBillNo: this.inbound_task.bill_no,
@@ -511,7 +509,7 @@
                 }
                 uni.hideLoading()
                 play_audio_prompt('success')
-                await this.load_inv_plans(true)
+                await this.load_inv_plans()
                 this._activate_step(3) // save
                 uni.pageScrollTo({ scrollTop: 0 })
             },
@@ -526,6 +524,9 @@
                     this.plan_form.material_no = obj.material_no
                     this.plan_form.base_unit_name = obj.base_unit_name
                     this.plan_form.decimal_unit = is_decimal_unit(obj.base_unit_name)
+                    if (this.inbound_task.category == 'pallet') {
+                        this._set_pallet_infos(material_no)
+                    }
                     this._allocate_op_loc_no(material_no)
                     if (this.inv_plans.some(inv_plan => inv_plan.FMaterialId === obj.material_id)) {
                         this._activate_step(3)
@@ -539,6 +540,22 @@
                     this.plan_form.decimal_unit = false
                     this.plan_form.op_loc_no = ''
                     this._activate_step(0)
+                }
+            },
+            _set_pallet_infos(material_no) {
+                let pallet_infos = []
+                this.inbound_task.pallet_infos.forEach(x => {
+                    if (x.material_no == material_no) {
+                        let pallet_info = pallet_infos.find(info => info.per_qty == x.base_unit_qty)
+                        if (pallet_info) {
+                            pallet_info.pallet_qty += 1
+                        } else {
+                            pallet_infos.push({ per_qty: x.base_unit_qty, pallet_qty: 1 })
+                        }
+                    }
+                })
+                if (pallet_infos.length) {
+                    this.plan_form.pallet_infos = pallet_infos
                 }
             },
             // 设定库位号占用信息 loc_nos: [{ loc_no: String, idle: Boolean }]
@@ -569,24 +586,24 @@
                 this.step_active = step
                 if (step === 0) {
                     this.goods_nav.button_group[0].text = '返回'
-                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #AAA, #606266)'
+                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
                     this.goods_nav.button_group[1].text = '预览'
-                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #AAA, #606266)'
+                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
                 } else if (step === 1) {
                     this.goods_nav.button_group[0].text = '返回'
-                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #AAA, #606266)'
+                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
                     this.goods_nav.button_group[1].text = '预览'
-                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #FFCD1E, #FF8A18)'
+                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.yellow
                 } else if (step === 2) {
                     this.goods_nav.button_group[0].text = '返回'
-                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #AAA, #606266)'
+                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
                     this.goods_nav.button_group[1].text = '保存'
-                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #1E83FF, #0053B8)'
+                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.blue
                 } else if (step === 3) {
                     this.goods_nav.button_group[0].text = '返回'
-                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #AAA, #606266)'
+                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
                     this.goods_nav.button_group[1].text = '删除'
-                    this.goods_nav.button_group[1].backgroundColor = 'linear-gradient(90deg, #FE6035, #EF1224)'
+                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.red
                 }
             },
             // 分配起点库位，基本规则是，相邻优先，同货架优先，如无库存，则从1号库位开始

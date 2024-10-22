@@ -214,7 +214,7 @@
             },
             new_plan() {
                 play_audio_prompt('success')
-                uni.navigateTo({ url: '/pages/operation/outbound/v2/plan_new' })
+                uni.navigateTo({ url: '/pages/operation/outbound/v2/plan_init' })
             },
             operate_plan(bill_no) {
                 if (!this.inv_plan_groups.find(x => x.bill_no == bill_no)) {

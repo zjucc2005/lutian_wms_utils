@@ -85,7 +85,7 @@
 
 <script>
     import store from '@/store'
-    import { InvPlan } from '@/utils/model'
+    import { InboundTask, InvPlan } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     // #ifdef APP-PLUS
@@ -94,6 +94,7 @@
     export default {
         data() {
             return {
+                inbound_task: '',
                 inv_plans: [],
                 inv_plan_groups: [],
                 last_refresh_time: 0,
@@ -110,14 +111,14 @@
                         // },
                         {
                             text: '新增入库计划',
-                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
+                            backgroundColor: store.state.goods_nav_color.blue,
                             color: '#fff'
                         }
                     ],
                     staff_button_group: [
                         {
                             text: '扫码查询',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                            backgroundColor: store.state.goods_nav_color.red,
                             color: '#fff'
                         }
                     ]
@@ -126,6 +127,14 @@
         },
         onShow() {
             this.load_inv_plans()
+            this.inbound_task = InboundTask.current()
+            if (this.inbound_task) {
+                this.goods_nav.admin_button_group[0].text = '编辑入库计划'
+                this.goods_nav.admin_button_group[0].backgroundColor = store.state.goods_nav_color.green
+            } else {
+                this.goods_nav.admin_button_group[0].text = '新增入库计划'
+                this.goods_nav.admin_button_group[0].backgroundColor = store.state.goods_nav_color.blue
+            }
         },
         mounted() {
             // this.load_inv_plans()
@@ -143,7 +152,7 @@
             },
             goods_nav_admin_button_click(e) {
                 // if (e.index === 0) this.submit_audit() // btn:审核确认
-                if (e.index === 0) this.new_plan() // btn:新增入库计划
+                if (e.index === 0) this.init_plan() // btn:初始化入库计划
             },
             goods_nav_staff_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码
@@ -211,16 +220,39 @@
             //         }
             //     }
             // },
-            new_plan() {
-                uni.showActionSheet({
-                    itemList: ['扫《直接调拨单》', '扫《物料标识卡》', '手工录入'],
-                    success: (e) => {
-                        console.log(e)
+            // 如果有当前入库任务，则继续入库任务
+            init_plan() {
+                if (this.inbound_task) {
+                    if (this.inbound_task.category == 'bill') {
+                        play_audio_prompt('success')
+                        uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init' })
+                    } else if (this.inbound_task.category == 'pallet') {
+                        play_audio_prompt('success')
+                        uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init_pallet' })
+                    } else if (this.inbound_task.category == 'custom') {
+                        play_audio_prompt('success')
+                        uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init_custom' })
                     }
-                })
-                
+                } else {
+                    uni.showActionSheet({
+                        itemList: ['扫《直接调拨单》', '扫《物料标识卡》', '手工录入'],
+                        success: (e) => {
+                            console.log(e)
+                            if (e.tapIndex === 0) {
+                                play_audio_prompt('success')
+                                uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init' })
+                            } else if (e.tapIndex === 1) {
+                                play_audio_prompt('success')
+                                uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init_pallet' })
+                            } else if (e.tapIndex === 2) {
+                                play_audio_prompt('success')
+                                uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init_custom' })
+                            }
+                        }
+                    })
+                }
                 // play_audio_prompt('success')
-                // uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_new' })
+                // uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init' })
             },
             operate_plan(bill_no) {
                 if (!this.inv_plan_groups.find(x => x.bill_no == bill_no)) {

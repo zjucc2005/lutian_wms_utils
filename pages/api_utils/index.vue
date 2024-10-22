@@ -183,11 +183,11 @@
                 // }
                 // K3CloudApi.delete(form_id, data)
                 
-                // let form_id = 'PAEZ_C_INV_PLAN'
-                // let data = {
-                //     Ids: '100023'
-                // }
-                // K3CloudApi.delete(form_id, data)
+                let form_id = 'PAEZ_C_INV_PLAN'
+                let data = {
+                    Ids: '100098,100099,100100'
+                }
+                K3CloudApi.delete(form_id, data)
             }
         }
     }

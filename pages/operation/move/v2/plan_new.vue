@@ -1,286 +1,284 @@
 <template>
-    <view>
-        <uni-notice-bar single scrollable text="查询物料获取库存信息，然后点击库存明细新增计划" />
-        <uni-section title="查询物料编码" type="square">            
-            <view class="searchbar-container">
-                <uni-easyinput
-                    v-model="search_form.no" 
-                    placeholder="请输入搜索内容"
-                    prefix-icon="scan"
-                    @confirm="before_search"
-                    @clear="before_search"
-                    @icon-click="searchbar_icon_click"
-                    primary-color="rgb(238, 238, 238)"
-                    :styles="{
-                        color: '#000',
-                        backgroundColor: 'rgb(238, 238, 238)',
-                        borderColor: 'rgb(238, 238, 238)'
-                    }"
-                    class="uni-mb-5"
-                />
-                <uni-data-checkbox multiple
-                    v-model="search_form.ex_cond"
-                    :localdata="[{ text: '只查询成品', value: '3.' }]"
-                    @change="ex_cond_change"
-                    >
-                </uni-data-checkbox>
-                <!-- 搜索候选列表 -->
-                <uni-drawer ref="search_drawer" :width="320">
-                    <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
-                    <uni-section :title="`模糊匹配：${search_form.no}`" type="square"
-                        sub-title="最多展示20条匹配结果"
-                        >
-                        <template v-slot:right>
-                            <view class="uni-section__right">
-                                <uni-icons type="closeempty" size="24" color="#333" @click="$refs.search_drawer.close()"/>
-                            </view>
-                        </template>
-                        <uni-list>
-                            <uni-list-item
-                                v-for="(material, index) in search_form.candidates"
-                                :key="index"
-                                :title="material.FNumber"
-                                :note="[
-                                    `名称：${material.FName}`, 
-                                    `规格：${material.FSpecification}`
-                                ].join('\n')"
-                                @click="handle_search(material.FNumber)" clickable
-                                show-arrow
-                                >
-                            </uni-list-item>
-                        </uni-list>
-                    </uni-section>
-                    </scroll-view>
-                </uni-drawer>
-            </view>
-            
-            <uni-list v-if="material.material_no">
-                <uni-list-item
-                    :title="material.material_no"
-                    :note="[
-                        `名称：${material.material_name}`, 
-                        `规格：${material.material_spec}`
-                    ].join('\n')"
-                />
-            </uni-list>
-        </uni-section>
-        
-        <uni-section title="当前计划明细" type="square"
-            v-if="inv_plans.length">
-            <template v-slot:right>
-                <view class="uni-section__right">
-                    <view >
-                        已计划 <text class="sum_qty">{{ _sum_planned_qty() }}</text> {{ material.base_unit_name }}
-                    </view>
-                </view>
-            </template>
-            <uni-swipe-action ref="inv_plan_swipe">
-                <uni-swipe-action-item
-                    v-for="(inv_plan, index) in inv_plans"
-                    :key="index"
-                    :threshold="60"
-                    :right-options="swipe_options"
-                    @click="swipe_action_click($event, inv_plan)"
-                    >
-                    <uni-list-item>
-                        <template v-slot:body>
-                            <view class="uni-list-item__body">
-                                <view class="title">
-                                    {{ inv_plan['FStockLocId.FNumber'] }}
-                                    <template v-if="inv_plan.FOpType == 'mv'">
-                                        <uni-icons type="redo" size="20" color="#007aff"></uni-icons>
-                                        {{ inv_plan['FDestStockLocId.FNumber'] }}
-                                    </template>
-                                </view>
-                                <view class="note">
-                                    <view>批次：{{ inv_plan.FBatchNo }}</view>
-                                    <view v-if="inv_plan.FRemark?.trim()">备注：{{ inv_plan.FRemark }}</view>
-                                </view>
-                            </view>
-                        </template>
-                        
-                        <template v-slot:footer>
-                            <view class="uni-list-item__foot">
-                                <view class="op_qty">
-                                    <text v-if="inv_plan.FOpType == 'mv'" class="text-primary">移动 </text>
-                                    <text v-if="inv_plan.FOpType == 'add'" class="text-error">增加 </text>
-                                    <text v-if="inv_plan.FOpType == 'sub'" class="text-success">减少 </text>
-                                    <text>{{ inv_plan.FOpQTY }} {{ inv_plan['FStockUnitId.FName'] }}</text>
-                                </view>
-                                <text class="status">{{ inv_plan.status }}</text>
-                            </view>
-                        </template>
-                    </uni-list-item>
-                </uni-swipe-action-item>
-            </uni-swipe-action>
-        </uni-section>
-        
-        <uni-section title="库存信息" type="square"
-            v-if="material.material_no" 
-            class="above-uni-goods-nav">
-            <uni-list v-if="invs.length">
-                <template v-for="(inv, index) in invs" :key="index">
-                    <uni-list-item
-                        :title="inv['FStockLocId.FNumber']"
-                        :note="`批次：${inv['FBatchNo']}`"
-                        :rightText="[inv['FQty'], inv['FStockUnitId.FName']].join(' ')"
-                        @click="open_move_dialog(inv)" clickable
-                        showArrow
-                        :show-extra-icon="true"
-                        :extra-icon="{ type: 'location', size: '24' }">
-                        
-                        <template v-slot:footer>
-                            <view class="uni-list-item__foot">
-                                <text class="op_qty">
-                                    <template v-if="inv.planned_qty">({{ inv.FQty - inv.planned_qty }})</template>
-                                    {{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}
-                                </text>
-                            </view>
-                        </template>
-                    </uni-list-item>
-                </template>           
-            </uni-list>
-            <uni-load-more
-                v-else
-                status="nomore"
-                :content-text="{ contentnomore: '没有相关数据' }"
+    <uni-notice-bar single scrollable text="查询物料获取库存信息，然后点击库存明细新增计划" />
+    <uni-section title="查询物料编码" type="square">            
+        <view class="searchbar-container">
+            <uni-easyinput
+                v-model="search_form.no" 
+                placeholder="请输入搜索内容"
+                prefix-icon="scan"
+                @confirm="before_search"
+                @clear="before_search"
+                @icon-click="searchbar_icon_click"
+                primary-color="rgb(238, 238, 238)"
+                :styles="{
+                    color: '#000',
+                    backgroundColor: 'rgb(238, 238, 238)',
+                    borderColor: 'rgb(238, 238, 238)'
+                }"
+                class="uni-mb-5"
             />
-        </uni-section>
-        
-        <view class="uni-goods-nav-wrapper">
-            <uni-goods-nav 
-                :options="goods_nav.options" 
-                :button-group="goods_nav.button_group"
-                @click="goods_nav_click"
-                @buttonClick="goods_nav_button_click"
-            />
+            <uni-data-checkbox multiple
+                v-model="search_form.ex_cond"
+                :localdata="[{ text: '只查询成品', value: '3.' }]"
+                @change="ex_cond_change"
+                >
+            </uni-data-checkbox>
+            <!-- 搜索候选列表 -->
+            <uni-drawer ref="search_drawer" :width="320">
+                <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
+                <uni-section :title="`模糊匹配：${search_form.no}`" type="square"
+                    sub-title="最多展示20条匹配结果"
+                    >
+                    <template v-slot:right>
+                        <view class="uni-section__right">
+                            <uni-icons type="closeempty" size="24" color="#333" @click="$refs.search_drawer.close()"/>
+                        </view>
+                    </template>
+                    <uni-list>
+                        <uni-list-item
+                            v-for="(material, index) in search_form.candidates"
+                            :key="index"
+                            :title="material.FNumber"
+                            :note="[
+                                `名称：${material.FName}`, 
+                                `规格：${material.FSpecification}`
+                            ].join('\n')"
+                            @click="handle_search(material.FNumber)" clickable
+                            show-arrow
+                            >
+                        </uni-list-item>
+                    </uni-list>
+                </uni-section>
+                </scroll-view>
+            </uni-drawer>
         </view>
         
-        <uni-popup ref="move_dialog" type="dialog">
-            <uni-popup-dialog
-                type="error"
-                title="调整计划"
-                cancelText="关闭"
-                :confirmText="move_dialog.confirm_text"
-                @close="close_move_dialog"
-                @confirm="confirm_move_dialog"
-                :beforeClose="true"
-                style="width: 360px;"
-                >
-                <view class="move-form">
-                    <uni-data-checkbox
-                        v-model="move_form.type" 
-                        :localdata="[
-                            { text: '转移库位', value: 'move' },
-                            { text: '调整数量', value: 'edit' }
-                        ]"
-                        class="uni-mb-10"
-                        >
-                    </uni-data-checkbox>
-                    <uni-forms ref="move_form" :model="move_form" :rules="move_form_rules">
-                        <template v-if="move_form.type == 'move'">
-                            <uni-row>
-                                <uni-col :span="8" class="move-form-left">
-                                    {{ move_form.inv['FStockLocId.FNumber'] || '-' }}                            
-                                </uni-col>
-                                <uni-col :span="4" class="move-form-center">
-                                    <uni-icons type="redo" :size="20" color="#007bff"></uni-icons>
-                                </uni-col>
-                                <uni-col :span="12" class="move-form-right">
-                                    <uni-forms-item name="dest_loc_no">
-                                        <uni-data-picker
-                                            v-model="move_form.dest_loc_no"
-                                            :localdata="$store.state.stock_loc_opts"
-                                            split="-"
-                                            popup-title="请选择库位"
-                                        />
-                                    </uni-forms-item>
-                                </uni-col>
-                            </uni-row>
-                            <uni-row>
-                                <uni-col :span="8" class="move-form-left">
-                                    {{ move_form.inv['FBatchNo'] || '-' }}
-                                </uni-col>
-                                <uni-col :span="4" class="move-form-center">
-                                    <uni-icons type="redo" :size="20" color="#007bff"></uni-icons>
-                                </uni-col>
-                                <uni-col :span="12" class="move-form-right">
-                                    {{ move_form.inv['FBatchNo'] }}
-                                </uni-col>
-                            </uni-row>
-                            <uni-row>
-                                <uni-col :span="8" class="move-form-left">
-                                    <text>{{ move_form.inv.FQty - move_form.inv.planned_qty || '-' }}</text>
-                                    <text v-if="move_form.op_qty" class="moving-qty"> - {{ move_form.op_qty }}</text>
-                                </uni-col>
-                                <uni-col :span="4" class="move-form-center">
-                                    <uni-icons type="redo" :size="20" color="#007bff"></uni-icons>
-                                </uni-col>
-                                <uni-col :span="12" class="move-form-right">   
-                                    <uni-forms-item name="op_qty" style="padding-top: 5px; line-height: 25px;">
-                                        <template v-slot:label>
-                                            <view></view><!-- 取消label高度限制 -->
-                                        </template>
-                                        <uni-number-box 
-                                            v-model="move_form.op_qty"
-                                            :min="0"
-                                            :max="move_form.inv.FQty - move_form.inv.planned_qty"
-                                            :width="60"
-                                        />
-                                    </uni-forms-item>
-                                </uni-col>
-                            </uni-row>
-                        </template>
-                        
-                        <template v-if="move_form.type == 'edit'">
-                            <uni-row>
-                                <uni-col :span="8" class="move-form-left">
-                                    {{ move_form.inv['FStockLocId.FNumber'] || '-' }}                            
-                                </uni-col>
-                            </uni-row>
-                            <uni-row>
-                                <uni-col :span="8" class="move-form-left">
-                                    {{ move_form.inv['FBatchNo'] || '-' }}
-                                </uni-col>
-                            </uni-row>
-                            <uni-row>
-                                <uni-col :span="8" class="move-form-left">
-                                    <text>{{ move_form.inv.FQty - move_form.inv.planned_qty || '-' }}</text>
-                                    <text v-if="move_form.edit_qty > move_form.inv.FQty" class="moving-qty"> 
-                                    + {{ move_form.edit_qty - move_form.inv.FQty }}
-                                    </text>
-                                    <text v-if="move_form.edit_qty < move_form.inv.FQty" class="moving-qty">
-                                    - {{ move_form.inv.FQty - move_form.edit_qty }}
-                                    </text>
-                                </uni-col>
-                                <uni-col :span="4" class="move-form-center">
-                                    <uni-icons type="redo" :size="20" color="#007bff"></uni-icons>
-                                </uni-col>
-                                <uni-col :span="12" class="move-form-right">   
-                                    <uni-forms-item name="edit_qty" style="padding-top: 5px; line-height: 25px;">
-                                        <template v-slot:label>
-                                            <view></view><!-- 取消label高度限制 -->
-                                        </template>
-                                        <uni-number-box 
-                                            v-model="move_form.edit_qty"
-                                            :min="0"
-                                            :width="60"
-                                        />
-                                    </uni-forms-item>
-                                </uni-col>
-                            </uni-row>
-                        </template>
-                        
-                        <uni-row>
-                            <uni-forms-item label="备注" name="remark" label-width="40px" style="margin-bottom: 0;">
-                                <uni-easyinput v-model="move_form.remark" type="textarea" auto-height trim="both" />
-                            </uni-forms-item>
-                        </uni-row>
-                    </uni-forms>
+        <uni-list v-if="material.material_no">
+            <uni-list-item
+                :title="material.material_no"
+                :note="[
+                    `名称：${material.material_name}`, 
+                    `规格：${material.material_spec}`
+                ].join('\n')"
+            />
+        </uni-list>
+    </uni-section>
+    
+    <uni-section title="当前计划明细" type="square"
+        v-if="inv_plans.length">
+        <template v-slot:right>
+            <view class="uni-section__right">
+                <view >
+                    已计划 <text class="sum_qty">{{ _sum_planned_qty() }}</text> {{ material.base_unit_name }}
                 </view>
-            </uni-popup-dialog>
-        </uni-popup>
+            </view>
+        </template>
+        <uni-swipe-action ref="inv_plan_swipe">
+            <uni-swipe-action-item
+                v-for="(inv_plan, index) in inv_plans"
+                :key="index"
+                :threshold="60"
+                :right-options="swipe_options"
+                @click="swipe_action_click($event, inv_plan)"
+                >
+                <uni-list-item>
+                    <template v-slot:body>
+                        <view class="uni-list-item__body">
+                            <view class="title">
+                                {{ inv_plan['FStockLocId.FNumber'] }}
+                                <template v-if="inv_plan.FOpType == 'mv'">
+                                    <uni-icons type="redo" size="20" color="#007aff"></uni-icons>
+                                    {{ inv_plan['FDestStockLocId.FNumber'] }}
+                                </template>
+                            </view>
+                            <view class="note">
+                                <view>批次：{{ inv_plan.FBatchNo }}</view>
+                                <view v-if="inv_plan.FRemark?.trim()">备注：{{ inv_plan.FRemark }}</view>
+                            </view>
+                        </view>
+                    </template>
+                    
+                    <template v-slot:footer>
+                        <view class="uni-list-item__foot">
+                            <view class="op_qty">
+                                <text v-if="inv_plan.FOpType == 'mv'" class="text-primary">移动 </text>
+                                <text v-if="inv_plan.FOpType == 'add'" class="text-error">增加 </text>
+                                <text v-if="inv_plan.FOpType == 'sub'" class="text-success">减少 </text>
+                                <text>{{ inv_plan.FOpQTY }} {{ inv_plan['FStockUnitId.FName'] }}</text>
+                            </view>
+                            <text class="status">{{ inv_plan.status }}</text>
+                        </view>
+                    </template>
+                </uni-list-item>
+            </uni-swipe-action-item>
+        </uni-swipe-action>
+    </uni-section>
+    
+    <uni-section title="库存信息" type="square"
+        v-if="material.material_no" 
+        class="above-uni-goods-nav">
+        <uni-list v-if="invs.length">
+            <template v-for="(inv, index) in invs" :key="index">
+                <uni-list-item
+                    :title="inv['FStockLocId.FNumber']"
+                    :note="`批次：${inv['FBatchNo']}`"
+                    :rightText="[inv['FQty'], inv['FStockUnitId.FName']].join(' ')"
+                    @click="open_move_dialog(inv)" clickable
+                    showArrow
+                    :show-extra-icon="true"
+                    :extra-icon="{ type: 'location', size: '24' }">
+                    
+                    <template v-slot:footer>
+                        <view class="uni-list-item__foot">
+                            <text class="op_qty">
+                                <template v-if="inv.planned_qty">({{ inv.FQty - inv.planned_qty }})</template>
+                                {{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}
+                            </text>
+                        </view>
+                    </template>
+                </uni-list-item>
+            </template>           
+        </uni-list>
+        <uni-load-more
+            v-else
+            status="nomore"
+            :content-text="{ contentnomore: '没有相关数据' }"
+        />
+    </uni-section>
+    
+    <view class="uni-goods-nav-wrapper">
+        <uni-goods-nav 
+            :options="goods_nav.options" 
+            :button-group="goods_nav.button_group"
+            @click="goods_nav_click"
+            @buttonClick="goods_nav_button_click"
+        />
     </view>
+    
+    <uni-popup ref="move_dialog" type="dialog">
+        <uni-popup-dialog
+            type="error"
+            title="调整计划"
+            cancelText="关闭"
+            :confirmText="move_dialog.confirm_text"
+            @close="close_move_dialog"
+            @confirm="confirm_move_dialog"
+            :beforeClose="true"
+            style="width: 360px;"
+            >
+            <view class="move-form">
+                <uni-data-checkbox
+                    v-model="move_form.type" 
+                    :localdata="[
+                        { text: '转移库位', value: 'move' },
+                        { text: '调整数量', value: 'edit' }
+                    ]"
+                    class="uni-mb-10"
+                    >
+                </uni-data-checkbox>
+                <uni-forms ref="move_form" :model="move_form" :rules="move_form_rules">
+                    <template v-if="move_form.type == 'move'">
+                        <uni-row>
+                            <uni-col :span="8" class="move-form-left">
+                                {{ move_form.inv['FStockLocId.FNumber'] || '-' }}                            
+                            </uni-col>
+                            <uni-col :span="4" class="move-form-center">
+                                <uni-icons type="redo" :size="20" color="#007bff"></uni-icons>
+                            </uni-col>
+                            <uni-col :span="12" class="move-form-right">
+                                <uni-forms-item name="dest_loc_no">
+                                    <uni-data-picker
+                                        v-model="move_form.dest_loc_no"
+                                        :localdata="$store.state.stock_loc_opts"
+                                        split="-"
+                                        popup-title="请选择库位"
+                                    />
+                                </uni-forms-item>
+                            </uni-col>
+                        </uni-row>
+                        <uni-row>
+                            <uni-col :span="8" class="move-form-left">
+                                {{ move_form.inv['FBatchNo'] || '-' }}
+                            </uni-col>
+                            <uni-col :span="4" class="move-form-center">
+                                <uni-icons type="redo" :size="20" color="#007bff"></uni-icons>
+                            </uni-col>
+                            <uni-col :span="12" class="move-form-right">
+                                {{ move_form.inv['FBatchNo'] }}
+                            </uni-col>
+                        </uni-row>
+                        <uni-row>
+                            <uni-col :span="8" class="move-form-left">
+                                <text>{{ move_form.inv.FQty - move_form.inv.planned_qty || '-' }}</text>
+                                <text v-if="move_form.op_qty" class="moving-qty"> - {{ move_form.op_qty }}</text>
+                            </uni-col>
+                            <uni-col :span="4" class="move-form-center">
+                                <uni-icons type="redo" :size="20" color="#007bff"></uni-icons>
+                            </uni-col>
+                            <uni-col :span="12" class="move-form-right">   
+                                <uni-forms-item name="op_qty" style="padding-top: 5px; line-height: 25px;">
+                                    <template v-slot:label>
+                                        <view></view><!-- 取消label高度限制 -->
+                                    </template>
+                                    <uni-number-box 
+                                        v-model="move_form.op_qty"
+                                        :min="0"
+                                        :max="move_form.inv.FQty - move_form.inv.planned_qty"
+                                        :width="60"
+                                    />
+                                </uni-forms-item>
+                            </uni-col>
+                        </uni-row>
+                    </template>
+                    
+                    <template v-if="move_form.type == 'edit'">
+                        <uni-row>
+                            <uni-col :span="8" class="move-form-left">
+                                {{ move_form.inv['FStockLocId.FNumber'] || '-' }}                            
+                            </uni-col>
+                        </uni-row>
+                        <uni-row>
+                            <uni-col :span="8" class="move-form-left">
+                                {{ move_form.inv['FBatchNo'] || '-' }}
+                            </uni-col>
+                        </uni-row>
+                        <uni-row>
+                            <uni-col :span="8" class="move-form-left">
+                                <text>{{ move_form.inv.FQty - move_form.inv.planned_qty || '-' }}</text>
+                                <text v-if="move_form.edit_qty > move_form.inv.FQty" class="moving-qty"> 
+                                + {{ move_form.edit_qty - move_form.inv.FQty }}
+                                </text>
+                                <text v-if="move_form.edit_qty < move_form.inv.FQty" class="moving-qty">
+                                - {{ move_form.inv.FQty - move_form.edit_qty }}
+                                </text>
+                            </uni-col>
+                            <uni-col :span="4" class="move-form-center">
+                                <uni-icons type="redo" :size="20" color="#007bff"></uni-icons>
+                            </uni-col>
+                            <uni-col :span="12" class="move-form-right">   
+                                <uni-forms-item name="edit_qty" style="padding-top: 5px; line-height: 25px;">
+                                    <template v-slot:label>
+                                        <view></view><!-- 取消label高度限制 -->
+                                    </template>
+                                    <uni-number-box 
+                                        v-model="move_form.edit_qty"
+                                        :min="0"
+                                        :width="60"
+                                    />
+                                </uni-forms-item>
+                            </uni-col>
+                        </uni-row>
+                    </template>
+                    
+                    <uni-row>
+                        <uni-forms-item label="备注" name="remark" label-width="40px" style="margin-bottom: 0;">
+                            <uni-easyinput v-model="move_form.remark" type="textarea" auto-height trim="both" />
+                        </uni-forms-item>
+                    </uni-row>
+                </uni-forms>
+            </view>
+        </uni-popup-dialog>
+    </uni-popup>
 </template>
 
 <script>

@@ -2,7 +2,7 @@
     <view>
         <uni-notice-bar single scrollable text="扫码获取单据中物料清单后，下一步新增计划明细" />
         
-        <uni-section title="查询单据编号" type="square" >
+        <uni-section title="查询单据编号" type="square">
             <view class="searchbar-container">
                 <uni-easyinput
                     v-model="search_form.bill_no" 
@@ -21,18 +21,18 @@
             </view>
         </uni-section>
         
-        <uni-section title="入库物料信息" type="square"
-            v-if="inbound_task.inbound_list?.length" 
+        <uni-section title="出库物料信息" type="square"
+            v-if="outbound_task.outbound_list?.length"
             class="above-uni-goods-nav"
             >
             <uni-list>
                 <uni-list-item
-                    v-for="(obj, index) in inbound_task.inbound_list"
+                    v-for="(obj, index) in outbound_task.outbound_list"
                     :key="index"
-                    @click="new_plan_entry(obj.material_no)"
-                    :clickable="obj.dest_stock_id == $store.state.cur_stock.FStockId"
-                    :disabled="obj.dest_stock_id != $store.state.cur_stock.FStockId"
                     show-arrow
+                    @click="new_plan(obj.material_no)"
+                    :clickable="obj.stock_id == $store.state.cur_stock.FStockId"
+                    :disabled="obj.stock_id != $store.state.cur_stock.FStockId"
                     >
                     <template v-slot:body>
                         <view class="uni-list-item__body">
@@ -41,13 +41,9 @@
                                 <view>名称：{{ obj.material_name }}</view> 
                                 <view>规格：{{ obj.material_spec }}</view>
                                 <view>
-                                    <uni-icons type="home" color="#999"></uni-icons>
-                                    <text class="src-stock">{{ obj.src_stock_name }}</text>
-                                    <uni-icons type="redo" color="#007bff" style="margin: 0 5px;"></uni-icons> 
-                                    <uni-icons type="home" color="#007bff" ></uni-icons>
-                                    <text class="dest-stock">{{ obj.dest_stock_name }}</text>
+                                    <uni-icons type="home" color="#007bff"></uni-icons>
+                                    <text class="stock">{{ obj.stock_name }}</text> 
                                 </view>
-                                <view>批次：{{ obj.batch_no }}</view>
                             </view>
                         </view>
                     </template>
@@ -75,7 +71,7 @@
             />
         </view>
         
-        <cover-image 
+        <cover-image
             v-if="is_completed" 
             src="/static/icon/yiwancheng_stamp.png"
             class="cover-image">
@@ -85,9 +81,8 @@
 
 <script>
     import store from '@/store'
-    import { InboundTask, InvPlan } from '@/utils/model'
-    import { get_transfer_direct } from '@/utils/api'
-    import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+    import { OutboundTask, InvPlan } from '@/utils/model'
+    import { get_sal_deliverynotice } from '@/utils/api'
     import { play_audio_prompt } from '@/utils'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
@@ -95,8 +90,8 @@
     export default {
         data() {
             return {
+                outbound_task: {},
                 inv_plans: [],
-                inbound_task: {},
                 search_form: {
                     bill_no: ''
                 },
@@ -121,7 +116,7 @@
             }
         },
         mounted() {
-            this.inbound_task = new InboundTask()
+            this.outbound_task = new OutboundTask()
         },
         methods: {
             goods_nav_click(e) {
@@ -129,7 +124,7 @@
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询单据
-                if (e.index === 1) this.new_plan_entry() // btn:新建
+                if (e.index === 1) this.new_plan() // btn:新增计划明细
             },
             searchbar_icon_click(e) {
                 if (e == 'prefix') this.scan_code()
@@ -154,7 +149,7 @@
             },
             async handle_search(e) {
                 this.is_completed = false
-                this.inbound_task = new InboundTask()
+                this.outbound_task = new OutboundTask()
                 if (this.search_form.bill_no) {
                     this.search_form.bill_no = this.search_form.bill_no.trim().toUpperCase()
                     await this.load_bill()
@@ -165,27 +160,29 @@
             },
             async load_bill() {
                 let bill_no = this.search_form.bill_no
-                if (bill_no.startsWith('ZJDB')) { // 直接调拨单
+                if (bill_no.startsWith('FHTZD')) { // 发货通知单
                     uni.showLoading({ title: 'Loading' })
-                    return get_transfer_direct(bill_no).then(res => {
+                    return get_sal_deliverynotice(bill_no).then(res => {
                         uni.hideLoading()
-                        this._handle_zjdbd_data(res)
+                        this._handle_fhtzd_data(res)
                     }).catch(err => {
                         uni.showToast({ icon: 'none', title: err })
                     })
                 } else {
-                    this.inbound_task = new InboundTask()
+                    this.outbound_task = new OutboundTask()
                     uni.showToast({ icon: 'none', title: '未找到单据信息' })
                 }
             },
             async load_inv_plans() {
                 let bill_no = this.search_form.bill_no
-                if (bill_no.startsWith('ZJDB')) {
+                if (bill_no.startsWith('FHTZD')) {
+                    uni.showLoading({ title: 'Loading' })
                     return InvPlan.query({
                         FStockId: store.state.cur_stock.FStockId,
                         FBillNo: bill_no,
-                        FOpType: 'in',
+                        FOpType: 'out',
                     }, {}).then(res => { 
+                        uni.hideLoading()
                         this.inv_plans = res.data
                         this._calc_progress(res.data) // 判定计划比率和是否已完成
                     })
@@ -193,12 +190,12 @@
                     this.inv_plans = []
                 }
             },
-            new_plan_entry(material_no) {
+            new_plan(material_no) {
                 if (!this.search_form.bill_no) {
                     uni.showToast({ icon: 'none', title: '单据编号不能为空' })
                     return
                 }
-                if (this.inbound_task.inbound_list.length == 0) {
+                if (this.outbound_task.outbound_list.length == 0) {
                     uni.showToast({ icon: 'none', title: '未找到单据信息' })
                     return
                 }
@@ -207,21 +204,16 @@
                     return
                 }
                 uni.navigateTo({
-                    url: '/pages/operation/inbound/v2/plan_new_pallet',
+                    url: '/pages/operation/outbound/v2/plan_new',
                     events: {
                         reloadInvPlans: function(data) {
-                            console.log('>>> 重载数据event:reloadInvPlans')
+                            console.log('<<< 重载数据event:reloadInvPlans')
                             this.load_inv_plans()
-                        },
-                        syncInvPlans: (data) => {
-                            console.log('>>> 同步数据event:syncInvPlans')
-                            this.inv_plans = data.inv_plans
-                            this._calc_progress(data.inv_plans)
                         }
                     },
                     success: (res) => {
                         play_audio_prompt('success')
-                        res.eventChannel.emit('sendInboundTask', { inbound_task: this.inbound_task, material_no: material_no })
+                        res.eventChannel.emit('sendOutboundTask', { outbound_task: this.outbound_task, material_no: material_no })
                     }
                 })
             },
@@ -235,54 +227,51 @@
                 return (planned_qty / obj.base_unit_qty) * 100
             },
             _calc_progress(inv_plans=[]) {
-                if (this.inbound_task.inbound_list.length == 0) {
+                if (this.outbound_task.outbound_list.length == 0) {
                     this.goods_nav.options[0].info = ''
                     this.is_completed = false
                     return
                 }
-                let inbound_qty = this.inbound_task.inbound_list.map(x => x.base_unit_qty).concat([0]).reduce((x,y) => x + y)
+                let outbound_qty = this.outbound_task.outbound_list.map(x => x.base_unit_qty).concat([0]).reduce((x,y) => x + y)
                 let plan_qty = 0
                 let complete_qty = 0
                 inv_plans.forEach(x => {
                     plan_qty += x.FOpQTY
                     if (x.FDocumentStatu == 'C') complete_qty += x.FOpQTY
                 })
-                let plan_percentage = Math.floor(plan_qty / inbound_qty * 100)
+                let plan_percentage = Math.floor(plan_qty / outbound_qty * 100)
                 this.goods_nav.options[0].info = `${plan_percentage}%`
-                this.is_completed = inbound_qty == complete_qty
+                this.is_completed = outbound_qty == complete_qty
             },
-            _handle_zjdbd_data(response) {
+            _handle_fhtzd_data(response) {
                 if (response.data.Result.ResponseStatus.IsSuccess) {
                     const data = response.data.Result.Result
-                    let inbound_list = []
-                    data.TransferDirectEntry.forEach(obj => {
-                        let inbound_obj = inbound_list.find(x => x.material_id == obj.MaterialID_Id)
-                        if (inbound_obj) {
-                            inbound_obj.base_unit_qty += obj.BaseQty // 合同相同物料ID
+                    let outbound_list = []
+                    data.SAL_DELIVERYNOTICEENTRY.forEach(obj => {
+                        let outbound_obj = outbound_list.find(x => x.material_id == obj.MaterialID_Id)
+                        if (outbound_obj) {
+                            outbound_obj.base_unit_qty += obj.BaseUnitQty // 合同相同物料ID
                         } else {
-                            inbound_list.push({
-                                material_id: obj.DestMaterialId_Id, // 物料编码，采用调入仓库对应的ID
-                                material_no: obj.MaterialId.Number,
-                                material_name: obj.MaterialId.Name[0]?.Value,
-                                material_spec: obj.MaterialId.Specification[0]?.Value,
-                                base_unit_qty: obj.BaseQty,
-                                base_unit_name: obj.BaseUnitId.Name[0]?.Value,
-                                base_unit_no: obj.BaseUnitId.Number,
-                                src_stock_id: obj.SrcStockId.Id,
-                                src_stock_name: obj.SrcStockId.Name[0]?.Value,
-                                dest_stock_id: obj.DestStockId.Id,
-                                dest_stock_name: obj.DestStockId.Name[0]?.Value,
-                                batch_no: formatDate(obj.BusinessDate || Date.now(), 'yyyyMMdd'), // 优先继承调拨单中入库时间作为批次号
+                            outbound_list.push({
+                                material_id: obj.MaterialID.Id,
+                                material_no: obj.MaterialID.Number,
+                                material_name: obj.MaterialID.Name[0]?.Value,
+                                material_spec: obj.MaterialID.Specification[0]?.Value,
+                                base_unit_qty: obj.BaseUnitQty,
+                                base_unit_name: obj.BaseUnitID.Name[0]?.Value,
+                                base_unit_no: obj.BaseUnitID.Number,
+                                stock_id: obj.StockID.Id,
+                                stock_name: obj.StockID.Name[0]?.Value,
                                 planned_qty: 0
                             })
                         }
                     })
-                    this.inbound_task.bill_no = data.BillNo
-                    this.inbound_task.stock_id = store.state.cur_stock.FStockId
-                    this.inbound_task.staff_no = store.state.cur_staff.FNumber
-                    this.inbound_task.inbound_list = inbound_list
+                    this.outbound_task.bill_no = data.BillNo
+                    this.outbound_task.stock_id = store.state.cur_stock.FStockId
+                    this.outbound_task.staff_no = store.state.cur_staff.FNumber
+                    this.outbound_task.outbound_list = outbound_list
                 } else {
-                    this.inbound_task = new InboundTask()
+                    this.outbound_task = new OutboundTask()
                     uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
                 }
             }

@@ -77,7 +77,10 @@
             inv_search() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
+                    if (res.success == 'true') {
+                        console.log('scan res', res)
+                        uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
+                    }
                 })
                 // #endif               
                 // #ifndef APP-PLUS

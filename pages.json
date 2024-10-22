@@ -2,7 +2,7 @@
     "pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
         {
             "path": "pages/login",
-            "style":  { "navigationBarTitleText" : "登录" }
+            "style":  { "navigationBarTitleText": "登录" }
         },
         // 仓库流程 VERSION 1
         {
@@ -56,19 +56,27 @@
         // 仓库流程 VERSION 2
         {
             "path": "pages/operation/index_v2",
-            "style": { "navigationBarTitleText" : "仓库作业" }
+            "style": { "navigationBarTitleText": "仓库作业" }
         },
         {
             "path": "pages/operation/inbound/v2/index",
-            "style": { "navigationBarTitleText" : "入库" }
+            "style": { "navigationBarTitleText": "入库" }
         },
         {
-            "path": "pages/operation/inbound/v2/plan_new",
-            "style": { "navigationBarTitleText" : "入库 - 新增计划" }
+            "path": "pages/operation/inbound/v2/plan_init",
+            "style": { "navigationBarTitleText": "入库 - 计划初始化（直接调拨单）" }
+        },
+        {
+            "path": "pages/operation/inbound/v2/plan_init_custom",
+            "style": { "navigationBarTitleText": "入库 - 计划初始化（手工录入）" }
+        },
+        {
+            "path": "pages/operation/inbound/v2/plan_init_pallet",
+            "style": { "navigationBarTitleText": "入库 - 计划初始化（物料标识卡）" }
         },
         {
             "path": "pages/operation/inbound/v2/plan_new_entry",
-            "style":  { "navigationBarTitleText" : "入库 - 新增计划" }
+            "style":  { "navigationBarTitleText": "入库 - 新增计划" }
         },
         {
             "path": "pages/operation/inbound/v2/plan_new_pallet",
@@ -83,11 +91,11 @@
             "style": { "navigationBarTitleText": "出库" }
         },
         {
-            "path": "pages/operation/outbound/v2/plan_new",
-            "style": { "navigationBarTitleText": "出库 - 新增计划" }
+            "path": "pages/operation/outbound/v2/plan_init",
+            "style": { "navigationBarTitleText": "出库 - 计划初始化" }
         },
         {
-            "path": "pages/operation/outbound/v2/plan_new_entry",
+            "path": "pages/operation/outbound/v2/plan_new",
             "style": { "navigationBarTitleText": "出库 - 新增计划" }
         },
         {
@@ -197,7 +205,7 @@
         },
         {
             "path": "pages/operation/statistics/move_plan_record",
-            "style": { "navigationBarTitleText" : "库存调整统计" }
+            "style": { "navigationBarTitleText": "库存调整统计" }
         },
         {
             "path": "pages/operation/list/index",

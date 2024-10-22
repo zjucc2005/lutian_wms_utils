@@ -1,5 +1,6 @@
 import store from '@/store';
 import K3CloudApi from '@/utils/k3cloudapi';
+import db_model from '@/utils/db_model';
 
 /**
  * 前端库存模型
@@ -80,9 +81,10 @@ class Inv {
         return sum_data
     }
     static async _get_all_recurse(options={}, meta={}, sum_data=[]) {
+        const fields = ['FID', 'FStockLocId', 'FStockLocId.FNumber', 'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FQty', 'FStockUnitId', 'FStockUnitId.FName', 'FBatchNo', 'FCreateTime']
         const data = {
             FormId: "PAEZ_C_INV",
-            // FieldKeys: '',
+            FieldKeys: fields.join(','),
             FilterString: []
         }
         if (options.FStockId) {
@@ -94,8 +96,15 @@ class Inv {
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
         }
         if (meta.order) data.OrderString = meta.order
-        let res = await K3CloudApi.bill_query(data)
-        sum_data = sum_data.concat(res.data)
+        // API请求只返回value，减少网络传输数据量
+        let res = await K3CloudApi.execute_bill_query(data)
+        // 本地重新组装成键值对，方便使用
+        let res_data_kv = res.data.map(x => {
+            let obj = {}
+            for (let i = 0; i < fields.length; i++) obj[fields[i]] = x[i]
+            return obj
+        })
+        sum_data = sum_data.concat(res_data_kv)
         if (res.data.length === meta.per_page) {
             meta.page += 1 // 翻页
             return this._get_all_recurse(options, meta, sum_data)
