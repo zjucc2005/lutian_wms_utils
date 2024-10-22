@@ -204,7 +204,7 @@
                     return
                 }
                 if (this.is_completed) {
-                    uni.showToast({ icon: 'none', title: '该单据已完成' })
+                    uni.showToast({ icon: 'none', title: '该计划已完成' })
                     return
                 }
                 uni.navigateTo({

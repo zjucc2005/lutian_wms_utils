@@ -6,7 +6,7 @@
         v-if="inbound_task.status == 'init'"
         >
         <view class="container">
-            <uni-forms ref="form" :model="form" :rules="form_rules" labelWidth="80px">
+            <uni-forms ref="form" :model="form" :rules="form_rules" labelWidth="70px">
                 <uni-forms-item label="物料编号" name="material_no">
                     <uni-easyinput
                         v-model="form.material_no"
@@ -101,45 +101,51 @@
         />
     </view>
     
+    <cover-image
+        v-if="is_completed"
+        src="/static/icon/yiwancheng_stamp.png"
+        class="cover-image">
+    </cover-image>
+    
     <!-- 扫描标识卡明细列表 -->
     <uni-drawer ref="detail_drawer" :width="320">
         <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
-        <uni-section title="当前托盘信息" type="square"
-            :sub-title="inbound_task.status == 'init' ? '左滑可删除' : ''"
-            >
-            <template v-slot:right>
-                <view class="uni-section__right">
-                    <uni-icons type="closeempty" size="24" color="#333" @click="$refs.detail_drawer.close()"/>
-                </view>
-            </template>
-            <uni-swipe-action ref="swipe_action">
-                <uni-swipe-action-item
-                    v-for="(info, index) in inbound_task.pallet_infos"
-                    :key="index"
-                    :threshold="60"
-                    :right-options="inbound_task.status == 'init' ? swipe_options : []"
-                    @click="swipe_action_click($event, info._id)"
-                    >
-                    <uni-list-item>
-                        <template v-slot:body>
-                            <view class="uni-list-item__body">
-                                <text class="title">{{ info.material_no }}</text>
-                                <view class="note">
-                                    <view>名称：{{ info.material_name }}</view>
-                                    <view>规格：{{ info.material_spec }}</view>
-                                    <view>提交时间：{{ formatDate(info.created_at, 'yyyy-MM-dd hh:mm:ss') }}</view>
+            <uni-section title="操作明细" type="square"
+                :sub-title="inbound_task.status == 'init' ? '左滑可删除' : ''"
+                >
+                <template v-slot:right>
+                    <view class="uni-section__right">
+                        <uni-icons type="closeempty" size="24" color="#333" @click="$refs.detail_drawer.close()"/>
+                    </view>
+                </template>
+                <uni-swipe-action ref="swipe_action">
+                    <uni-swipe-action-item
+                        v-for="(info, index) in inbound_task.pallet_infos"
+                        :key="index"
+                        :threshold="60"
+                        :right-options="inbound_task.status == 'init' ? swipe_options : []"
+                        @click="swipe_action_click($event, info._id)"
+                        >
+                        <uni-list-item>
+                            <template v-slot:body>
+                                <view class="uni-list-item__body">
+                                    <text class="title">{{ info.material_no }}</text>
+                                    <view class="note">
+                                        <view>名称：{{ info.material_name }}</view>
+                                        <view>规格：{{ info.material_spec }}</view>
+                                        <view>提交时间：{{ formatDate(info.created_at, 'yyyy-MM-dd hh:mm:ss') }}</view>
+                                    </view>
                                 </view>
-                            </view>
-                        </template>
-                        <template v-slot:footer>
-                            <view class="uni-list-item__foot">
-                                <text>{{ info.base_unit_qty }} {{ info.base_unit_name }}</text>
-                            </view>
-                        </template>
-                    </uni-list-item>
-                </uni-swipe-action-item>
-            </uni-swipe-action>
-        </uni-section>
+                            </template>
+                            <template v-slot:footer>
+                                <view class="uni-list-item__foot">
+                                    <text>{{ info.base_unit_qty }} {{ info.base_unit_name }}</text>
+                                </view>
+                            </template>
+                        </uni-list-item>
+                    </uni-swipe-action-item>
+                </uni-swipe-action>
+            </uni-section>
         </scroll-view>
     </uni-drawer>
 </template>
@@ -159,7 +165,7 @@
                 bd_materials: [],
                 inbound_task: {},
                 inv_plans: [],
-                inbound_task: {},
+                is_completed: false,
                 form: {
                     raw: '',
                     material_id: '',
@@ -222,7 +228,6 @@
                         ]
                     }
                 },
-                is_completed: false,
                 swipe_options: [
                     {
                         text: '删除',
@@ -263,9 +268,6 @@
                 this.load_inv_plans()
             }
         },
-        mounted () {
-            
-        },
         methods: {
             formatDate,
             goods_nav_click(e) {
@@ -279,9 +281,7 @@
                 if (e.index === 1) this.if_new_plan() // btn:新增计划明细
             },
             form_icon_click(name) {
-                if (name == 'scan') {
-                    this.scan_code()
-                }
+                if (name == 'scan') this.scan_code()
             },
             scan_code() {
                 // #ifdef APP-PLUS
@@ -374,6 +374,10 @@
                 })
             },
             if_new_plan(material_no) {
+                if (this.inbound_task.inbound_list.length === 0) {
+                    uni.showToast({ icon: 'none', title: '未添加物料信息' })
+                    return
+                }
                 if (this.inbound_task.status == 'init') {
                     uni.showModal({
                         title: "新增计划明细",
@@ -389,19 +393,12 @@
                 }
             },
             new_plan(material_no) {
+                if (this.is_completed) {
+                    uni.showToast({ icon: 'none', title: '该计划已完成' })
+                    return
+                }
                 uni.navigateTo({
                     url: '/pages/operation/inbound/v2/plan_new_pallet',
-                    events: {
-                        reloadInvPlans: function(data) {
-                            console.log('>>> 重载数据event:reloadInvPlans')
-                            // this.load_inv_plans()
-                        },
-                        syncInvPlans: (data) => {
-                            console.log('>>> 同步数据event:syncInvPlans')
-                            // this.inv_plans = data.inv_plans
-                            // this._calc_progress(data.inv_plans)
-                        }
-                    },
                     success: (res) => {
                         play_audio_prompt('success')
                         let inbound_task = new InboundTask(this.inbound_task)
@@ -450,6 +447,7 @@
             _init_form() {
                 this.form = {
                     raw: '',
+                    material_id: '',
                     material_no: '',
                     material_name: '',
                     material_spec: '',
@@ -475,8 +473,7 @@
                     this.form.base_unit_name = 'Pcs'
                     this.form.decimal_unit = false
                 }
-            }
-            
+            }   
         }
     }
 </script>
@@ -488,5 +485,12 @@
     }
     .form-btn {
         border-radius: 0;
+    }
+    .cover-image {
+        position: absolute;
+        top: 80px;
+        right: 50px;
+        width: 128px;
+        height: 128px;
     }
 </style>

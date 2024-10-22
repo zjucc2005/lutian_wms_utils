@@ -1,6 +1,17 @@
 <template>
     <uni-notice-bar single scrollable text="查询物料获取库存信息，然后点击库存明细新增计划" />
-    <uni-section title="查询物料编码" type="square">            
+    <uni-section title="查询物料" type="square">
+        <template v-slot:right>
+            <view class="uni-section__right">
+                <uni-data-checkbox multiple
+                    v-model="search_form.ex_cond"
+                    :localdata="[{ text: '只查询成品', value: '3.' }]"
+                    @change="ex_cond_change"
+                    style="margin-right: -20px;"
+                    >
+                </uni-data-checkbox>
+            </view>
+        </template>
         <view class="searchbar-container">
             <uni-easyinput
                 v-model="search_form.no" 
@@ -17,12 +28,6 @@
                 }"
                 class="uni-mb-5"
             />
-            <uni-data-checkbox multiple
-                v-model="search_form.ex_cond"
-                :localdata="[{ text: '只查询成品', value: '3.' }]"
-                @change="ex_cond_change"
-                >
-            </uni-data-checkbox>
             <!-- 搜索候选列表 -->
             <uni-drawer ref="search_drawer" :width="320">
                 <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
@@ -428,8 +433,8 @@
                 this._set_material()
                 this.invs = []
                 this.inv_plans = []
-                if (!this.search_form.no) return
                 this.search_form.no = this.search_form.no.trim()
+                if (!this.search_form.no) return
                 let options = { 
                     no: this.search_form.no, 
                     FUseOrgId: store.state.cur_stock.FUseOrgId,
@@ -584,7 +589,7 @@
             },
             _set_material(bd_material) {
                 if (bd_material) {
-                    this.material.material_id = bd_material.FID
+                    this.material.material_id = bd_material.FMaterialId
                     this.material.material_no = bd_material.FNumber
                     this.material.material_name = bd_material.FName
                     this.material.material_spec = bd_material.FSpecification

@@ -237,7 +237,6 @@
                     uni.showActionSheet({
                         itemList: ['扫《直接调拨单》', '扫《物料标识卡》', '手工录入'],
                         success: (e) => {
-                            console.log(e)
                             if (e.tapIndex === 0) {
                                 play_audio_prompt('success')
                                 uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init' })
@@ -251,8 +250,6 @@
                         }
                     })
                 }
-                // play_audio_prompt('success')
-                // uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init' })
             },
             operate_plan(bill_no) {
                 if (!this.inv_plan_groups.find(x => x.bill_no == bill_no)) {

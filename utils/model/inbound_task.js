@@ -50,6 +50,21 @@ class InboundTask {
     // 判断是否当前仓库
     is_cur_depot() { return store.state.cur_depot.FStockId === this.stock_id }
     
+    add_inbound_list(obj) {
+        obj._id = store.state.snowflake.next_id()
+        obj.dest_stock_id = this.stock_id
+        obj.dest_stock_name = this.stock_name
+        obj.batch_no = this.batch_no
+        this.inbound_list.push(obj)
+        return this.save()
+    }
+    
+    del_inbound_list(id) {
+        let index = this.inbound_list.findIndex(x => x._id == id)
+        this.inbound_list.splice(index, 1)
+        return this.save()
+    }
+    
     add_pallet_info(info) {
         info._id = store.state.snowflake.next_id() 
         this.pallet_infos.unshift(info)
