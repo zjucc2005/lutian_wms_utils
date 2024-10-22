@@ -106,7 +106,7 @@
                     admin_button_group: [
                         // {
                         //     text: '审核确认',
-                        //     backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                        //     backgroundColor: store.state.goods_nav_color.red,
                         //     color: '#fff'
                         // },
                         {
@@ -136,17 +136,13 @@
                 this.goods_nav.admin_button_group[0].backgroundColor = store.state.goods_nav_color.blue
             }
         },
-        mounted() {
-            // this.load_inv_plans()
-        },
         methods: {
-            checkbox_click(e) {
-                // console.log('checkbox_click e', e)
-                let group_item = this.inv_plan_groups.find(x => x.bill_no == e.target.dataset.bill_no)
-                if (group_item) {
-                    group_item.checked = !group_item.checked
-                }
-            },
+            // checkbox_click(e) {
+            //     let group_item = this.inv_plan_groups.find(x => x.bill_no == e.target.dataset.bill_no)
+            //     if (group_item) {
+            //         group_item.checked = !group_item.checked
+            //     }
+            // },
             goods_nav_click(e) {
                 if (e.index === 0) this.refresh() // btn:刷新
             },
@@ -265,10 +261,7 @@
                     //             this.load_inv_plans()
                     //         }
                     //     }
-                    // },
-                    success: (res) => {
-                        
-                    }
+                    // }
                 })
             },
             _set_inv_plan_groups(inv_plans) {

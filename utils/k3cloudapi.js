@@ -364,6 +364,7 @@ const execute_bill_query = async (data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
+            let t1 = Date.now()
             logger.dev("K3CloudApi.execute_bill_query req:", _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteBillQuery.common.kdsvc'),
@@ -371,6 +372,7 @@ const execute_bill_query = async (data) => {
                 data: { data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.execute_bill_query res:", res)
+                    logger.dev('K3CloudApi.bill_query finished in', Date.now() - t1, 'ms')
                     resolve(res)
                 },
                 fail: (err) => {
@@ -409,6 +411,7 @@ const bill_query = async (data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
+            let t1 = Date.now()
             logger.dev("K3CloudApi.bill_query req:", _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BillQuery.common.kdsvc'),
@@ -416,6 +419,7 @@ const bill_query = async (data) => {
                 data: { data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.bill_query res:", res)
+                    logger.dev('K3CloudApi.bill_query finished in', Date.now() - t1, 'ms')
                     resolve(res)
                 },
                 fail: (err) => {

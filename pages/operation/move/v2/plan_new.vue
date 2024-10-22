@@ -371,7 +371,7 @@
                     button_group: [
                         {
                             text: '扫码查询',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                            backgroundColor: store.state.goods_nav_color.red,
                             color: '#fff'
                         }
                     ]

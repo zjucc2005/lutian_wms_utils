@@ -65,7 +65,7 @@
         </view>
        
         <uni-section type="square" title="当前计划明细"
-            sub-title="左滑计划明细可删除"
+            sub-title="左滑可删除"
             v-if="inv_plans.length"
             :class="op_mode == 'scan' ? 'above-uni-goods-nav' : ''">
             <template v-slot:right>
@@ -247,12 +247,12 @@
                     button_group: [
                         {
                             text: '扫码',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                            backgroundColor: store.state.goods_nav_color.red,
                             color: '#fff'
                         },
                         {
                             text: '保存',
-                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
+                            backgroundColor: store.state.goods_nav_color.blue,
                             color: '#fff'
                         }
                     ]

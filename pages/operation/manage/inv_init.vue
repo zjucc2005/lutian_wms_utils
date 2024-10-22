@@ -61,17 +61,17 @@
                     button_group: [
                         {
                             text: '数据校验',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                            backgroundColor: store.state.goods_nav_color.red,
                             color: '#fff'
                         },
                         {
                             text: '导入',
-                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
+                            backgroundColor: store.state.goods_nav_color.blue,
                             color: '#fff'
                         },
                         {
                             text: '处理RAWDATA',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                            backgroundColor: store.state.goods_nav_color.red,
                             color: '#fff'
                         },
                     ]

@@ -208,11 +208,11 @@
     export default {
         data() {
             return {
+                bd_materials: [],
+                ex_cond: uni.getStorageSync('mv_ex_cond') || [], // get
                 inbound_task: {},
                 inv_plans: [],
-                bd_materials: [],
                 is_completed: false,
-                ex_cond: uni.getStorageSync('mv_ex_cond') || [], // get
                 form: {
                     no: '',
                     material_id: '',
@@ -287,7 +287,6 @@
         },
         methods: {
             formatDate,
-            
             add_to_inbound_task() {
                 this.$refs.form.validate().then(res => {
                     let inbound_task = new InboundTask(this.inbound_task)

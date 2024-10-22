@@ -104,19 +104,19 @@
                     admin_button_group: [
                         // {
                         //     text: '审核确认',
-                        //     backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                        //     backgroundColor: store.state.goods_nav_color.red,
                         //     color: '#fff'
                         // },
                         {
                             text: '新增出库计划',
-                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
+                            backgroundColor: store.state.goods_nav_color.blue,
                             color: '#fff'
                         }
                     ],
                     staff_button_group: [
                         {
                             text: '扫码查询',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                            backgroundColor: store.state.goods_nav_color.red,
                             color: '#fff'
                         }
                     ]
@@ -184,13 +184,11 @@
                 this.last_refresh_time = Date.now()
             },
             async submit_audit() {
-                // console.log('this.$data', this.$data)
                 let checked_groups = this.inv_plan_groups.filter(x => x.checked)
                 if (checked_groups.length === 0) {
                     uni.showToast({ icon: 'none', title: '未选择任何条目' })
                     return
                 }
-                // console.log('checked_groups', checked_groups)
                 for (let i = 0; i < checked_groups.length; i++) {
                     let checked_inv_plans = this.inv_plans.filter(x => x.FBillNo == checked_groups[i].bill_no)
                     uni.showLoading({ title: 'Loading' })
@@ -222,16 +220,7 @@
                     return
                 }
                 uni.navigateTo({
-                    url: `/pages/operation/outbound/v2/plan_show?t=${bill_no}`,
-                    // events: {
-                    //     reloadInvPlans: (data) => {
-                    //         if (data.reload) {
-                    //             console.log('<<< 重载数据event:reloadInvPlans ')
-                    //             this.load_inv_plans()
-                    //         }
-                    //     }
-                    // },
-                    success: (res) => { }
+                    url: `/pages/operation/outbound/v2/plan_show?t=${bill_no}`
                 })
             },
             _set_inv_plan_groups(inv_plans) {

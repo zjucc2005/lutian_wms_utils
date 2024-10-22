@@ -140,17 +140,17 @@
                     button_group: [
                         {
                             text: '扫码新增',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                            backgroundColor: store.state.goods_nav_color.red,
                             color: '#fff'
                         },
                         {
                             text: '批量新增',
-                            backgroundColor: 'linear-gradient(90deg, #4cd964, #42b983)',
+                            backgroundColor: store.state.goods_nav_color.green,
                             color: '#fff'
                         },
                         {
                             text: '提交保存',
-                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
+                            backgroundColor: store.state.goods_nav_color.blue,
                             color: '#fff'
                         }
                     ]

@@ -48,12 +48,12 @@
                     button_group: [
                         // {
                         //     text: '库存地图',
-                        //     backgroundColor: 'linear-gradient(90deg, #4cd964, #42b983)',
+                        //     backgroundColor: store.state.goods_nav_color.green,
                         //     color: '#fff'
                         // },
                         {
                             text: '新增库位',
-                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
+                            backgroundColor: store.state.goods_nav_color.blue,
                             color: '#fff'
                         }
                     ]

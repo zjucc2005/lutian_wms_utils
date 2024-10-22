@@ -278,12 +278,12 @@
                     button_group: [
                         {
                             text: '返回',
-                            backgroundColor: 'linear-gradient(90deg, #AAA, #606266)',
+                            backgroundColor: store.state.goods_nav_color.grey,
                             color: '#fff'
                         },
                         {
                             text: '预览',
-                            backgroundColor: 'linear-gradient(90deg, #AAA, #606266)',
+                            backgroundColor: store.state.goods_nav_color.grey,
                             color: '#fff'
                         }
                     ]
@@ -300,9 +300,6 @@
                 }
                 this.load_data(res.material_no)
             })
-        },
-        mounted() {
-            // this.load_data()
         },
         methods: {
             goods_nav_click(e) {

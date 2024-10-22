@@ -28,7 +28,7 @@
             <uni-list-item
                 v-for="(obj, index) in inbound_task.inbound_list"
                 :key="index"
-                @click="new_plan_entry(obj.material_no)"
+                @click="new_plan(obj.material_no)"
                 :clickable="obj.dest_stock_id == $store.state.cur_stock.FStockId"
                 :disabled="obj.dest_stock_id != $store.state.cur_stock.FStockId"
                 show-arrow
@@ -83,22 +83,22 @@
 
 <script>
     import store from '@/store'
-    import { InboundTask, InvPlan } from '@/utils/model'
-    import { get_transfer_direct } from '@/utils/api'
-    import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     import { play_audio_prompt } from '@/utils'
+    import { get_transfer_direct } from '@/utils/api'
+    import { InboundTask, InvPlan } from '@/utils/model'
+    import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
     // #endif
     export default {
         data() {
             return {
-                inv_plans: [],
                 inbound_task: {},
+                inv_plans: [],
+                is_completed: false,
                 search_form: {
                     bill_no: ''
                 },
-                is_completed: false,
                 goods_nav: {
                     options: [
                         { icon: 'cart', text: '计划', info: '' }
@@ -130,10 +130,28 @@
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询单据
-                if (e.index === 1) this.new_plan_entry() // btn:新建
+                if (e.index === 1) this.new_plan() // btn:新建
             },
-            searchbar_icon_click(e) {
-                if (e == 'prefix') this.scan_code()
+            new_plan(material_no) {
+                if (!this.search_form.bill_no) {
+                    uni.showToast({ icon: 'none', title: '单据编号不能为空' })
+                    return
+                }
+                if (this.inbound_task.inbound_list.length == 0) {
+                    uni.showToast({ icon: 'none', title: '未找到单据信息' })
+                    return
+                }
+                if (this.is_completed) {
+                    uni.showToast({ icon: 'none', title: '该计划已完成' })
+                    return
+                }
+                uni.navigateTo({
+                    url: '/pages/operation/inbound/v2/plan_new_pallet',
+                    success: (res) => {
+                        play_audio_prompt('success')
+                        res.eventChannel.emit('sendInboundTask', { inbound_task: this.inbound_task, material_no: material_no })
+                    }
+                })
             },
             scan_code() {
                 // #ifdef APP-PLUS
@@ -152,6 +170,9 @@
                     }
                 })
                 // #endif
+            },
+            searchbar_icon_click(e) {
+                if (e == 'prefix') this.scan_code()
             },
             async handle_search() {
                 this.is_completed = false
@@ -193,27 +214,6 @@
                 } else {
                     this.inv_plans = []
                 }
-            },
-            new_plan_entry(material_no) {
-                if (!this.search_form.bill_no) {
-                    uni.showToast({ icon: 'none', title: '单据编号不能为空' })
-                    return
-                }
-                if (this.inbound_task.inbound_list.length == 0) {
-                    uni.showToast({ icon: 'none', title: '未找到单据信息' })
-                    return
-                }
-                if (this.is_completed) {
-                    uni.showToast({ icon: 'none', title: '该计划已完成' })
-                    return
-                }
-                uni.navigateTo({
-                    url: '/pages/operation/inbound/v2/plan_new_pallet',
-                    success: (res) => {
-                        play_audio_prompt('success')
-                        res.eventChannel.emit('sendInboundTask', { inbound_task: this.inbound_task, material_no: material_no })
-                    }
-                })
             },
             _calc_percentage(obj) {
                 let planned_qty = 0

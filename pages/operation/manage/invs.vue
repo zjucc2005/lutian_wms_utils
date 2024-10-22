@@ -74,12 +74,12 @@
                     button_group: [
                         {
                             text: '扫码查询',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                            backgroundColor: store.state.goods_nav_color.red,
                             color: '#fff'
                         },
                         {
                             text: '库存地图',
-                            backgroundColor: 'linear-gradient(90deg, #4cd964, #42b983)',
+                            backgroundColor: store.state.goods_nav_color.green,
                             color: '#fff'
                         }
                     ]
@@ -130,7 +130,6 @@
                 })
             },
             async load_invs() {
-                let t1 = Date.now()
                 const options = {
                     FStockId: store.state.cur_stock.FStockId
                 }
@@ -138,7 +137,6 @@
                 return Inv.get_all(options).then(res => {
                     uni.hideLoading()
                     this.invs = res
-                    console.log('load_invs finished in', (Date.now()-t1)/1000, 's')
                     this._set_inv_groups(res)
                 })
             },

@@ -103,17 +103,20 @@
                     button_group: [
                         {
                             text: '扫码查询单据',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
+                            backgroundColor: store.state.goods_nav_color.red,
                             color: '#fff'
                         },
                         {
                             text: '新增计划明细',
-                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
+                            backgroundColor: store.state.goods_nav_color.blue,
                             color: '#fff'
                         }
                     ]
                 }
             }
+        },
+        onShow() {
+            this.handle_search()
         },
         mounted() {
             this.outbound_task = new OutboundTask()
@@ -205,12 +208,6 @@
                 }
                 uni.navigateTo({
                     url: '/pages/operation/outbound/v2/plan_new',
-                    events: {
-                        reloadInvPlans: function(data) {
-                            console.log('<<< 重载数据event:reloadInvPlans')
-                            this.load_inv_plans()
-                        }
-                    },
                     success: (res) => {
                         play_audio_prompt('success')
                         res.eventChannel.emit('sendOutboundTask', { outbound_task: this.outbound_task, material_no: material_no })

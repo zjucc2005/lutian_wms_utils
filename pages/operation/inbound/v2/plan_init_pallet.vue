@@ -152,9 +152,9 @@
 
 <script>
     import store from '@/store'
+    import { is_decimal_unit, play_audio_prompt } from '@/utils'
     import { get_bd_material } from '@/utils/api'
     import { InboundTask, InvPlan } from '@/utils/model'
-    import { is_decimal_unit, play_audio_prompt } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
@@ -270,71 +270,6 @@
         },
         methods: {
             formatDate,
-            goods_nav_click(e) {
-                if (e.index === 0) {
-                    this.$refs.detail_drawer.open()
-                    console.log('this.$data', this.$data)
-                }
-            },
-            goods_nav_button_click(e) {
-                if (e.index === 0) this.if_finish_inbound_task() //btn:结束入库任务
-                if (e.index === 1) this.if_new_plan() // btn:新增计划明细
-            },
-            form_icon_click(name) {
-                if (name == 'scan') this.scan_code()
-            },
-            scan_code() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    console.log('myScanCode res:', res)
-                    if (res.success == 'true') this.after_scan_code(res.result)
-                })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        console.log("uni.scanCode res:", res)
-                        this.after_scan_code(res.result)
-                    }
-                });
-                // #endif
-            },
-            after_scan_code(text) {
-                if(this.inbound_task.pallet_infos.find(x => x.raw == text)) {
-                    uni.showToast({ icon: 'error', title: '标识卡已扫描过', duration: 2000 })
-                    return
-                }
-                let arr =text.split('||')
-                this.form.raw = text
-                this.form.material_no = arr[1]
-                this.form.base_unit_qty_focus = true
-                this.material_no_change()
-            },
-            material_no_change() {
-                let material_no = this.form.material_no
-                if (!material_no) {
-                    this._set_base_unit()
-                    return
-                }
-                let bd_material = this.bd_materials.find(x => x.FNumber == material_no)
-                if (bd_material) {
-                    this._set_base_unit(bd_material)
-                } else {
-                    uni.showLoading({ title: 'Loading' })
-                    get_bd_material(material_no, store.state.cur_stock.FUseOrgId).then(res => {
-                        uni.hideLoading()
-                        if (res.data[0]) {
-                            bd_material = res.data[0]
-                            if (!this.bd_materials.some(x => x.FNumber == material_no)) {
-                                this.bd_materials.push(res.data[0])
-                            }
-                            this._set_base_unit(bd_material)
-                        } else {
-                            this._set_base_unit()
-                        }
-                    })
-                }
-            },
             add_to_inbound_task() {
                 this.$refs.form.validate().then(res => {
                     let inbound_task = new InboundTask(this.inbound_task)
@@ -353,13 +288,29 @@
                     uni.showToast({ icon: 'none', title: '提交成功' })
                 }).catch(err => {})
             },
-            swipe_action_click(e, id) {
-                if (e.index === 0 && e.position == 'right') {
-                    let inbound_task = new InboundTask(this.inbound_task)
-                    this.inbound_task = inbound_task.del_pallet_info(id)
-                    this.$refs.swipe_action.closeAll()
-                    play_audio_prompt('delete')
-                } 
+            after_scan_code(text) {
+                if(this.inbound_task.pallet_infos.find(x => x.raw == text)) {
+                    uni.showToast({ icon: 'error', title: '标识卡已扫描过', duration: 2000 })
+                    return
+                }
+                let arr =text.split('||')
+                this.form.raw = text
+                this.form.material_no = arr[1]
+                this.form.base_unit_qty_focus = true
+                this.material_no_change()
+            },
+            form_icon_click(name) {
+                if (name == 'scan') this.scan_code()
+            },
+            goods_nav_click(e) {
+                if (e.index === 0) {
+                    this.$refs.detail_drawer.open()
+                    console.log('this.$data', this.$data)
+                }
+            },
+            goods_nav_button_click(e) {
+                if (e.index === 0) this.if_finish_inbound_task() //btn:结束入库任务
+                if (e.index === 1) this.if_new_plan() // btn:新增计划明细
             },
             if_finish_inbound_task() {
                 uni.showModal({
@@ -392,6 +343,31 @@
                     this.new_plan(material_no)
                 }
             },
+            material_no_change() {
+                let material_no = this.form.material_no
+                if (!material_no) {
+                    this._set_base_unit()
+                    return
+                }
+                let bd_material = this.bd_materials.find(x => x.FNumber == material_no)
+                if (bd_material) {
+                    this._set_base_unit(bd_material)
+                } else {
+                    uni.showLoading({ title: 'Loading' })
+                    get_bd_material(material_no, store.state.cur_stock.FUseOrgId).then(res => {
+                        uni.hideLoading()
+                        if (res.data[0]) {
+                            bd_material = res.data[0]
+                            if (!this.bd_materials.some(x => x.FNumber == material_no)) {
+                                this.bd_materials.push(res.data[0])
+                            }
+                            this._set_base_unit(bd_material)
+                        } else {
+                            this._set_base_unit()
+                        }
+                    })
+                }
+            },
             new_plan(material_no) {
                 if (this.is_completed) {
                     uni.showToast({ icon: 'none', title: '该计划已完成' })
@@ -407,6 +383,30 @@
                         res.eventChannel.emit('sendInboundTask', { material_no: material_no })
                     }
                 })
+            },
+            scan_code() {
+                // #ifdef APP-PLUS
+                myScanCode.scanCode({}, (res) => {
+                    console.log('myScanCode res:', res)
+                    if (res.success == 'true') this.after_scan_code(res.result)
+                })
+                // #endif               
+                // #ifndef APP-PLUS
+                uni.scanCode({
+                    success: (res) => {
+                        console.log("uni.scanCode res:", res)
+                        this.after_scan_code(res.result)
+                    }
+                });
+                // #endif
+            },  
+            swipe_action_click(e, id) {
+                if (e.index === 0 && e.position == 'right') {
+                    let inbound_task = new InboundTask(this.inbound_task)
+                    this.inbound_task = inbound_task.del_pallet_info(id)
+                    this.$refs.swipe_action.closeAll()
+                    play_audio_prompt('delete')
+                } 
             },
             async load_inv_plans() {
                 return InvPlan.query({
