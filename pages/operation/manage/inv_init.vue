@@ -102,8 +102,8 @@
                 })
             },
             async handle_raw_data() {
-                // uni.showToast({ icon: 'none', title: '请联系开发人员' })
-                // return
+                uni.showToast({ icon: 'none', title: '请联系开发人员' })
+                return
                 let arr = this.raw_data.split('\n').map(x => x.trim())
                 console.log('raw_data', arr)
                 console.log('stock_locs', store.state.stock_locs)

@@ -41,7 +41,7 @@
                     Limit: this.per_page,
                 }
                 K3CloudApi.bill_query(params).then(res => {
-                    console.log(`${this.model_name} page res:`, res)
+                    // console.log(`${this.model_name} page res:`, res)
                     this.tableData = res.data;
                     this.loading = false;
                 })

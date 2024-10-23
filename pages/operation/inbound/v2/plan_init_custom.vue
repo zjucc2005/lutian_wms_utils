@@ -327,6 +327,7 @@
                     content: "结束编辑后，将会清除当前缓存的计划初始化信息，并且无法恢复。请在完成相关计划明细并确认无误后，再确认结束。",
                     success: (res) => {
                         if (res.confirm) {
+                            play_audio_prompt('delete')
                             InboundTask.destroy_all()
                             uni.navigateBack()
                         }
@@ -341,7 +342,7 @@
                 if (this.inbound_task.status == 'init') {
                     uni.showModal({
                         title: "新增计划明细",
-                        content: "开始新增计划明细后，将不能继续录入物料标识卡信息。请确认已录完物料标识卡信息后，再新增计划明细。",
+                        content: "开始新增计划明细后，将不能继续录入物料信息。请确认已录完物料信息后，再新增计划明细。",
                         success: (res) => {
                             if (res.confirm) {
                                 this.new_plan(material_no)

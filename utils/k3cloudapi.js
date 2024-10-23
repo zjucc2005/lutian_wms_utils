@@ -372,7 +372,7 @@ const execute_bill_query = async (data) => {
                 data: { data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.execute_bill_query res:", res)
-                    logger.dev('K3CloudApi.bill_query finished in', Date.now() - t1, 'ms')
+                    console.info('K3CloudApi.execute_bill_query cost', Date.now() - t1, 'ms')
                     resolve(res)
                 },
                 fail: (err) => {
@@ -419,7 +419,7 @@ const bill_query = async (data) => {
                 data: { data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.bill_query res:", res)
-                    logger.dev('K3CloudApi.bill_query finished in', Date.now() - t1, 'ms')
+                    console.info('K3CloudApi.bill_query cost', Date.now() - t1, 'ms')
                     resolve(res)
                 },
                 fail: (err) => {

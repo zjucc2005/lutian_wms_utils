@@ -12,6 +12,10 @@
                                 v-for="grid in filter_swiper_grids(shelf, page)"
                                 :key="grid.index"
                                 :index="grid.index"
+                                :style="{
+                                    width: width + 'px',
+                                    height: width + 'px'
+                                }"
                                 >
                                 <view :class="['grid-item-box', grid.style]">
                                     <view class="name">{{ grid.name }}</view>
@@ -89,8 +93,14 @@
         },
         data() {
             return {
+                width: 0, // 设定 grid 宽度，uni-grid组件里计算宽度有兼容性问题
                 drawer_loc_no: ''
             }
+        },
+        mounted() {
+            this.$nextTick(()=>{
+            	this.width = this.get_grid_width()
+            })
         },
         computed: {
             grid_shelves() {
@@ -183,6 +193,10 @@
                 // return coord.x < 10 ? `0${name}` : name
                 return coord.y * 100 + coord.x
             },
+            get_grid_width() {
+                let screen_width = store.state.system_info.windowWidth
+                return (screen_width - 1) / this.column
+            },
             // 过滤swiper单页中的grids对象
             filter_swiper_grids(shelf, page) {
                 return shelf.grids.filter(g => g.page == page).sort((a,b) => a.index - b.index)
@@ -214,11 +228,12 @@
 <style lang="scss">
 .shelf_swiper {
     .grid-item-box {
+        flex: 1;
         display: flex;
         flex-direction: column;
         justify-content: space-between;        
-        width: 100%;
-        height: 100%;
+        // width: 100%;
+        // height: 100%;
         padding: 0;
         border-radius: 5px;
         border: 1px solid #fff;

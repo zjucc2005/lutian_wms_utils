@@ -318,6 +318,7 @@
                     content: "结束编辑后，将会清除当前缓存的计划初始化信息，并且无法恢复。请在完成相关计划明细并确认无误后，再确认结束。",
                     success: (res) => {
                         if (res.confirm) {
+                            play_audio_prompt('delete')
                             InboundTask.destroy_all()
                             uni.navigateBack()
                         }
