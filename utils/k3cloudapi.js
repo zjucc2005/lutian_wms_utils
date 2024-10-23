@@ -8,6 +8,10 @@ import logger from '@/utils/logger'
 
 let api_config = config.kd_api[config.env]
 
+const set_header = () => {
+    return { 'kdservice-sessionid': store.state.conn_info?.KDSVCSessionId }
+}
+
 const isConn = () => {
     return (store.state.conn_info && store.state.conn_expired_at && store.state.conn_expired_at > Date.now())
 }
@@ -115,6 +119,7 @@ const view = async (form_id, data) => {
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.View.common.kdsvc'),
                 method: 'POST',
+                header: set_header(),
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.view res:", res)
@@ -156,6 +161,7 @@ const submit = async (form_id, data) => {
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Submit.common.kdsvc'),
                 method: 'POST',
+                header: set_header(),
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.submit res:", res)
@@ -197,6 +203,7 @@ const audit = async (form_id, data) => {
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Audit.common.kdsvc'),
                 method: 'POST',
+                header: set_header(),
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.audit res:", res)
@@ -233,6 +240,7 @@ const _delete_ = async (form_id, data) => {
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Delete.common.kdsvc'),
                 method: 'POST',
+                header: set_header(),
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.delete res:", res)
@@ -278,6 +286,7 @@ const save = async (form_id, data) => {
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Save.common.kdsvc'),
                 method: 'POST',
+                header: set_header(),
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.save res:", res)
@@ -323,6 +332,7 @@ const batch_save = async (form_id, data) => {
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BatchSave.common.kdsvc'),
                 method: 'POST',
+                header: set_header(),
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.batch_save res:", res)
@@ -369,6 +379,7 @@ const execute_bill_query = async (data) => {
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteBillQuery.common.kdsvc'),
                 method: 'POST',
+                header: set_header(),
                 data: { data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.execute_bill_query res:", res)
@@ -413,9 +424,11 @@ const bill_query = async (data) => {
         return new Promise((resolve, reject) => {
             let t1 = Date.now()
             logger.dev("K3CloudApi.bill_query req:", _data_)
+            console.log("store.state.conn_info", store.state.conn_info)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BillQuery.common.kdsvc'),
                 method: 'POST',
+                header: set_header(),
                 data: { data: _data_ },
                 success: (res) => {
                     logger.dev("K3CloudApi.bill_query res:", res)
