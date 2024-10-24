@@ -65,6 +65,30 @@ class StockLoc {
         return K3CloudApi.audit('PAEZ_C_STOCK_LOC', data)
     }
     
+    /**
+     * 批量禁用库位（到数据库）
+     * @param numbers:Array[String]
+     * @return {Hash} Promise
+     */
+    static async forbid(numbers=[]) {
+        const data = {
+            Numbers: numbers
+        }
+        return K3CloudApi.forbid('PAEZ_C_STOCK_LOC', data)
+    }
+    
+    /**
+     * 批量反禁用库位（到数据库）
+     * @param numbers:Array[String]
+     * @return {Hash} Promise
+     */
+    static async enable(numbers=[]) {
+        const data = {
+            Numbers: numbers
+        }
+        return K3CloudApi.enable('PAEZ_C_STOCK_LOC', data)
+    }
+    
     /** 
      * 批量删除库位
      * @param ids:Array 

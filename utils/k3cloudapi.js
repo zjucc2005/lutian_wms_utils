@@ -219,6 +219,88 @@ const audit = async (form_id, data) => {
 }
 
 /**
+ * 禁用表单数据接口
+ * @param form_id:String 表单id，必须
+ * @param opNumber:String 操作编码，字符串类型（必录）
+ * @param data:Hash
+ *   @field CreateOrgId:Integer 创建者组织内码（非必录）
+ *   @field Numbers:Array 单据编码集合，数组类型，格式：[No1,No2,...]（使用编码时必录）
+ *   @field Ids:String 单据内码集合，字符串类型，格式："Id1,Id2,..."（使用内码时必录）
+ *   @field PkEntryIds:Array 单据内码与分录内码对应关系的集合，字符串类型，格式：[{"Id":"Id1","EntryIds":"EntryId1,EntryId2,..."}] (使用分录状态转换时必录)
+ *   @field UseOrgId:Integer 使用者组织内码（非必录）
+ *   @field NetworkCtrl:Boolean 是否启用网控，布尔类型，默认false（非必录）
+ *   @field IgnoreInterationFlag:Boolean 是否允许忽略交互，布尔类型，默认true（非必录）
+ * @return { Hash } Promise
+ */
+const forbid = async (form_id, data) => {
+    const _data_  = {
+        Numbers: [],
+        Ids: "",
+        ...data
+    }
+    return conn().then(_ => {
+        return new Promise((resolve, reject) => {
+            logger.dev("K3CloudApi.forbid req:", _data_)
+            uni.request({
+                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteOperation.common.kdsvc'),
+                method: 'POST',
+                header: set_header(),
+                data: { formid: form_id, opNumber: 'Forbid', data: _data_ },
+                success: (res) => {
+                    logger.dev("K3CloudApi.forbid res:", res)
+                    resolve(res)
+                },
+                fail: (err) => {
+                    console.log("K3CloudApi.forbid fail:", err)
+                    reject(err)
+                }
+            })
+        })   
+    })
+}
+
+/**
+ * 反禁用表单数据接口
+ * @param form_id:String 表单id，必须
+ * @param opNumber:String 操作编码，字符串类型（必录）
+ * @param data:Hash
+ *   @field CreateOrgId:Integer 创建者组织内码（非必录）
+ *   @field Numbers:Array 单据编码集合，数组类型，格式：[No1,No2,...]（使用编码时必录）
+ *   @field Ids:String 单据内码集合，字符串类型，格式："Id1,Id2,..."（使用内码时必录）
+ *   @field PkEntryIds:Array 单据内码与分录内码对应关系的集合，字符串类型，格式：[{"Id":"Id1","EntryIds":"EntryId1,EntryId2,..."}] (使用分录状态转换时必录)
+ *   @field UseOrgId:Integer 使用者组织内码（非必录）
+ *   @field NetworkCtrl:Boolean 是否启用网控，布尔类型，默认false（非必录）
+ *   @field IgnoreInterationFlag:Boolean 是否允许忽略交互，布尔类型，默认true（非必录）
+ * @return { Hash } Promise
+ */
+const enable = async (form_id, data) => {
+    const _data_  = {
+        Numbers: [],
+        Ids: "",
+        ...data
+    }
+    return conn().then(_ => {
+        return new Promise((resolve, reject) => {
+            logger.dev("K3CloudApi.enable req:", _data_)
+            uni.request({
+                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteOperation.common.kdsvc'),
+                method: 'POST',
+                header: set_header(),
+                data: { formid: form_id, opNumber: 'Enable', data: _data_ },
+                success: (res) => {
+                    logger.dev("K3CloudApi.enable res:", res)
+                    resolve(res)
+                },
+                fail: (err) => {
+                    console.log("K3CloudApi.enable fail:", err)
+                    reject(err)
+                }
+            })
+        })   
+    })
+}
+
+/**
  * 删除表单数据接口, delete为js关键字，方法名用_delete_以避免编译错误
  * @param form_id:String 表单id，必须
  * @param data:Hash
@@ -455,26 +537,6 @@ const download_url = (file_id) => {
     })
 }
 
-// const download_file = async (file_id) => {
-//     return conn().then(_ => {
-//         return new Promise((resolve, reject) => {
-//             let token = store.state.conn_info?.Context?.UserToken
-//             uni.request({
-//                 url: fullURL(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}`),
-//                 method: 'GET',
-//                 success: (res) => {
-//                     logger.dev("K3CloudApi.download_file res:", res)
-//                     resolve(res)
-//                 },
-//                 fail: (err) => {
-//                     console.log("K3CloudApi.bill_query fail:", err)
-//                     reject(err)
-//                 }
-//             })
-//         })    
-//     })
-// }
-
 // const compare_dict = {
 //     'str:=': 67,
 //     'int:=': 76,
@@ -507,6 +569,8 @@ const K3CloudApi = {
     view,
     submit,
     audit,
+    forbid,
+    enable,
     delete: _delete_,
     save,
     batch_save,

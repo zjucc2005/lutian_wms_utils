@@ -1,6 +1,6 @@
 <template>
     <!-- <uni-notice-bar single show-icon scrollable text="请选择入库计划进行操作" /> -->
-    <view v-if="$store.state.role == 'admin'">
+    <view v-if="$store.state.role == 'wh_admin'">
         <uni-section title="进行中的入库计划" type="square" 
             sub-title="单据编号"
             class="above-uni-goods-nav">
@@ -50,7 +50,7 @@
         </view>
     </view>
     
-    <view v-if="$store.state.role == 'staff'">
+    <view v-if="$store.state.role == 'wh_staff'">
         <uni-section title="进行中的入库计划" type="square" class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
@@ -169,7 +169,7 @@
             },          
             async load_inv_plans() {
                 let options = { FStockId: store.state.cur_stock.FStockId, FOpType: 'in' }
-                if (store.state.role == 'admin') {       
+                if (store.state.role == 'wh_admin') {       
                     options.FDocumentStatus_in = ['A', 'B']
                 } else {
                     options.FDocumentStatus = 'A'

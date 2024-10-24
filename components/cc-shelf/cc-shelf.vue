@@ -37,15 +37,29 @@
     </uni-collapse>
     
     <uni-drawer ref="inv_drawer" mode="left" :width="320" >
-        <uni-section :title="`库位：${drawer_loc_no}`" type="square">
+        <uni-section :title="`库位：${drawer_stock_loc.FNumber}`" type="square">
             <template v-slot:right>
                 <view class="uni-section__right">
                     <uni-icons type="closeempty" size="24" color="#333" @click="drawer_close"/>
                 </view>
             </template>
+            <template v-if="forbidable">
+                <button v-if="drawer_stock_loc.FForbidStatus == 'A'"
+                    type="warn" style="border-radius: 0;" 
+                    @click="stock_loc_forbid(drawer_stock_loc.FNumber)">
+                    库位报警
+                </button>
+                
+                <button v-if="drawer_stock_loc.FForbidStatus == 'B'" 
+                    type="primary" style="border-radius: 0;" 
+                    @click="stock_loc_enable(drawer_stock_loc.FNumber)">
+                    解除库位报警
+                </button>
+            </template>
+            
             <uni-list>
                 <uni-list-item
-                    v-for="(inv, index) in invs.filter(x => x['FStockLocId.FNumber'] == drawer_loc_no)"
+                    v-for="(inv, index) in invs.filter(x => x['FStockLocId.FNumber'] == drawer_stock_loc.FNumber)"
                     :key="index"
                     :title="inv['FMaterialId.FNumber']"
                     :note="[
@@ -73,6 +87,7 @@
      */
     
     import store from '@/store'
+    import { StockLoc } from '@/utils/model'
     export default {
         name:"cc-shelf",
         // emits: ['click'],
@@ -94,6 +109,10 @@
                 default: false
             },
             open: {
+                type: Boolean,
+                default: false
+            },
+            forbidable: {
                 type: Boolean,
                 default: false
             }
@@ -121,6 +140,10 @@
                         let y = loc_no_arr[2][0] * 1
                         let status = ''
                         let style = 'default'
+                        if (stock_loc.FForbidStatus == 'B') {
+                            status = 'forbidden'
+                            style = 'error'
+                        }
                         let shelf = grid_shelves.find(s => s.name == name)
                         if (shelf) {
                             shelf.bound.x = Math.max(shelf.bound.x, x)
@@ -136,13 +159,18 @@
                         }
                     } else {
                         // 未分组/独立库位处理
-                        grid_shelves.push({
+                        let shelf = {
                             name: stock_loc.FNumber,
                             disabled: true,
                             bound: { x: 1, y: 1 },
-                            grids:[{ x: 1, y: 1, status: '', style: 'default', sp: true, no: stock_loc.FNumber, qty: 0}]
-                        })
-                        
+                            grids:[{
+                                x: 1, y: 1, 
+                                status: stock_loc.FForbidStatus == 'B' ? 'forbidden' : '', 
+                                style: stock_loc.FForbidStatus == 'B' ? 'error' : 'default', 
+                                sp: true, no: stock_loc.FNumber,  qty: 0,
+                            }]
+                        }
+                        grid_shelves.push(shelf)
                     }
                 })
                 this.invs.forEach(inv => {
@@ -151,7 +179,9 @@
                     if (shelf) {
                         shelf.disabled = false
                         let grid = shelf.grids.find(g => g.no == inv['FStockLocId.FNumber'])
-                        grid.style = 'success'
+                        if (grid.status == '') {
+                            grid.style = 'success'
+                        }
                         grid.qty += inv.FQty
                     }
                 })
@@ -221,14 +251,36 @@
             },
             grid_click(e, shelf) {
                 let grid = shelf.grids.find(g => g.index === e.detail.index)
-                if (grid && grid.qty) {
+                if (this.forbidable || (grid && grid.qty)){
                     // console.log('grid click', grid)
-                    this.drawer_loc_no = grid.no
+                    this.drawer_stock_loc = store.state.stock_locs.find(x => x.FNumber == grid.no)
                     this.$refs.inv_drawer.open()
                 }
             },
             drawer_close() {
                 this.$refs.inv_drawer.close()
+            },
+            stock_loc_forbid(loc_no) {
+                uni.showLoading({ title: 'Loading' })
+                StockLoc.forbid([loc_no]).then(res => {
+                    StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
+                        uni.hideLoading()
+                        uni.showToast({ icon: 'none', title: `${loc_no} 禁用`})
+                        this.$refs.inv_drawer.close()
+                        store.commit('set_stock_locs', res.data)
+                    })
+                })
+            },
+            stock_loc_enable(loc_no) {
+                uni.showLoading({ title: 'Loading' })
+                StockLoc.enable([loc_no]).then(res => {
+                    StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
+                        uni.hideLoading()
+                        uni.showToast({ icon: 'none', title: `${loc_no} 解除禁用`})
+                        this.$refs.inv_drawer.close()
+                        store.commit('set_stock_locs', res.data)
+                    })
+                })
             }
         }
     }

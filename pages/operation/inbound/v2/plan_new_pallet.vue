@@ -574,6 +574,7 @@
                 this.loc_nos = loc_nos
             },
             _is_idle(loc_no) {
+                if (store.state.stock_locs.find(x => x.FNumber == loc_no && x.FForbidStatus == 'B')) return false // 禁用库位
                 if (!is_loc_no_std_format(loc_no)) return true // 独立库位，默认闲置
                 return !this.invs.some(inv => inv['FStockLocId.FNumber'] == loc_no ) &&
                 !this.inv_plans.some(inv_plan => inv_plan['FStockLocId.FNumber'] == loc_no) &&

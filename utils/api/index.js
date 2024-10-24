@@ -13,17 +13,29 @@ import K3CloudApi from "@/utils/k3cloudapi";
  * @return { Hash/undefined } Promise
  */
 const validate_staff = async (staff_name, staff_no, org_id) => {
+    let fields = ['FName', 'FNumber', 'FForbiddenStatus', 'FBizOrgId', 'FBizOrgId.FName', 'FDeptId', 'FDeptId.FName']
     const data = {
         FormId: "BD_WAREHOUSEWORKERS",
-        FieldKeys: "FName,FNumber,FForbiddenStatus,FBIZORGID,FBIZORGID.FName,FDEPTID,FDEPTID.FName,FOPERATORGROUPID,FOPERATORGROUPID.FName",
+        FieldKeys: fields.concat(['FOperatorGroupId', 'FOperatorGroupId.FName']).join(','),
         FilterString: [
             {"Left":"","FieldName":"FName","Compare":"67","Value":staff_name,"Right":"","Logic":0},
             {"Left":"","FieldName":"FNumber","Compare":"67","Value":staff_no,"Right":"","Logic":0},
-            {"Left":"","FieldName":"FBIZORGID","Compare":"67","Value":org_id,"Right":"","Logic":0}
+            {"Left":"","FieldName":"FBizOrgId","Compare":"67","Value":org_id,"Right":"","Logic":0}
         ]
     }
-    return K3CloudApi.bill_query(data).then(res => {  
-        return Promise.resolve(res.data[0])
+    return K3CloudApi.bill_query(data).then(res => {
+        if (res.data.length === 0) {
+            return Promise.resolve(null)
+        } else {
+            let result = { FOperatorGroup: [] }
+            for (let i in fields) {
+                result[fields[i]] = res.data[0][fields[i]]
+            }
+            for (let i in res.data) {
+                result.FOperatorGroup.push(res.data[i]['FOperatorGroupId.FName'])
+            }
+            return Promise.resolve(result)
+        }
     })
 }
 

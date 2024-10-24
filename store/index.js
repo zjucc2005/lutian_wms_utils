@@ -1,5 +1,6 @@
 import config from '@/config'
 import Snowflake from '@/utils/snowflake'
+import permission from '@/utils/permission'
 
 // #ifndef VUE3
 import Vue from 'vue'
@@ -20,7 +21,7 @@ const store = createStore({
         conn_expired_at: null,     // API连接过期时间
         cur_stock: {},             // >>> 当前作业仓库
         cur_staff: {},             // >>> 当前作业员工
-        role: 'admin',             // 用户角色，admin/staff
+        role: '',                  // 用户角色，详见 permission.js
         process_version: 'v2',     // 流程版本
         snowflake: null,           // 雪花算法实例，全局运行一个实例      
         bd_stocks: [],             // 基础数据，仓库，bd_开头的数据均采用api获取时的状态，不做数据处理
@@ -47,14 +48,15 @@ const store = createStore({
             state.cur_stock = params.stock
             state.cur_staff = params.staff
             uni.setStorageSync('cur_stock', params.stock)
-            // uni.setStorageSync('cur_staff', { FName: params.staff.FName })
             uni.setStorageSync('cur_staff', params.staff)
+            state.role = permission.get_system_role(params.staff.FOperatorGroup) // 设定角色
             // 初始化时, 自动生成序列号
             // 设备id采用登录员工的员工编号，编号一般有5位数字，最大支持到1048576；
             state.snowflake = new Snowflake(params.staff.FNumber)
         },
         staff_logout(state) {
             state.cur_staff = { FName: state.cur_staff.FName }  // 退出保留上一次登录的员工姓名
+            uni.setStorageSync('cur_staff', { FName: state.cur_staff.FName })
         },
         set_env(state, env) {
             state.env = env

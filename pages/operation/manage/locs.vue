@@ -1,5 +1,11 @@
 <template>
-    <uni-notice-bar single scrollable text="库位网格可左右滑动" />
+    <uni-notice-bar
+        v-if="_loc_warn_count()"
+        :text="`有 ${ _loc_warn_count() } 个库位报警，请尽快处理`"
+        color="#f55858"
+        background-color="#f5dcdc"
+        show-icon single scrollable
+    />
     <uni-section title="当前仓库" type="square"
         :sub-title="[
             $store.state.cur_stock['FUseOrgId.FName'],
@@ -8,11 +14,13 @@
         ].join(' / ')"
         class="above-uni-goods-nav"
         >
-        <cc-shelf 
+        <cc-shelf
             :stock_locs="$store.state.stock_locs"
             :invs="invs"
             :column="10"
-            :open="cc_shelf_open"/>
+            :open="cc_shelf_open"
+            forbidable
+            />
     </uni-section>
             
     <view class="uni-goods-nav-wrapper">
@@ -46,11 +54,6 @@
                         { icon: 'up', text: '折叠' }
                     ],
                     button_group: [
-                        // {
-                        //     text: '库存地图',
-                        //     backgroundColor: store.state.goods_nav_color.green,
-                        //     color: '#fff'
-                        // },
                         {
                             text: '新增库位',
                             backgroundColor: store.state.goods_nav_color.blue,
@@ -60,17 +63,23 @@
                 }
             }
         },
+        onShow() {
+            this._set_goods_nav()
+        },
         mounted() {
+            StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
+                store.commit('set_stock_locs', res.data)
+            })
         },
         methods: {
-            // >>> component
             goods_nav_click(e) {
                 if (e.index === 0) this.refresh()
                 if (e.index === 1) this.toggle_cc_shelf()
             },
             goods_nav_button_click(e) {
-                // if (e.index === 0) this.if_inv_map()
-                if (e.index === 0) this.new_loc_no()
+                if (store.state.role == 'wh_admin') {
+                    if (e.index === 0) this.new_loc_no()
+                }  
             },
             if_inv_map() {
                 uni.showModal({
@@ -119,6 +128,28 @@
                     this.cc_shelf_open = true
                     this.goods_nav.options[1].icon = 'up'
                     this.goods_nav.options[1].text = '折叠'
+                }
+            },
+            _loc_warn_count () {
+                return store.state.stock_locs.filter(x => x.FForbidStatus == 'B').length
+            },
+            _set_goods_nav () {
+                if (store.state.role == 'wh_admin') {
+                    this.goods_nav.button_group = [
+                        {
+                            text: '新增库位',
+                            backgroundColor: store.state.goods_nav_color.blue,
+                            color: '#fff'
+                        }
+                    ]
+                } else {
+                    this.goods_nav.button_group = [
+                        {
+                            text: '',
+                            backgroundColor: '#fff',
+                            color: '#fff'
+                        }
+                    ]
                 }
             }
         }

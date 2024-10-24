@@ -375,14 +375,14 @@
             FCreateDate: "创建日期",
             FModifyDate: "修改日期",
             FStaffId: "职员内码",
-            FISUSE: "启用",
-            FBIZORGID: "业务组织",
-            'FBIZORGID.FName': 'FBIZORGID.FName',
-            FDEPTID: "部门",
-            'FDEPTID.FName': 'FDEPTID.FName',
+            FIsUse: "启用",
+            FBizOrgId: "业务组织ID",
+            'FBizOrgId.FName': '业务组织',
+            FDeptId: "部门ID",
+            'FDeptId.FName': '部门',
             FForbiddenStatus: "禁用状态",
-            'FOPERATORGROUPID.FNumber': '业务组编号',
-            'FOPERATORGROUPID.FName': '业务组'
+            'FOperatorGroupId.FNumber': '业务组编号',
+            'FOperatorGroupId.FName': '业务组'
         }
     },
     PAEZ_C_STOCK_LOC: {

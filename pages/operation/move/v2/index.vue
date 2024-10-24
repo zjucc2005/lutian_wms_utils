@@ -1,5 +1,5 @@
 <template>
-    <view v-if="$store.state.role == 'admin'">
+    <view v-if="$store.state.role == 'wh_admin'">
         <uni-section title="进行中的库存调整计划" type="square" class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
@@ -63,7 +63,7 @@
         </view>
     </view>
     
-    <view v-if="$store.state.role == 'staff'">
+    <view v-if="$store.state.role == 'wh_staff'">
         <uni-section title="进行中的库存调整计划" type="square" class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
@@ -194,7 +194,7 @@
             },        
             async load_inv_plans() {
                 let options = { FStockId: store.state.cur_stock.FStockId, FOpType_in: ['mv', 'add', 'sub'] }
-                if (store.state.role == 'admin') {
+                if (store.state.role == 'wh_admin') {
                     options.FDocumentStatus_in = ['A', 'B']
                 } else {
                     options.FDocumentStatus = 'A'
@@ -205,10 +205,10 @@
                     this.inv_plans = res.data
                     this.inv_plans.forEach(inv_plan => {
                         inv_plan.checked = false
-                        if (store.state.role == 'admin') {
+                        if (store.state.role == 'wh_admin') {
                             inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
                         }
-                        if (store.state.role == 'staff') {
+                        if (store.state.role == 'wh_staff') {
                             inv_plan.disabled = inv_plan.FDocumentStatu != 'A'
                             inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
                         }

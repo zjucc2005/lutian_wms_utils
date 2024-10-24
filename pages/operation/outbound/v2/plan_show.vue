@@ -1,5 +1,5 @@
 <template>
-    <view v-if="$store.state.role == 'admin'">
+    <view v-if="$store.state.role == 'wh_admin'">
         <uni-section title="出库计划" type="square"
             :sub-title="bill_no"
             class="above-uni-goods-nav">
@@ -54,7 +54,7 @@
         </view>
     </view>
     
-    <view v-if="$store.state.role == 'staff'">
+    <view v-if="$store.state.role == 'wh_staff'">
         <uni-section type="square" title="出库计划"
             :sub-title="bill_no"
             class="above-uni-goods-nav">
@@ -186,11 +186,11 @@
                     this.inv_plans = res.data
                     this.inv_plans.forEach(inv_plan => {
                         inv_plan.checked = false
-                        if (store.state.role == 'admin') {
+                        if (store.state.role == 'wh_admin') {
                             inv_plan.disabled = !['A', 'B'].includes(inv_plan.FDocumentStatu)
                             inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
                         }
-                        if (store.state.role == 'staff') {
+                        if (store.state.role == 'wh_staff') {
                             inv_plan.disabled = inv_plan.FDocumentStatu != 'A'
                             inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
                         }

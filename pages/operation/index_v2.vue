@@ -1,19 +1,19 @@
 <template>
     <uni-notice-bar v-if="$store.state.env != 'prod'" text="测试版" single show-icon/>
     <uni-grid :column="3" :highlight="true" :show-border="false">
-        <uni-grid-item @click="goTo('inbound/v2/index')">
+        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('inbound/v2/index')">
             <view class="grid-item-box">
                 <image src="/static/icon/ruku.png" mode="widthFix" class="grid-item-icon"></image>
                 <text class="grid-item-text">入库</text>
             </view>
         </uni-grid-item>
-        <uni-grid-item @click="goTo('outbound/v2/index')">
+        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('outbound/v2/index')">
             <view class="grid-item-box">
                 <image src="/static/icon/chuku.png" mode="widthFix" class="grid-item-icon"></image>
                 <text class="grid-item-text">出库</text>
             </view>
         </uni-grid-item>
-        <uni-grid-item @click="goTo('move/v2/index')">
+        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('move/v2/index')">
             <view class="grid-item-box">
                 <image src="/static/icon/kucuntiaozheng.png" mode="widthFix" class="grid-item-icon"></image>
                 <text class="grid-item-text">库存调整</text>
@@ -25,31 +25,37 @@
                 <text class="grid-item-text">库存查询</text>
             </view>
         </uni-grid-item>
-        <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/invs')">
+        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('manage/invs')">
             <view class="grid-item-box">
                 <image src="/static/icon/kucun.png" mode="widthFix" class="grid-item-icon"></image>
                 <text class="grid-item-text">库存总览</text>
             </view>
         </uni-grid-item>
-        <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/locs')">
+        <uni-grid-item v-if="$store.state.role == 'wh_staff'" @click="goTo('manage/locs')">
+            <view class="grid-item-box">
+                <image src="/static/icon/kuweibaojing.png" mode="widthFix" class="grid-item-icon"></image>
+                <text class="grid-item-text">库位报警</text>
+            </view>
+        </uni-grid-item>
+        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('manage/locs')">
             <view class="grid-item-box">
                 <image src="/static/icon/kuwei.png" mode="widthFix" class="grid-item-icon"></image>
                 <text class="grid-item-text">库位管理</text>
             </view>
         </uni-grid-item>
-        <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('list/index')">
+        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('list/index')">
             <view class="grid-item-box">
                 <image src="/static/icon/liebiao.png" mode="widthFix" class="grid-item-icon"></image>
                 <text class="grid-item-text">列表</text>
             </view>
         </uni-grid-item>
-        <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('statistics/index')">
+        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('statistics/index')">
             <view class="grid-item-box">
                 <image src="/static/icon/tongji.png" mode="widthFix" class="grid-item-icon"></image>
                 <text class="grid-item-text">统计</text>
             </view>
         </uni-grid-item>
-        <uni-grid-item v-if="$store.state.role == 'admin'" @click="goTo('manage/index')">
+        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('manage/index')">
             <view class="grid-item-box">
                 <image src="/static/icon/qita.png" mode="widthFix" class="grid-item-icon"></image>
                 <text class="grid-item-text">其他功能</text>

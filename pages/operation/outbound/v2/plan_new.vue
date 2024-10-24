@@ -409,6 +409,7 @@
                         lack_material = lack_material || obj.material_no // 若库存不足，则记录
                     }
                 }
+                uni.hideLoading()
                 if (lack_material) {
                     this.set_plan_form(lack_material)
                     this.load_data(lack_material)
