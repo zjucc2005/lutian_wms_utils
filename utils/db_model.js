@@ -364,6 +364,7 @@
     },
     BD_WAREHOUSEWORKERS: {
         fields: {
+            FID: "ID",
             FName: "FName",
             FDescription: "FDescription",
             FDocumentStatus: "数据状态",
@@ -379,7 +380,9 @@
             'FBIZORGID.FName': 'FBIZORGID.FName',
             FDEPTID: "部门",
             'FDEPTID.FName': 'FDEPTID.FName',
-            FForbiddenStatus: "禁用状态"
+            FForbiddenStatus: "禁用状态",
+            'FOPERATORGROUPID.FNumber': '业务组编号',
+            'FOPERATORGROUPID.FName': '业务组'
         }
     },
     PAEZ_C_STOCK_LOC: {

@@ -252,17 +252,8 @@
                     uni.showToast({ icon: 'none', title: '未找到单据编号' })
                     return
                 }
-                uni.navigateTo({
-                    url: `/pages/operation/inbound/v2/plan_show?t=${bill_no}`,
-                    // events: {
-                    //     reloadInvPlans: (data) => {
-                    //         if (data.reload) {
-                    //             console.log('重载数据')
-                    //             this.load_inv_plans()
-                    //         }
-                    //     }
-                    // }
-                })
+                play_audio_prompt('success')
+                uni.navigateTo({ url: `/pages/operation/inbound/v2/plan_show?t=${bill_no}` })
             },
             _set_inv_plan_groups(inv_plans) {
                 let inv_plan_groups = []

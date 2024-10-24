@@ -153,6 +153,7 @@
                     popup-title="请选择起点库位"
                     :clear-icon="false"
                     @change="op_loc_no_change"
+                    class="op-loc-no-data-picker"
                 />
             </view>
         </uni-popup-dialog>
@@ -696,7 +697,7 @@
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     .sum_op_qty {
         color: $uni-text-color-grey;
         font-size: $uni-font-size-sm;
@@ -715,5 +716,12 @@
         width: 100%;
         display: flex;
         justify-content: center;
+    }
+    .op-loc-no-data-picker::v-deep {
+        .uni-scroll-view-content {
+            .item.is-disabled {
+                display: none;  /* 隐藏disable的选项 */
+            }
+        }
     }
 </style>

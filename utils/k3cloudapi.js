@@ -424,7 +424,6 @@ const bill_query = async (data) => {
         return new Promise((resolve, reject) => {
             let t1 = Date.now()
             logger.dev("K3CloudApi.bill_query req:", _data_)
-            console.log("store.state.conn_info", store.state.conn_info)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BillQuery.common.kdsvc'),
                 method: 'POST',
@@ -443,6 +442,38 @@ const bill_query = async (data) => {
         })    
     })
 }
+
+/**
+ * 下载文件接口
+ * @param file_id:String
+ * @return { String } Promise
+ */
+const download_url = (file_id) => {
+    return conn().then(_ => {
+        let token = store.state.conn_info?.Context?.UserToken
+        return fullURL(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}`)
+    })
+}
+
+// const download_file = async (file_id) => {
+//     return conn().then(_ => {
+//         return new Promise((resolve, reject) => {
+//             let token = store.state.conn_info?.Context?.UserToken
+//             uni.request({
+//                 url: fullURL(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}`),
+//                 method: 'GET',
+//                 success: (res) => {
+//                     logger.dev("K3CloudApi.download_file res:", res)
+//                     resolve(res)
+//                 },
+//                 fail: (err) => {
+//                     console.log("K3CloudApi.bill_query fail:", err)
+//                     reject(err)
+//                 }
+//             })
+//         })    
+//     })
+// }
 
 // const compare_dict = {
 //     'str:=': 67,
@@ -480,7 +511,8 @@ const K3CloudApi = {
     save,
     batch_save,
     execute_bill_query,
-    bill_query
+    bill_query,
+    download_url
 }
 
 export default K3CloudApi

@@ -70,6 +70,7 @@
     </uni-section>
     
     <uni-section title="当前计划明细" type="square"
+        sub-title="左滑可删除"
         v-if="inv_plans.length">
         <template v-slot:right>
             <view class="uni-section__right">
@@ -227,7 +228,7 @@
                                     </template>
                                     <uni-number-box 
                                         v-model="move_form.op_qty"
-                                        :min="0"
+                                        :min="1"
                                         :max="move_form.inv.FQty - move_form.inv.planned_qty"
                                         :width="60"
                                     />
@@ -343,7 +344,8 @@
                         rules: [
                             {
                                 validateFunction: (rule, value, data, callback) => {
-                                    if (value < 0) return callback('调整数量必须大于等于0')
+                                    if (value <= 0 && this.move_form.type == 'move') return callback('移库数量必须大于0')
+                                    if (value < 0 && this.move_form.type == 'edit') return callback('调整数量必须大于等于0')
                                     if (value > this.move_form.inv.FQty - this.move_form.inv.planned_qty) {
                                         return callback('调整总数超过上限')
                                     }

@@ -15,7 +15,7 @@ import K3CloudApi from "@/utils/k3cloudapi";
 const validate_staff = async (staff_name, staff_no, org_id) => {
     const data = {
         FormId: "BD_WAREHOUSEWORKERS",
-        FieldKeys: "FName,FNumber,FForbiddenStatus,FBIZORGID,FBIZORGID.FName,FDEPTID,FDEPTID.FName",
+        FieldKeys: "FName,FNumber,FForbiddenStatus,FBIZORGID,FBIZORGID.FName,FDEPTID,FDEPTID.FName,FOPERATORGROUPID,FOPERATORGROUPID.FName",
         FilterString: [
             {"Left":"","FieldName":"FName","Compare":"67","Value":staff_name,"Right":"","Logic":0},
             {"Left":"","FieldName":"FNumber","Compare":"67","Value":staff_no,"Right":"","Logic":0},

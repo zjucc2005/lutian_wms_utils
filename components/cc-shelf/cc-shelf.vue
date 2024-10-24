@@ -7,14 +7,21 @@
             <view class="content">
                 <swiper :indicator-dots="true" :style="{ height: `${get_swiper_height(shelf)}px` }" class="shelf_swiper">
                     <swiper-item v-for="page in get_swiper_pages(shelf)" :key="page">
-                        <uni-grid :column="column" :show-border="false" @change="grid_click($event, shelf)">
+                        <uni-grid 
+                            :column="column" 
+                            :show-border="false" 
+                            @change="grid_click($event, shelf)"
+                            :style="{
+                                width: grid_group_width + 'px'
+                            }"
+                            >
                             <uni-grid-item
                                 v-for="grid in filter_swiper_grids(shelf, page)"
                                 :key="grid.index"
                                 :index="grid.index"
                                 :style="{
-                                    width: width + 'px',
-                                    height: width + 'px'
+                                    width: grid_width + 'px',
+                                    height: grid_width + 'px'
                                 }"
                                 >
                                 <view :class="['grid-item-box', grid.style]">
@@ -93,13 +100,14 @@
         },
         data() {
             return {
-                width: 0, // 设定 grid 宽度，uni-grid组件里计算宽度有兼容性问题
+                grid_group_width: 0, // 设定 grid wrapper 宽度，在界面缩放后能保持原布局不乱
+                grid_width: 0,       // 设定 grid 宽度，uni-grid组件里计算宽度有兼容性问题
                 drawer_loc_no: ''
             }
         },
         mounted() {
             this.$nextTick(()=>{
-            	this.width = this.get_grid_width()
+            	this.get_grid_width()
             })
         },
         computed: {
@@ -195,7 +203,8 @@
             },
             get_grid_width() {
                 let screen_width = store.state.system_info.windowWidth
-                return (screen_width - 1) / this.column
+                this.grid_group_width = screen_width
+                this.grid_width = (screen_width - 1) / this.column
             },
             // 过滤swiper单页中的grids对象
             filter_swiper_grids(shelf, page) {

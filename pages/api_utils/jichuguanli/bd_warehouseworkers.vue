@@ -55,8 +55,8 @@
             },
             showDetail(item) {
                 const params = {
-                    // Id: item.FCUSTID,
-                    Number: item.FNumber,
+                    Id: item.FID
+                    // Number: item.FNumber,
                 }
                 K3CloudApi.view(this.model_name, params)
             }

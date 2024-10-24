@@ -86,6 +86,13 @@
                     return
                 }
                 // #endif
+                // #ifndef APP-PLUS
+                uni.showModal({
+                    title: '检查更新',
+                    content: '本功能仅在APP中使用',
+                    showCancel: false
+                })
+                // #endif
             },
             check_update_parse(data) {
                 console.log('check_update_parse data', data)
@@ -106,6 +113,13 @@
                     showCancel: false,
                     success: (res) => {},
                     fail: (err) => {}
+                })
+                // #endif
+                // #ifndef APP-PLUS
+                uni.showModal({
+                    title: '关于',
+                    content: '本功能仅在APP中使用',
+                    showCancel: false
                 })
                 // #endif
             },
