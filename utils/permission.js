@@ -4,16 +4,16 @@
  * @return { String }
  */
 const get_system_role = (operator_group=[]) => {
-    return 'wh_admin' // dev
+    // return 'wh_admin' // 开发调试
     // == wh_admin ==
     let wh_admin_list = ['绿田仓管组']
-    for (let i in wh_admin_list) {
-        if (operator_group.includes(wh_admin_list[i])) return 'wh_admin'
+    for (let item of wh_admin_list) {
+        if (operator_group.includes(item)) return 'wh_admin'
     }
     // == wh_staff ==
     let wh_staff_list = ['绿田库存管理组']
-    for (let i in wh_staff_list) {
-        if (operator_group.includes(wh_staff_list[i])) return 'wh_staff'
+    for (let item of wh_staff_list) {
+        if (operator_group.includes(item)) return 'wh_staff'
     }
     return ''
 }

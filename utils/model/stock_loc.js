@@ -114,8 +114,10 @@ class StockLoc {
      * @return {Hash} Promise
      */    
     static async query(options={}, meta={}) {
+        let fields = ['FNumber', 'FDocumentStatus', 'FForbidStatus', 'FStockId']
         const data = {
             FormId: "PAEZ_C_STOCK_LOC",
+            FieldKeys: fields.join(','),
             FilterString: [],
             Limit: 10000
         }
@@ -133,7 +135,14 @@ class StockLoc {
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
         }
         if (meta.order) data.OrderString = meta.order
-        return K3CloudApi.bill_query(data)
+        return K3CloudApi.execute_bill_query(data).then(res => {            
+            res.data = res.data.map(x => {
+                let obj = {}
+                for (let i = 0; i < fields.length; i++) obj[fields[i]] = x[i]
+                return obj
+            })
+            return res
+        })
     }
     
     /** 
