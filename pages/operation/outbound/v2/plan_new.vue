@@ -166,7 +166,7 @@
 
 <script>
     import store from '@/store'
-    import { Inv, InvLog, InvPlan } from '@/utils/model'
+    import { Inv, InvLog, InvPlan, StockLoc } from '@/utils/model'
     import { play_audio_prompt, is_material_no_format, is_loc_no_std_format, is_decimal_unit } from '@/utils'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
@@ -272,6 +272,10 @@
         },
         mounted() {
             this.set_op_mode('check')
+            StockLoc.query({ FStockId: store.state.cur_stock.FStockId, FForbidStatus: 'B' }).then(res => {
+                console.log('>>> 更新库位禁用信息')
+                store.commit('update_stock_locs', res.data) // 只查询禁用库存
+            }) 
         },
         methods: {
             swipe_action_click(e, inv_plan) {
@@ -314,6 +318,7 @@
                 }
             },
             material_no_click() {
+                console.log(this.$data)
                 let list = this.outbound_task.outbound_list.
                 filter(x => x.stock_id == store.state.cur_stock.FStockId).
                 map(x => this.plan_form.material_no == x.material_no ? '-> ' + x.material_no : x.material_no)

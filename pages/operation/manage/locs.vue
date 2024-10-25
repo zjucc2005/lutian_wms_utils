@@ -1,7 +1,7 @@
 <template>
     <uni-notice-bar
-        v-if="_loc_warn_count()"
-        :text="`有 ${ _loc_warn_count() } 个库位报警，请尽快处理`"
+        v-if="_forbid_loc_nos().length"
+        :text="`${ _forbid_loc_nos().length } 个库位报警 ${_forbid_loc_nos().join(', ')}，请尽快处理。`"
         color="#f55858"
         background-color="#f5dcdc"
         show-icon single scrollable
@@ -67,9 +67,9 @@
             this._set_goods_nav()
         },
         mounted() {
-            StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
-                store.commit('set_stock_locs', res.data)
-            })
+            StockLoc.query({ FStockId: store.state.cur_stock.FStockId, FForbidStatus: 'B' }).then(res => {
+                store.commit('update_stock_locs', res.data) // 只查询禁用库存
+            }) 
         },
         methods: {
             goods_nav_click(e) {
@@ -130,8 +130,8 @@
                     this.goods_nav.options[1].text = '折叠'
                 }
             },
-            _loc_warn_count () {
-                return store.state.stock_locs.filter(x => x.FForbidStatus == 'B').length
+            _forbid_loc_nos () {
+                return store.state.stock_locs.filter(x => x.FForbidStatus == 'B').map(x => x.FNumber)
             },
             _set_goods_nav () {
                 if (store.state.role == 'wh_admin') {

@@ -272,6 +272,7 @@
                     let loc_nos = this.loc_nos.map(x => x.value)
                     uni.showLoading({ title: 'Loading' })
                     let validate_res = await StockLoc.exist_loc_nos(loc_nos)
+                    console.log('validate_res', validate_res)
                     uni.hideLoading()
                     if (validate_res.status === 0) {
                         const stock_locs = this.loc_nos.map(loc_no => {

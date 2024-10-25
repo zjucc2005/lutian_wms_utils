@@ -245,7 +245,7 @@
 
 <script>
     import store from '@/store'
-    import { InboundTask, Inv, InvPlan } from '@/utils/model'
+    import { InboundTask, Inv, InvPlan, StockLoc } from '@/utils/model'
     import { play_audio_prompt, is_decimal_unit, is_loc_no_std_format, compare_loc_no } from '@/utils'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
@@ -301,6 +301,12 @@
                 }
                 this.load_data(res.material_no)
             })
+        },
+        mounted() {
+            StockLoc.query({ FStockId: store.state.cur_stock.FStockId, FForbidStatus: 'B' }).then(res => {
+                console.log('>>> 更新库位禁用信息')
+                store.commit('update_stock_locs', res.data) // 只查询禁用库存
+            }) 
         },
         methods: {
             goods_nav_click(e) {
@@ -431,6 +437,7 @@
                 let meta = { order: 'FMaterialId.FNumber ASC, FStockLocId.FNumber ASC' }
                 uni.showLoading({ title: 'Loading' })
                 return Inv.get_all(options, meta).then(res => {
+                    console.log('>>> 加载库存，完毕')
                     uni.hideLoading()
                     this.invs = res
                 })
@@ -442,6 +449,7 @@
                     FBillNo: this.inbound_task.bill_no,
                     FOpType: 'in',
                 }, { order: 'FCreateTime ASC' }).then(res => {
+                    console.log('>>> 加载入库计划，完毕')
                     uni.hideLoading()
                     this.inv_plans = res.data
                     this.inv_plans.forEach(inv_plan => {
@@ -459,6 +467,7 @@
                     FOpType: 'in',
                     FDocumentStatus_in: ['A', 'B']
                 }, { order: 'FCreateTime ASC' }).then(res => {
+                    console.log('>>> 加载其余入库计划，完毕')
                     uni.hideLoading()
                     this.inv_plans_ex = res.data
                     // this._set_loc_nos()

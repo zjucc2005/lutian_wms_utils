@@ -96,6 +96,20 @@ const store = createStore({
                 })
             })
             state.stock_loc_opts = stock_loc_opts
+        },
+        // 更新库位状态
+        update_stock_locs(state, patch_stock_locs) {
+            for (let stock_loc of state.stock_locs) {
+                stock_loc.FDocumentStatus = 'C'
+                stock_loc.FForbidStatus = 'A'
+                for (let item of patch_stock_locs) {
+                    if (stock_loc.FNumber == item.FNumber) {
+                        stock_loc.FDocumentStatus = item.FDocumentStatus
+                        stock_loc.FForbidStatus = item.FForbidStatus
+                    }
+                }
+            }
+
         }
     },
     getters: {

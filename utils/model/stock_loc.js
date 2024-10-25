@@ -107,6 +107,7 @@ class StockLoc {
      *   @field FStockId:Integer 仓库
      *   @field FNumber:String 库位号/编码
      *   @field FNumber_in:Array[String]
+     *   @field FForbidStatus:String 禁用状态
      * @param meta:Hash
      *   @field page:Integer
      *   @field per_page:Integer
@@ -130,6 +131,9 @@ class StockLoc {
         if (options.FNumber_in) {
             data.FilterString.push({ Left: "", FieldName: "FNumber", Compare: "338", Value: options.FNumber_in.join(','), Right: "", Logic: 0 })
         }
+        if (options.FForbidStatus) {
+            data.FilterString.push({ Left: "", FieldName: "FForbidStatus", Compare: "105", Value: options.FForbidStatus, Right: "", Logic: 0 })
+        }
         if (meta.per_page) {
             data.Limit = meta.per_page
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
@@ -152,7 +156,7 @@ class StockLoc {
      */
     static async exist_loc_nos(loc_nos) {
         return this.query({ FNumber_in: loc_nos }).then(res => {
-            return Promise.resolve(response_with_existence(res, '库位号'))
+            return Promise.resolve(response_with_existence(res, '库位号', 'FNumber'))
         })
     }
 }
