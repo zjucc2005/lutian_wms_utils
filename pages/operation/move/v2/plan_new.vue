@@ -310,7 +310,6 @@
                 search_form: {
                     no: '',
                     ex_cond: uni.getStorageSync('mv_ex_cond') || [], // get
-                    selected_material_id: '',
                     candidates: []
                 },
                 move_dialog: {

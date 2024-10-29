@@ -113,7 +113,7 @@
         // 管理
         {
             "path": "pages/operation/manage/index",
-            "style": { "navigationBarTitleText": "管理" }
+            "style": { "navigationBarTitleText": "其他功能" }
         },
         {
             "path": "pages/operation/manage/invs",
@@ -138,6 +138,10 @@
         {
             "path": "pages/operation/manage/loc_new",
             "style": { "navigationBarTitleText": "库位 - 新增库位" }
+        },
+        {
+            "path": "pages/operation/manage/material_search",
+            "style": { "navigationBarTitleText" : "物料查询" }
         },
         {
             "path": "pages/my/index",

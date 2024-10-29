@@ -86,12 +86,15 @@ const search_bd_materials = async (options, meta) => {
         FormId: 'BD_MATERIAL',
         FieldKeys: 'FMaterialId,FName,FNumber,FSpecification,FForbidStatus,FDocumentStatus,FBaseUnitId,FBaseUnitId.FNumber,FBaseUnitId.FName,FMaterialGroup.FName,FUseOrgId,FUseOrgId.FName',
         FilterString: [
-            { Left: "", FieldName: "FUseOrgId", Compare: "67", Value: options.FUseOrgId, Right: "", Logic: 0 },
             { Left: "(",FieldName: "FNumber", Compare: "17", Value: options.no, Right: "", Logic: 1 },
             { Left: "", FieldName: "FName", Compare: "81", Value: options.no, Right:"", Logic: 1 },
             { Left: "", FieldName: "FSpecification", Compare: "81", Value: options.no, Right: ")", Logic: 0 }
         ]
     }
+    if (options.FUseOrgId) {
+        data.FilterString.push({ Left: "", FieldName: "FUseOrgId", Compare: "67", Value: options.FUseOrgId, Right: "", Logic: 0 })
+    }
+    
     if (options.FNumber_pre) {
         data.FilterString.push({ Left: "", FieldName: "FNumber", Compare: "60", Value: options.FNumber_pre, Right: "", Logic: 0 })
     }
@@ -101,6 +104,11 @@ const search_bd_materials = async (options, meta) => {
     }
     if (meta.order) data.OrderString = meta.order
     return K3CloudApi.bill_query(data)
+}
+
+
+const view_bd_material = async (material_no) => {
+    return K3CloudApi.view('BD_MATERIAL', { Number: material_no })
 }
 
 // const get_all_bd_materials = async (use_org_id) => {
@@ -176,6 +184,7 @@ export {
     get_bd_stocks,
     get_bd_material,
     search_bd_materials,
+    view_bd_material,
     // get_all_bd_materials,
     get_sal_deliverynotice,
     get_stk_transferdirect,

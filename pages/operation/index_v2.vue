@@ -2,7 +2,7 @@
     <!-- <uni-notice-bar text="测试版" single show-icon/> -->
     <uni-grid :column="3" :highlight="true" :show-border="false">
         <template v-for="(nav, index) in navs" :key="index">
-            <uni-grid-item v-if="nav.permission.includes($store.state.role)" @click="nav.action">
+            <uni-grid-item v-if="nav.permission.includes($store.state.role) || nav.permission.includes('all')" @click="nav.action">
                 <view class="grid-item-box">
                     <image :src="nav.icon_path" mode="widthFix" class="grid-item-icon"></image>
                     <text class="grid-item-text">{{ nav.name }}</text>
@@ -35,6 +35,10 @@
                         action: () => { this.goTo('move/v2/index') }
                     },
                     {
+                        name: '发料用料', permission: ['nrj_admin', 'guest'], icon_path: '/static/icon/ludan.png',
+                        action: () => { this.goTo('scan/material_batch') }
+                    },
+                    {
                         name: '库存查询', permission: ['wh_admin', 'wh_staff'], icon_path: '/static/icon/saomiao.png',
                         action: () => { this.inv_search() }
                     },
@@ -51,6 +55,10 @@
                         action: () => { this.goTo('manage/locs') }
                     },
                     {
+                        name: '物料查询', permission: ['all'], icon_path: '/static/icon/chaxunkucun.png',
+                        action: () => { this.goTo('manage/material_search') }
+                    },
+                    {
                         name: '列表', permission: ['wh_admin'], icon_path: '/static/icon/liebiao.png',
                         action: () => { this.goTo('list/index') }
                     },
@@ -61,10 +69,6 @@
                     {
                         name: '其他功能', permission: ['wh_admin'], icon_path: '/static/icon/qita.png',
                         action: () => { this.goTo('manage/index') }
-                    },
-                    {
-                        name: '发料用料', permission: ['nrj_admin', 'guest'], icon_path: '/static/icon/ludan.png',
-                        action: () => { this.goTo('scan/material_batch') }
                     }
                 ]
             }
