@@ -15,6 +15,11 @@ const get_system_role = (operator_group=[]) => {
     for (let item of wh_staff_list) {
         if (operator_group.includes(item)) return 'wh_staff'
     }
+    // == nrj_admin ==
+    let nrj_admin_list = ['内燃机库存组']
+    for (let item of nrj_admin_list) {
+        if (operator_group.includes(item)) return 'nrj_admin'
+    }
     return ''
 }
 

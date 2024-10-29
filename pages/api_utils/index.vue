@@ -174,7 +174,26 @@
                 // K3CloudApi.view('STK_TransferDirect', { Number: 'ZJDB198948' }).then(res => {
                 //     console.log('res.data', res.data)
                 // })
-                get_bd_material('3.01.01.01.13.0018', store.state.cur_stock.FUseOrgId)
+                
+                // K3CloudApi.view('PRD_MO', { Number: '1022409300583' }).then(res => {
+                //     console.log('获取生产订单', res.data)
+                // })
+                // K3CloudApi.view('PRD_ISSUEMTRNOTICE', { Number: 'SCFLTZD31787' }).then(res => {
+                //     console.log('获取生产发料通知单', res.data)
+                // })
+                // K3CloudApi.view('PRD_PPBOM', { Number: 'PPBOM00722357' }).then(res => {
+                //     console.log('获取生产用料清单', res.data)
+                // })
+                // K3CloudApi.view('BD_DEPARTMENT', { Number: 'BM10211' }).then(res => {
+                //     console.log('获取部门', res.data)
+                // })
+                
+                const data = {
+                    FormId: 'BD_DEPARTMENT',
+                    FieldKeys: "FDEPTID,FName,FNumber,FParentId.FName,FGroup.FName,FUseOrgId,FUseOrgId.FName,FLevelCode,FDocumentStatus,FForbidStatus"
+                }
+                K3CloudApi.bill_query(data)
+                
             },
             call_delete_api() {
                 // let form_id = 'PAEZ_C_INV'

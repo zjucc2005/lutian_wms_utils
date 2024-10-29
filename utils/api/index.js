@@ -46,7 +46,7 @@ const validate_staff = async (staff_name, staff_no, org_id) => {
 const get_bd_stocks = async () => {
     const data = {
         FormId: 'BD_STOCK',
-        FieldKeys: "FStockId,FName,FNumber,FGroup,FGroup.FName,FUseOrgId,FUseOrgId.FName",
+        FieldKeys: "FStockId,FName,FNumber,FGroup,FGroup.FName,FUseOrgId,FUseOrgId.FName,FDocumentStatus,FForbidStatus",
     }
     return K3CloudApi.bill_query(data)
 }
@@ -149,8 +149,26 @@ const get_sal_deliverynotice = async (bill_no) => {
  * @param bill_no:String 单据编号
  * @return {Hash} Promise
  */
-const get_transfer_direct = async (bill_no) => {
+const get_stk_transferdirect = async (bill_no) => {
     return K3CloudApi.view('STK_TransferDirect', { Number: bill_no })
+}
+
+/** 
+ * 获取生产发料通知单详情
+ * @param bill_no:String 单据编号 SCFLTZD00001
+ * @return {Hash} Promise
+ */
+const get_prd_issuemtrnotice = async (bill_no) => {
+    return K3CloudApi.view('PRD_ISSUEMTRNOTICE', { Number: bill_no })
+}
+
+/** 
+ * 获取生产用料清单详情
+ * @param bill_no:String 单据编号 PPBOM00001
+ * @return {Hash} Promise
+ */
+const get_prd_ppbom = async (bill_no) => {
+    return K3CloudApi.view('PRD_PPBOM', { Number: bill_no })
 }
 
 export {
@@ -160,6 +178,8 @@ export {
     search_bd_materials,
     // get_all_bd_materials,
     get_sal_deliverynotice,
-    get_transfer_direct
+    get_stk_transferdirect,
+    get_prd_issuemtrnotice,
+    get_prd_ppbom
     // get_bd_units,
 }

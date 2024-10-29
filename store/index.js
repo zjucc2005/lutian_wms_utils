@@ -55,8 +55,19 @@ const store = createStore({
             state.snowflake = new Snowflake(params.staff.FNumber)
         },
         staff_logout(state) {
-            state.cur_staff = { FName: state.cur_staff.FName }  // 退出保留上一次登录的员工姓名
-            uni.setStorageSync('cur_staff', { FName: state.cur_staff.FName })
+            if (state.role == 'guest') {
+                state.cur_stock = uni.getStorageSync('cur_stock') // 退出重载
+                state.cur_staff = uni.getStorageSync('cur_staff')
+            } else {
+                state.cur_staff = { FName: state.cur_staff.FName }  // 退出保留上一次登录的员工姓名
+                uni.setStorageSync('cur_staff', { FName: state.cur_staff.FName })
+            }
+        },
+        guest_login(state) {
+            state.cur_stock = {}
+            state.cur_staff = { FName: '访客账号', FNumber: 'GUEST' }
+            state.role = 'guest'
+            state.snowflake = new Snowflake(0)
         },
         set_env(state, env) {
             state.env = env

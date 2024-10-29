@@ -1,66 +1,14 @@
 <template>
-    <uni-notice-bar v-if="$store.state.env != 'prod'" text="测试版" single show-icon/>
+    <!-- <uni-notice-bar text="测试版" single show-icon/> -->
     <uni-grid :column="3" :highlight="true" :show-border="false">
-        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('inbound/v2/index')">
-            <view class="grid-item-box">
-                <image src="/static/icon/ruku.png" mode="widthFix" class="grid-item-icon"></image>
-                <text class="grid-item-text">入库</text>
-            </view>
-        </uni-grid-item>
-        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('outbound/v2/index')">
-            <view class="grid-item-box">
-                <image src="/static/icon/chuku.png" mode="widthFix" class="grid-item-icon"></image>
-                <text class="grid-item-text">出库</text>
-            </view>
-        </uni-grid-item>
-        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('move/v2/index')">
-            <view class="grid-item-box">
-                <image src="/static/icon/kucuntiaozheng.png" mode="widthFix" class="grid-item-icon"></image>
-                <text class="grid-item-text">库存调整</text>
-            </view>
-        </uni-grid-item>
-        <uni-grid-item @click="inv_search">
-            <view class="grid-item-box">
-                <image src="/static/icon/saomiao.png" mode="widthFix" class="grid-item-icon"></image>
-                <text class="grid-item-text">库存查询</text>
-            </view>
-        </uni-grid-item>
-        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('manage/invs')">
-            <view class="grid-item-box">
-                <image src="/static/icon/kucun.png" mode="widthFix" class="grid-item-icon"></image>
-                <text class="grid-item-text">库存总览</text>
-            </view>
-        </uni-grid-item>
-        <uni-grid-item v-if="$store.state.role == 'wh_staff'" @click="goTo('manage/locs')">
-            <view class="grid-item-box">
-                <image src="/static/icon/kuweibaojing.png" mode="widthFix" class="grid-item-icon"></image>
-                <text class="grid-item-text">库位报警</text>
-            </view>
-        </uni-grid-item>
-        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('manage/locs')">
-            <view class="grid-item-box">
-                <image src="/static/icon/kuwei.png" mode="widthFix" class="grid-item-icon"></image>
-                <text class="grid-item-text">库位管理</text>
-            </view>
-        </uni-grid-item>
-        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('list/index')">
-            <view class="grid-item-box">
-                <image src="/static/icon/liebiao.png" mode="widthFix" class="grid-item-icon"></image>
-                <text class="grid-item-text">列表</text>
-            </view>
-        </uni-grid-item>
-        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('statistics/index')">
-            <view class="grid-item-box">
-                <image src="/static/icon/tongji.png" mode="widthFix" class="grid-item-icon"></image>
-                <text class="grid-item-text">统计</text>
-            </view>
-        </uni-grid-item>
-        <uni-grid-item v-if="$store.state.role == 'wh_admin'" @click="goTo('manage/index')">
-            <view class="grid-item-box">
-                <image src="/static/icon/qita.png" mode="widthFix" class="grid-item-icon"></image>
-                <text class="grid-item-text">其他功能</text>
-            </view>
-        </uni-grid-item>
+        <template v-for="(nav, index) in navs" :key="index">
+            <uni-grid-item v-if="nav.permission.includes($store.state.role)" @click="nav.action">
+                <view class="grid-item-box">
+                    <image :src="nav.icon_path" mode="widthFix" class="grid-item-icon"></image>
+                    <text class="grid-item-text">{{ nav.name }}</text>
+                </view>
+            </uni-grid-item>
+        </template>
     </uni-grid>
 </template>
 
@@ -72,7 +20,53 @@
     export default {
         data() {
             return {
-                
+                // 导航界面信息
+                navs: [
+                    {
+                        name: '入库', permission: ['wh_admin'], icon_path: '/static/icon/ruku.png',
+                        action: () => { this.goTo('inbound/v2/index') }
+                    },
+                    {
+                        name: '出库', permission: ['wh_admin'], icon_path: '/static/icon/chuku.png',
+                        action: () => { this.goTo('outbound/v2/index') }
+                    },
+                    {
+                        name: '库存调整', permission: ['wh_admin'], icon_path: '/static/icon/kucuntiaozheng.png',
+                        action: () => { this.goTo('move/v2/index') }
+                    },
+                    {
+                        name: '库存查询', permission: ['wh_admin', 'wh_staff'], icon_path: '/static/icon/saomiao.png',
+                        action: () => { this.inv_search() }
+                    },
+                    {
+                        name: '库存总览', permission: ['wh_admin'], icon_path: '/static/icon/kucun.png',
+                        action: () => { this.goTo('manage/invs') }
+                    },
+                    {
+                        name: '库位管理', permission: ['wh_admin'], icon_path: '/static/icon/kuwei.png',
+                        action: () => { this.goTo('manage/locs') }
+                    },
+                    {
+                        name: '库位报警', permission: ['wh_staff'], icon_path: '/static/icon/kuweibaojing.png',
+                        action: () => { this.goTo('manage/locs') }
+                    },
+                    {
+                        name: '列表', permission: ['wh_admin'], icon_path: '/static/icon/liebiao.png',
+                        action: () => { this.goTo('list/index') }
+                    },
+                    {
+                        name: '统计', permission: ['wh_admin'], icon_path: '/static/icon/tongji.png',
+                        action: () => { this.goTo('statistics/index') }
+                    },
+                    {
+                        name: '其他功能', permission: ['wh_admin'], icon_path: '/static/icon/qita.png',
+                        action: () => { this.goTo('manage/index') }
+                    },
+                    {
+                        name: '发料用料', permission: ['nrj_admin', 'guest'], icon_path: '/static/icon/ludan.png',
+                        action: () => { this.goTo('scan/material_batch') }
+                    }
+                ]
             }
         },
         methods: {

@@ -8,6 +8,7 @@ import MoveCart from './move_cart'
 import Inv from './inv'
 import InvLog from './inv_log'
 import InvPlan from './inv_plan'
+import IssuemtrLog from './issuemtr_log'
 import StockLoc from './stock_loc'
 export {
     InboundTask,
@@ -16,5 +17,6 @@ export {
     Inv,
     InvLog,
     InvPlan,
+    IssuemtrLog,
     StockLoc
 }

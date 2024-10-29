@@ -1,5 +1,4 @@
 <template>
-    <uni-notice-bar v-if="$store.state.env != 'prod'" text="测试版" single show-icon/>
     <view class="container">
         <view class="logo-wrapper">
             <image src="/static/logo-wms.png"></image>
@@ -35,6 +34,7 @@
                 <uni-easyinput v-model="login_form.staff_no" trim="both" />
             </uni-forms-item>
             <button type="primary" @click="submit_login">登录</button>
+            <button @click="submit_guest_login" class="uni-mt-11">访客账号登录</button>
         </uni-forms>
     </view>
 </template>
@@ -110,7 +110,8 @@
             set_stock_opts() {
                 // 组织 - 分组 - 仓库
                 const stock_opts = []
-                this.bd_stocks.forEach(d => {
+                for (let d of this.bd_stocks) {
+                    if (d.FDocumentStatus != 'C' || d.FForbidStatus != 'A') continue
                     let org = stock_opts.find(opt => opt.value === d.FUseOrgId)
                     if (!org) {
                         org = { text: d['FUseOrgId.FName'], value: d.FUseOrgId, children: [] }
@@ -124,7 +125,7 @@
                         org.children.push(group)
                     }
                     group.children.push({ text: d.FName, value: d.FStockId })
-                })
+                }
                 stock_opts.sort((x, y) => x.value - y.value) // 按组织编号排序
                 this.stock_opts = stock_opts
             },
@@ -158,6 +159,20 @@
                     console.log('submit_login err:', err);
                 })
             },
+            submit_guest_login() {
+                uni.showModal({
+                    title: "访客账号登录",
+                    content: "访问账号为公用账号，只能使用指定的功能。",
+                    success: (res) => {
+                        if (res.confirm) {
+                            play_audio_prompt('success')
+                            store.commit('guest_login')
+                            uni.showToast({ title: '登录成功' })
+                            uni.reLaunch({ url: '/pages/operation/index_v2' }) 
+                        }
+                    }
+                })
+            },
             after_login() {
                 StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
                     store.commit('set_stock_locs', res.data)
@@ -167,10 +182,10 @@
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     .logo-wrapper {
         text-align: center;
-        margin: 22px 0;
+        padding: 22px 0;
         image {
             width: 80px;
             height: 80px;

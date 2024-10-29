@@ -101,15 +101,14 @@
     flex-direction: column;
     // align-items: flex-end;
     justify-content: center;
+    text-align: right;
     .op_qty {
-        text-align: right;
         &.lg {
             font-size: $uni-font-size-lg;
         }
     }
     .status {
         color: $uni-color-primary;
-        text-align: right;
         &.disabled {
             color: $uni-color-error
         }

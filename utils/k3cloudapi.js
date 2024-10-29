@@ -21,7 +21,7 @@ const fullURL = (path) => {
 }
 
 const fieldKeys = (model_name) => {
-    return Object.getOwnPropertyNames(db_model[model_name].fields)
+    return Object.getOwnPropertyNames(db_model[model_name]?.fields || {})
 }
 
 const conn = async () => {

@@ -472,5 +472,25 @@
             FReferId: "自关联ID",
             FPalletQty: "托数"
         }
+    },
+    PAEZ_C_ISSUEMTR_LOG: {
+        fields: {
+            FID: "FID",
+            FOpSN: "操作序列号",
+            FOpType: "库存操作类型",
+            FStockId: "仓库ID",
+            FMaterialId: "物料编码ID",
+            'FMaterialId.FNumber': "物料编码",
+            'FMaterialId.FName': "物料名称",
+            'FMaterialId.FSpecification': '规格型号',
+            FOpQTY: "操作数量",
+            FStockUnitId: "计量单位ID",
+            'FStockUnitId.FName': '计量单位',
+            FBatchNo: "库存批次号",
+            FBillNo: "单据编号",
+            FRemark: "操作备注",
+            FOpStaffNo: "操作员工编号",
+            FCreateTime: "数据新建时间",
+        }
     }
 }

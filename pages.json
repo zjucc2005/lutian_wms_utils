@@ -56,7 +56,7 @@
         // 仓库流程 VERSION 2
         {
             "path": "pages/operation/index_v2",
-            "style": { "navigationBarTitleText": "仓库作业" }
+            "style": { "navigationBarTitleText": "作业" }
         },
         {
             "path": "pages/operation/inbound/v2/index",
@@ -218,6 +218,10 @@
                 "enablePullDownRefresh": true,
                 "onReachBottomDistance": 50
             }
+        },
+        {
+            "path": "pages/operation/scan/material_batch",
+            "style": { "navigationBarTitleText": "扫描 - 物料批次记录" }
         }
     ],
     "globalStyle": {
@@ -259,7 +263,7 @@
             // },
             {
                 "pagePath": "pages/operation/index_v2",
-                "text": "仓库",
+                "text": "作业",
                 "iconfont": {
                     "text": "\ue662",
                     "color": "#7A7E83",
