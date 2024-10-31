@@ -530,11 +530,15 @@ const bill_query = async (data) => {
  * @param file_id:String
  * @return { String } Promise
  */
-const download_url = (file_id) => {
+const download_url = (file_id, nail=0) => {
     return conn().then(_ => {
         let token = store.state.conn_info?.Context?.UserToken
-        return fullURL(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}`)
+        return fullURL(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}&nail=${nail}`)
     })
+}
+const download_url_sync = (file_id, nail=0) => {
+    let token = store.state.conn_info?.Context?.UserToken
+    return fullURL(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}&nail=${nail}`)
 }
 
 // const compare_dict = {
@@ -576,7 +580,8 @@ const K3CloudApi = {
     batch_save,
     execute_bill_query,
     bill_query,
-    download_url
+    download_url,
+    download_url_sync
 }
 
 export default K3CloudApi

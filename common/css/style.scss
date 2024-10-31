@@ -22,6 +22,9 @@
 .text-error {
     color: $uni-color-error;
 }
+.text-grey {
+    color: $uni-text-color-grey;
+}
 
 
 .easyinput-suffix-text {
@@ -43,6 +46,7 @@
 }
 .uni-list-item__head {
     display: flex;
+    // flex-direction: column;
     align-items: center;
     margin-right: 6px;
 }

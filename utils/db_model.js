@@ -491,6 +491,9 @@
             FRemark: "操作备注",
             FOpStaffNo: "操作员工编号",
             FCreateTime: "数据新建时间",
+            FSupplierId: "供应商ID",
+            'FSupplierId.FNumber': '供应商编码',
+            'FSupplierId.FName': '供应商名称'
         }
     }
 }

@@ -52,6 +52,26 @@ const get_bd_stocks = async () => {
 }
 
 /** 
+ * 获取供应商基础数据
+ * @param supplier_no:String 供应商编码
+ * @param use_org_id:Integer 使用组织ID
+ * @return {Hash} Promise
+ */
+const get_bd_supplier = async (supplier_no, use_org_id) => {
+    const data = {
+        FormId: 'BD_Supplier',
+        FieldKeys: 'FSupplierId,FName,FNumber',
+        FilterString: [
+            { Left: "", FieldName: "FNumber", Compare: "67", Value: supplier_no, Right: "", Logic: 0 }
+        ]
+    }
+    if (use_org_id) {
+        data.FilterString.push({ Left: "", FieldName: "FUseOrgId", Compare: "67", Value: use_org_id, Right: "", Logic: 0 })
+    }
+    return K3CloudApi.bill_query(data)
+}
+
+/** 
  * 获取物料基础数据
  * @param material_no:String 物料编码
  * @param use_org_id:Integer 使用组织ID
@@ -60,7 +80,7 @@ const get_bd_stocks = async () => {
 const get_bd_material = async (material_no, use_org_id) => {
     const data = {
         FormId: 'BD_MATERIAL',
-        FieldKeys: 'FMaterialId,FName,FNumber,FSpecification,FForbidStatus,FDocumentStatus,FBaseUnitId,FBaseUnitId.FNumber,FBaseUnitId.FName,FMaterialGroup.FName,FUseOrgId,FUseOrgId.FName',
+        FieldKeys: 'FMaterialId,FName,FNumber,FSpecification,FForbidStatus,FDocumentStatus,FBaseUnitId,FBaseUnitId.FNumber,FBaseUnitId.FName,FMaterialGroup.FName,FUseOrgId,FUseOrgId.FName,FImageFileServer',
         FilterString: [
             { Left: "", FieldName: "FNumber", Compare: "67", Value: material_no, Right: "", Logic: 0 },
             { Left: "", FieldName: "FUseOrgId", Compare: "67", Value: use_org_id, Right: "", Logic: 0 }
@@ -72,8 +92,11 @@ const get_bd_material = async (material_no, use_org_id) => {
 /** 
  * 搜索物料基础数据(模糊匹配)
  * @param options:Hash 参数集
- *   @field no:String 搜索关键字
+ *   @field no:String 搜索关键字，编码/名称/规格模糊匹配
+ *   @field FName_cont:String 名称匹配
+ *   @field FNumber_cont:String 编码匹配
  *   @field FNumber_pre:String 编码开头
+ *   @field FSpecification_cont:String 规格匹配
  *   @field FUseOrgId:Integer 使用组织ID
  * @param meta:Hash 
  *   @field page:Integer
@@ -84,19 +107,28 @@ const get_bd_material = async (material_no, use_org_id) => {
 const search_bd_materials = async (options, meta) => {
     const data = {
         FormId: 'BD_MATERIAL',
-        FieldKeys: 'FMaterialId,FName,FNumber,FSpecification,FForbidStatus,FDocumentStatus,FBaseUnitId,FBaseUnitId.FNumber,FBaseUnitId.FName,FMaterialGroup.FName,FUseOrgId,FUseOrgId.FName',
-        FilterString: [
-            { Left: "(",FieldName: "FNumber", Compare: "17", Value: options.no, Right: "", Logic: 1 },
-            { Left: "", FieldName: "FName", Compare: "81", Value: options.no, Right:"", Logic: 1 },
-            { Left: "", FieldName: "FSpecification", Compare: "81", Value: options.no, Right: ")", Logic: 0 }
-        ]
+        FieldKeys: 'FMaterialId,FName,FNumber,FSpecification,FForbidStatus,FDocumentStatus,FBaseUnitId,FBaseUnitId.FNumber,FBaseUnitId.FName,FMaterialGroup.FName,FUseOrgId,FUseOrgId.FName,FImageFileServer',
+        FilterString: []
+    }
+    if (options.no) {
+        data.FilterString.push({ Left: "(",FieldName: "FNumber", Compare: "17", Value: options.no, Right: "", Logic: 1 })
+        data.FilterString.push({ Left: "", FieldName: "FName", Compare: "81", Value: options.no, Right:"", Logic: 1 })
+        data.FilterString.push({ Left: "", FieldName: "FSpecification", Compare: "81", Value: options.no, Right: ")", Logic: 0 })
+    }
+    if (options.FName_cont) {
+        data.FilterString.push({ Left: "", FieldName: "FName", Compare: "81", Value: options.FName_cont, Right: "", Logic: 0 })
+    }
+    if (options.FNumber_cont) {
+        data.FilterString.push({ Left: "", FieldName: "FNumber", Compare: "17", Value: options.FNumber_cont, Right: "", Logic: 0 })
+    }
+    if (options.FNumber_pre) {
+        data.FilterString.push({ Left: "", FieldName: "FNumber", Compare: "60", Value: options.FNumber_pre, Right: "", Logic: 0 })
+    }
+    if (options.FSpecification_cont) {
+        data.FilterString.push({ Left: "", FieldName: "FSpecification", Compare: "81", Value: options.FSpecification_cont, Right: "", Logic: 0 })
     }
     if (options.FUseOrgId) {
         data.FilterString.push({ Left: "", FieldName: "FUseOrgId", Compare: "67", Value: options.FUseOrgId, Right: "", Logic: 0 })
-    }
-    
-    if (options.FNumber_pre) {
-        data.FilterString.push({ Left: "", FieldName: "FNumber", Compare: "60", Value: options.FNumber_pre, Right: "", Logic: 0 })
     }
     if (meta.per_page) {
         data.Limit = meta.per_page
@@ -104,11 +136,6 @@ const search_bd_materials = async (options, meta) => {
     }
     if (meta.order) data.OrderString = meta.order
     return K3CloudApi.bill_query(data)
-}
-
-
-const view_bd_material = async (material_no) => {
-    return K3CloudApi.view('BD_MATERIAL', { Number: material_no })
 }
 
 // const get_all_bd_materials = async (use_org_id) => {
@@ -182,9 +209,9 @@ const get_prd_ppbom = async (bill_no) => {
 export {
     validate_staff,
     get_bd_stocks,
+    get_bd_supplier,
     get_bd_material,
     search_bd_materials,
-    view_bd_material,
     // get_all_bd_materials,
     get_sal_deliverynotice,
     get_stk_transferdirect,

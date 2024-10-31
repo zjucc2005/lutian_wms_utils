@@ -36,7 +36,7 @@
         </uni-collapse-item>
     </uni-collapse>
     
-    <uni-drawer ref="inv_drawer" mode="left" :width="320" >
+    <uni-drawer ref="inv_drawer" mode="left" :width="$store.state.drawer_width" >
         <uni-section :title="`库位：${drawer_stock_loc.FNumber}`" type="square">
             <template v-slot:right>
                 <view class="uni-section__right">

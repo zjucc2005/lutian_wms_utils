@@ -1,5 +1,7 @@
 <template>
-    <uni-section title="查询物料" type="square">
+    <uni-section title="查询物料" type="square"
+        v-if="!bd_material.Id"
+        >
         <template v-slot:right>
             <view class="uni-section__right">
                 <uni-data-checkbox multiple
@@ -12,50 +14,26 @@
             </view>
         </template>
         <view class="searchbar-container">
-            <uni-easyinput
-                v-model="search_form.no" 
-                placeholder="请输入搜索内容"
-                prefix-icon="scan"
-                @confirm="before_search"
-                @clear="before_search"
-                @icon-click="searchbar_icon_click"
-                primary-color="rgb(238, 238, 238)"
-                :styles="{
-                    color: '#000',
-                    backgroundColor: 'rgb(238, 238, 238)',
-                    borderColor: 'rgb(238, 238, 238)'
-                }"
-                class="uni-mb-5"
-            />
-            <!-- 搜索候选列表 -->
-            <uni-drawer ref="search_drawer" :width="320">
-                <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
-                <uni-section :title="`模糊匹配：${search_form.no}`" type="square"
-                    sub-title="最多展示20条匹配结果"
-                    >
-                    <template v-slot:right>
-                        <view class="uni-section__right">
-                            <uni-icons type="closeempty" size="24" color="#333" @click="$refs.search_drawer.close()"/>
-                        </view>
-                    </template>
-                    <uni-list>
-                        <uni-list-item
-                            v-for="(material, index) in search_form.candidates"
-                            :key="index"
-                            :title="material.FNumber"
-                            :note="[
-                                `名称：${material.FName}`, 
-                                `规格：${material.FSpecification}`
-                            ].join('\n')"
-                            @click="search(material.FNumber)" clickable
-                            show-arrow
-                            >
-                        </uni-list-item>
-                    </uni-list>
-                </uni-section>
-                </scroll-view>
-            </uni-drawer>
+            <uni-forms ref="form" :model="search_form" labelWidth="70px">
+                <uni-forms-item label="编码" name="material_no">
+                    <uni-easyinput
+                        v-model="search_form.material_no"
+                        trim="both"
+                        prefix-icon="scan"
+                        @icon-click="searchbar_icon_click"
+                    />
+                </uni-forms-item>
+                <uni-forms-item label="名称" name="material_name">
+                    <uni-easyinput v-model="search_form.material_name" trim="both"/>
+                </uni-forms-item>
+                <uni-forms-item label="规格" name="material_spec">
+                    <uni-easyinput v-model="search_form.material_spec" trim="both"/>
+                </uni-forms-item>
+            </uni-forms>
         </view>
+        <button @click="search" type="primary" class="form-btn">
+            <uni-icons type="search" color="#fff"></uni-icons> 搜索
+        </button>
     </uni-section>
     
     <uni-section title="物料详情" type="square"
@@ -68,17 +46,7 @@
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
         </uni-list>
         
-<!--        <image v-for="(image_url, index) in image_urls"
-            :key="index"
-            :src="image_url"
-            mode="aspectFit"
-            :style="{
-                width: '100%'
-            }"
-            >
-        </image> -->
-        
-       <uni-card v-for="(image_url, index) in image_urls"
+        <uni-card v-for="(image_url, index) in image_urls"
             :key="index"
             :cover="image_url"
             padding="5px"
@@ -94,6 +62,37 @@
             @buttonClick="goods_nav_button_click"
         />
     </view>
+    
+    <!-- 搜索候选列表 -->
+    <uni-drawer ref="search_drawer" :width="$store.state.drawer_width">
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
+            <uni-section title="搜索结果" type="square"
+                sub-title="最多展示20条搜索结果"
+                >
+                <template v-slot:right>
+                    <view class="uni-section__right">
+                        <uni-icons type="closeempty" size="24" color="#333" @click="$refs.search_drawer.close()"/>
+                    </view>
+                </template>
+                <uni-list>
+                    <uni-list-item
+                        v-for="(material, index) in search_form.candidates"
+                        :key="index"
+                        :title="material.FNumber"
+                        :note="[
+                            `名称：${material.FName}`, 
+                            `规格：${material.FSpecification}`
+                        ].join('\n')"
+                        :thumb="_thumbnail_url(material.FImageFileServer)"
+                        thumb-size="lg"
+                        @click="load_material(material.FNumber)" clickable
+                        show-arrow
+                        >
+                    </uni-list-item>
+                </uni-list>
+            </uni-section>
+        </scroll-view>
+    </uni-drawer>
 </template>
 
 <script>
@@ -105,12 +104,19 @@
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
     // #endif 
     export default {
+        props: {
+            t: {
+                type: String
+            }
+        },
         data() {
             return {
                 bd_material: {}, // 查看实例
                 image_urls: [], // 实例图片
                 search_form: {
-                    no: '',
+                    material_no: '',
+                    material_name: '',
+                    material_spec: '',
                     ex_cond: uni.getStorageSync('mv_ex_cond') || [], // get
                     candidates: []
                 },
@@ -119,16 +125,26 @@
                         { icon: 'clear', text: '清空', info: 0 }
                     ],
                     button_group: [
-                        { text: '扫码查询', color: '#fff', backgroundColor: store.state.goods_nav_color.red }
+                        { text: '扫码查询', color: '#fff', backgroundColor: store.state.goods_nav_color.red },
+                        { text: '物料资料卡模板', color: '#fff', backgroundColor: store.state.goods_nav_color.grey }
                     ]
                 }
+            }
+        },
+        onLoad(options) {
+            if (options.t) {
+                this.search_form.material_no = options.t
+                this.search()
             }
         },
         methods: {
             clear() {
                 this.bd_material = {}
                 this.image_urls = []
-                this.search_form.no = ''
+                this.search_form.material_no = ''
+                this.search_form.material_name = ''
+                this.search_form.material_spec = ''
+                this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
             },
             ex_cond_change(e) {
                 uni.setStorageSync('mv_ex_cond', e.detail.value) // set
@@ -138,23 +154,22 @@
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询
+                if (e.index === 1) this.select_material_card() // btn:物料资料卡模板
             },
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
-                    // console.log('myScanCode res:', res)
                     if (res.success == 'true') {
-                        this.search_form.no = res.result
-                        this.before_search()
+                        this.search_form.material_no = res.result
+                        this.search()
                     }
                 })
                 // #endif               
                 // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        // console.log('uni.scanCode res:', res)
-                        this.search_form.no = res.result
-                        this.before_search()
+                        this.search_form.material_no = res.result
+                        this.search()
                     }
                 })
                 // #endif
@@ -162,17 +177,27 @@
             searchbar_icon_click(e) {
                 if (e == 'prefix') this.scan_code()
             },
+            select_material_card() {
+                if (!this.bd_material.Id) return
+                uni.showActionSheet({
+                    itemList: ['物料资料卡'],
+                    success: (e) => {
+                        play_audio_prompt('success')
+                        if (e.tapIndex === 0) {
+                            console.log('>>> 生成物料资料卡模板')
+                        }
+                    }
+                })
+            },
             // 物料模糊匹配
-            async before_search() {
+            async search() {
                 this.bd_material = {} // init
                 this.image_urls = []
-                this.search_form.no = this.search_form.no.trim()
-                if (!this.search_form.no) return
-                let options = { 
-                    no: this.search_form.no, 
-                    FUseOrgId: store.state.cur_stock.FUseOrgId,
-                }
-                
+                if (!this.search_form.material_no && !this.search_form.material_name && !this.search_form.material_spec) return
+                let options = { FUseOrgId: store.state.cur_stock.FUseOrgId || 1 }
+                if (this.search_form.material_no) options.FNumber_cont = this.search_form.material_no
+                if (this.search_form.material_name) options.FName_cont = this.search_form.material_name
+                if (this.search_form.material_spec) options.FSpecification_cont = this.search_form.material_spec
                 if (this.search_form.ex_cond.includes('3.')) options.FNumber_pre = '3.'
                 let meta = { per_page: 20, order: 'FMaterialId DESC' }
                 uni.showLoading({ title: 'Loading' })
@@ -180,12 +205,13 @@
                     uni.hideLoading()
                     this.search_form.candidates = res.data
                     if (res.data.length > 1) this.$refs.search_drawer.open()
-                    if (res.data.length === 1) this.search(res.data[0]?.FNumber)
+                    if (res.data.length === 1) this.load_material(res.data[0]?.FNumber)
                     if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
                 })
             },
-            async search(material_no) {
+            async load_material(material_no) {
                 this.$refs.search_drawer.close()
+                uni.showLoading({ title: 'Loading' })
                 let view_res = await K3CloudApi.view('BD_MATERIAL', { Number: material_no })
                 if (view_res.data.Result.ResponseStatus.IsSuccess) {
                     let raw_data = view_res.data.Result.Result
@@ -197,12 +223,28 @@
                             this.image_urls.push(image_url)
                         }
                     }
+                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.green
+                }
+                uni.hideLoading()
+            },
+            _thumbnail_url(file_id) {
+                if(file_id.trim()) {
+                    return K3CloudApi.download_url_sync(file_id, 1, true)
+                } else {
+                    return '/static/default_40x40.png'
                 }
             }
         }
     }
 </script>
 
-<style>
-
+<style lang="scss" scoped>
+    .uni-card::v-deep {
+        .uni-card__cover-image {
+            width: 100%;
+        }
+    }
+    .form-btn {
+        border-radius: 0;
+    }
 </style>

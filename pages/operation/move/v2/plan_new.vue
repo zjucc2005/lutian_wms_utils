@@ -29,7 +29,7 @@
                 class="uni-mb-5"
             />
             <!-- 搜索候选列表 -->
-            <uni-drawer ref="search_drawer" :width="320">
+            <uni-drawer ref="search_drawer" :width="$store.state.drawer_width">
                 <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
                 <uni-section :title="`模糊匹配：${search_form.no}`" type="square"
                     sub-title="最多展示20条匹配结果"
@@ -48,6 +48,8 @@
                                 `名称：${material.FName}`, 
                                 `规格：${material.FSpecification}`
                             ].join('\n')"
+                            :thumb="_thumbnail_url(material.FImageFileServer)"
+                            thumb-size="lg"
                             @click="handle_search(material.FNumber)" clickable
                             show-arrow
                             >
@@ -289,6 +291,7 @@
 
 <script>
     import store from '@/store'
+    import K3CloudApi from '@/utils/k3cloudapi'
     import { play_audio_prompt } from '@/utils'
     import { get_bd_material, search_bd_materials } from '@/utils/api'
     import { Inv, InvPlan } from '@/utils/model'
@@ -572,7 +575,6 @@
                         this.$refs.inv_plan_swipe.closeAll()
                         await this.load_inv_plans(this.material.material_no)
                         this._update_inv_status()
-                        // this._event_channel_reload_inv_plans()
                     } else {
                         uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
                     }
@@ -615,11 +617,14 @@
                         }
                     })
                 })
+            },
+            _thumbnail_url(file_id) {
+                if(file_id.trim()) {
+                    return K3CloudApi.download_url_sync(file_id, 1, true)
+                } else {
+                    return '/static/default_40x40.png'
+                }
             }
-            // _event_channel_reload_inv_plans() {
-            //     const eventChannel = this.getOpenerEventChannel();
-            //     eventChannel.emit('reloadInvPlans', { reload: true })
-            // }
         }
     }
 </script>

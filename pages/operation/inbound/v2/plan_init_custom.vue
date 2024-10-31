@@ -124,7 +124,7 @@
     </cover-image>
     
     <!-- 搜索候选列表 -->
-    <uni-drawer ref="search_drawer" :width="320">
+    <uni-drawer ref="search_drawer" :width="$store.state.drawer_width">
         <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
         <uni-section :title="`模糊匹配：${form.material_no}`" type="square"
             sub-title="最多展示20条匹配结果"
@@ -153,7 +153,7 @@
     </uni-drawer>
     
     <!-- 扫描明细列表 -->
-    <uni-drawer ref="detail_drawer" :width="320">
+    <uni-drawer ref="detail_drawer" :width="$store.state.drawer_width">
         <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
             <uni-section title="操作明细" type="square"
                 :sub-title="inbound_task.status == 'init' ? '左滑可删除' : ''"

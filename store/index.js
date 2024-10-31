@@ -34,7 +34,8 @@ const store = createStore({
             yellow: 'linear-gradient(90deg, #FFCD1E, #FF8A18)',
             red: 'linear-gradient(90deg, #FE6035, #EF1224)',
             grey: 'linear-gradient(90deg, #AAA, #606266)'
-        }
+        },
+        drawer_width: 320,         // drawer 全局宽度，根据窗口尺寸计算
     },
     mutations: {
         api_conn(state, conn_info, duration) {
@@ -74,6 +75,7 @@ const store = createStore({
         },
         set_system_info(state, system_info) {
             state.system_info = system_info
+            state.drawer_width = system_info.windowWidth * 0.88
         },
         set_bd_stocks(state, bd_stocks) {
             state.bd_stocks = bd_stocks

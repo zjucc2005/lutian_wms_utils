@@ -144,6 +144,10 @@
             "style": { "navigationBarTitleText" : "物料查询" }
         },
         {
+            "path": "pages/operation/manage/material_card",
+            "style": { "navigationBarTitleText": "物料资料卡模板" }
+        },
+        {
             "path": "pages/my/index",
             "style": { "navigationBarTitleText": "我"}
         },

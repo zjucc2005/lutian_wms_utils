@@ -7,6 +7,7 @@ import K3CloudApi from '@/utils/k3cloudapi';
  *   FOpType: 'send',
  *   FStockId: 1,
  *   FMaterialId: 1,
+ *   FSupplierId: 1,
  *   FOpQTY: 1,
  *   FBatchNo: '20240101',
  *   FBillNo: 'T001',
@@ -20,6 +21,7 @@ class IssuemtrLog {
         this.FOpType = options.FOpType  // send, receive
         this.FStockId = { FStockId: options.FStockId } 
         this.FMaterialId = { FMaterialId: options.FMaterialId }
+        if (options.FSupplierId) this.FSupplierId = { FSupplierId: options.FSupplierId }
         this.FOpQTY = options.FOpQTY
         this.FBatchNo = options.FBatchNo
         this.FBillNo = options.FBillNo || ''
@@ -29,7 +31,7 @@ class IssuemtrLog {
     
     static FOpTypeEnum = {
         send: '发料',
-        receive: '用料',
+        receive: '用料'
     }
     
     /**
