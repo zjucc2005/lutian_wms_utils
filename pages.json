@@ -241,7 +241,7 @@
     },
     "uniIdRouter": {},
     "tabBar": {
-        "iconfontSrc": "/static/icon/uniicons.ttf",
+        "iconfontSrc": "/static/font/uniicons.ttf",
         "color": "#7A7E83",
         "selectedColor": "#007AFF",
         "borderStyle": "black",
