@@ -1,7 +1,6 @@
-.hbuilderx
-node_modules
-unpackage
-config.js
-electron
-package.json
-package-lock.json
+/.hbuilderx
+/node_modules
+/unpackage
+/config.js
+/electron
+/package-lock.json

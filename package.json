@@ -1,0 +1,12 @@
+{
+  "name": "lutian_wms_utils",
+  "version": "1.0.4",
+  "description": "wms app work with Kingdee API",
+  "main": "main.js",
+  "repository": "https://github.com/zjucc2005/lutian_wms_utils.git",
+  "author": "zjucc2005 <zjucc2005@163.com>",
+  "license": "MIT",
+  "dependencies": {
+    "html2canvas": "^1.4.1"
+  }
+}

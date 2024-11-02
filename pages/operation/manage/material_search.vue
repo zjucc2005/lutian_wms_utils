@@ -50,6 +50,7 @@
             :key="index"
             :cover="image_url"
             padding="5px"
+            @click="preview_image(image_url)"
             >
         </uni-card>
     </uni-section>
@@ -156,6 +157,12 @@
                 if (e.index === 0) this.scan_code() // btn:扫码查询
                 if (e.index === 1) this.select_material_card() // btn:物料资料卡模板
             },
+            preview_image(current) {
+                uni.previewImage({
+                    current: current,
+                    urls: this.image_urls
+                });
+            },
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
@@ -178,13 +185,22 @@
                 if (e == 'prefix') this.scan_code()
             },
             select_material_card() {
+                // uni.navigateTo({
+                //     url: '/pages/operation/manage/material_card'
+                // })
                 if (!this.bd_material.Id) return
                 uni.showActionSheet({
                     itemList: ['物料资料卡'],
                     success: (e) => {
-                        play_audio_prompt('success')
                         if (e.tapIndex === 0) {
-                            console.log('>>> 生成物料资料卡模板')
+                            console.log('>>> 生成物料资料卡')
+                            uni.navigateTo({
+                                url: '/pages/operation/manage/material_card',
+                                success: (res) => {
+                                    play_audio_prompt('success')
+                                    res.eventChannel.emit('sendMaterial', { bd_material: this.bd_material })
+                                }
+                            })
                         }
                     }
                 })
