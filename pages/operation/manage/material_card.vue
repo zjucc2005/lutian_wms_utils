@@ -293,9 +293,9 @@
             align-items: center;
             justify-content: space-around;
             border-top: 1px solid #333;
-            border-right: 1px solid #333;
+            border-left: 1px solid #333;
             &:last-child {
-                border-right: none;
+                border-right: 1px solid #333;
             }
         }
         

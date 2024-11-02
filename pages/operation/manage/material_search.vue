@@ -44,6 +44,8 @@
             <uni-list-item title="编码" :right-text="bd_material.Number" />
             <uni-list-item title="名称" :right-text="bd_material.Name[0]?.Value" />
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
+            <uni-list-item title="仓库" :right-text="bd_material.MaterialStock[0]?.StockId.Name[0]?.Value" />
+            <uni-list-item title="仓管员" :right-text="bd_material.F_PAEZ_Base1.Name[0]?.Value" />
         </uni-list>
         
         <uni-card v-for="(image_url, index) in image_urls"
@@ -82,11 +84,12 @@
                         :title="material.FNumber"
                         :note="[
                             `名称：${material.FName}`, 
-                            `规格：${material.FSpecification}`
+                            `规格：${material.FSpecification}`,
+                            `使用组织：${material['FUseOrgId.FName']}`
                         ].join('\n')"
                         :thumb="_thumbnail_url(material.FImageFileServer)"
                         thumb-size="lg"
-                        @click="load_material(material.FNumber)" clickable
+                        @click="load_material(material.FMaterialId)" clickable
                         show-arrow
                         >
                     </uni-list-item>
@@ -210,7 +213,8 @@
                 this.bd_material = {} // init
                 this.image_urls = []
                 if (!this.search_form.material_no && !this.search_form.material_name && !this.search_form.material_spec) return
-                let options = { FUseOrgId: store.state.cur_stock.FUseOrgId || 1 }
+                let options = {}
+                if (store.state.cur_stock.FUseOrgId) options.FUseOrgId = store.state.cur_stock.FUseOrgId
                 if (this.search_form.material_no) options.FNumber_cont = this.search_form.material_no
                 if (this.search_form.material_name) options.FName_cont = this.search_form.material_name
                 if (this.search_form.material_spec) options.FSpecification_cont = this.search_form.material_spec
@@ -221,14 +225,14 @@
                     uni.hideLoading()
                     this.search_form.candidates = res.data
                     if (res.data.length > 1) this.$refs.search_drawer.open()
-                    if (res.data.length === 1) this.load_material(res.data[0]?.FNumber)
+                    if (res.data.length === 1) this.load_material(res.data[0]?.FMaterialId)
                     if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
                 })
             },
-            async load_material(material_no) {
+            async load_material(material_id) {
                 this.$refs.search_drawer.close()
                 uni.showLoading({ title: 'Loading' })
-                let view_res = await K3CloudApi.view('BD_MATERIAL', { Number: material_no })
+                let view_res = await K3CloudApi.view('BD_MATERIAL', { Id: material_id })
                 if (view_res.data.Result.ResponseStatus.IsSuccess) {
                     let raw_data = view_res.data.Result.Result
                     this.bd_material = raw_data
