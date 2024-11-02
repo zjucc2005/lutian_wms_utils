@@ -14,7 +14,7 @@
                     :class="col.class"
                     :style="col.style"
                     >
-                    <canvas v-if="col.canvas" :canvas-id="col.canvas.id" :style="col.canvas.style" :class="col.canvas.class"></canvas>
+                    <!-- <canvas v-if="col.canvas" :canvas-id="col.canvas.id" :style="col.canvas.style" :class="col.canvas.class"></canvas> -->
                     <image v-if="col.image" mode="aspectFit" :src="col.image.url" :style="col.image.style" :class="col.image.class"/>
                     <text v-if="col.text" :style="col.text.style" :class="col.text.class">{{ col.text.text }}</text>
                     <uqrcode v-if="col.qrcode" :ref="col.qrcode.ref" :canvas-id="col.qrcode.id" :value="col.qrcode.value" :size="col.qrcode.size"></uqrcode>
@@ -82,11 +82,23 @@
             // })
         },
         methods: {
+            // 各端兼容的image url
+            async compatible_url(url) {
+                // #ifdef APP-PLUS
+                return urlToBase64(url)
+                // #endif
+                // #ifdef H5
+                return url
+                // #endif
+            },
             goods_nav_click(e) {
                 if (e.index === 0) this.test()
             },
             goods_nav_button_click(e) {
-                if (e.index === 0) this.$refs.pdf_render.h2cRenderDom() // btn:渲染模板
+                if (e.index === 0) {
+                    uni.showLoading({ title: '渲染图片文件' })
+                    this.$refs.pdf_render.h2cRenderDom() // btn:渲染模板
+                } 
                 // if (e.index === 1) this.select_material_card() // btn:物料资料卡模板
             },
             load_material() {
@@ -111,9 +123,10 @@
                     cols:[
                         { 
                             span: 24,
-                            image: { 
-                                url: await urlToBase64('/static/image/wlzlk_header.png'), 
-                                style: { width: this.window_width + 'px', height: this.window_width * 540 / 3508 + 'px'  } },
+                            image: {
+                                url: await this.compatible_url('./static/image/wlzlk_header.png'),
+                                style: { width: this.window_width + 'px', height: this.window_width * 540 / 3508 + 'px'  },
+                            },
                         }
                     ]
                 })
@@ -143,7 +156,7 @@
                     class: 'wlzlk-row',
                     cols: [
                         { span: 6, text: { text: '标准装箱量' } },
-                        { span: 18, text: { text: 0 } }
+                        { span: 18, text: { text: bd_material.MaterialStock[0].BoxStandardQty } }
                     ]
                 })
                 rows.push({
@@ -176,8 +189,8 @@
                     cols: [
                         { 
                             span: 24, 
-                            image: { 
-                                url: await urlToBase64('/static/image/card_footer.png'), 
+                            image: {
+                                url: await this.compatible_url('./static/image/card_footer.png'), 
                                 style: { width: this.window_width + 'px', height: this.window_width * 125 / 1790 + 'px'  },
                             }
                         }
@@ -197,7 +210,7 @@
                 // #endif
             },
             save_base64_data_app_plus(base64_data, filename) {
-                uni.showLoading({ title: '正在导出' })
+                uni.showLoading({ title: '正在保存文件' })
                 const bitmap = new plus.nativeObj.Bitmap('base64')
                 bitmap.loadBase64Data(base64_data, () => {
                     let arr = base64_data.split(',');
@@ -232,7 +245,7 @@
                 })
             },
             save_base64_data_h5(base64_data, filename) {
-                uni.showLoading({ title: '正在导出' })
+                uni.showLoading({ title: '正在保存文件' })
                 // 将base64转换为blob对象
                 let arr = base64_data.split(',');
                 let mime = arr[0].match(/:(.*?);/)[1];
