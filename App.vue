@@ -5,6 +5,16 @@
 		onLaunch: function() {
 			// console.log('App Launch')
             this.init_store()  // 加载本地存储的数据到store
+            // uni.onWindowResize(res => {
+            //     console.log('>>> 窗口尺寸发生变化', res)
+            //     uni.getSystemInfo({
+            //         success: (gsi_res) => { 
+            //             store.commit('set_system_info', gsi_res)
+            //             console.log('>>> 重新渲染页面')
+            //             this.$forceUpdate()
+            //         }
+            //     })    
+            // })
 		},
 		onShow: function() {
 			// console.log('App Show')

@@ -124,8 +124,8 @@
 
 <script>
     import store from '@/store'
+    import K3CloudApi from '@/utils/k3cloudapi'
     import { play_audio_prompt } from '@/utils'
-    import { get_stk_transferdirect } from '@/utils/api'
     import { InboundTask } from '@/utils/model'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     // #ifdef APP-PLUS
@@ -295,7 +295,7 @@
                 }
                 if (bill_no.startsWith('ZJDB')) { // 直接调拨单
                     uni.showLoading({ title: 'Loading' })
-                    get_stk_transferdirect(bill_no).then(res => {
+                    K3CloudApi.view('STK_TransferDirect', { Number: bill_no }).then(res => {
                         this.handle_zjdbd_data(res)
                         uni.hideLoading()
                     })

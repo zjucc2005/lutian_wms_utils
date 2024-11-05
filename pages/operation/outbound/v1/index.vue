@@ -65,7 +65,7 @@
 
 <script>
     import store from '@/store'
-    import { get_sal_deliverynotice } from '@/utils/api'
+    import K3CloudApi from '@/utils/k3cloudapi'
     import { OutboundTask } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
@@ -184,7 +184,7 @@
                 if (bill_no.startsWith('FHTZD')) {
                     // 发货通知单
                     uni.showLoading({ title: 'Loading' })
-                    get_sal_deliverynotice(bill_no).then(res => {
+                    K3CloudApi.view('SAL_DELIVERYNOTICE', { Number: bill_no }).then(res => {
                         this.handle_fhtzd_data(res)
                         uni.hideLoading()
                     })

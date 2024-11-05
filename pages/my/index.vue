@@ -1,39 +1,37 @@
 <template>
-    <view>
-        <uni-list class="uni-mb-10">
-            <uni-list-item title="检查更新"
-                :show-extra-icon="true"
-                :extra-icon="{ type: 'loop', size: '24', color: '#007bff' }"
-                @click="check_update" clickable showArrow />
-            <uni-list-item title="关于"
-                :show-extra-icon="true"
-                :extra-icon="{ type: 'info', size: '24', color: '#007bff' }"
-                @click="about" clickable showArrow />
-            <!-- <uni-list-item title="位置"
-                :show-extra-icon="true" 
-                :extra-icon="{ color: '#007bff', size: '24', type: 'location' }"
-                @click="open_location" clickable showArrow />
-            <uni-list-item title="选项1"
-                :show-extra-icon="true" 
-                :extra-icon="{ color: '#28a745', size: '24', type: 'paperplane' }"
-                clickable showArrow />
-            <uni-list-item title="选项2"
-                :show-extra-icon="true"
-                :extra-icon="{ color: '#007bff', size: '24', type: 'staff' }"
-                clickable showArrow />
-            <uni-list-item title="选项3"
-                :show-extra-icon="true"
-                :extra-icon="{ color: '#dc3545', size: '24', type: 'gear' }"
-                clickable showArrow /> -->
-        </uni-list>
-        <uni-list>
-            <uni-list-item title="退出"
-                :show-extra-icon="true"
-                :extra-icon="{ color: '#dc3545', size: '24', type: 'close' }"
-                @click="logout" clickable
-                />
-        </uni-list>
-    </view>
+    <uni-list class="uni-mb-10">
+        <uni-list-item title="检查更新"
+            :show-extra-icon="true"
+            :extra-icon="{ type: 'loop', size: '24', color: '#007bff' }"
+            @click="check_update" clickable showArrow />
+        <uni-list-item title="关于"
+            :show-extra-icon="true"
+            :extra-icon="{ type: 'info', size: '24', color: '#007bff' }"
+            @click="about" clickable showArrow />
+        <!-- <uni-list-item title="位置"
+            :show-extra-icon="true" 
+            :extra-icon="{ color: '#007bff', size: '24', type: 'location' }"
+            @click="open_location" clickable showArrow />
+        <uni-list-item title="选项1"
+            :show-extra-icon="true" 
+            :extra-icon="{ color: '#28a745', size: '24', type: 'paperplane' }"
+            clickable showArrow />
+        <uni-list-item title="选项2"
+            :show-extra-icon="true"
+            :extra-icon="{ color: '#007bff', size: '24', type: 'staff' }"
+            clickable showArrow />
+        <uni-list-item title="选项3"
+            :show-extra-icon="true"
+            :extra-icon="{ color: '#dc3545', size: '24', type: 'gear' }"
+            clickable showArrow /> -->
+    </uni-list>
+    <uni-list>
+        <uni-list-item title="退出"
+            :show-extra-icon="true"
+            :extra-icon="{ color: '#dc3545', size: '24', type: 'close' }"
+            @click="logout" clickable
+            />
+    </uni-list>
 </template>
 
 <script>

@@ -100,10 +100,10 @@
                 type: Array,
                 default: []
             },
-            column: {
-                type: Number,
-                default: 10
-            },
+            // column: {
+            //     type: Number,
+            //     default: 10
+            // },
             onlyInv: {
                 type: Boolean,
                 default: false
@@ -130,6 +130,14 @@
             })
         },
         computed: {
+            column () {
+                return 10
+                // if (store.state.system_info.windowWidth > 1125) {
+                //     return 30
+                // } else {
+                //     return 10
+                // }
+            },
             grid_shelves() {
                 let grid_shelves = []
                 this.stock_locs.forEach(stock_loc => {
@@ -246,8 +254,8 @@
             },
             // 获取屏幕宽度
             get_swiper_height(shelf) {
-                let screen_width = store.state.system_info.windowWidth
-                return Math.ceil(screen_width / this.column * (shelf.bound.y + 0.7)) // swiper高度不会被内容撑开，需指定swiper高度
+                let window_width = store.state.system_info.windowWidth
+                return Math.ceil(window_width / this.column * (shelf.bound.y + 0.7)) // swiper高度不会被内容撑开，需指定swiper高度
             },
             grid_click(e, shelf) {
                 let grid = shelf.grids.find(g => g.index === e.detail.index)

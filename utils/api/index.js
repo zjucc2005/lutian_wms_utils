@@ -92,6 +92,7 @@ const get_bd_material = async (material_no, use_org_id) => {
 /** 
  * 搜索物料基础数据(模糊匹配)
  * @param options:Hash 参数集
+ *   @field FMaterialId:Integer
  *   @field no:String 搜索关键字，编码/名称/规格模糊匹配
  *   @field FName_cont:String 名称匹配
  *   @field FNumber_cont:String 编码匹配
@@ -109,6 +110,9 @@ const search_bd_materials = async (options, meta) => {
         FormId: 'BD_MATERIAL',
         FieldKeys: 'FMaterialId,FName,FNumber,FSpecification,FForbidStatus,FDocumentStatus,FBaseUnitId,FBaseUnitId.FNumber,FBaseUnitId.FName,FMaterialGroup.FName,FUseOrgId,FUseOrgId.FName,FImageFileServer',
         FilterString: []
+    }
+    if (options.FMaterialId) {
+        data.FilterString.push({ Left: "", FieldName: "FMaterialId", Compare: "67", Value: options.FMaterialId, Right: "", Logic: 0 })
     }
     if (options.no) {
         data.FilterString.push({ Left: "(",FieldName: "FNumber", Compare: "17", Value: options.no, Right: "", Logic: 1 })
@@ -138,74 +142,6 @@ const search_bd_materials = async (options, meta) => {
     return K3CloudApi.bill_query(data)
 }
 
-// const get_all_bd_materials = async (use_org_id) => {
-//     let options = { FUseOrgId: use_org_id }
-//     let meta = { page: 1, per_page: 10000, order: 'FNumber ASC' }
-//     let sum_data = []
-//     sum_data = await _get_all_bd_materials_recurse(options, meta, sum_data)
-//     return sum_data
-// }
-
-// const _get_all_bd_materials_recurse = async (options={}, meta={}, sum_data=[]) => {
-//     const data = {
-//         FormId: "BD_MATERIAL",
-//         // FieldKeys: '',
-//         FilterString: []
-//     }
-//     if (options.FUseOrgId) {
-//         data.FilterString.push({ Left: "", FieldName: "FUseOrgId", Compare: "67", Value: options.FUseOrgId, Right: "", Logic: 0 })
-//     }
-//     if (meta.per_page) {
-//         data.Limit = meta.per_page
-//         if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
-//     }
-//     if (meta.order) data.OrderString = meta.order
-//     let res = await K3CloudApi.bill_query(data)
-//     sum_data = sum_data.concat(res.data)
-//     if (res.data.length === meta.per_page) {
-//         meta.page += 1 // 翻页
-//         return _get_all_bd_materials_recurse(options, meta, sum_data)
-//     } else {
-//         return sum_data 
-//     }
-// }
-
-/** 
- * 获取发货通知单详情
- * @param bill_no:String 单据编号
- * @return {Hash} Promise
- */
-const get_sal_deliverynotice = async (bill_no) => {
-    return K3CloudApi.view('SAL_DELIVERYNOTICE', { Number: bill_no })
-}
-
-/** 
- * 获取直接调拨单详情
- * @param bill_no:String 单据编号
- * @return {Hash} Promise
- */
-const get_stk_transferdirect = async (bill_no) => {
-    return K3CloudApi.view('STK_TransferDirect', { Number: bill_no })
-}
-
-/** 
- * 获取生产发料通知单详情
- * @param bill_no:String 单据编号 SCFLTZD00001
- * @return {Hash} Promise
- */
-const get_prd_issuemtrnotice = async (bill_no) => {
-    return K3CloudApi.view('PRD_ISSUEMTRNOTICE', { Number: bill_no })
-}
-
-/** 
- * 获取生产用料清单详情
- * @param bill_no:String 单据编号 PPBOM00001
- * @return {Hash} Promise
- */
-const get_prd_ppbom = async (bill_no) => {
-    return K3CloudApi.view('PRD_PPBOM', { Number: bill_no })
-}
-
 export {
     validate_staff,
     get_bd_stocks,
@@ -213,9 +149,5 @@ export {
     get_bd_material,
     search_bd_materials,
     // get_all_bd_materials,
-    get_sal_deliverynotice,
-    get_stk_transferdirect,
-    get_prd_issuemtrnotice,
-    get_prd_ppbom
     // get_bd_units,
 }

@@ -81,8 +81,8 @@
 
 <script>
     import store from '@/store'
+    import K3CloudApi from '@/utils/k3cloudapi'
     import { OutboundTask, InvPlan } from '@/utils/model'
-    import { get_sal_deliverynotice } from '@/utils/api'
     import { play_audio_prompt } from '@/utils'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
@@ -165,7 +165,7 @@
                 let bill_no = this.search_form.bill_no
                 if (bill_no.startsWith('FHTZD')) { // 发货通知单
                     uni.showLoading({ title: 'Loading' })
-                    return get_sal_deliverynotice(bill_no).then(res => {
+                    return K3CloudApi.view('SAL_DELIVERYNOTICE', { Number: bill_no }).then(res => {
                         uni.hideLoading()
                         this._handle_fhtzd_data(res)
                     }).catch(err => {

@@ -44,8 +44,8 @@
             <uni-list-item title="编码" :right-text="bd_material.Number" />
             <uni-list-item title="名称" :right-text="bd_material.Name[0]?.Value" />
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
-            <uni-list-item title="仓库" :right-text="bd_material.MaterialStock[0]?.StockId.Name[0]?.Value" />
-            <uni-list-item title="仓管员" :right-text="bd_material.F_PAEZ_Base1.Name[0]?.Value" />
+            <uni-list-item title="仓库" :right-text="bd_material.MaterialStock[0]?.StockId ? bd_material.MaterialStock[0]?.StockId.Name[0]?.Value : '' " />
+            <uni-list-item title="仓管员" :right-text="bd_material.F_PAEZ_Base1 ? bd_material.F_PAEZ_Base1.Name[0]?.Value : '' " />
         </uni-list>
         
         <uni-card v-for="(image_url, index) in image_urls"

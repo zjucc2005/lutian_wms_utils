@@ -4,7 +4,7 @@
             v-for="(inv_plan, index) in inv_plans"
             :key="index"
             >
-            <template v-slot:body>
+            <template #body>
                 <view class="uni-list-item__body">
                     <view class="title">{{ formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</view>
                     <view class="note">
@@ -24,7 +24,7 @@
                     </view>
                 </view>
             </template>
-            <template v-slot:footer>
+            <template #footer>
                 <view class="uni-list-item__foot">
                     <view class="op_qty">
                         <text class="uni-mr-2">{{ op_type_dict[inv_plan.FOpType] }} </text>

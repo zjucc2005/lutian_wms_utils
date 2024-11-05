@@ -1,6 +1,6 @@
 <template>
     <!-- <uni-notice-bar text="测试版" single show-icon/> -->
-    <uni-grid :column="3" :highlight="true" :show-border="false">
+    <uni-grid :column="grid_column" :highlight="true" :show-border="false">
         <template v-for="(nav, index) in navs" :key="index">
             <uni-grid-item v-if="nav.permission.includes($store.state.role) || nav.permission.includes('all')" @click="nav.action">
                 <view class="grid-item-box">
@@ -13,6 +13,7 @@
 </template>
 
 <script>
+    import store from '@/store'
     import { play_audio_prompt } from '@/utils'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
@@ -35,8 +36,8 @@
                         action: () => { this.goTo('move/v2/index') }
                     },
                     {
-                        name: '发料用料', permission: ['nrj_admin', 'guest'], icon_path: '/static/icon/ludan.png',
-                        action: () => { this.goTo('scan/material_batch') }
+                        name: '生产订单', permission: ['nrj_admin', 'guest'], icon_path: '/static/icon/zuoyefenpei_red.png',
+                        action: () => { this.goTo('manufacture_order/index') }
                     },
                     {
                         name: '库存查询', permission: ['wh_admin', 'wh_staff'], icon_path: '/static/icon/saomiao.png',
@@ -71,6 +72,14 @@
                         action: () => { this.goTo('manage/index') }
                     }
                 ]
+            }
+        },
+        onShow() {
+            
+        },
+        computed: {
+            grid_column() {
+                return Math.min(6, Math.floor(store.state.system_info.windowWidth / 125)) 
             }
         },
         methods: {

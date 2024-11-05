@@ -8,6 +8,14 @@ const to_raw = (reactive_obj) => {
 }
 
 /**
+ * 四舍五入，不影响整数
+ */
+const math_round = (number, precision=0) => {
+    if (Number.isInteger(number)) return number
+    return Math.round(number * Math.pow(10, precision)) / Math.pow(10, precision)
+}
+
+/**
  * 播放提示音
  */
 const play_audio = (src) => {
@@ -111,6 +119,7 @@ const describe_inv_log = (inv_log) => {
 
 export {
     to_raw,
+    math_round,
     play_audio_prompt,
     is_material_no_format,
     is_loc_no_std_format,

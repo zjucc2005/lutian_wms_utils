@@ -115,7 +115,7 @@ const view = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.view req:", _data_)
+            logger.dev("K3CloudApi.view req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.View.common.kdsvc'),
                 method: 'POST',
@@ -157,7 +157,7 @@ const submit = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.submit req:", _data_)
+            logger.dev("K3CloudApi.submit req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Submit.common.kdsvc'),
                 method: 'POST',
@@ -199,7 +199,7 @@ const audit = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.audit req:", _data_)
+            logger.dev("K3CloudApi.audit req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Audit.common.kdsvc'),
                 method: 'POST',
@@ -240,7 +240,7 @@ const forbid = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.forbid req:", _data_)
+            logger.dev("K3CloudApi.forbid req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteOperation.common.kdsvc'),
                 method: 'POST',
@@ -281,7 +281,7 @@ const enable = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.enable req:", _data_)
+            logger.dev("K3CloudApi.enable req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteOperation.common.kdsvc'),
                 method: 'POST',
@@ -318,7 +318,7 @@ const _delete_ = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.delete req:", _data_)
+            logger.dev("K3CloudApi.delete req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Delete.common.kdsvc'),
                 method: 'POST',
@@ -410,7 +410,7 @@ const batch_save = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.save req:", _data_)
+            logger.dev("K3CloudApi.save req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BatchSave.common.kdsvc'),
                 method: 'POST',

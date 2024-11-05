@@ -384,6 +384,15 @@
             'FOperatorGroupId.FNumber': '业务组编号',
             'FOperatorGroupId.FName': '业务组'
         }
+    },    
+    PRD_MO: {
+        fields: {
+            FID: "ID",
+            FName: "Name",
+            FNumber: "Number",
+            FDescription: "Description",
+            FDocumentStatus: "DocumentStatus"
+        }
     },
     PAEZ_C_STOCK_LOC: {
         fields: {
