@@ -502,7 +502,8 @@
             FCreateTime: "数据新建时间",
             FSupplierId: "供应商ID",
             'FSupplierId.FNumber': '供应商编码',
-            'FSupplierId.FName': '供应商名称'
+            'FSupplierId.FName': '供应商名称',
+            FReferId: "自关联ID"
         }
     }
 }

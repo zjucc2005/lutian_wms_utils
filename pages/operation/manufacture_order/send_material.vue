@@ -236,7 +236,7 @@
     <uni-drawer ref="log_drawer" mode="right" :width="$store.state.drawer_width">
         <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
             <uni-section :title="`${{ send: '发料', receive: '用料' }[op_type]}日志`" type="square"
-                sub-title="左滑可删除"
+                sub-title="左滑可取消"
                 >
                 <template v-slot:right>
                     <view class="uni-section__right">
@@ -250,7 +250,7 @@
                         :key="index"
                         :threshold="60"
                         :right-options="swipe_options"
-                        @click="submit_delete(log)"
+                        @click="submit_cancel(log)"
                         >
                         <uni-list-item>
                             <template #body>
@@ -397,7 +397,7 @@
                 },
                 swipe_options: [
                     {
-                        text: '删除',
+                        text: '取消',
                         style: { backgroundColor: '#dd524d' }
                     }
                 ],
@@ -583,6 +583,7 @@
                     FStockId: store.state.cur_stock.FStockId,
                     FBillNo: this.bill.bill_no,
                     FOpType: this.op_type
+                    
                 }
                 let meta = { order: 'FID DESC' }
                 uni.showLoading({ title: 'Loading' })
@@ -726,7 +727,7 @@
                             })
                         }
                         this._activate_step('material')
-                        this.op_type = 'send'
+                        // this.op_type = 'send'
                         this.bill_raw_data = raw_data
                         this.bill = { 
                             bill_no: raw_data.BillNo, 
@@ -738,10 +739,16 @@
                     }
                 } catch (err) { console.log('load_scfltzd err', err) }
             },
-            async submit_delete(log) {
+            async submit_cancel(log) {
                 try {
+                    // 限制取消数据，24小时内可取消
+                    if (new Date(log.FCreateTime) < Date.now() - 24 * 3600 * 1000) {
+                        uni.showToast({ icon: 'none', title: '历史数据不能取消' })
+                        return
+                    }
                     uni.showLoading({ title: 'Loading' })
-                    return IssuemtrLog.delete([log.FID]).then(res => {
+                    let issuemtr_log = new IssuemtrLog(log)
+                    return issuemtr_log.cancel(store.state.cur_staff.FNumber).then(res => {
                         uni.hideLoading()
                         if (res.data.Result.ResponseStatus.IsSuccess) {
                             play_audio_prompt('delete')
@@ -753,6 +760,26 @@
                     })
                 } catch (err) { console.log('err', err) }
             },
+            // async submit_delete(log) {
+            //     try {
+            //         // 限制删除数据，24小时内可删
+            //         if (new Date(log.FCreateTime) < Date.now() - 24 * 3600 * 1000) {
+            //             uni.showToast({ icon: 'none', title: '历史数据不能删除' })
+            //             return
+            //         }
+            //         uni.showLoading({ title: 'Loading' })
+            //         return IssuemtrLog.delete([log.FID]).then(res => {
+            //             uni.hideLoading()
+            //             if (res.data.Result.ResponseStatus.IsSuccess) {
+            //                 play_audio_prompt('delete')
+            //                 this.$refs.log_swipe.closeAll()
+            //                 this.load_issuemtr_logs()
+            //             } else {
+            //                 uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
+            //             }
+            //         })
+            //     } catch (err) { console.log('err', err) }
+            // },
             async submit_save() {
                 try {
                     console.log('submit form', this.form)

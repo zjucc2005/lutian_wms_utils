@@ -17,6 +17,7 @@ import K3CloudApi from '@/utils/k3cloudapi';
  */
 class IssuemtrLog {
     constructor(options={}) {
+        if (options.FID) this.FID = options.FID
         this.FOpSN = store.state.snowflake.next_id()       
         this.FOpType = options.FOpType  // send, receive
         this.FStockId = { FStockId: options.FStockId } 
@@ -41,6 +42,17 @@ class IssuemtrLog {
     save() {
         const data = {
             model: this
+        }
+        return K3CloudApi.save('PAEZ_C_ISSUEMTR_LOG', data)
+    }
+    
+    cancel(staff_no) {
+        const data = {
+            model: {
+                FID: this.FID,
+                FOpType: this.FOpType + '_cl',
+                FRemark: `${(new Date()).toISOString()} 被[${staff_no}]取消`
+            }
         }
         return K3CloudApi.save('PAEZ_C_ISSUEMTR_LOG', data)
     }
@@ -93,6 +105,9 @@ class IssuemtrLog {
         }
         if (options.FID) {
             data.FilterString.push({ Left: "", FieldName: "FID", Compare: "67", Value: options.FID, Right: "", Logic: 0 })
+        }
+        if (options.FOpType) {
+            data.FilterString.push({ Left: "", FieldName: "FOpType", Compare: "67", Value: options.FOpType, Right: "", Logic: 0 })
         }
         if (options.FOpType_in) {
             data.FilterString.push({ Left: "", FieldName: "FOpType", Compare: "338", Value: options.FOpType_in.join(','), Right: "", Logic: 0 })
