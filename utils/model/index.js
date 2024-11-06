@@ -12,6 +12,7 @@ import InvLog from './inv_log'
 import InvPlan from './inv_plan'
 import IssuemtrLog from './issuemtr_log'
 import PrdMo from './prd_mo'
+import StkInventory from './stk_inventory'
 import StockLoc from './stock_loc'
 export {
     InboundTask,
@@ -24,5 +25,6 @@ export {
     InvPlan,
     IssuemtrLog,
     PrdMo,
+    StkInventory,
     StockLoc
 }

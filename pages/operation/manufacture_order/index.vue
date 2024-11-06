@@ -10,7 +10,7 @@
             @click="goTo('manufacture_order/send_material?t=receive')" clickable showArrow />
         <uni-list-item title="扫描日志"
             :show-extra-icon="true"
-            :extra-icon="{ type: 'search', size: '24', color: '#007bff' }"
+            :extra-icon="{ type: 'list', size: '24', color: '#007bff' }"
             @click="goTo('manufacture_order/issuemtr_logs')" clickable showArrow />
     </uni-list>
 </template>

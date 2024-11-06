@@ -44,10 +44,12 @@
             <uni-list-item title="编码" :right-text="bd_material.Number" />
             <uni-list-item title="名称" :right-text="bd_material.Name[0]?.Value" />
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
-            <uni-list-item title="基本单位" :right-text="bd_material.MaterialBase[0].BaseUnitId.Name[0].Value" />
-            <uni-list-item title="库存单位" :right-text="bd_material.MaterialStock[0].StoreUnitID.Name[0].Value" />
-            <uni-list-item title="仓库" :right-text="bd_material.MaterialStock[0]?.StockId ? bd_material.MaterialStock[0]?.StockId.Name[0]?.Value : '' " />
             <uni-list-item title="仓管员" :right-text="bd_material.F_PAEZ_Base1 ? bd_material.F_PAEZ_Base1.Name[0]?.Value : '' " />
+            <!-- <uni-list-item title="仓库" :right-text="bd_material.MaterialStock[0]?.StockId ? bd_material.MaterialStock[0]?.StockId.Name[0]?.Value : '' " /> -->
+            <uni-list-item title="库存组织" :right-text="stk_inventory['FStockOrgId.FName']" />
+            <uni-list-item title="仓库" :right-text="stk_inventory.FStockName" />
+            <uni-list-item title="库存量(基本单位)" :right-text="[stk_inventory.FBaseQty, bd_material.MaterialBase[0].BaseUnitId.Name[0].Value].join(' ')" />
+            
         </uni-list>
         
         <uni-card v-for="(image_url, index) in image_urls"
@@ -105,6 +107,7 @@
     import store from '@/store'
     import { play_audio_prompt } from '@/utils'
     import { search_bd_materials } from '@/utils/api'
+    import { StkInventory } from '@/utils/model'
     import K3CloudApi from '@/utils/k3cloudapi'
     // #ifdef APP-PLUS
     const myScanCode = uni.requireNativePlugin('My-ScanCode')
@@ -117,7 +120,8 @@
         },
         data() {
             return {
-                bd_material: {}, // 查看实例
+                bd_material: {}, // 物料实例
+                stk_inventory: {}, // 即时库存实例
                 image_urls: [], // 实例图片
                 search_form: {
                     material_no: '',
@@ -245,6 +249,18 @@
                             this.image_urls.push(image_url)
                         }
                     }
+                    // 加载即时库存数据
+                    let inv_res = await StkInventory.query({ 'FMaterialId.FNumber': raw_data.Number })
+                    let stk_inventory = { FBaseQty: 0 }
+                    for (let item of inv_res.data || []) {
+                        if (item.FBaseQty === 0) continue
+                        stk_inventory.FBaseQty += item.FBaseQty
+                        stk_inventory['FBaseUnitId.FName'] = item['FBaseUnitId.FName']
+                        stk_inventory.FStockName = item.FStockName
+                        stk_inventory['FStockOrgId.FName'] = item['FStockOrgId.FName']
+                        stk_inventory['FMaterialId.FNumber'] = item['FMaterialId.FNumber']
+                    }
+                    this.stk_inventory = stk_inventory
                     this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.green
                 }
                 uni.hideLoading()

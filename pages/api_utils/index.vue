@@ -189,8 +189,12 @@
                 // })
                 
                 const data = {
-                    FormId: 'BD_DEPARTMENT',
-                    FieldKeys: "FDEPTID,FName,FNumber,FParentId.FName,FGroup.FName,FUseOrgId,FUseOrgId.FName,FLevelCode,FDocumentStatus,FForbidStatus"
+                    FormId: 'STK_Inventory',
+                    FieldKeys: "FStockName,FBaseQty,FBaseUnitId.FName,FQty,FStockUnitId.FName,FSecQty,FSecUnitId.FName,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification",
+                    Limit: 100,
+                    FilterString: [
+                        { Left: "", FieldName: "FMaterialId.FNumber", Compare: "67", Value: '3.01.02.01.04.0251', Right: "", Logic: 0 }
+                    ]
                 }
                 K3CloudApi.bill_query(data)
                 

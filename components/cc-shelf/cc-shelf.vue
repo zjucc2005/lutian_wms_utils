@@ -132,7 +132,7 @@
         computed: {
             column () {
                 // return 10
-                if (store.state.system_info.windowWidth > 1125) {
+                if (store.state.system_info.windowWidth > 1000) {
                     return 30
                 } else {
                     return 10
