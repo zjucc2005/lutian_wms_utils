@@ -128,7 +128,7 @@
     // #endif 
     export default {
         props: {
-            t: {
+            m_id: {
                 type: String
             }
         },
@@ -138,6 +138,7 @@
                 stk_inventories: [], // 即时库存实例
                 image_urls: [], // 实例图片
                 search_form: {
+                    material_id: '',
                     material_no: '',
                     material_name: '',
                     material_spec: '',
@@ -156,15 +157,18 @@
             }
         },
         onLoad(options) {
-            if (options.t) {
-                this.search_form.material_no = options.t
-                this.search()
+            if (options.m_id) {
+                this.search_form.material_id = options.m_id
+                this.$nextTick(_ => {
+                    this.search()
+                })
             }
         },
         methods: {
             clear() {
                 this.bd_material = {}
                 this.image_urls = []
+                this.search_form.material_id = ''
                 this.search_form.material_no = ''
                 this.search_form.material_name = ''
                 this.search_form.material_spec = ''
@@ -235,6 +239,10 @@
             async search() {
                 this.bd_material = {} // init
                 this.image_urls = []
+                if (this.search_form.material_id) {
+                    this.load_material(this.search_form.material_id)
+                    return
+                } 
                 if (!this.search_form.material_no && !this.search_form.material_name && !this.search_form.material_spec) return
                 let options = {}
                 if (store.state.cur_stock.FUseOrgId) options.FUseOrgId = store.state.cur_stock.FUseOrgId

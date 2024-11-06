@@ -115,7 +115,7 @@
                     <view class="uni-list-item__body">
                         <view class="title">
                             {{ material.material_no }}
-                            <uni-icons type="search" color="#007aff" @click="view_material(material.material_no)" />
+                            <uni-icons type="search" color="#007aff" @click="view_material(material.material_id)" />
                         </view>
                         <view class="note">
                             <view>名称：{{ material.material_name }}</view>
@@ -145,7 +145,7 @@
                         <view class="title">
                             <uni-tag text="计划外" type="warning" size="mini" />
                             {{ material.material_no }}
-                            <uni-icons type="search" color="#007aff" @click="view_material(material.material_no)" />
+                            <uni-icons type="search" color="#007aff" @click="view_material(material.material_id)" />
                         </view>
                         <view class="note">
                             <view>名称：{{ material.material_name }}</view>
@@ -207,7 +207,7 @@
                             <view class="uni-list-item__body">
                                 <view class="title">
                                     {{ material.material_no }}
-                                    <uni-icons type="search" color="#007aff" @click="view_material(material.material_no)" />
+                                    <uni-icons type="search" color="#007aff" @click="view_material(material.material_id)" />
                                 </view>
                                 <view class="note">
                                     <view>名称：{{ material.material_name }}</view>
@@ -602,9 +602,11 @@
             search() {
                 this.after_scan_code(this.no)
             },
-            view_material(material_no) {
-                if (!material_no) uni.showToast({ icon: 'none', title: '物料编码不能为空' })
-                uni.navigateTo({ url: '/pages/operation/manage/material_search?t=' + material_no })
+            view_material(material_id) {
+                if (!material_id) uni.showToast({ icon: 'none', title: '物料ID不能为空' })
+                uni.navigateTo({ 
+                    url: `/pages/operation/manage/material_search?m_id=${material_id}`
+                })
             },
             async load_issuemtr_logs() {
                 let options = {
