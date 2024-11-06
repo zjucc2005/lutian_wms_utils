@@ -97,6 +97,7 @@
     
     <uni-section title="追踪物料列表" type="square"
         v-if="step == 'material'"
+        class="above-uni-goods-nav"
         >
         <template #right>
             <view class="uni-section__right">
@@ -479,7 +480,7 @@
             goods_nav_click(e) {
                 if (e.index === 0) this.$refs.detail_drawer.open() // btn:明细
                 if (e.index === 1) this.$refs.log_drawer.open() // btn: 日志
-                console.log(this.$data)
+                // console.log(this.$data)
             },
             goods_nav_button_click(e) { 
                 if (e.index === 0) {
@@ -631,6 +632,12 @@
                         // }
                         let materials = []
                         for (let entity of raw_data.PPBomEntry) {
+                            let material = materials.find(x => x.material_id == entity.MaterialID.Id)
+                            if (material) {
+                                material.base_unit_qty += entity.BaseStdQty // 相同物料则合并数量
+                                material.unit_qty += entity.StdQty
+                                continue
+                            }
                             materials.push({
                                 material_id: entity.MaterialID.Id,
                                 material_no: entity.MaterialID.Number,
@@ -645,7 +652,6 @@
                             })
                         }
                         this._activate_step('material')
-                        // this.op_type = 'receive'
                         this.bill_raw_data = raw_data
                         this.bill = { 
                             bill_no: raw_data.BillNo, 
@@ -730,7 +736,6 @@
                 this.prd_mo_load_more_status = res.data.length < this.prd_mo_search_form.per_page ? 'nomore' : 'more'
                 res.data.forEach(item => this.prd_mos.push(item) )
                 this.prd_mos_visible = true
-                // this.prd_mos = res.data
             },
             async load_scfltzd(bill_no) {
                 try {
@@ -757,7 +762,6 @@
                             })
                         }
                         this._activate_step('material')
-                        // this.op_type = 'send'
                         this.bill_raw_data = raw_data
                         this.bill = { 
                             bill_no: raw_data.BillNo, 

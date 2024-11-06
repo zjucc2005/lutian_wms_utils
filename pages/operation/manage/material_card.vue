@@ -313,6 +313,7 @@
         }
     }
     .card-default::v-deep {
+        padding: 1px;
         line-height: 2;
         font-weight: bold;
         font-size: 26px;
