@@ -4,38 +4,41 @@
             <image src="/static/logo-wms.png"></image>
             <view>内销货位</view>
         </view>
-        <uni-forms ref="login_form" :model="login_form"  :rules="login_form_rules" labelWidth="60px">
-            <uni-forms-item label="仓库" name="stock_id">
-                <uni-data-picker
-                    ref="stock_id_data_picker"
-                    v-model="login_form.stock_id"
-                    :localdata="stock_opts"
-                    @change="handle_stock_change"
-                    popup-title="请选择所属仓库"
-                    class="hidden-data-picker"                    
-                    >
-                    <template v-slot:default>
-                        <view class="custom-data-picker-input">
-                            <text v-if="login_form?.stock_id" class="selected">
-                                {{ selected_stock_info() }}
-                            </text>
-                            <template v-else>
-                                <text class="placeholder">请选择</text>
-                            </template>
-                            <uni-icons type="down" color="#999"></uni-icons>
-                        </view>
-                    </template>
-                </uni-data-picker>
-            </uni-forms-item>
-            <uni-forms-item label="姓名" name="staff_name">
-                <uni-easyinput v-model="login_form.staff_name" trim="both" />
-            </uni-forms-item>
-            <uni-forms-item label="工号" name="staff_no">
-                <uni-easyinput v-model="login_form.staff_no" trim="both" />
-            </uni-forms-item>
-            <button type="primary" @click="submit_login">登录</button>
-            <button @click="submit_guest_login" class="uni-mt-11">访客账号登录</button>
-        </uni-forms>
+        <view class="form-wrapper">
+            <uni-forms ref="login_form" :model="login_form"  :rules="login_form_rules" labelWidth="60px" class="form">
+                <uni-forms-item label="仓库" name="stock_id">
+                    <uni-data-picker
+                        ref="stock_id_data_picker"
+                        v-model="login_form.stock_id"
+                        :localdata="stock_opts"
+                        @change="handle_stock_change"
+                        popup-title="请选择所属仓库"
+                        class="hidden-data-picker"                    
+                        >
+                        <template v-slot:default>
+                            <view class="custom-data-picker-input">
+                                <text v-if="login_form?.stock_id" class="selected">
+                                    {{ selected_stock_info() }}
+                                </text>
+                                <template v-else>
+                                    <text class="placeholder">请选择</text>
+                                </template>
+                                <uni-icons type="down" color="#999"></uni-icons>
+                            </view>
+                        </template>
+                    </uni-data-picker>
+                </uni-forms-item>
+                <uni-forms-item label="姓名" name="staff_name">
+                    <uni-easyinput v-model="login_form.staff_name" trim="both" />
+                </uni-forms-item>
+                <uni-forms-item label="工号" name="staff_no">
+                    <uni-easyinput v-model="login_form.staff_no" trim="both" />
+                </uni-forms-item>
+                <button type="primary" @click="submit_login">登录</button>
+                <button @click="submit_guest_login" class="uni-mt-11">访客账号登录</button>
+            </uni-forms>
+        </view>
+        
     </view>
 </template>
 
@@ -193,6 +196,14 @@
         view {
             font-size: $uni-font-size-sm;
             color: $uni-text-color-grey;
+        }
+    }
+    .form-wrapper {
+        display: flex;
+        justify-content: center;
+        .form {
+            width: 100%;
+            max-width: 600px;
         }
     }
     .custom-data-picker-input {

@@ -21,7 +21,7 @@ class StkInventory {
      * @return {Hash} Promise
      */
     static query(options={}, meta={}) {
-        const fields = ['FBaseQty', 'FBaseUnitId.FName', 'FMaterialId.FNumber', 'FStockName', 'FStockOrgId', 'FStockOrgId.FName' ]
+        const fields = ['FBaseQty', 'FBaseUnitId.FName', 'FMaterialId.FNumber', 'FStockName', 'FStockId', 'FStockOrgId', 'FStockOrgId.FName' ]
         const data = {
             FormId: "STK_Inventory",
             FieldKeys: fields.join(','),

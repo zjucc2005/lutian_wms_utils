@@ -46,20 +46,33 @@
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
             <template v-if="['nrj_admin'].includes($store.state.role)">
                 <uni-list-item title="仓管员" :right-text="bd_material.F_PAEZ_Base1 ? bd_material.F_PAEZ_Base1.Name[0]?.Value : '' " />
-                <!-- <uni-list-item title="仓库" :right-text="bd_material.MaterialStock[0]?.StockId ? bd_material.MaterialStock[0]?.StockId.Name[0]?.Value : '' " /> -->
-                <uni-list-item title="库存组织" :right-text="stk_inventory['FStockOrgId.FName']" />
-                <uni-list-item title="仓库" :right-text="stk_inventory.FStockName" />
-                <uni-list-item title="库存量(基本单位)" :right-text="[stk_inventory.FBaseQty, bd_material.MaterialBase[0].BaseUnitId.Name[0].Value].join(' ')" />
+                <template v-for="(stk_inv, index) in stk_inventories" :key="index">
+                    <uni-list-item 
+                        title="库存量(基本单位)"
+                        :note="[
+                            `组织：${stk_inv['FStockOrgId.FName']}`,
+                            `仓库：${stk_inv.FStockName}`
+                        ].join('\n')"
+                        :right-text="[stk_inv.FBaseQty, bd_material.MaterialBase[0].BaseUnitId.Name[0].Value].join(' ')" />
+                </template> 
             </template>
         </uni-list>
         
-        <uni-card v-for="(image_url, index) in image_urls"
-            :key="index"
-            :cover="image_url"
-            padding="5px"
-            @click="preview_image(image_url)"
-            >
-        </uni-card>
+        <!-- 图片展示，缩略图占位，等待原图加载完毕 -->
+        <view v-for="(image_url, index) in image_urls" :key="index" class="image-card">
+            <uni-icons v-if="image_url.loading" type="spinner-cycle" size="24" color="#eee" class="image-loading"></uni-icons>
+            <image v-if="image_url.loading" :src="image_url.thumbnail" mode="widthFix" style="width: 100%;" />
+            <image
+                :src="image_url.original" 
+                mode="widthFix"
+                :style="{
+                    width: image_url.loading ? 0 : '100%',
+                    height: image_url.loading ? 0 : ''
+                }"
+                @click="preview_image(image_url.original)"
+                @load="image_load_over(image_url)"
+                />
+        </view>
     </uni-section>
     
     <view class="uni-goods-nav-wrapper">
@@ -122,7 +135,7 @@
         data() {
             return {
                 bd_material: {}, // 物料实例
-                stk_inventory: {}, // 即时库存实例
+                stk_inventories: [], // 即时库存实例
                 image_urls: [], // 实例图片
                 search_form: {
                     material_no: '',
@@ -167,10 +180,13 @@
                 if (e.index === 0) this.scan_code() // btn:扫码查询
                 if (e.index === 1) this.select_material_card() // btn:物料资料卡模板
             },
+            image_load_over(image_url) {
+                image_url.loading = false
+            },
             preview_image(current) {
                 uni.previewImage({
                     current: current,
-                    urls: this.image_urls
+                    urls: this.image_urls.map(x => x.original)
                 });
             },
             scan_code() {
@@ -246,22 +262,36 @@
                     let image_fields = ['ImageFileServer', 'F_PAEZ_ImageFileServer', 'F_PAEZ_ImageFileServer1']
                     for (let field of image_fields) {
                         if (raw_data[field]?.trim()) {
-                            let image_url = await K3CloudApi.download_url(raw_data[field])
-                            this.image_urls.push(image_url)
+                            // let image_url = await K3CloudApi.download_url(raw_data[field])
+                            // this.image_urls.push(image_url)
+                            this.image_urls.push({
+                                id: raw_data[field],
+                                original: await K3CloudApi.download_url(raw_data[field]),
+                                thumbnail: await K3CloudApi.download_url(raw_data[field], 1),
+                                loading: true
+                            })
                         }
                     }
                     // 加载即时库存数据
                     let inv_res = await StkInventory.query({ 'FMaterialId.FNumber': raw_data.Number })
                     let stk_inventory = { FBaseQty: 0 }
-                    for (let item of inv_res.data || []) {
-                        if (item.FBaseQty === 0) continue
-                        stk_inventory.FBaseQty += item.FBaseQty
-                        stk_inventory['FBaseUnitId.FName'] = item['FBaseUnitId.FName']
-                        stk_inventory.FStockName = item.FStockName
-                        stk_inventory['FStockOrgId.FName'] = item['FStockOrgId.FName']
-                        stk_inventory['FMaterialId.FNumber'] = item['FMaterialId.FNumber']
+                    let stk_inventories = [] // 按不同仓库分开
+                    for (let item of inv_res.data) {
+                        let stk_inv = stk_inventories.find(x => x.FStockId == item.FStockId)
+                        if (stk_inv) {
+                            stk_inv.FBaseQty += item.FBaseQty
+                            continue
+                        }
+                        stk_inventories.push({
+                            FBaseQty: item.FBaseQty,
+                            'FBaseUnitId.FName': item['FBaseUnitId.FName'],
+                            FStockName: item.FStockName,
+                            FStockId: item.FStockId,
+                            'FStockOrgId.FName': item['FStockOrgId.FName'],
+                            'FMaterialId.FNumber': item['FMaterialId.FNumber']
+                        })
                     }
-                    this.stk_inventory = stk_inventory
+                    this.stk_inventories = stk_inventories
                     this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.green
                 }
                 uni.hideLoading()
@@ -278,11 +308,28 @@
 </script>
 
 <style lang="scss" scoped>
-    .uni-card::v-deep {
-        .uni-card__cover-image {
-            width: 100%;
+    .image-card {
+        margin: 10px;
+        padding: 5px 5px 1px 5px;
+        border: 1px solid #eee;
+        border-radius: 5px;
+        box-shadow: rgba(0, 0, 0, 0.08) 0px 0px 3px 1px;
+        .image-loading {
+            position: absolute;
+            z-index: 10;
+            animation: rotate 2s linear infinite;
         }
     }
+    
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    
     .form-btn {
         border-radius: 0;
     }
