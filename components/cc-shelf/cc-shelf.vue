@@ -131,12 +131,12 @@
         },
         computed: {
             column () {
-                return 10
-                // if (store.state.system_info.windowWidth > 1125) {
-                //     return 30
-                // } else {
-                //     return 10
-                // }
+                // return 10
+                if (store.state.system_info.windowWidth > 1125) {
+                    return 30
+                } else {
+                    return 10
+                }
             },
             grid_shelves() {
                 let grid_shelves = []

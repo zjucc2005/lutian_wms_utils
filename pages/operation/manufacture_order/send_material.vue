@@ -46,7 +46,8 @@
                     </template>
                 </uni-list-item>
             </uni-list>
-            <uni-load-more v-else status="nomore"/>
+            
+            <uni-load-more :status="prd_mo_load_more_status" @clickLoadMore="prd_mo_load_more" />
         </uni-section>
     </template>
     
@@ -181,7 +182,6 @@
         <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
             <uni-section :title="['单据明细', bill.bill_no].join(' ')" type="square"
                 sub-title="勾选的物料会显示在追踪列表"
-                
                 >
                 <template #right>
                     <view class="uni-section__right">
@@ -189,7 +189,7 @@
                     </view>
                 </template>
                 
-                <uni-list>
+                <uni-list v-if="bill.materials.length">
                     <uni-list-item
                         v-for="(material, index) in bill.materials"
                         :key="index"
@@ -299,6 +299,9 @@
                     <uni-forms-item label="需求单据">
                         <uni-easyinput v-model="prd_mo_search_form.sale_order_no" />
                     </uni-forms-item>
+                    <uni-forms-item label="产线2">
+                        <uni-easyinput v-model="prd_mo_search_form.chanxian2" />
+                    </uni-forms-item>
                     <uni-forms-item label="业务状态">
                         <uni-data-select
                             v-model="prd_mo_search_form.status"
@@ -324,7 +327,7 @@
     // #endif 
     export default {
         props: {
-            op_type: {
+            t: {
                 type: String,
                 default: 'send'  // send: '发料', receive: '用料'
             }
@@ -332,7 +335,7 @@
         data() {
             return {
                 step: 'bill',  // bill: '扫描单据', material: '扫描物料' 
-                // op_type: 'send', 
+                op_type: 'send', 
                 bd_materials: [], // 缓存计划外的物料
                 bd_suppliers: [], // 缓存供应商
                 bill_raw_data: {},
@@ -350,6 +353,7 @@
                     status: '4'
                 },
                 prd_mo_status_dict: PrdMo.FStatusEnum,
+                prd_mo_load_more_status: 'more', // more,loading,nomore, 生产订单加载状态栏
                 issuemtr_logs: [],
                 unplanned_materials: [], // 计划外的物料
                 no: '',
@@ -413,10 +417,24 @@
                 }
             }
         },
+        onReachBottom() {
+            this.prd_mo_load_more()
+        },
+        onLoad(options) {
+            if (options.t) {
+                this.op_type = options.t
+                setTimeout(_ => {
+                    uni.setNavigationBarTitle({
+                        title: `生产订单 - ${ this.op_type == 'receive' ? '用料' : '发料' }`
+                    })
+                }, 0)
+                if (this.op_type == 'receive') {
+                    this.goods_nav.button_group[0].text = ''
+                    this.goods_nav.button_group[0].backgroundColor = '#fff'
+                }
+            }
+        },
         mounted() {
-            uni.setNavigationBarTitle({
-            	title: `生产订单 - ${ this.op_type == 'receive' ? '用料' : '发料' }`
-            });
             this._init_form()
         },
         methods: {
@@ -465,7 +483,7 @@
             },
             goods_nav_button_click(e) { 
                 if (e.index === 0) {
-                    if (this.step == 'bill') this.$refs.prd_mo_search_dialog.open()
+                    if (this.step == 'bill' && this.op_type == 'send') this.$refs.prd_mo_search_dialog.open() 
                     if (this.step == 'material') this.if_go_back() // btn:返回
                 }
                 if (e.index === 1) this.scan_code() // btn:扫码
@@ -526,12 +544,21 @@
                     }
                 })
             },
+            prd_mo_load_more() {
+                if (this.prd_mo_load_more_status == 'nomore') return
+                this.prd_mo_search_form.page += 1
+                this.load_prd_mos()
+            },
             prd_mo_search_dialog_close() {
                 this.$refs.prd_mo_search_dialog.close()
             },
             prd_mo_search_dialog_confirm() {
+                this.prd_mos = []
+                this.prd_mo_load_more_status = 'more'
+                this.prd_mo_search_form.page = 1
                 this.load_prd_mos()
                 this.prd_mo_search_dialog_close()
+                uni.pageScrollTo({ scrollTop: 0 })
             },
             supplier_no_change() {
                 // 0. 设置默认值
@@ -583,7 +610,6 @@
                     FStockId: store.state.cur_stock.FStockId,
                     FBillNo: this.bill.bill_no,
                     FOpType: this.op_type
-                    
                 }
                 let meta = { order: 'FID DESC' }
                 uni.showLoading({ title: 'Loading' })
@@ -695,12 +721,16 @@
                 let options = { FStatus: '4' }
                 if (this.prd_mo_search_form.bill_no) options.FBillNo_cont = this.prd_mo_search_form.bill_no
                 if (this.prd_mo_search_form.sale_order_no) options.FSaleOrderNo_cont = this.prd_mo_search_form.sale_order_no
+                if (this.prd_mo_search_form.chanxian2) options['F_LT_CX.FName_cont'] = this.prd_mo_search_form.chanxian2
                 let meta = { order: 'FID DESC', page: this.prd_mo_search_form.page, per_page: this.prd_mo_search_form.per_page }
                 uni.showLoading({ title: 'Loading' })
+                this.prd_mo_load_more_status = 'loading'
                 let res = await PrdMo.query(options, meta)
                 uni.hideLoading()
+                this.prd_mo_load_more_status = res.data.length < this.prd_mo_search_form.per_page ? 'nomore' : 'more'
+                res.data.forEach(item => this.prd_mos.push(item) )
                 this.prd_mos_visible = true
-                this.prd_mos = res.data
+                // this.prd_mos = res.data
             },
             async load_scfltzd(bill_no) {
                 try {

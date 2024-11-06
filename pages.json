@@ -228,16 +228,24 @@
             }
         },
         {
-            "path": "pages/operation/scan/material_batch",
-            "style": { "navigationBarTitleText": "扫描 - 物料批次记录" }
-        },
-        {
             "path": "pages/operation/manufacture_order/index",
             "style": { "navigationBarTitleText": "生产订单" }
         },
         {
             "path": "pages/operation/manufacture_order/send_material",
-            "style": { "navigationBarTitleText": "生产订单 - 发料" }
+            "style": { 
+                "navigationBarTitleText": "生产订单 - 发料",
+                "enablePullDownRefresh": true,
+                "onReachBottomDistance": 50
+            }
+        },
+        {
+            "path": "pages/operation/manufacture_order/issuemtr_logs",
+            "style": { 
+                "navigationBarTitleText": "发料用料日志",
+                "enablePullDownRefresh": true,
+                "onReachBottomDistance": 50
+            }
         }
     ],
     "globalStyle": {

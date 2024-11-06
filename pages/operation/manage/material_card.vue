@@ -1,5 +1,5 @@
 <template>
-    <scroll-view scroll-x="true" class="above-uni-goods-nav">  
+    <scroll-view scroll-x="true" class="above-uni-goods-nav">
         <view :id="card_template.id" :class="card_template.class" :style="card_template.style">
             <uni-row 
                 v-for="(row, row_index) in card_template.rows" 
@@ -16,13 +16,13 @@
                     >
                     <!-- <canvas v-if="col.canvas" :canvas-id="col.canvas.id" :style="col.canvas.style" :class="col.canvas.class"></canvas> -->
                     <image v-if="col.image" mode="aspectFit" :src="col.image.url" :style="col.image.style" :class="col.image.class"/>
-                    <text v-if="col.text" :style="col.text.style" :class="col.text.class">{{ col.text.text }}</text>
+                    <text v-if="col.text" :style="col.text.style" :class="col.text.class">{{ col.text.text || '　' }}</text>
                     <uqrcode v-if="col.qrcode" :ref="col.qrcode.ref" :canvas-id="col.qrcode.id" :value="col.qrcode.value" :size="col.qrcode.size"></uqrcode>
                 </uni-col>
             </uni-row>
         </view>
     </scroll-view>
-
+    
     <sp-html2canvas-render
         :domId="card_template.id"
         ref="pdf_render"
@@ -36,6 +36,7 @@
             @buttonClick="goods_nav_button_click"
         />
     </view>
+    <iframe ref="iframe" style="display: none;"></iframe>
 </template>
 
 <script>
@@ -46,6 +47,7 @@
         data() {
             return {
                 category: 'wlzlk', // 模板类型
+                op_type: 'export', // export,print
                 bd_material: {},
                 // card > row > col
                 card_template: {
@@ -54,10 +56,8 @@
                     style: {},
                     rows: []
                 },
-                text: '1.01.04.06.0090',
                 window_height: 1920, // 屏幕高度设定值
                 window_width: 1080,  // 屏幕宽度设定值，作为模板尺寸参考基准，使得APP/H5渲染的尺寸保持一致
-                render_image: '',
                 goods_nav: {
                     options: [
                         { icon: 'tune', text: '调试', info: 0 }
@@ -80,6 +80,11 @@
             // this.$nextTick(_ => {
             //     if (!this.bd_material.Id) this.load_material() // dev
             // })
+            // #ifdef H5
+                this.goods_nav.button_group.push(
+                    {text: '导出图片并打印', color: '#fff', backgroundColor: store.state.goods_nav_color.blue}
+                )
+            // #endif
         },
         methods: {
             // 各端兼容的image url
@@ -96,10 +101,15 @@
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) {
+                    this.op_type = 'export'
                     uni.showLoading({ title: '渲染图片文件' })
-                    this.$refs.pdf_render.h2cRenderDom() // btn:渲染模板
+                    this.$refs.pdf_render.h2cRenderDom() // btn:导出图片
                 } 
-                // if (e.index === 1) this.select_material_card() // btn:物料资料卡模板
+                if (e.index === 1) {
+                    this.op_type = 'print'
+                    uni.showLoading({ title: '渲染图片文件' })
+                    this.$refs.pdf_render.h2cRenderDom() // btn:导出图片并打印
+                }
             },
             load_material() {
                 K3CloudApi.view('BD_Material', { Number: '2.03.21.11.0002' }).then(res => {
@@ -124,7 +134,7 @@
                         { 
                             span: 24,
                             image: {
-                                url: await this.compatible_url('./static/image/wlzlk_header.png'),
+                                url: await this.compatible_url('/static/image/wlzlk_header.png'),
                                 style: { width: this.window_width + 'px', height: this.window_width * 540 / 3508 + 'px'  },
                             },
                         }
@@ -149,7 +159,7 @@
                     class: 'wlzlk-row',
                     cols: [
                         { span: 6, text: { text: '物料型号' } },
-                        { span: 18, text: { text: bd_material.Specification[0].Value } }
+                        { span: 18, text: { text: bd_material.Specification[0].Value.trim() } }
                     ]
                 })
                 rows.push({
@@ -190,7 +200,7 @@
                         { 
                             span: 24, 
                             image: {
-                                url: await this.compatible_url('./static/image/card_footer.png'), 
+                                url: await this.compatible_url('/static/image/card_footer.png'), 
                                 style: { width: this.window_width + 'px', height: this.window_width * 125 / 1790 + 'px'  },
                             }
                         }
@@ -206,7 +216,8 @@
                     this.save_base64_data_app_plus(e, filename)
                 // #endif
                 // #ifdef H5
-                    this.save_base64_data_h5(e, filename)
+                    if (this.op_type == 'export') this.save_base64_data_h5(e, filename)
+                    if (this.op_type == 'print') this.print_base64_data_h5(e)
                 // #endif
             },
             save_base64_data_app_plus(base64_data, filename) {
@@ -267,6 +278,23 @@
                 uni.hideLoading()
                 console.log('>>> H5图片保存成功')
             },
+            // #ifdef H5
+            print_base64_data_h5(base64_data) {
+                uni.showLoading({ title: '正在打印文件' })
+                this.$refs.iframe.contentWindow.document.body.innerHTML = ''
+                this.$refs.iframe.contentWindow.document.write(`
+                    <html>
+                        <body style="margin: 0px;">
+                            <img src="${base64_data}" style="height: 100%; width: 100%;">
+                        </body>
+                    </html>
+                `)
+                setTimeout(_ => {
+                    this.$refs.iframe.contentWindow.print()
+                }, 0)
+                uni.hideLoading()
+            },
+            // #endif
             test() {
                 try{
                     console.log('DEBUG', this.$data)

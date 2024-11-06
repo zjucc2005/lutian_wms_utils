@@ -26,6 +26,7 @@ class PrdMo {
      *   @field FID:Integer 主键ID
      *   @field FBillNo_cont:String 单据编号
      *   @field FSaleOrderNo_cont:String
+     *   @field F_LT_CX.FName_cont:String
      *   @field FStatus:String 业务状态 
      * @param meta:Hash
      *   @field page:Integer
@@ -48,6 +49,9 @@ class PrdMo {
         }
         if (options.FSaleOrderNo_cont) {
             data.FilterString.push({ Left: "", FieldName: "FSaleOrderNo", Compare: "81", Value: options.FSaleOrderNo_cont, Right: "", Logic: 0 })
+        }
+        if (options['F_LT_CX.FName_cont']) {
+            data.FilterString.push({ Left: "", FieldName: "F_LT_CX.FName", Compare: "81", Value: options['F_LT_CX.FName_cont'], Right: "", Logic: 0 })
         }
         if (options.FStatus) {
             data.FilterString.push({ Left: "", FieldName: "FStatus", Compare: "105", Value: "4", Right: "", Logic: 0 })
