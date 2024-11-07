@@ -280,11 +280,18 @@
                 console.log('>>> H5图片保存成功')
             },
             // #ifdef H5
-            print_base64_data_h5(base64_data) {
+            print_base64_data_h5(base64_data, orientation='') {
                 uni.showLoading({ title: '正在打印文件' })
                 this.$refs.iframe.contentWindow.document.body.innerHTML = ''
                 this.$refs.iframe.contentWindow.document.write(`
                     <html>
+                        <style>
+                            @media print {
+                                @page {
+                                    size: ${orientation};
+                                }
+                            }
+                        </style>
                         <body style="margin: 0px;">
                             <img src="${base64_data}" style="height: 100%; width: 100%;">
                         </body>
