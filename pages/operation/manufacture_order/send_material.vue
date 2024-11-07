@@ -13,7 +13,45 @@
                     :style="{
                         height: '50px'
                     }"
-                ></uni-easyinput>
+                ></uni-easyinput> 
+                
+                <uni-card title="待提交单据"
+                    v-if="bills.length"
+                    :extra="`${bills.length} 个`"
+                    :is-shadow="false"
+                    margin="0"
+                    spacing="0"
+                    padding="0">
+                    <uni-list :border="false">
+                        <uni-list-item v-for="(bill, index) in bills">
+                            <template #body>
+                                <view class="uni-list-item__body">
+                                    <view class="title">
+                                        {{ `${bill.bill_no}${ bill.mo_bill_no ? ` / ${bill.mo_bill_no}` : '' }` }}
+                                    </view>
+                                    <view class="note">
+                                        <view>类型：{{ bill.category == 'scfltzd' ? '生产发料通知单' : '用料清单' }}</view>
+                                        <view v-if="bill.category == 'ppbom'">物料编码：{{ bill.material_no }}</view>
+                                        <view v-if="bill.category == 'ppbom'">物料名称：{{ bill.material_name }}</view>
+                                        <view v-if="bill.category == 'ppbom'">规格型号：{{ bill.material_spec }}</view>
+                                    </view>
+                                </view>
+                            </template>
+                            <template #footer>
+                                <view class="uni-list-item__foot">
+                                    <uni-icons type="minus" size="24" color="#dd524d" @click="bills_del(bill)" />
+                                </view>
+                            </template>
+                        </uni-list-item>
+                    </uni-list>
+                    <template #actions>
+                        <view>
+                            <button type="primary" class="card-form-btn" @click="bills_combine_and_next">
+                                <uni-icons type="checkmarkempty" color="#fff"></uni-icons> 合并提交
+                            </button>
+                        </view>
+                    </template>
+                </uni-card>
             </view>
         </uni-section>
         
@@ -51,11 +89,7 @@
         </uni-section>
     </template>
     
-    <uni-section title="扫描物料" type="square"
-        v-if="step == 'material'"
-        :sub-title="`${bill.bill_no}${bill.mo_bill_no ?  ` / ${bill.mo_bill_no}` : ''}`"
-        sub-title-color="#007aff"
-        >
+    <uni-section title="扫描物料" type="square" v-if="step == 'material'">
         <view class="container">
             <uni-forms ref="form" :model="form" :rules="form_rules" labelWidth="80px">
                 <uni-forms-item label="物料编码" name="material_no">
@@ -108,14 +142,14 @@
         </template>
         <uni-list>
             <uni-list-item
-                v-for="(material, index) in bill.materials.filter(x => x.checked)"
+                v-for="(material, index) in bills_combi.materials.filter(x => x.checked)"
                 :key="index"
                 >
                 <template #body>
                     <view class="uni-list-item__body">
                         <view class="title">
                             {{ material.material_no }}
-                            <uni-icons type="search" color="#007aff" @click="view_material(material.material_id)" />
+                            <uni-icons type="search" color="#007aff" @click="show_material(material.material_id)" />
                         </view>
                         <view class="note">
                             <view>名称：{{ material.material_name }}</view>
@@ -145,7 +179,7 @@
                         <view class="title">
                             <uni-tag text="计划外" type="warning" size="mini" />
                             {{ material.material_no }}
-                            <uni-icons type="search" color="#007aff" @click="view_material(material.material_id)" />
+                            <uni-icons type="search" color="#007aff" @click="show_material(material.material_id)" />
                         </view>
                         <view class="note">
                             <view>名称：{{ material.material_name }}</view>
@@ -178,10 +212,10 @@
         />
     </view>
     
-    <!-- 单据物料明细列表 -->
+    <!-- 子物料明细汇总列表 -->
     <uni-drawer ref="detail_drawer" :width="$store.state.drawer_width">
         <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
-            <uni-section :title="['单据明细', bill.bill_no].join(' ')" type="square"
+            <uni-section title="子物料明细汇总" type="square"
                 sub-title="勾选的物料会显示在追踪列表"
                 >
                 <template #right>
@@ -190,9 +224,9 @@
                     </view>
                 </template>
                 
-                <uni-list v-if="bill.materials.length">
+                <uni-list v-if="bills_combi.materials.length">
                     <uni-list-item
-                        v-for="(material, index) in bill.materials"
+                        v-for="(material, index) in bills_combi.materials"
                         :key="index"
                         >
                         <template #header>
@@ -207,7 +241,7 @@
                             <view class="uni-list-item__body">
                                 <view class="title">
                                     {{ material.material_no }}
-                                    <uni-icons type="search" color="#007aff" @click="view_material(material.material_id)" />
+                                    <uni-icons type="search" color="#007aff" @click="show_material(material.material_id)" />
                                 </view>
                                 <view class="note">
                                     <view>名称：{{ material.material_name }}</view>
@@ -265,6 +299,7 @@
                                         <view>规格：{{ log['FMaterialId.FSpecification'] }}</view>
                                         <view>供应商：<text class="text-primary">{{ log['FSupplierId.FName'] }}</text></view>
                                         <view>批次：<text class="text-primary">{{ log.FBatchNo }}</text></view>
+                                        <view>单据：<text class="text-primary">{{ log.FBillNo }}</text></view>
                                         <view>时间：{{ formatDate(log.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</view>
                                     </view>
                                 </view>
@@ -280,6 +315,90 @@
             </uni-section>
         </scroll-view>
     </uni-drawer>
+    
+    <uni-popup ref="bill_popup" type="share" safe-area>
+        <uni-section title="单据" type="square"
+            v-if="bills.length"
+            :style="{ borderRadius: '10px 10px 0 0' }"
+            @touchmove.stop.prevent
+            >
+            <template v-slot:right>
+                <view class="uni-section__right">
+                    <uni-icons type="closeempty" size="20" color="#333" @click="$refs.bill_popup.close()"/>
+                </view>
+            </template>
+            <uni-list>
+                <uni-list-item v-for="(bill, index) in bills">
+                    <template #body>
+                        <view class="uni-list-item__body">
+                            <view class="title">
+                                {{ `${bill.bill_no}${ bill.mo_bill_no ? ` / ${bill.mo_bill_no}` : '' }` }}
+                            </view>
+                            <view class="note">
+                                <view>类型：{{ bill.category == 'scfltzd' ? '生产发料通知单' : '用料清单' }}</view>
+                                <template v-if="bill.category == 'ppbom' && bills.length < 4">
+                                    <view>物料编码：{{ bill.material_no }}</view>
+                                    <view>物料名称：{{ bill.material_name }}</view>
+                                    <view>规格型号：{{ bill.material_spec }}</view>
+                                </template>
+                            </view>
+                        </view>
+                    </template>
+                    <template v-if="step == 'bill'" #footer>
+                        <view class="uni-list-item__foot">
+                            <uni-icons type="minus" size="24" color="#dd524d" @click="bills_del(bill)" />
+                        </view>
+                    </template>
+                </uni-list-item>
+            </uni-list>
+            <button type="primary" class="form-btn" @click="bills_combine_and_next">
+                <uni-icons type="checkmarkempty" color="#fff"></uni-icons> 合并提交
+            </button>
+        </uni-section>
+        
+        <!-- <uni-card title="单据"
+            v-if="bills.length"
+            :extra="`${bills.length} 个`"
+            :is-shadow="false"
+            margin="0"
+            spacing="0"
+            padding="0"
+            :style="{ borderRadius: '10px 10px 0 0' }"
+            @touchmove.stop.prevent
+            >
+            <uni-list :border="false">
+                <uni-list-item v-for="(bill, index) in bills">
+                    <template #body>
+                        <view class="uni-list-item__body">
+                            <view class="title">
+                                {{ `${bill.bill_no}${ bill.mo_bill_no ? ` / ${bill.mo_bill_no}` : '' }` }}
+                            </view>
+                            <view class="note">
+                                <view>类型：{{ bill.category == 'scfltzd' ? '生产发料通知单' : '用料清单' }}</view>
+                                <template v-if="bill.category == 'ppbom' && bills.length < 4">
+                                    <view>物料编码：{{ bill.material_no }}</view>
+                                    <view>物料名称：{{ bill.material_name }}</view>
+                                    <view>规格型号：{{ bill.material_spec }}</view>
+                                </template>
+                            </view>
+                        </view>
+                    </template>
+                    <template v-if="step == 'bill'" #footer>
+                        <view class="uni-list-item__foot">
+                            <uni-icons type="minus" size="24" color="#dd524d" @click="bills_del(bill)" />
+                        </view>
+                    </template>
+                </uni-list-item>
+            </uni-list>
+            <template v-if="step == 'bill'" #actions>
+                <view>
+                    <button type="primary" class="form-btn" @click="bills_combine_and_next">
+                        <uni-icons type="checkmarkempty" color="#fff"></uni-icons> 合并提交
+                    </button>
+                </view>
+            </template>
+        </uni-card> -->
+    </uni-popup>
     
     <!-- 查询生产订单 search form -->
     <uni-popup ref="prd_mo_search_dialog" type="dialog">
@@ -339,10 +458,16 @@
                 op_type: 'send', 
                 bd_materials: [], // 缓存计划外的物料
                 bd_suppliers: [], // 缓存供应商
-                bill_raw_data: {},
-                bill: {
-                    bill_no: '',
-                    materials: [] // cooked data
+                // bill_raw: {},
+                // bill: {
+                //     bill_no: '',
+                //     mo_bill_no: '',
+                //     materials: [] // cooked data
+                // },
+                // bills_raw: [], // 元素格式看 this.bill_raw
+                bills: [], // 元素格式看 this.bill
+                bills_combi: {
+                    materials: [] // 单据合并，物料汇总
                 },
                 prd_mos_visible: false, // 生产订单section是否可见
                 prd_mos: [], // 生产订单
@@ -357,7 +482,7 @@
                 prd_mo_load_more_status: 'more', // more,loading,nomore, 生产订单加载状态栏
                 issuemtr_logs: [],
                 unplanned_materials: [], // 计划外的物料
-                no: '',
+                no: '',  // 搜索栏
                 form: {},
                 form_rules: {
                     material_no: {
@@ -408,7 +533,8 @@
                 ],
                 goods_nav: {
                     options: [
-                        { icon: 'list', text: '明细' },
+                        { icon: 'right', text: '物料' },
+                        { icon: 'up', text: '单据', info: 0 },
                         { icon: 'left', text: '日志' }
                     ],
                     button_group: [
@@ -417,6 +543,9 @@
                     ]
                 }
             }
+        },
+        onPullDownRefresh() {
+            uni.stopPullDownRefresh()
         },
         onReachBottom() {
             this.prd_mo_load_more()
@@ -428,11 +557,15 @@
                     uni.setNavigationBarTitle({
                         title: `生产订单 - ${ this.op_type == 'receive' ? '用料' : '发料' }`
                     })
+                    uni.setNavigationBarColor({
+                        frontColor: '#ffffff',
+                        backgroundColor: this.op_type == 'receive'? '#FE6035' : '#1E83FF',
+                        animation: {
+                            duration: 400,
+                            timingFunc: 'easeIn'
+                        }
+                    })
                 }, 0)
-                if (this.op_type == 'receive') {
-                    this.goods_nav.button_group[0].text = ''
-                    this.goods_nav.button_group[0].backgroundColor = '#fff'
-                }
             }
         },
         mounted() {
@@ -473,18 +606,61 @@
                     this.form.op_qty_focus = true
                 }
             },
+            bills_add(bill) {
+                if (this.bills.some(x => x.bill_no == bill.bill_no)) return
+                if (this.bills.length >= 5) {
+                    uni.showToast({ icon: 'none', title: '最多合并5个单据' })
+                    return
+                }
+                this.bills.push(bill)
+                this._after_update_bills()
+            },
+            bills_del(bill) {
+                let index = this.bills.findIndex(x => x.bill_no == bill.bill_no)
+                if (index > -1) {
+                    this.bills.splice(index, 1)
+                    this._after_update_bills()
+                    if (this.bills.length === 0) this.$refs.bill_popup.close()
+                }
+            },
+            // 合并多个用料清单的物料信息
+            bills_combine_and_next(){
+                let c_materials = []
+                for (let bill of this.bills) {
+                    for (let material of bill.materials) {
+                        let c_material = c_materials.find(x => x.material_id == material.material_id)
+                        if (c_material) {
+                            c_material.base_unit_qty += material.base_unit_qty
+                            c_material.unit_qty += material.unit_qty
+                        } else {
+                            c_materials.push({ ...material })
+                        }
+                    }
+                }
+                this.bills_combi.materials = c_materials
+                this._activate_step('material')
+                this.$refs.bill_popup.close()
+                this.load_issuemtr_logs()
+            },
             checkbox_click(e) {
-                let material = this.bill.materials.find(x => x.material_id == e)
+                let material = this.bills_combi.materials.find(x => x.material_id == e)
                 if (material) material.checked = !material.checked 
             },
             goods_nav_click(e) {
-                if (e.index === 0) this.$refs.detail_drawer.open() // btn:明细
-                if (e.index === 1) this.$refs.log_drawer.open() // btn: 日志
-                // console.log(this.$data)
+                if (e.index === 0 && this.step == 'material') this.$refs.detail_drawer.open() // btn:明细
+                if (e.index === 1) {
+                    if (this.bills.length) {
+                        this.$refs.bill_popup.open()
+                    } else {
+                        uni.showToast({ icon: 'none', title: '请先添加单据' })
+                    }
+                } 
+                if (e.index === 2 && this.step == 'material') this.$refs.log_drawer.open() // btn: 日志
+                console.log(this.$data)
             },
             goods_nav_button_click(e) { 
                 if (e.index === 0) {
-                    if (this.step == 'bill' && this.op_type == 'send') this.$refs.prd_mo_search_dialog.open() 
+                    if (this.step == 'bill') this.$refs.prd_mo_search_dialog.open() 
                     if (this.step == 'material') this.if_go_back() // btn:返回
                 }
                 if (e.index === 1) this.scan_code() // btn:扫码
@@ -517,7 +693,7 @@
                 this.form.decimal_unit = false
                 if (!this.form.material_no) return
                 // 1. 查询单据内物料
-                let material = this.bill.materials.find(x => x.material_no == this.form.material_no)
+                let material = this.bills_combi.materials.find(x => x.material_no == this.form.material_no)
                 if (material) {
                     this.form.material_id = material.material_id
                     this.form.material_name = material.material_name
@@ -586,7 +762,7 @@
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
                     if (res.success == 'true') {
-                        console.log(res)
+                        // console.log(res)
                         this.after_scan_code(res.result)
                     }
                 })
@@ -602,16 +778,18 @@
             search() {
                 this.after_scan_code(this.no)
             },
-            view_material(material_id) {
+            show_material(material_id) {
                 if (!material_id) uni.showToast({ icon: 'none', title: '物料ID不能为空' })
                 uni.navigateTo({ 
-                    url: `/pages/operation/manage/material_search?m_id=${material_id}`
+                    url: `/pages/operation/material/show?id=${material_id}`
                 })
             },
+            // 发料用料日志
             async load_issuemtr_logs() {
                 let options = {
                     FStockId: store.state.cur_stock.FStockId,
-                    FBillNo: this.bill.bill_no,
+                    FBillNo_in: this.bills.map(x => x.bill_no),
+                    // FBillNo: this.bill.bill_no,
                     FOpType: this.op_type
                 }
                 let meta = { order: 'FID DESC' }
@@ -621,17 +799,19 @@
                 this.issuemtr_logs = res.data
                 this._calc_done_qty()
             },
+            // 用料清单
             async load_ppbom(bill_no) {
                 try {
+                    this.no = ''
+                    if (this.bills.some(x => x.bill_no == bill_no)) {
+                        uni.showToast({ icon: 'none', title: '重复添加单据' })
+                        return
+                    }
                     uni.showLoading({ title: 'Loading' })
                     let res = await K3CloudApi.view('PRD_PPBOM', { Number: bill_no })
                     uni.hideLoading()
                     if (res.data.Result.ResponseStatus.IsSuccess) {
                         let raw_data = res.data.Result.Result
-                        // if (raw_data.PrdOrgId_Id != store.state.cur_stock.FUseOrgId) {
-                        //     uni.showToast({ icon: 'none', title: '生产组织不一致' })
-                        //     return
-                        // }
                         let materials = []
                         for (let entity of raw_data.PPBomEntry) {
                             let material = materials.find(x => x.material_id == entity.MaterialID.Id)
@@ -653,20 +833,36 @@
                                 op_qty: 0
                             })
                         }
-                        this._activate_step('material')
-                        this.bill_raw_data = raw_data
-                        this.bill = { 
-                            bill_no: raw_data.BillNo, 
+                        // this.bills_raw.push(raw_data)
+                        this.bills_add({
+                            category: 'ppbom',
+                            bill_no: raw_data.BillNo,
                             mo_bill_no: raw_data.MOBillNO,
-                            materials: materials,
-                        }
-                        this.load_issuemtr_logs()
+                            material_no: raw_data.MaterialID.Number,
+                            material_name: raw_data.MaterialID.Name[0].Value,
+                            material_spec: raw_data.MaterialID.Specification[0].Value,
+                            materials: materials
+                        })
+                        // this._activate_step('material')
+                        // this.bill_raw = raw_data
+                        // this.bill = { 
+                        //     bill_no: raw_data.BillNo, 
+                        //     mo_bill_no: raw_data.MOBillNO,
+                        //     materials: materials,
+                        // }
+                        // this.load_issuemtr_logs()
                     } else {
                         uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
                     }
                 } catch (err) { console.log('load_ppbom err', err) }
             },
+            // 用料清单（根据生产订单号查询）
             async load_ppbom_by_mo(mo_bill_no) {
+                this.no = ''
+                if (this.bills.some(x => x.mo_bill_no == mo_bill_no)) {
+                    uni.showToast({ icon: 'none', title: '重复添加单据' })
+                    return
+                }
                 let data = {
                     FormId: 'PRD_PPBOM',
                     FieldKeys: 'FBillNo,FMOBillNO',
@@ -681,49 +877,6 @@
                     uni.showToast({ icon: 'none', title: '未知单据编号' })
                 }
             },
-            // async load_prd_mo(bill_no) {
-            //     try {
-            //         uni.showLoading({ title: 'Loading' })
-            //         let prd_mo_res = await K3CloudApi.view('PRD_MO', { Number: bill_no })
-            //         uni.hideLoading()
-            //         if (!prd_mo_res.data.Result.ResponseStatus.IsSuccess) {
-            //             uni.showToast({ icon: 'none', title: prd_mo_res.data.Result.ResponseStatus.Errors[0]?.Message })
-            //             return
-            //         }
-            //         let raw_data = prd_mo_res.data.Result.Result
-            //         if (raw_data.PrdOrgId_Id != store.state.cur_stock.FUseOrgId) {
-            //             uni.showToast({ icon: 'none', title: '生产组织不一致' })
-            //             return
-            //         }
-            //         let materials = []
-            //         uni.showLoading({ title: 'Loading' })
-            //         // 汇总子物料
-            //         for (let entity of raw_data.TreeEntity) {
-            //             let bom_res = await K3CloudApi.view('ENG_BOM', { Id: entity.BomId_Id })
-            //             for (let bom_entity of bom_res.data.Result.Result.TreeEntity) {
-            //                 if (!['1', '3'].includes(bom_entity.ISSUETYPE)) continue // 1:直接领料,3:调拨领料
-            //                 let material_res = await BdMaterial.find(bom_entity.MATERIALIDCHILD_Id)
-            //                 materials.push({
-            //                     material_id: material_res.data[0].FMaterialId,
-            //                     material_no: material_res.data[0].FNumber,
-            //                     material_name: material_res.data[0].FName,
-            //                     material_spec: material_res.data[0].Specification,
-            //                     base_unit_qty: math_round(entity.BaseUnitQty * bom_entity.BaseNumerator / bom_entity.BaseDenominator, 5), // 物料数量 * 单位子物料用量 = 总的子物料用量
-            //                     base_unit_name: material_res.data[0]['FBaseUnitId.FName']
-            //                 })  
-            //             }
-            //         }
-            //         uni.hideLoading()
-            //         this._activate_step('material')
-            //         this.op_type = 'send'
-            //         this.bill_raw_data = raw_data
-            //         this.bill = { 
-            //             bill_no: raw_data.BillNo, 
-            //             materials: materials,
-            //         }
-            //         this.load_issuemtr_logs()
-            //     } catch (err) { console.log('load_prd_mo err', err) }
-            // },
             // 加载开工的生产订单
             async load_prd_mos() {
                 let options = { FStatus: '4' }
@@ -739,8 +892,14 @@
                 res.data.forEach(item => this.prd_mos.push(item) )
                 this.prd_mos_visible = true
             },
+            // 生产发料通知单
             async load_scfltzd(bill_no) {
                 try {
+                    this.no = ''
+                    if (this.bills.some(x => x.bill_no == bill_no)) {
+                        uni.showToast({ icon: 'none', title: '重复添加单据' })
+                        return
+                    }
                     uni.showLoading({ title: 'Loading' })
                     let res = await K3CloudApi.view('PRD_ISSUEMTRNOTICE', { Number: bill_no })
                     uni.hideLoading()
@@ -763,13 +922,20 @@
                                 unit_name: entity.SumUnitId.Name[0].Value
                             })
                         }
-                        this._activate_step('material')
-                        this.bill_raw_data = raw_data
-                        this.bill = { 
-                            bill_no: raw_data.BillNo, 
-                            materials: materials,
-                        }
-                        this.load_issuemtr_logs()
+                        // this.bills_raw.push(raw_data)
+                        this.bills_add({
+                            category: 'scfltzd',
+                            bill_no: raw_data.BillNo,
+                            mo_bill_no: raw_data.MOBillNO,
+                            materials: materials
+                        })
+                        // this._activate_step('material')
+                        // this.bill_raw = raw_data
+                        // this.bill = { 
+                        //     bill_no: raw_data.BillNo, 
+                        //     materials: materials,
+                        // }
+                        // this.load_issuemtr_logs()
                     } else {
                         uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
                     }
@@ -820,20 +986,74 @@
                 try {
                     console.log('submit form', this.form)
                     await this.$refs.form.validate() // 表单验证
-                    let issuemtr_log = new IssuemtrLog({
-                        FOpType: this.op_type,
-                        FStockId: store.state.cur_stock.FStockId,
-                        FMaterialId: this.form.material_id,
-                        FSupplierId: this.form.supplier_id,
-                        FOpQTY: this.form.op_qty,
-                        FBatchNo: this.form.batch_no,
-                        FBillNo: this.bill.bill_no,
-                        FOpStaffNo: store.state.cur_staff.FNumber 
-                    })
-                    await issuemtr_log.save()
+                    let c_material = this.bills_combi.materials.find(x => x.material_id == this.form.material_id)
+                    if (c_material) {
+                        let rest_op_qty = this.form.op_qty // 操作数量剩余未分配数量
+                        let scheme = [] // 分配方案 { bill_no, op_qty }
+                        // 1. 制定分配方案
+                        for (let bill of this.bills) {
+                            if (rest_op_qty <= 0) break
+                            let material = bill.materials.find( x => x.material_id == this.form.material_id)
+                            if (!material) continue
+                            if (material.done_qty >= material.base_unit_qty) continue
+                            let _op_qty = Math.min(rest_op_qty, material.base_unit_qty - material.done_qty) // 分配中数量
+                            scheme.push( { bill_no: bill.bill_no, op_qty: _op_qty } )
+                            rest_op_qty -= _op_qty
+                        }
+                        if (rest_op_qty > 0) {
+                            let scheme_item = scheme.find(x => x.bill_no == this.bills[0].bill_no)
+                            if (scheme_item) {
+                                scheme_item.op_qty += rest_op_qty
+                            } else {
+                                scheme.push({ bill_no: this.bills[0].bill_no, op_qty: rest_op_qty })
+                            }
+                        }
+                        // console.log('scheme', scheme)
+                        // 2. 执行分配方案
+                        for (let scheme_item of scheme) {
+                            let issuemtr_log = new IssuemtrLog({
+                                FOpType: this.op_type,
+                                FStockId: store.state.cur_stock.FStockId,
+                                FMaterialId: this.form.material_id,
+                                FSupplierId: this.form.supplier_id,
+                                FOpQTY: scheme_item.op_qty,
+                                FBatchNo: this.form.batch_no,
+                                FBillNo: scheme_item.bill_no,
+                                FOpStaffNo: store.state.cur_staff.FNumber 
+                            })
+                            await issuemtr_log.save()
+                        }
+                    } else {
+                        // 计划外物料
+                        let issuemtr_log = new IssuemtrLog({
+                            FOpType: this.op_type,
+                            FStockId: store.state.cur_stock.FStockId,
+                            FMaterialId: this.form.material_id,
+                            FSupplierId: this.form.supplier_id,
+                            FOpQTY: this.form.op_qty,
+                            FBatchNo: this.form.batch_no,
+                            FBillNo: this.bills[0].bill_no,
+                            FOpStaffNo: store.state.cur_staff.FNumber 
+                        })
+                        await issuemtr_log.save()
+                    }
                     await this.load_issuemtr_logs()
                     this._init_form() // 重置表单
                     play_audio_prompt('success')
+                    // let issuemtr_log = new IssuemtrLog({
+                    //     FOpType: this.op_type,
+                    //     FStockId: store.state.cur_stock.FStockId,
+                    //     FMaterialId: this.form.material_id,
+                    //     FSupplierId: this.form.supplier_id,
+                    //     FOpQTY: this.form.op_qty,
+                    //     FBatchNo: this.form.batch_no,
+                    //     FBillNo: this.bill.bill_no,
+                    //     FOpStaffNo: store.state.cur_staff.FNumber 
+                    // })
+                    // await issuemtr_log.save()
+                    // await this.load_issuemtr_logs()
+                    // this._init_form() // 重置表单
+                    // play_audio_prompt('success')
                 } catch (err) { console.log('err', err) }
             },
             _activate_step(step) {
@@ -848,17 +1068,27 @@
                 }
             },
             _calc_done_qty() {
-                for (let material of this.bill.materials) {
-                    material.done_qty = 0
+                for (let material of this.bills_combi.materials) {
+                    material.done_qty = 0 // 汇总物料
+                }
+                for (let bill of this.bills) {
+                    for (let material of bill.materials) {
+                        material.done_qty = 0 // 单据中物料
+                    }
                 }
                 this.unplanned_materials = []
                 for (let log of this.issuemtr_logs) {
-                    let material = this.bill.materials.find(x => x.material_no == log['FMaterialId.FNumber'])
-                    if (material) {
-                        material.done_qty += log.FOpQTY
+                    let c_material = this.bills_combi.materials.find(x => x.material_id == log.FMaterialId)
+                    if (c_material) {
+                        c_material.done_qty += log.FOpQTY
+                        let bill = this.bills.find(x => x.bill_no == log.FBillNo)
+                        if (bill) {
+                            let material = bill.materials.find(x => x.material_id == log.FMaterialId)
+                            if (material) material.done_qty += log.FOpQTY
+                        }
                         continue
                     }
-                    let unplanned_material = this.unplanned_materials.find(x => x.material_no == log['FMaterialId.FNumber'])
+                    let unplanned_material = this.unplanned_materials.find(x => x.material_id == log.FMaterialId)
                     if (unplanned_material) {
                         unplanned_material.done_qty += log.FOpQTY
                     } else {
@@ -895,13 +1125,21 @@
                 }
             },
             _unplanned_material(log) {
-                return !this.bill.materials.some(x => x.material_id == log.FMaterialId)
+                return !this.bills_combi.materials.some(x => x.material_id == log.FMaterialId)
+            },
+            _after_update_bills() {
+                this.goods_nav.options[1].info = this.bills.length
             }
         }
     }
 </script>
 
 <style lang="scss" scoped>
+    .card-form-btn {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        line-height: 41px;
+    }
     .form-btn {
         border-radius: 0;
     }

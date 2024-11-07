@@ -45,7 +45,8 @@
             <uni-list-item title="名称" :right-text="bd_material.Name[0]?.Value" />
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
             <template v-if="['nrj_admin'].includes($store.state.role)">
-                <uni-list-item title="仓管员" :right-text="bd_material.F_PAEZ_Base1 ? bd_material.F_PAEZ_Base1.Name[0]?.Value : '' " />
+                <uni-list-item title="仓管员" :right-text="bd_material.F_PAEZ_Base1 ? bd_material.F_PAEZ_Base1.Name[0].Value : '' " />
+                <uni-list-item title="仓位" :right-text="bd_material.MaterialStock[0]?.StockPlaceId ? bd_material.MaterialStock[0].StockPlaceId.Name[0].Value : '' " />
                 <template v-for="(stk_inv, index) in stk_inventories" :key="index">
                     <uni-list-item 
                         title="库存量(基本单位)"

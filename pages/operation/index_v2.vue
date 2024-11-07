@@ -57,7 +57,7 @@
                     },
                     {
                         name: '物料查询', permission: ['all'], icon_path: '/static/icon/chaxunkucun.png',
-                        action: () => { this.goTo('manage/material_search') }
+                        action: () => { this.goTo('material/search') }
                     },
                     {
                         name: '列表', permission: ['wh_admin'], icon_path: '/static/icon/liebiao.png',

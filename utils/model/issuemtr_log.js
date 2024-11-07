@@ -93,7 +93,7 @@ class IssuemtrLog {
      *   @field FMaterialName(_cont):String 名称
      *   @field FModel(_cont):String 规格
      *   @field FBatchNo:String 批次号
-     *   @field FBillNo:String 单据编号
+     *   @field FBillNo(_in):String 单据编号
      *   @field FCreateTime_(ge,le):String 
      * @param meta:Hash
      *   @field page:Integer
@@ -138,6 +138,9 @@ class IssuemtrLog {
         }
         if (options.FBillNo) {
             data.FilterString.push({ Left: "", FieldName: "FBillNo", Compare: "67", Value: options.FBillNo, Right: "", Logic: 0 })
+        }
+        if (options.FBillNo_in) {
+            data.FilterString.push({ Left: "", FieldName: "FBillNo", Compare: "338", Value: options.FBillNo_in.join(','), Right: "", Logic: 0 })
         }
         if (options.FCreateTime_ge) {
             data.FilterString.push({ Left: "", FieldName: "FCreateTime", Compare: "39", Value: options.FCreateTime_ge, Right: "", Logic: 0 })
