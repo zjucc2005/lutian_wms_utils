@@ -214,7 +214,7 @@
     
     <!-- 子物料明细汇总列表 -->
     <uni-drawer ref="detail_drawer" :width="$store.state.drawer_width">
-        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop.prevent>
             <uni-section title="子物料明细汇总" type="square"
                 sub-title="勾选的物料会显示在追踪列表"
                 >
@@ -269,7 +269,7 @@
     
     <!-- 扫描日志列表 -->
     <uni-drawer ref="log_drawer" mode="right" :width="$store.state.drawer_width">
-        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop.prevent>
             <uni-section :title="`${{ send: '发料', receive: '用料' }[op_type]}日志`" type="square"
                 sub-title="左滑可取消"
                 >
@@ -355,49 +355,6 @@
                 <uni-icons type="checkmarkempty" color="#fff"></uni-icons> 合并提交
             </button>
         </uni-section>
-        
-        <!-- <uni-card title="单据"
-            v-if="bills.length"
-            :extra="`${bills.length} 个`"
-            :is-shadow="false"
-            margin="0"
-            spacing="0"
-            padding="0"
-            :style="{ borderRadius: '10px 10px 0 0' }"
-            @touchmove.stop.prevent
-            >
-            <uni-list :border="false">
-                <uni-list-item v-for="(bill, index) in bills">
-                    <template #body>
-                        <view class="uni-list-item__body">
-                            <view class="title">
-                                {{ `${bill.bill_no}${ bill.mo_bill_no ? ` / ${bill.mo_bill_no}` : '' }` }}
-                            </view>
-                            <view class="note">
-                                <view>类型：{{ bill.category == 'scfltzd' ? '生产发料通知单' : '用料清单' }}</view>
-                                <template v-if="bill.category == 'ppbom' && bills.length < 4">
-                                    <view>物料编码：{{ bill.material_no }}</view>
-                                    <view>物料名称：{{ bill.material_name }}</view>
-                                    <view>规格型号：{{ bill.material_spec }}</view>
-                                </template>
-                            </view>
-                        </view>
-                    </template>
-                    <template v-if="step == 'bill'" #footer>
-                        <view class="uni-list-item__foot">
-                            <uni-icons type="minus" size="24" color="#dd524d" @click="bills_del(bill)" />
-                        </view>
-                    </template>
-                </uni-list-item>
-            </uni-list>
-            <template v-if="step == 'bill'" #actions>
-                <view>
-                    <button type="primary" class="form-btn" @click="bills_combine_and_next">
-                        <uni-icons type="checkmarkempty" color="#fff"></uni-icons> 合并提交
-                    </button>
-                </view>
-            </template>
-        </uni-card> -->
     </uni-popup>
     
     <!-- 查询生产订单 search form -->

@@ -87,7 +87,7 @@
     
     <!-- 搜索候选列表 -->
     <uni-drawer ref="search_drawer" :width="$store.state.drawer_width">
-        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop.prevent>
             <uni-section title="搜索结果" type="square"
                 sub-title="最多展示20条搜索结果"
                 >

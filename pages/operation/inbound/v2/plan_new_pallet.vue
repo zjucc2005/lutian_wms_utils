@@ -306,7 +306,7 @@
             StockLoc.query({ FStockId: store.state.cur_stock.FStockId, FForbidStatus: 'B' }).then(res => {
                 console.log('>>> 更新库位禁用信息')
                 store.commit('update_stock_locs', res.data) // 只查询禁用库存
-            }) 
+            })
         },
         methods: {
             goods_nav_click(e) {
