@@ -156,10 +156,11 @@
                     }
                     store.commit('staff_login', store_data)
                     this.after_login()
+                    this.$logger.info(`>>> 登录成功[${this.staff.FName}]`)
                     uni.showToast({ title: '登录成功' })
                     uni.reLaunch({ url: '/pages/operation/index_v2' })                  
                 }).catch(err => {
-                    console.log('submit_login err:', err);
+                    this.$logger.info('submit_login err:', err);
                 })
             },
             submit_guest_login() {
@@ -170,6 +171,7 @@
                         if (res.confirm) {
                             play_audio_prompt('success')
                             store.commit('guest_login')
+                            this.$logger.info(`>>> 登录成功[guest]`)
                             uni.showToast({ title: '登录成功' })
                             uni.reLaunch({ url: '/pages/operation/index_v2' }) 
                         }

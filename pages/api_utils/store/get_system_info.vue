@@ -14,7 +14,7 @@
         mounted() {
             uni.getSystemInfo({
                 success: (res) => {
-                	console.log('uni.getSystemInfo:', res)
+                	this.$logger.info('uni.getSystemInfo:', res)
                     this.res = res
                 }
             })

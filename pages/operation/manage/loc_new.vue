@@ -184,7 +184,6 @@
         },
         methods: {
             swipe_action_click(e, list_index) {
-                // console.log('swipe action click e:', e, list_index) 
                 if (e.index === 0) {
                     this.loc_nos.splice(list_index, 1) // 删除行
                     this.$refs.loc_no_swipe.closeAll() // 复位滑动操作
@@ -213,7 +212,6 @@
                 this.$refs.new_dialog.close()
             },
             confirm_new_dialog() {
-                console.log('this.new_form', this.new_form)
                 this.$refs.new_form.validate().then(_ => {
                     this.gen_loc_nos(this.new_form.type, this.new_form.depot, this.new_form.shelf, this.new_form.column, this.new_form.row).forEach(x => {
                         if (!this.loc_nos.find(loc_no => loc_no.value == x)) {
@@ -258,7 +256,6 @@
                         if (res.confirm) this.submit_batch_save()
                     },
                     fail: (err) => {
-                        console.log('if_submit_batch_save fail:', err)
                     }
                 })
             },
@@ -272,7 +269,6 @@
                     let loc_nos = this.loc_nos.map(x => x.value)
                     uni.showLoading({ title: 'Loading' })
                     let validate_res = await StockLoc.exist_loc_nos(loc_nos)
-                    console.log('validate_res', validate_res)
                     uni.hideLoading()
                     if (validate_res.status === 0) {
                         const stock_locs = this.loc_nos.map(loc_no => {
@@ -296,7 +292,7 @@
                     } else if (validate_res.status === -1) {
                         uni.showToast({ icon: 'none', title: validate_res.msg })
                     }
-                } catch (err) { console.log('submit_batch_save err:', err) }
+                } catch (err) { }
             },
             gen_loc_nos(type, depot, shelf, col, row) {
                 let loc_nos = []

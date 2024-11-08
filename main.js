@@ -1,5 +1,6 @@
 import App from './App'
-import store from './store'
+import store from '@/store'
+import logger from '@/utils/logger'
 
 // #ifndef VUE3
 import Vue from 'vue'
@@ -18,6 +19,7 @@ import { createSSRApp } from 'vue'
 export function createApp() {
   const app = createSSRApp(App)
   app.use(store)
+  app.config.globalProperties.$logger = logger
   return {
     app
   }

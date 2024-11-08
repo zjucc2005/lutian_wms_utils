@@ -91,7 +91,6 @@
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
                     if (res.success == 'true') {
-                        console.log('scan res', res)
                         uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
                     }
                 })

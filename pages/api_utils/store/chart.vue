@@ -47,17 +47,17 @@
                   canvasId: canvas_id,
                   success: function(res) {
                     // 在H5平台下，tempFilePath 为 base64
-                    console.log('uni.canvasToTempFilePath res:', res)
+                    this.$logger.info('uni.canvasToTempFilePath res:', res)
                     uni.share({
                     	provider: "weixin",
                     	scene: "WXSceneSession",
                     	type: 2,
                     	imageUrl: res.tempFilePath,
                     	success: function (res) {
-                    		console.log("success:" + JSON.stringify(res));
+                    		this.$logger.info("success:" + JSON.stringify(res));
                     	},
                     	fail: function (err) {
-                    		console.log("fail:" + JSON.stringify(err));
+                    		this.$logger.info("fail:" + JSON.stringify(err));
                     	}
                     });                    
                   }

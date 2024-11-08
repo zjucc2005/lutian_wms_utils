@@ -262,7 +262,6 @@
                 if (!grid) return
                 if (grid.style == 'none') return
                 if (grid.qty || this.forbidable){
-                    // console.log('grid click', grid)
                     this.drawer_stock_loc = store.state.stock_locs.find(x => x.FNumber == grid.no)
                     this.$refs.inv_drawer.open()
                 }

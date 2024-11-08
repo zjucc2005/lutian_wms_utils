@@ -102,8 +102,7 @@
         },
         mounted() {
             this.cur_stock = store.state.cur_stock
-            this.cur_staff = store.state.cur_staff          
-            console.log('onShow:', this.$data)
+            this.cur_staff = store.state.cur_staff
         },
         onShow() {
             this.cur_outbound_task = uni.getStorageSync('cur_outbound_task')
@@ -123,7 +122,6 @@
                 uni.showActionSheet({
                     itemList: ['扫描下架', '出库详情', '操作日志'],
                     success: (e) => {
-                        console.log('showActionSheet e:', e)
                         if (e.tapIndex === 0) uni.navigateTo({ url: '/pages/operation/outbound/v1/unmount' })
                         if (e.tapIndex === 1) uni.navigateTo({ url: '/pages/operation/outbound/v1/task' })
                         if (e.tapIndex === 2) uni.navigateTo({ url: '/pages/operation/outbound/v1/logs' })
@@ -139,7 +137,6 @@
                             if (res.confirm) this.auto_allocate()
                         },
                         fail: (err) => {
-                            console.log('if_auto_allocate fail:', err)
                         }
                     })
                 } else {
@@ -179,7 +176,6 @@
                             if (res.confirm) this.submit_batch_unmount()
                         },
                         fail: (err) => {
-                            console.log('if_submit_batch_unmount fail:', err)
                         }
                     })
                 } else {
@@ -209,7 +205,6 @@
                 this.load_invs()
             },
             handle_inv_check(e, obj) {
-                // console.log('handle_inv_check e, obj', e, obj)
                 let invs = this.invs.filter(inv => inv['FMaterialId.FNumber'] == obj.material_no) // 筛选当前物料的库存
                 let unmount_qty = obj.base_unit_qty - obj.unmounted_qty // 待下架数量
                 let sum_checked_qty = 0 // 已勾选数量                
@@ -234,7 +229,6 @@
                 })                
                 if (new_checked_id) {
                     // 处理新check信息
-                    // console.log('新增的check id', new_checked_id)
                     let new_check_inv = invs.find(inv => inv.FID == new_checked_id)
                     let checking_qty = Math.min(new_check_inv.FQty, unmount_qty - sum_checked_qty) // [new_check_inv.FQty, unmount_qty - sum_checked_qty].sort((x,y) => x-y)[0]
                     new_check_inv.checked = true

@@ -304,7 +304,6 @@
         },
         mounted() {
             StockLoc.query({ FStockId: store.state.cur_stock.FStockId, FForbidStatus: 'B' }).then(res => {
-                console.log('>>> 更新库位禁用信息')
                 store.commit('update_stock_locs', res.data) // 只查询禁用库存
             })
         },
@@ -419,7 +418,6 @@
                 this.$refs[ref].open()
             },
             op_loc_no_change(e) {
-                // console.log('op_loc_no_change e', e.detail.value.slice(-1)[0])
                 if (!is_loc_no_std_format(e.detail.value.slice(-1)[0]?.value)) {
                     this.plan_form.per_pallet_qty = 0
                 } else {
@@ -437,7 +435,7 @@
                 let meta = { order: 'FMaterialId.FNumber ASC, FStockLocId.FNumber ASC' }
                 uni.showLoading({ title: 'Loading' })
                 return Inv.get_all(options, meta).then(res => {
-                    console.log('>>> 加载库存，完毕')
+                    this.$logger.info('>>> 加载库存，完毕')
                     uni.hideLoading()
                     this.invs = res
                 })
@@ -449,7 +447,7 @@
                     FBillNo: this.inbound_task.bill_no,
                     FOpType: 'in',
                 }, { order: 'FCreateTime ASC' }).then(res => {
-                    console.log('>>> 加载入库计划，完毕')
+                    this.$logger.info('>>> 加载入库计划，完毕')
                     uni.hideLoading()
                     this.inv_plans = res.data
                     this.inv_plans.forEach(inv_plan => {
@@ -467,14 +465,13 @@
                     FOpType: 'in',
                     FDocumentStatus_in: ['A', 'B']
                 }, { order: 'FCreateTime ASC' }).then(res => {
-                    console.log('>>> 加载其余入库计划，完毕')
+                    this.$logger.info('>>> 加载其余入库计划，完毕')
                     uni.hideLoading()
                     this.inv_plans_ex = res.data
                     // this._set_loc_nos()
                 })
             },
             async submit_delete() {
-                // console.log('submit_delete', this.$data)
                 if (this.step_active !== 3) return
                 
                 let inv_plans = this.inv_plans.filter(inv_plan => inv_plan.FMaterialId === this.plan_form.material_id)
@@ -494,7 +491,6 @@
                 }
             },
             async submit_save() {
-                // console.log('submit_save', this.$data)
                 if (this.step_active !== 2) return
                 uni.showLoading({ title: 'Loading' })
                 let obj = this.inbound_task.inbound_list.find(x => x.material_no == this.plan_form.material_no)
@@ -522,6 +518,7 @@
             },
             // 初始化表单相关字段
             init_plan_form(material_no) {
+                uni.showLoading({ title: '初始化表单' })
                 let obj = this.inbound_task.inbound_list.find(x => x.material_no == material_no)
                 this.plan_form.per_pallet_qty = 2
                 this.plan_form.pallet_infos = [{ per_qty: '', pallet_qty: '' }]
@@ -548,6 +545,7 @@
                     this.plan_form.op_loc_no = ''
                     this._activate_step(0)
                 }
+                uni.hideLoading()
             },
             _set_pallet_infos(material_no) {
                 let pallet_infos = []
@@ -620,7 +618,7 @@
             // 如果中途有其他种类物料占用，比如库位B，则起点库位为B+1
             _allocate_op_loc_no(material_no) {
                 // 1. 查询 material_no 库存
-                console.log('>>> 分配起点库位...')
+                this.$logger.info('>>> 分配起点库位...')
                 let front_used_loc_no = '' // 参考库位，[靠前，占用，标准]的库位
                 let op_loc_no = ''
                 this.invs.filter(inv => {
@@ -628,7 +626,7 @@
                         front_used_loc_no = inv['FStockLocId.FNumber']
                     }
                 })
-                console.log('>>> 分配起点库位，参考库位', front_used_loc_no)
+                this.$logger.info('>>> 分配起点库位，参考库位', front_used_loc_no)
                 if (front_used_loc_no) {
                     // 1.有参考库位，则获取[同货架，邻接最前，空闲]的库位，邻接最前是指，库位A和B之间只有空闲库位，且A前面没有空闲库位
                     let loc_no_arr = front_used_loc_no.split('-')
@@ -664,7 +662,7 @@
                     op_loc_no = this.loc_nos.filter(x => x.idle && !x.sp)[0]?.loc_no || ''
                 }
                 this.plan_form.op_loc_no = op_loc_no
-                console.log('>>> 分配起点库位，结果', op_loc_no)
+                this.$logger.info('>>> 分配起点库位，结果', op_loc_no)
             },
             // 获取下一个idle库位
             _next_idle_loc_no(cur_loc_no) {

@@ -225,7 +225,6 @@
                 if (e.index === 1) this.submit_unmount() // btn:提交下架
             },
             swipe_action_click(e, inv_log_id) {
-                console.log('swipe_action_click e:', e, inv_log_id)
                 if (e.index === 0) this.cancel_unmount(inv_log_id) // 取消操作
             },
             // >>> action
@@ -241,14 +240,12 @@
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
-                    console.log('myScanCode res:', res)
                     if (res.success == 'true') this.handle_scan_code(res.result)
                 })
                 // #endif               
                 // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        console.log("uni.scanCode res:", res)
                         this.handle_scan_code(res.result)
                     }
                 });
@@ -271,7 +268,6 @@
             },
             submit_unmount() {
                 this.$refs.unmount_form.validate().then(e => {
-                    console.log('submit unmount e:', e)
                     this.auto_allocate()
                     this.invs.filter(inv => inv.checked).forEach(inv => {
                         let inv_log = new InvLog({
@@ -289,9 +285,7 @@
                             this.reset_form() // 重置表单
                         })
                     })
-                }).catch(err => {
-                    console.log('submit unmount err:', err);
-                })
+                }).catch(err => {})
             },
             cancel_unmount(inv_log_id) {
                 let inv_log = this.inv_logs.find(x => x.FID === inv_log_id)
@@ -403,7 +397,7 @@
                         sum_checked_qty += checking_qty
                     }
                 })
-                console.log('auto_allocate res', this.invs.filter(inv => inv.checked))
+                this.$logger.info('auto_allocate res', this.invs.filter(inv => inv.checked))
             }
         }
     }

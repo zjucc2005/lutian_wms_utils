@@ -73,7 +73,7 @@
         methods: {
             // >>> component
             goods_nav_click(e) {
-                if (e.index == 0) console.log('move_cart', this.move_cart)
+                if (e.index == 0) this.$logger.info('move_cart', this.move_cart)
             },
             goods_nav_button_click(e) {
                 if (e.index == 0) this.if_clear_cart() // btn:清空计划
@@ -104,7 +104,6 @@
                             if (res.confirm) this.submit_move()
                         },
                         fail: (err) => {
-                            console.log('if_submit_move fail:', err)
                         }
                     })
                 } else {
@@ -121,10 +120,8 @@
                     this.move_cart = MoveCart.current()
                     this.refresh_cart_info()
                     uni.$emit('syncMoveCart', { msg: 'sync_move_cart' })
-                    console.log('submit_move ok')
                 } catch(err) {
                     uni.hideLoading()
-                    console.log("submit move err:", err)
                 }
             },
             refresh_cart_info() {

@@ -3,23 +3,23 @@
     import config from '@/config'
 	export default {
 		onLaunch: function() {
-			// console.log('App Launch')
+			// this.$logger.info('App Launch')
             this.init_store()  // 加载本地存储的数据到store
             uni.onWindowResize(res => {
-                console.log('>>> 窗口尺寸发生变化', res)
+                this.$logger.info('>>> 窗口尺寸发生变化', res)
                 uni.getSystemInfo({
                     success: (gsi_res) => { 
                         store.commit('set_system_info', gsi_res)
-                        // console.log('>>> 重新渲染页面')
+                        // this.$logger.info('>>> 重新渲染页面')
                     }
                 })    
             })
 		},
 		onShow: function() {
-			// console.log('App Show')
+			// this.$logger.info('App Show')
 		},
 		onHide: function() {
-			// console.log('App Hide')
+			// this.$logger.info('App Hide')
 		},
         methods: {
             init_store() {

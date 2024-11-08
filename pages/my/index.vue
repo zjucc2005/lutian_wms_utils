@@ -45,12 +45,12 @@
         methods: {
             async check_update() {
                 // #ifdef APP-PLUS
-                // console.log('plus', plus)
+                // this.$logger.info('plus', plus)
                 let res = await uni.request({
                     url: 'http://61.175.224.118:8664/update.xml',
                     method: 'GET'
                 })
-                console.log(res)
+                this.$logger.info(res)
                 let is_latest = true // check latest
                 if (res.statusCode === 200) {
                     const { version, url, description } = this.check_update_parse(res.data)
@@ -70,7 +70,7 @@
                                 if (res.cancel) return
                                 if (res.confirm) {
                                     // 下载安装包
-                                    console.log('下载安装包', url)
+                                    this.$logger.info('下载安装包', url)
                                 }
                             }
                         })
@@ -93,7 +93,7 @@
                 // #endif
             },
             check_update_parse(data) {
-                console.log('check_update_parse data', data)
+                this.$logger.info('check_update_parse data', data)
                 let version_match = data.match('<version>(.+)</version>')
                 let url_match = data.match('<url>(.+)</url>')
                 let description_match = data.match('<description>(.+)</description>')
@@ -121,9 +121,6 @@
                 })
                 // #endif
             },
-            test () {
-                console.log('test')
-            },
             goTo(path) {
                 uni.navigateTo({ url: `/pages/my/${path}` })
             },
@@ -131,7 +128,7 @@
             //     uni.getLocation({
             //         type: 'gcj02', // wgs84/gcj02
             //         success: (res) => {
-            //             console.log('uni.getLocation', res)
+            //             this.$logger.info('uni.getLocation', res)
             //             this.location = {
             //                 longitude: res.longitude,
             //                 latitude: res.latitude
@@ -142,7 +139,7 @@
             //                 name: '我的位置',
             //                 // address: value.address
             //                 success: (res) => {
-            //                     console.log('uni.openLocation', res)
+            //                     this.$logger.info('uni.openLocation', res)
             //                 }
             //             })
             //         }
@@ -153,20 +150,10 @@
                 uni.showActionSheet({
                     itemList: ['退出登录'],
                     success: (e) => {
-                        // console.log(e);
                         if (e.tapIndex === 0) {
-                            console.log('退出登录')
+                            this.$logger.info('>>> 退出登录')
                             store.commit('staff_logout')
                             uni.reLaunch({ url: '/pages/login' })
-                        } else if (e.tapIndex === 1) {
-                            uni.navigateBackMiniProgram({
-                                success: (res) => {
-                                    console.log('close app succ:', res)
-                                },
-                                fail: (res) => {
-                                    console.log('close app fail:', res)
-                                }
-                            })
                         }
                     }
                 })

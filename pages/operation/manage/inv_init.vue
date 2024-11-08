@@ -83,7 +83,7 @@
         },
         methods: {
             goods_nav_click(e) {
-                if (e.index === 0) console.log('this.$data', this.$data) // btn:刷新
+                if (e.index === 0) this.$logger.info('this.$data', this.$data) // btn:刷新
             },
             goods_nav_button_click(e) {
                 // if (e.index === 0) this.scan_code() // btn:扫码
@@ -105,8 +105,8 @@
                 uni.showToast({ icon: 'none', title: '请联系开发人员' })
                 return
                 let arr = this.raw_data.split('\n').map(x => x.trim())
-                console.log('raw_data', arr)
-                console.log('stock_locs', store.state.stock_locs)
+                this.$logger.info('raw_data', arr)
+                this.$logger.info('stock_locs', store.state.stock_locs)
                 let pre_data = [] // 预处理数据
                 let cur_loc_no = 'NX3-B01-101' // 起点库位
                 let qty_limit = 60 // 库位放置库存数限制
@@ -130,7 +130,7 @@
                     uni.showToast({ icon: 'none', title: `${i+1}/${arr.length}` })
                 }
                 this.new_invs = pre_data
-                console.log('pre_data', pre_data)
+                this.$logger.info('pre_data', pre_data)
             },
             _next_loc_no(loc_no) {
                 let index = store.state.stock_locs.findIndex(x => x.FNumber == loc_no)
@@ -140,7 +140,7 @@
             async validate_data() {
                 let is_valid = true
                 
-                console.log('stock_locs', store.state.stock_locs)
+                this.$logger.info('stock_locs', store.state.stock_locs)
                 
                 for (var i = 0; i < this.new_invs.length; i++) {
                     let new_inv = this.new_invs[i]
@@ -154,21 +154,20 @@
                             this.bd_materials.push(res.data[0])
                         } else {
                             is_valid = false
-                            console.log(`>>> validate: 物料编号 ${new_inv.material_no} 未找到`)
+                            this.$logger.info(`>>> validate: 物料编号 ${new_inv.material_no} 未找到`)
                             break
                         }
                     }
                     let stock_loc = store.state.stock_locs.find(x => x.FNumber == new_inv.loc_no)
                     if (!stock_loc) {
                         is_valid = false
-                        console.log(`>>> validate: 库位编号 ${new_inv.loc_no} 未找到`)
+                        this.$logger.info(`>>> validate: 库位编号 ${new_inv.loc_no} 未找到`)
                         break
                     }
                 }
                 this.is_valid = is_valid
             },
             async import_data() {
-                // console.log('this.$data', this.$data)
                 // return
                 // uni.showLoading({ title: 'Loading' })
                 for (var i = 0; i < this.new_invs.length; i++) {

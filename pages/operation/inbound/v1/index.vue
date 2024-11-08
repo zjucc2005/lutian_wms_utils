@@ -220,7 +220,7 @@
             goods_nav_click(e) {
                 if (e.index === 0) {
                     if (this.inbound_task_form.bill_no) {
-                        console.log(e.content.text, this.inbound_task_form.bill_no)
+                        this.$logger.info(e.content.text, this.inbound_task_form.bill_no)
                         this.get_inbound_list_by_bill_no() // icon:查询
                     } else {
                         uni.showToast({ icon: 'none', title: '请输入单据编号' })
@@ -252,20 +252,17 @@
                 this.batch_no_opts = batch_no_opts
             },
             handle_bill_no_change(e) {
-                console.log('bill_no_change e', e)
                 this.get_inbound_list_by_bill_no()
             },
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
-                    console.log('myScanCode res:', res)
                     if (res.success == 'true') this.handle_scan_code(res.result)
                 })
                 // #endif               
                 // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        console.log("uni.scanCode res:", res)
                         this.handle_scan_code(res.result)
                     }
                 });
@@ -341,9 +338,8 @@
                     let inbound_task = new InboundTask(options)
                     inbound_task.save()
                     this.cur_inbound_task = inbound_task  // 赋值cur_inbound_task，解决VUE设置空值对象时console报错
-                    // console.log('新建入库任务', inbound_task)
                     uni.navigateTo({ url: '/pages/operation/inbound/v1/mount' })
-                }).catch(err => console.log('err', err))
+                }).catch(err => {})
             },
             if_finish_inbound_task() {
                 uni.showActionSheet({
@@ -357,7 +353,6 @@
                 InboundTask.destroy_all()               
                 this.cur_inbound_task = {}
                 this.inbound_task_form = { inbound_date: '', batch_no: '', bill_no: '', inbound_list: [] }
-                console.log('结束入库任务')
             },
             continue_inbound_task() {
                 play_audio_prompt('success')

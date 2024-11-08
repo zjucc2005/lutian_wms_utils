@@ -262,7 +262,7 @@
         onLoad(options) {
             const eventChannel = this.getOpenerEventChannel();
             eventChannel.on('sendOutboundTask', res => {
-                console.log('eventChannel.on sendOutboundTask', res)
+                this.$logger.info('eventChannel.on sendOutboundTask', res)
                 this.outbound_task = res.outbound_task
                 if (res.material_no) {
                     this.set_plan_form(res.material_no)
@@ -273,7 +273,7 @@
         mounted() {
             this.set_op_mode('check')
             StockLoc.query({ FStockId: store.state.cur_stock.FStockId, FForbidStatus: 'B' }).then(res => {
-                console.log('>>> 更新库位禁用信息')
+                this.$logger.info('>>> 更新库位禁用信息')
                 store.commit('update_stock_locs', res.data) // 只查询禁用库存
             }) 
         },
@@ -318,7 +318,6 @@
                 }
             },
             material_no_click() {
-                console.log(this.$data)
                 let list = this.outbound_task.outbound_list.
                 filter(x => x.stock_id == store.state.cur_stock.FStockId).
                 map(x => this.plan_form.material_no == x.material_no ? '-> ' + x.material_no : x.material_no)
@@ -372,13 +371,12 @@
                 // 1. 遍历所有物料，生成计划
                 // 2. 如果已有部分计划，则只生成剩余部分？
                 // 3. 如果某物料库存不足，则暂时忽略，待其余处理完毕，切换至该物料的页面，并提示
-                console.log('>>> 一键分配开始')
+                this.$logger.info('>>> 一键分配开始')
                 uni.showLoading({ title: 'Loading' })
                 let lack_material = ''
                 let outbound_list = this.outbound_task.outbound_list.filter(x => x.stock_id == store.state.cur_stock.FStockId)
                 for (let i = 0; i < outbound_list.length; i++) { 
                     let obj = outbound_list[i]
-                    // console.log("一键分配", obj.material_no)
                     this.set_plan_form(obj.material_no)
                     await this.load_inv_plans(obj.material_no)
                     let planned_qty = this._sum_planned_qty() // 已计划数
@@ -424,7 +422,7 @@
                     this.load_data(outbound_list[0].material_no)
                     uni.showToast({ title: '一键分配完毕' })
                 }
-                console.log('>>> 一键分配结束')
+                this.$logger.info('>>> 一键分配结束')
             },
             async load_data(material_no) {
                 await this.load_invs(material_no)
@@ -487,7 +485,6 @@
                 }
             },
             async submit_save() {
-                console.log('this.$data', this.$data)
                 if (this.plan_form.is_complete) {
                     uni.showToast({ icon: 'none', title: '计划完毕'})
                     return
@@ -523,7 +520,6 @@
                 if (this.op_mode == 'scan') {
                     try {
                         let validate_res = await this.$refs.plan_form.validate()
-                        console.log('validate plan form:', this.plan_form)
                         let obj = this.outbound_task.outbound_list.find(x => x.material_no == this.plan_form.material_no)
                         // 1. 查询库存，指定物料+库位
                         // 2. 类似自动分配

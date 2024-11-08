@@ -74,9 +74,7 @@
                     uni.hideLoading()
                     this.raw_data = res.map(x => { x[3] = Number(new Date(x[2])); return x })
                     this._set_chart_data_month()
-                } catch (err) {
-                    console.log('load_inv_logs err:', err)
-                }
+                } catch (err) {}
             },
             // 月视图数据
             _set_chart_data_month() {
@@ -191,7 +189,7 @@
             },
             debug(e) {
                 // this.load_data_month(0)
-                console.log('debug', this.$data)
+                this.$logger.info('debug', this.$data)
             }
         }
     }

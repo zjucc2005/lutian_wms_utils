@@ -67,7 +67,10 @@
                     >
                     <template #body>
                         <view class="uni-list-item__body">
-                            <view class="title">{{ prd_mo.FBillNo }} / {{ prd_mo.FSaleOrderNo }}</view>
+                            <view class="title">
+                                <uni-icons v-if="_is_mo_selected(prd_mo.FBillNo)" type="checkbox-filled" color="#007aff" />
+                                {{ prd_mo.FBillNo }} / {{ prd_mo.FSaleOrderNo }}
+                            </view>
                             <view class="note">
                                 <view>生产组织：{{ prd_mo['FPrdOrgId.FName'] }}</view>
                                 <view>产线2：{{ prd_mo['F.LT.CX.FName'] }}</view>
@@ -613,7 +616,7 @@
                     }
                 } 
                 if (e.index === 2 && this.step == 'material') this.$refs.log_drawer.open() // btn: 日志
-                console.log(this.$data)
+                this.$logger.info(this.$data)
             },
             goods_nav_button_click(e) { 
                 if (e.index === 0) {
@@ -719,7 +722,6 @@
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
                     if (res.success == 'true') {
-                        // console.log(res)
                         this.after_scan_code(res.result)
                     }
                 })
@@ -811,7 +813,7 @@
                     } else {
                         uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
                     }
-                } catch (err) { console.log('load_ppbom err', err) }
+                } catch (err) { }
             },
             // 用料清单（根据生产订单号查询）
             async load_ppbom_by_mo(mo_bill_no) {
@@ -896,7 +898,7 @@
                     } else {
                         uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
                     }
-                } catch (err) { console.log('load_scfltzd err', err) }
+                } catch (err) { }
             },
             async submit_cancel(log) {
                 try {
@@ -917,7 +919,7 @@
                             uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
                         }
                     })
-                } catch (err) { console.log('err', err) }
+                } catch (err) { }
             },
             // async submit_delete(log) {
             //     try {
@@ -937,11 +939,10 @@
             //                 uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
             //             }
             //         })
-            //     } catch (err) { console.log('err', err) }
+            //     } catch (err) { }
             // },
             async submit_save() {
                 try {
-                    console.log('submit form', this.form)
                     await this.$refs.form.validate() // 表单验证
                     let c_material = this.bills_combi.materials.find(x => x.material_id == this.form.material_id)
                     if (c_material) {
@@ -965,7 +966,7 @@
                                 scheme.push({ bill_no: this.bills[0].bill_no, op_qty: rest_op_qty })
                             }
                         }
-                        // console.log('scheme', scheme)
+                        // this.$logger.info('scheme', scheme)
                         // 2. 执行分配方案
                         for (let scheme_item of scheme) {
                             let issuemtr_log = new IssuemtrLog({
@@ -1011,7 +1012,7 @@
                     // await this.load_issuemtr_logs()
                     // this._init_form() // 重置表单
                     // play_audio_prompt('success')
-                } catch (err) { console.log('err', err) }
+                } catch (err) { }
             },
             _activate_step(step) {
                 this.step = step
@@ -1023,6 +1024,9 @@
                     this.goods_nav.button_group[0].text = '返回'
                     this.goods_nav.button_group[0].backgroundColor = store.state.goods_nav_color.grey
                 }
+            },
+            _after_update_bills() {
+                this.goods_nav.options[1].info = this.bills.length
             },
             _calc_done_qty() {
                 for (let material of this.bills_combi.materials) {
@@ -1081,11 +1085,11 @@
                     decimal_unit: false
                 }
             },
+            _is_mo_selected(mo_bill_no) {
+                return this.bills.some(x => x.mo_bill_no == mo_bill_no)
+            },
             _unplanned_material(log) {
                 return !this.bills_combi.materials.some(x => x.material_id == log.FMaterialId)
-            },
-            _after_update_bills() {
-                this.goods_nav.options[1].info = this.bills.length
             }
         }
     }

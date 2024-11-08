@@ -70,7 +70,7 @@
         onLoad(options) {
             const eventChannel = this.getOpenerEventChannel();
             eventChannel.on('sendMaterial', res => {
-                console.log('eventChannel.on sendMaterial', res)
+                this.$logger.info('eventChannel.on sendMaterial', res)
                 this.bd_material = res.bd_material
                 this.set_wlzlk_template(this.bd_material)
             })
@@ -211,7 +211,7 @@
             },
             render_over(e) {
                 // e为导出的图片（base64）
-                // console.log("==== renderOver :", e);
+                // this.$logger.info(">>> renderOver:", e);
                 let filename = `${this.category}_${Date.now()}`
                 // #ifdef APP-PLUS
                     this.save_base64_data_app_plus(e, filename)
@@ -238,7 +238,7 @@
                             uni.saveImageToPhotosAlbum({
                                 filePath: url,
                                 success: () => {
-                                    console.log('>>> APP-PLUS图片保存成功')
+                                    this.$logger.info('>>> APP-PLUS图片保存成功')
                                     uni.hideLoading()
                                     uni.showToast({ title: '已保存到相册' })
                                     bitmap.clear()
@@ -246,12 +246,12 @@
                             })
                         },
                         (e) => {
-                            console.log('>>> APP-PLUS图片保存失败')
+                            this.$logger.info('>>> APP-PLUS图片保存失败')
                             bitmap.clear()
                         }
                     ),
                     (e) => {
-                        console.log('>>> APP-PLUS图片保存失败')
+                        this.$logger.info('>>> APP-PLUS图片保存失败')
                         bitmap.clear()
                     }
                 })
@@ -277,7 +277,7 @@
                 // 清理
                 URL.revokeObjectURL(link.href);
                 uni.hideLoading()
-                console.log('>>> H5图片保存成功')
+                this.$logger.info('>>> H5图片保存成功')
             },
             // #ifdef H5
             print_base64_data_h5(base64_data, orientation='') {
@@ -305,9 +305,9 @@
             // #endif
             test() {
                 try{
-                    console.log('DEBUG', this.$data)
+                    this.$logger.info('DEBUG', this.$data)
                 } catch (err) {
-                    console.log('err', err)
+                    this.$logger.info('err', err)
                 }
             }
         }

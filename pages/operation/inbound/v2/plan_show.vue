@@ -169,7 +169,6 @@
                 })
             },
             checkbox_click(e) {
-                console.log('checkbox_click e', e)
                 let inv_plan = this.inv_plans.find(x => x.FID == e.target.dataset.id)
                 if (inv_plan && !inv_plan.disabled) {
                     inv_plan.checked = !inv_plan.checked

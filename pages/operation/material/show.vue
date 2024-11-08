@@ -108,7 +108,7 @@
                     itemList: ['物料资料卡'],
                     success: (e) => {
                         if (e.tapIndex === 0) {
-                            console.log('>>> 生成物料资料卡')
+                            this.$logger.info('>>> 生成物料资料卡')
                             uni.navigateTo({
                                 url: '/pages/operation/material/card',
                                 success: (res) => {

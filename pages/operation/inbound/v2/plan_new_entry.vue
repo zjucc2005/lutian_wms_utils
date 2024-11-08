@@ -200,7 +200,7 @@
         onLoad(options) {
             const eventChannel = this.getOpenerEventChannel();
             eventChannel.on('sendInboundTask', res => {
-                console.log('eventChannel.on sendInboundTask', res)
+                this.$logger.info('eventChannel.on sendInboundTask', res)
                 this.inbound_task = res.inbound_task
                 if (res.material_no) {
                     this.set_plan_form(res.material_no)

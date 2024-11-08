@@ -107,7 +107,6 @@
                 })
             },
             async refresh() {
-                console.log('data', this.$data)
                 if (this.last_refresh_time + this.refresh_interval > Date.now()) {
                     uni.showToast({ icon: 'none', title: '请不要频繁刷新' })
                     return

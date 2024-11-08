@@ -95,7 +95,7 @@
                 myScanCode.scanCode({
                     // prompt: '扫码提示语'
                 }, (res) => {
-                    console.log('myScanCode res:', res)
+                    this.$logger.info('myScanCode res:', res)
                     uni.showModal({
                         title: res.scanType,
                         content: res.result,
@@ -107,7 +107,7 @@
                 // #ifndef APP-PLUS
                 uni.scanCode({
                     success: function (res) {
-                        console.log("uni.scanCode res:", res)
+                        this.$logger.info("uni.scanCode res:", res)
                         uni.showModal({
                             title: res.scanType,
                             content: res.result,
@@ -126,10 +126,10 @@
                 	type: 1,
                 	summary: "我正在使用HBuilderX开发uni-app，赶紧跟我一起来体验！",
                 	success: function (res) {
-                		console.log("success:", res)                        
+                		this.$logger.info("success:", res)                        
                 	},
                 	fail: function (err) {
-                		console.log("fail:", err)
+                		this.$logger.info("fail:", err)
                         uni.showToast({ icon: 'none', title: err.errMsg })
                 	}
                 });
@@ -144,10 +144,10 @@
                 uni.showToast({ icon: 'none', title: '振动'})
                 uni.vibrate({
                     success: (res) => {
-                        console.log('uni.vibrate res:', res)
+                        this.$logger.info('uni.vibrate res:', res)
                     },
                     fail: (err) => {
-                        console.log('uni.vibrate err:', err)
+                        this.$logger.info('uni.vibrate err:', err)
                     }
                 })
             },
@@ -155,37 +155,16 @@
                 uni.getLocation({
                     type: 'wgs84', // wgs84/gcj02
                     success: (res) => {
-                        console.log('uni.getLocation res:', res)
+                        this.$logger.info('uni.getLocation res:', res)
                     },
                     fail: (err) => {
-                        console.log('uni.getLocation err:', err)
+                        this.$logger.info('uni.getLocation err:', err)
                     }
                 })
             },
             call_test_api() {
-                console.log('API调用 - 目前无测试代码')
-                // const data = {
-                //     // Number: 'FHTZD074960',
-                //     Number: 'FHTZD078950'
-                // }
-                // K3CloudApi.view('SAL_DELIVERYNOTICE', { Number: 'FHTZD074960' }).then(res => {
-                //     console.log('res.data.Result.Result.SAL_DELIVERYNOTICEENTRY', res.data.Result.Result.SAL_DELIVERYNOTICEENTRY)
-                // })
-                // K3CloudApi.view('STK_TransferDirect', { Number: 'ZJDB198948' }).then(res => {
-                //     console.log('res.data', res.data)
-                // })
-                
-                // K3CloudApi.view('PRD_MO', { Number: '1022409300583' }).then(res => {
-                //     console.log('获取生产订单', res.data)
-                // })
-                // K3CloudApi.view('PRD_ISSUEMTRNOTICE', { Number: 'SCFLTZD31787' }).then(res => {
-                //     console.log('获取生产发料通知单', res.data)
-                // })
-                // K3CloudApi.view('PRD_PPBOM', { Number: 'PPBOM00722357' }).then(res => {
-                //     console.log('获取生产用料清单', res.data)
-                // })
                 // K3CloudApi.view('BD_DEPARTMENT', { Number: 'BM10211' }).then(res => {
-                //     console.log('获取部门', res.data)
+                //     this.$logger.info('获取部门', res.data)
                 // })
                 
                 const data = {

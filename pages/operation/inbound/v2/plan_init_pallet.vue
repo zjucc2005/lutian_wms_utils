@@ -305,7 +305,7 @@
             goods_nav_click(e) {
                 if (e.index === 0) {
                     this.$refs.detail_drawer.open()
-                    console.log('this.$data', this.$data)
+                    this.$logger.info('this.$data', this.$data)
                 }
             },
             goods_nav_button_click(e) {
@@ -380,7 +380,7 @@
                         play_audio_prompt('success')
                         let inbound_task = new InboundTask(this.inbound_task)
                         this.inbound_task = inbound_task.update({ status: 'ongoing' })
-                        console.log('this.$data', this.$data)
+                        this.$logger.info('this.$data', this.$data)
                         res.eventChannel.emit('sendInboundTask', { material_no: material_no })
                     }
                 })
@@ -388,14 +388,12 @@
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
-                    console.log('myScanCode res:', res)
                     if (res.success == 'true') this.after_scan_code(res.result)
                 })
                 // #endif               
                 // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        console.log("uni.scanCode res:", res)
                         this.after_scan_code(res.result)
                     }
                 });

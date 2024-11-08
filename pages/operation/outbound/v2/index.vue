@@ -131,7 +131,6 @@
         },
         methods: {
             checkbox_click(e) {
-                // console.log('checkbox_click e', e)
                 let group_item = this.inv_plan_groups.find(x => x.bill_no == e.target.dataset.bill_no)
                 if (group_item) {
                     group_item.checked = !group_item.checked

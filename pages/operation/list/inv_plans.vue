@@ -6,9 +6,8 @@
             >
             <template #body>
                 <view class="uni-list-item__body">
-                    <view class="title">{{ formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</view>
+                    <view class="title">{{ inv_plan['FMaterialId.FNumber'] }}</view>
                     <view class="note">
-                        <view>编码：{{ inv_plan['FMaterialId.FNumber'] }}</view>
                         <view>名称：{{ inv_plan['FMaterialId.FName'] }}</view> 
                         <view>规格：{{ inv_plan['FMaterialId.FSpecification'] }}</view>
                         <view>批次：{{ inv_plan.FBatchNo }}</view>
@@ -21,6 +20,7 @@
                         </view>
                         <view v-if="inv_plan.FBillNo?.trim()">单据：{{ inv_plan.FBillNo }}</view>
                         <view v-if="inv_plan.FRemark?.trim()">备注：{{ inv_plan.FRemark }}</view>
+                        <view>时间：{{ formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</view>
                     </view>
                 </view>
             </template>
@@ -180,7 +180,6 @@
                 InvPlan.query(options, meta).then(res => {
                     this.load_more_status = res.data.length < this.per_page ? 'nomore' : 'more'
                     res.data.forEach(item => this.inv_plans.push(item) )
-                    console.log('inv_plans', res.data)
                 })
             },
         }

@@ -146,7 +146,6 @@
                                 validateFunction: (rule, value, data, callback) => {
                                     let stock_loc = this.stock_locs.find(x => x.FNumber == value)
                                     if (!stock_loc) {
-                                        console.log('this.mount_form', this.mount_form)
                                         return callback('不存在此库位号')
                                     } else if (stock_loc.FDocumentStatus != 'C') {
                                         return callback('此库位号未审核')
@@ -226,7 +225,6 @@
             },
             // >>> action
             handle_icon_click(type) {
-                // console.log("handle_icon_click type:", type)
                 if (type == 'material_no') {
                     let list = this.cur_inbound_task.inbound_list.map(x => x.material_no)
                     uni.showActionSheet({
@@ -239,7 +237,6 @@
                 }   
             },
             handle_material_no_change() {
-                // console.log('handle_material_no_change e:', e)
                 let material_no = this.mount_form.material_no
                 if (!material_no) {
                     this.set_base_unit()
@@ -266,24 +263,21 @@
                 uni.showActionSheet({
                     itemList: ['入库详情', '操作日志', 'debug'],
                     success: (e) => {
-                        console.log('showActionSheet e:', e)
                         if (e.tapIndex === 0) uni.navigateTo({ url: '/pages/operation/inbound/v1/task' })
                         if (e.tapIndex === 1) uni.navigateTo({ url: '/pages/operation/inbound/v1/logs' })
-                        if (e.tapIndex === 2) console.log("this.$data", this.$data)
+                        if (e.tapIndex === 2) this.$logger.info("this.$data", this.$data)
                     }
                 })
             },
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
-                    console.log('myScanCode res:', res)
                     if (res.success == 'true') this.handle_scan_code(res.result)
                 })
                 // #endif               
                 // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        console.log("uni.scanCode res:", res)
                         this.handle_scan_code(res.result)
                     }
                 });
@@ -324,9 +318,7 @@
                         this.after_save(save_res)
                         this.reset_form() // 重置表单
                     })
-                }).catch(err => {
-                    console.log('submit mount err:', err);
-                })
+                }).catch(err => {})
             },
             submit_cancel(inv_log_id) {                
                 let inv_log = this.inv_logs.find(x => x.FID == inv_log_id)

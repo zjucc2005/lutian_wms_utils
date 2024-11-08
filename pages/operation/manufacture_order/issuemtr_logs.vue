@@ -217,11 +217,9 @@
                 IssuemtrLog.query(options, meta).then(res => {
                     this.load_more_status = res.data.length < this.per_page ? 'nomore' : 'more'
                     res.data.forEach(item => this.issuemtr_logs.push(item) )
-                    console.log('issuemtr_logs', res.data)
                 })
             },
             async summarize_logs() {
-                console.log('')
                 let options = {
                     FOpType_in: ['send', 'receive'],
                     'FMaterialId.FNumber': this.search_form.material_no,
@@ -229,7 +227,6 @@
                 }
                 uni.showLoading({ title: 'Loading' })
                 let res = await IssuemtrLog.summary(options)
-                console.log('res', res)
                 uni.hideLoading()
                 if (res.length === 0) {
                     uni.showToast({ icon: 'none', title: '无相关数据' })

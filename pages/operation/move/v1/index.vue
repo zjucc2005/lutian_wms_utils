@@ -221,7 +221,6 @@
                 _this_.move_cart = MoveCart.current()
                 _this_.refresh_cart_info()
                 _this_.handle_search()
-                console.log('全局监听事件syncMoveCart res:', res);
             })
         },
         methods: {
@@ -232,8 +231,7 @@
             goods_nav_button_click(e) {
                 if (e.index == 0) this.scan_code() // btn:库存查询
                 if (e.index == 1) {
-                    this.preview_cart()
-                    console.log('debug:', this.$data) // btn:提交确认
+                    this.preview_cart() // btn:提交确认
                 }
             },
             // >>> action
@@ -256,14 +254,12 @@
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
-                    console.log('myScanCode res:', res)
                     if (res.success == 'true') this.handle_inv_search(res.result)
                 })
                 // #endif               
                 // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        console.log('uni.scanCode res:', res)
                         this.handle_inv_search(res.result)
                     }
                 })
@@ -321,7 +317,6 @@
                 })
             },
             open_move_dialog(inv, move_item) {
-                console.log('open_move_dialog inv:', inv)
                 this.move_form.inv = inv
                 if (move_item) {
                     this.move_form.loc_no = move_item.loc_no
@@ -335,7 +330,6 @@
                 this.$refs.move_dialog.open()
             },
             close_move_dialog() {
-                // console.log('close_move_dialog')
                 this.$refs.move_dialog.close()
                 this.move_form = { inv: {}, loc_no: '', qty: 0 }
             },
@@ -343,10 +337,9 @@
                 this.$refs.move_form.validate().then(res => {
                     let move_cart = new MoveCart(this.move_cart)
                     this.move_cart = move_cart.update(this.move_form)
-                    // console.log('confirm_move_dialog', this.move_form)
                     this.refresh_cart_info()
                     this.close_move_dialog()
-                }).catch(err => console.log('validate err:', err) )
+                }).catch(err => {})
             },
             refresh_cart_info() {
                 let sum_qty = 0

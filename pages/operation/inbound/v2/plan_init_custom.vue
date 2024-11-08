@@ -143,6 +143,8 @@
                         `名称：${material.FName}`, 
                         `规格：${material.FSpecification}`
                     ].join('\n')"
+                    :thumb="_thumbnail_url(material.FImageFileServer)"
+                    thumb-size="lg"
                     @click="select_material(material)" clickable
                     show-arrow
                     >
@@ -197,6 +199,7 @@
 
 <script>
     import store from '@/store'
+    import K3CloudApi from '@/utils/k3cloudapi'
     // import { get_bd_material } from '@/utils/api'
     import { search_bd_materials } from '@/utils/api'
     import { InboundTask, InvPlan } from '@/utils/model'
@@ -314,7 +317,7 @@
             goods_nav_click(e) {
                 if (e.index === 0) {
                     this.$refs.detail_drawer.open()
-                    console.log('this.$data', this.$data)
+                    this.$logger.info('this.$data', this.$data)
                 }
             },
             goods_nav_button_click(e) {
@@ -475,6 +478,13 @@
                     this.form.base_unit_qty_focus = true
                 } else {
                     this._init_form()
+                }
+            },
+            _thumbnail_url(file_id) {
+                if(file_id.trim()) {
+                    return K3CloudApi.download_url_sync(file_id, 1, true)
+                } else {
+                    return '/static/default_40x40.png'
                 }
             }
         }

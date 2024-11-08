@@ -390,7 +390,7 @@
                if (e.index === 0) this.submit_delete(inv_plan) // btn:删除
             },
             goods_nav_click(e) {
-                if (e.index === 0) console.log('this.$data', this.$data)
+                if (e.index === 0) this.$logger.info('this.$data', this.$data)
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询
@@ -404,7 +404,6 @@
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
-                    // console.log('myScanCode res:', res)
                     if (res.success == 'true') {
                         this.search_form.no = res.result
                         this.before_search()
@@ -414,7 +413,6 @@
                 // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        // console.log('uni.scanCode res:', res)
                         this.search_form.no = res.result
                         this.before_search()
                     }
@@ -422,13 +420,11 @@
                 // #endif
             },
             open_move_dialog(inv) {
-                // console.log('open_move_dialog inv:', inv)
                 this.move_form.inv = inv
                 this.move_form.edit_qty = inv.FQty
                 this.$refs.move_dialog.open()
             },
             close_move_dialog() {
-                // console.log('close_move_dialog')
                 this.$refs.move_dialog.close()
                 this.move_form = { type: 'move', inv: {}, dest_loc_no: '', op_qty: 0 }
             },
@@ -456,8 +452,6 @@
             },
             async confirm_move_dialog() {
                 try {
-                    console.log("this.$data",this.$data)
-                    // return
                     await this.$refs.move_form.validate()
                     let inv_plan = new InvPlan()
                     if (this.move_form.type == 'move') {
@@ -499,7 +493,7 @@
                         uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
                     }
                     
-                } catch (err) { console.log('err', err) }
+                } catch (err) {}
             },
             async handle_search(material_no) {
                 if (!material_no) {

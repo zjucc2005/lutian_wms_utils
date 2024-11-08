@@ -216,15 +216,12 @@
                 if (e == 'prefix') this.scan_code()
             },
             select_material_card() {
-                // uni.navigateTo({
-                //     url: '/pages/operation/manage/material_card'
-                // })
                 if (!this.bd_material.Id) return
                 uni.showActionSheet({
                     itemList: ['物料资料卡'],
                     success: (e) => {
                         if (e.tapIndex === 0) {
-                            console.log('>>> 生成物料资料卡')
+                            this.$logger.info('>>> 生成物料资料卡')
                             uni.navigateTo({
                                 url: '/pages/operation/manage/material_card',
                                 success: (res) => {

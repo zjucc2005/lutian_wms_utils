@@ -41,13 +41,12 @@
                     Limit: this.per_page,
                 }
                 K3CloudApi.bill_query(params).then(res => {
-                    // console.log(`${this.model_name} page res:`, res)
                     this.tableData = res.data;
                     this.loading = false;
                 })
             },
             selectionChange(e) {
-                console.log('selectionChange e:', e)
+                this.$logger.info('selectionChange e:', e)
             },
             pageChange(e) {
                 this.page = e.current;

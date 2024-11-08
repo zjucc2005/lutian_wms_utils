@@ -40,7 +40,6 @@ const conn = async () => {
 const conn_login_by_app_secret = async () => {
     return new Promise((resolve, reject) => {
         if (isConn()) {
-            // logger.dev("load store.state.conn_info:", store.state.conn_info)
             return resolve(store.state.conn_info)
         }
         uni.request({
@@ -54,13 +53,13 @@ const conn_login_by_app_secret = async () => {
                 lcid: api_config.lcid ,
             },
             success: (res) => {
-                logger.info(`运行环境[${config.env}]`)
-                logger.dev("K3CloudApi.conn_login_by_app_secret res:", res)
+                logger.info(`>>> 运行环境[${config.env}]`)
+                logger.info("K3CloudApi.conn_login_by_app_secret res:", res)
                 store.commit('api_conn', res.data)
                 resolve(res)
             },
             fail: (err) => {
-                console.log("K3CloudApi.conn_login_by_app_secret fail:", err)
+                logger.info("K3CloudApi.conn_login_by_app_secret fail:", err)
                 reject(err)
             }
         })
@@ -74,7 +73,6 @@ const conn_login_by_app_secret = async () => {
 const conn_validate_user = async () => {
     return new Promise((resolve, reject) => {
         if (isConn()) {
-            // logger.dev("load store.state.conn_info:", store.state.conn_info)
             return resolve(store.state.conn_info)
         }
         uni.request({
@@ -83,12 +81,12 @@ const conn_validate_user = async () => {
             data: { acctid: api_config.acctid, username: api_config.username, password: api_config.password, lcid: api_config.lcid },
             success: (res) => {
                 logger.info(`运行环境[${config.env}]`)
-                logger.dev("K3CloudApi.conn_validate_user res:", res)
+                logger.info("K3CloudApi.conn_validate_user res:", res)
                 store.commit('api_conn', res.data)
                 resolve(res)
             },
             fail: (err) => {
-                console.log("K3CloudApi.conn_validate_user fail:", err)
+                logger.info("K3CloudApi.conn_validate_user fail:", err)
                 reject(err)
             }
         })
@@ -115,18 +113,18 @@ const view = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.view req:", form_id, _data_)
+            logger.info("K3CloudApi.view req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.View.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
-                    logger.dev("K3CloudApi.view res:", res)
+                    logger.info("K3CloudApi.view res:", res)
                     resolve(res)
                 },
                 fail: (err) => {
-                    console.log("K3CloudApi.view fail:", err)
+                    logger.info("K3CloudApi.view fail:", err)
                     reject(err)
                 }
             })
@@ -157,18 +155,18 @@ const submit = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.submit req:", form_id, _data_)
+            logger.info("K3CloudApi.submit req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Submit.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
-                    logger.dev("K3CloudApi.submit res:", res)
+                    logger.info("K3CloudApi.submit res:", res)
                     resolve(res)
                 },
                 fail: (err) => {
-                    console.log("K3CloudApi.submit fail:", err)
+                    logger.info("K3CloudApi.submit fail:", err)
                     reject(err)
                 }
             })
@@ -199,18 +197,18 @@ const audit = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.audit req:", form_id, _data_)
+            logger.info("K3CloudApi.audit req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Audit.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
-                    logger.dev("K3CloudApi.audit res:", res)
+                    logger.info("K3CloudApi.audit res:", res)
                     resolve(res)
                 },
                 fail: (err) => {
-                    console.log("K3CloudApi.audit fail:", err)
+                    logger.info("K3CloudApi.audit fail:", err)
                     reject(err)
                 }
             })
@@ -240,18 +238,18 @@ const forbid = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.forbid req:", form_id, _data_)
+            logger.info("K3CloudApi.forbid req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteOperation.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, opNumber: 'Forbid', data: _data_ },
                 success: (res) => {
-                    logger.dev("K3CloudApi.forbid res:", res)
+                    logger.info("K3CloudApi.forbid res:", res)
                     resolve(res)
                 },
                 fail: (err) => {
-                    console.log("K3CloudApi.forbid fail:", err)
+                    logger.info("K3CloudApi.forbid fail:", err)
                     reject(err)
                 }
             })
@@ -281,18 +279,18 @@ const enable = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.enable req:", form_id, _data_)
+            logger.info("K3CloudApi.enable req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteOperation.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, opNumber: 'Enable', data: _data_ },
                 success: (res) => {
-                    logger.dev("K3CloudApi.enable res:", res)
+                    logger.info("K3CloudApi.enable res:", res)
                     resolve(res)
                 },
                 fail: (err) => {
-                    console.log("K3CloudApi.enable fail:", err)
+                    logger.info("K3CloudApi.enable fail:", err)
                     reject(err)
                 }
             })
@@ -318,18 +316,18 @@ const _delete_ = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.delete req:", form_id, _data_)
+            logger.info("K3CloudApi.delete req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Delete.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
-                    logger.dev("K3CloudApi.delete res:", res)
+                    logger.info("K3CloudApi.delete res:", res)
                     resolve(res)
                 },
                 fail: (err) => {
-                    console.log("K3CloudApi.delete fail:", err)
+                    logger.info("K3CloudApi.delete fail:", err)
                     reject(err)
                 }
             })
@@ -364,18 +362,18 @@ const save = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.save req:", _data_)
+            logger.info("K3CloudApi.save req:", _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Save.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
-                    logger.dev("K3CloudApi.save res:", res)
+                    logger.info("K3CloudApi.save res:", res)
                     resolve(res)
                 },
                 fail: (err) => {
-                    console.log("K3CloudApi.save fail:", err)
+                    logger.info("K3CloudApi.save fail:", err)
                     reject(err)
                 }
             })
@@ -410,18 +408,18 @@ const batch_save = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.dev("K3CloudApi.save req:", form_id, _data_)
+            logger.info("K3CloudApi.save req:", form_id, _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BatchSave.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, data: _data_ },
                 success: (res) => {
-                    logger.dev("K3CloudApi.batch_save res:", res)
+                    logger.info("K3CloudApi.batch_save res:", res)
                     resolve(res)
                 },
                 fail: (err) => {
-                    console.log("K3CloudApi.batch_save fail:", err)
+                    logger.info("K3CloudApi.batch_save fail:", err)
                     reject(err)
                 }
             })
@@ -457,19 +455,19 @@ const execute_bill_query = async (data) => {
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
             let t1 = Date.now()
-            logger.dev("K3CloudApi.execute_bill_query req:", _data_)
+            logger.info("K3CloudApi.execute_bill_query req:", _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteBillQuery.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { data: _data_ },
                 success: (res) => {
-                    logger.dev("K3CloudApi.execute_bill_query res:", res)
-                    console.info('K3CloudApi.execute_bill_query cost', Date.now() - t1, 'ms')
+                    logger.info("K3CloudApi.execute_bill_query res:", res)
+                    logger.info('K3CloudApi.execute_bill_query cost', Date.now() - t1, 'ms')
                     resolve(res)
                 },
                 fail: (err) => {
-                    console.log("K3CloudApi.execute_bill_query fail:", err)
+                    logger.info("K3CloudApi.execute_bill_query fail:", err)
                     reject(err)
                 }
             })
@@ -505,19 +503,19 @@ const bill_query = async (data) => {
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
             let t1 = Date.now()
-            logger.dev("K3CloudApi.bill_query req:", _data_)
+            logger.info("K3CloudApi.bill_query req:", _data_)
             uni.request({
                 url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BillQuery.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { data: _data_ },
                 success: (res) => {
-                    logger.dev("K3CloudApi.bill_query res:", res)
-                    console.info('K3CloudApi.bill_query cost', Date.now() - t1, 'ms')
+                    logger.info("K3CloudApi.bill_query res:", res)
+                    logger.info('K3CloudApi.bill_query cost', Date.now() - t1, 'ms')
                     resolve(res)
                 },
                 fail: (err) => {
-                    console.log("K3CloudApi.bill_query fail:", err)
+                    logger.info("K3CloudApi.bill_query fail:", err)
                     reject(err)
                 }
             })

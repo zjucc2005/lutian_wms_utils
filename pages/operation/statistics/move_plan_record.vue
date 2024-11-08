@@ -76,9 +76,7 @@
                     uni.hideLoading()
                     this.raw_data = res.map(x => { x[3] = Number(new Date(x[2])); return x })
                     this._set_chart_data_month()
-                } catch (err) {
-                    console.log('load_inv_logs err:', err)
-                }
+                } catch (err) {}
             },
             // 季视图数据
             _set_chart_data_season() {
@@ -219,7 +217,7 @@
                 this.stime = new Date(year - 1, month + 1, 1) // GMT+8
             },
             debug(e) {
-                console.log('debug', this.$data)
+                this.$logger.info('debug', this.$data)
             }
         }
     }

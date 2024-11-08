@@ -161,14 +161,12 @@
             scan_code() {
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
-                    console.log('myScanCode res:', res)
                     if (res.success == 'true') this.handle_scan_code(res.result)
                 })
                 // #endif               
                 // #ifndef APP-PLUS
                 uni.scanCode({
                     success: (res) => {
-                        console.log("uni.scanCode res:", res)
                         this.handle_scan_code(res.result)
                     }
                 });
@@ -208,7 +206,6 @@
                         })
                     })
                     this.outbound_task_form.outbound_list = outbound_list
-                    // console.log('sale info:', data.SAL_DELIVERYNOTICEENTRY)
                 } else {
                     this.outbound_task_form.outbound_list = []
                     uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
@@ -223,13 +220,11 @@
                         bill_no: this.outbound_task_form.bill_no,
                         outbound_list: this.outbound_task_form.outbound_list
                     }
-                    console.log('create_outbound_task options:', options)
                     let outbound_task = new OutboundTask(options)
                     outbound_task.save()
                     this.cur_outbound_task = outbound_task // 赋值cur_outbound_task，解决VUE设置空值对象时console报错
-                    // console.log('新建出库任务', outbound_task)
                     uni.navigateTo({ url: '/pages/operation/outbound/v1/allocate' })                    
-                }).catch(err => { console.log('validate err', err) })                
+                }).catch(err => {})                
             },
             continue_outbound_task() {
                 play_audio_prompt('success')
@@ -247,7 +242,6 @@
                 OutboundTask.destroy_all()
                 this.cur_outbound_task= {}
                 this.outbound_task_form = { bill_no: '', outbound_list: [] }
-                console.log('结束出库任务')
             }
         }
     }
