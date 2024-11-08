@@ -125,7 +125,7 @@
     
     <!-- 搜索候选列表 -->
     <uni-drawer ref="search_drawer" :width="$store.state.drawer_width">
-        <scroll-view scroll-y style="height: 100%;" @touchmove.stop.prevent>
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
         <uni-section :title="`模糊匹配：${form.material_no}`" type="square"
             sub-title="最多展示20条匹配结果"
             >
@@ -156,7 +156,7 @@
     
     <!-- 扫描明细列表 -->
     <uni-drawer ref="detail_drawer" :width="$store.state.drawer_width">
-        <scroll-view scroll-y style="height: 100%;" @touchmove.stop.prevent>
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
             <uni-section title="操作明细" type="square"
                 :sub-title="inbound_task.status == 'init' ? '左滑可删除' : ''"
                 >
@@ -292,6 +292,10 @@
             formatDate,
             add_to_inbound_task() {
                 this.$refs.form.validate().then(res => {
+                    if (this.inbound_task.inbound_list.some(x => x.material_id == this.form.material_id)) {
+                        uni.showToast({ icon: 'none', title: '重复提交' })
+                        return
+                    }
                     let inbound_task = new InboundTask(this.inbound_task)
                     this.inbound_task = inbound_task.add_inbound_list({
                         material_id: this.form.material_id,

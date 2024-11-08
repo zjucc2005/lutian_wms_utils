@@ -1,167 +1,204 @@
 <template>
-    <view>
-        <uni-section type="square" title="新增计划明细"
-            :sub-title="outbound_task.bill_no"
-            sub-title-color="#007aff">
-            <uni-list v-if="plan_form.material_no">
-                <template
-                    v-for="(obj, index) in outbound_task.outbound_list"
-                    :key="index"
+    <uni-section type="square" title="新增计划明细"
+        :sub-title="outbound_task.bill_no"
+        sub-title-color="#007aff">
+        <uni-list v-if="plan_form.material_no">
+            <template
+                v-for="(obj, index) in outbound_task.outbound_list"
+                :key="index"
+                >
+                <uni-list-item                   
+                    v-if="obj.material_no == plan_form.material_no"
+                    :right-text="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
+                    @click="$refs.material_drawer.open()" clickable
                     >
-                    <uni-list-item                   
-                        v-if="obj.material_no == plan_form.material_no"
-                        :right-text="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
-                        @click="material_no_click()" clickable
-                        >
-                        <template v-slot:body>
-                            <view class="uni-list-item__body">
-                                <text class="title">{{ obj.material_no }}</text>
-                                <view class="note">
-                                    <view>名称：{{ obj.material_name }}</view> 
-                                    <view>规格：{{ obj.material_spec }}</view>
-                                    <view>
-                                        <uni-icons type="home" color="#007bff" ></uni-icons>
-                                        <text class="stock">{{ obj.stock_name }}</text>
-                                    </view>
+                    <template v-slot:body>
+                        <view class="uni-list-item__body">
+                            <text class="title">{{ obj.material_no }}</text>
+                            <view class="note">
+                                <view>名称：{{ obj.material_name }}</view> 
+                                <view>规格：{{ obj.material_spec }}</view>
+                                <view>
+                                    <uni-icons type="home" color="#007bff" ></uni-icons>
+                                    <text class="stock">{{ obj.stock_name }}</text>
                                 </view>
                             </view>
-                        </template>
-                    </uni-list-item>
-                </template>
-            </uni-list>
-            <uni-list v-else>
-                <uni-list-item
-                    :show-extra-icon="true"
-                    :extra-icon="{ color: '#007bff', size: '24', type: 'list' }"
-                    title="点击选择物料"
-                    @click="material_no_click" clickable
-                />
-            </uni-list>
-        </uni-section>
-        
-        <!-- plan form -->
-        <view v-if="op_mode == 'scan'" class="container">
-            <uni-forms ref="plan_form" :model="plan_form" :rules="plan_form_rules" labelWidth="80px">
-                <uni-forms-item name="material_no" style="height: 0;"></uni-forms-item>
-                <uni-forms-item label="库位号" name="loc_no" required>
-                    <uni-data-picker
-                        v-model="plan_form.loc_no"
-                        :localdata="$store.state.stock_loc_opts"
-                        split="-"
-                        popup-title="请选择库位"
-                    />
-                </uni-forms-item>
-                <uni-forms-item label="下架数量" name="op_qty" required>
-                    <uni-easyinput v-model="plan_form.op_qty" type="number">
-                        <template #right>
-                            <text class="easyinput-suffix-text">{{ plan_form.base_unit_name }}</text>
-                        </template>
-                    </uni-easyinput>
-                </uni-forms-item>
-                <uni-forms-item label="备注" name="remark">
-                    <uni-easyinput v-model="plan_form.remark" trim="both" />
-                </uni-forms-item>
-            </uni-forms>
-        </view>
-       
-        <uni-section type="square" title="当前计划明细"
-            sub-title="左滑可删除"
-            v-if="inv_plans.length"
-            :class="op_mode == 'scan' ? 'above-uni-goods-nav' : ''">
-            <template v-slot:right>
-                <view class="uni-section__right">
-                    <view >
-                        已计划 <text class="sum_qty">{{ _sum_planned_qty() }}</text> {{ plan_form.base_unit_name }}
-                    </view>
-                </view>
-            </template>
-            <uni-swipe-action ref="inv_plan_swipe">
-                <uni-swipe-action-item
-                    v-for="(inv_plan, index) in inv_plans"
-                    :key="index"
-                    :threshold="60"
-                    :right-options="swipe_options"
-                    @click="swipe_action_click($event, inv_plan)"
-                    >
-                    <uni-list-item
-                        :show-extra-icon="true"
-                        :extra-icon="{ color: '#4cd964', size: '24', type: 'arrow-down' }"
-                        :title="inv_plan['FStockLocId.FNumber']"
-                        :note="`批次：${inv_plan.FBatchNo}`"
-                    >
-                        <template v-slot:footer>
-                            <view class="uni-list-item__foot">
-                                <text class="op_qty">{{ inv_plan.FOpQTY }} {{ inv_plan['FStockUnitId.FName'] }}</text>
-                                <text class="status">{{ inv_plan.status }}</text>
-                            </view>
-                        </template>
-                    </uni-list-item>
-                </uni-swipe-action-item>
-            </uni-swipe-action>
-        </uni-section>
-        
-        <uni-section title="库存信息"
-            v-if="op_mode == 'check'"
-            class="above-uni-goods-nav">
-            <template v-slot:decoration>
-                <view class="uni-section__decoration">
-                    <uni-icons type="search" size="30" color="#007aff"
-                        @click="search_invs(plan_form.material_no)" />
-                </view>                
-            </template>
-            <template v-slot:right>
-                <view class="uni-section__right">
-                    <view >
-                        已选择 <text class="sum_qty">{{ _sum_checked_qty() }}</text> {{ plan_form.base_unit_name }}
-                    </view>
-                </view>
-            </template>
-            
-            <uni-list>
-                <uni-list-item
-                    v-for="(inv, index) in invs"
-                    :key="index"
-                    :title="inv['FStockLocId.FNumber']"
-                    :note="`批次：${inv.FBatchNo}`"
-                    :right-text="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
-                    >
-                    <template v-slot:header>
-                        <view class="uni-list-item__head">
-                            <checkbox
-                                :checked="inv.checked"
-                                :disabled="inv.disabled"
-                                @click="checkbox_click"
-                                :data-id="inv.FID"
-                            />
-                        </view>
-                    </template>
-                    <template v-slot:footer>
-                        <view class="uni-list-item__foot">
-                            <text class="op_qty">
-                                <template v-if="inv.planned_qty">({{ inv.FQty - inv.planned_qty }})</template>
-                                {{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}
-                            </text>
-                            <text v-if="inv.checked_qty" class="status">-{{ inv.checked_qty }} {{ inv['FStockUnitId.FName'] }}</text>
                         </view>
                     </template>
                 </uni-list-item>
-            </uni-list>
-            <uni-load-more
-                v-if="invs.length == 0"
-                status="nomore"
-                :content-text="{ contentnomore: '没有相关数据' }"
+            </template>
+        </uni-list>
+        <uni-list v-else>
+            <uni-list-item
+                :show-extra-icon="true"
+                :extra-icon="{ color: '#007bff', size: '24', type: 'list' }"
+                title="点击选择物料"
+                @click="material_no_click" clickable
             />
-        </uni-section>
-        
-        <view class="uni-goods-nav-wrapper">
-            <uni-goods-nav
-                :options="goods_nav.options" 
-                :button-group="goods_nav.button_group"
-                @click="goods_nav_click"
-                @button-click="goods_nav_button_click"
-            />
-        </view>
+        </uni-list>
+    </uni-section>
+    
+    <!-- plan form -->
+    <view v-if="op_mode == 'scan'" class="container">
+        <uni-forms ref="plan_form" :model="plan_form" :rules="plan_form_rules" labelWidth="80px">
+            <uni-forms-item name="material_no" style="height: 0;"></uni-forms-item>
+            <uni-forms-item label="库位号" name="loc_no" required>
+                <uni-data-picker
+                    v-model="plan_form.loc_no"
+                    :localdata="$store.state.stock_loc_opts"
+                    split="-"
+                    popup-title="请选择库位"
+                />
+            </uni-forms-item>
+            <uni-forms-item label="下架数量" name="op_qty" required>
+                <uni-easyinput v-model="plan_form.op_qty" type="number">
+                    <template #right>
+                        <text class="easyinput-suffix-text">{{ plan_form.base_unit_name }}</text>
+                    </template>
+                </uni-easyinput>
+            </uni-forms-item>
+            <uni-forms-item label="备注" name="remark">
+                <uni-easyinput v-model="plan_form.remark" trim="both" />
+            </uni-forms-item>
+        </uni-forms>
     </view>
+   
+    <uni-section type="square" title="当前计划明细"
+        sub-title="左滑可删除"
+        v-if="inv_plans.length"
+        :class="op_mode == 'scan' ? 'above-uni-goods-nav' : ''">
+        <template v-slot:right>
+            <view class="uni-section__right">
+                <view >
+                    已计划 <text class="sum_qty">{{ _sum_planned_qty() }}</text> {{ plan_form.base_unit_name }}
+                </view>
+            </view>
+        </template>
+        <uni-swipe-action ref="inv_plan_swipe">
+            <uni-swipe-action-item
+                v-for="(inv_plan, index) in inv_plans"
+                :key="index"
+                :threshold="60"
+                :right-options="swipe_options"
+                @click="swipe_action_click($event, inv_plan)"
+                >
+                <uni-list-item
+                    :show-extra-icon="true"
+                    :extra-icon="{ color: '#4cd964', size: '24', type: 'arrow-down' }"
+                    :title="inv_plan['FStockLocId.FNumber']"
+                    :note="`批次：${inv_plan.FBatchNo}`"
+                >
+                    <template v-slot:footer>
+                        <view class="uni-list-item__foot">
+                            <text class="op_qty">{{ inv_plan.FOpQTY }} {{ inv_plan['FStockUnitId.FName'] }}</text>
+                            <text class="status">{{ inv_plan.status }}</text>
+                        </view>
+                    </template>
+                </uni-list-item>
+            </uni-swipe-action-item>
+        </uni-swipe-action>
+    </uni-section>
+    
+    <uni-section title="库存信息"
+        v-if="op_mode == 'check'"
+        class="above-uni-goods-nav">
+        <template v-slot:decoration>
+            <view class="uni-section__decoration">
+                <uni-icons type="search" size="30" color="#007aff"
+                    @click="search_invs(plan_form.material_no)" />
+            </view>                
+        </template>
+        <template v-slot:right>
+            <view class="uni-section__right">
+                <view >
+                    已选择 <text class="sum_qty">{{ _sum_checked_qty() }}</text> {{ plan_form.base_unit_name }}
+                </view>
+            </view>
+        </template>
+        
+        <uni-list>
+            <uni-list-item
+                v-for="(inv, index) in invs"
+                :key="index"
+                :title="inv['FStockLocId.FNumber']"
+                :note="`批次：${inv.FBatchNo}`"
+                :right-text="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
+                >
+                <template v-slot:header>
+                    <view class="uni-list-item__head">
+                        <checkbox
+                            :checked="inv.checked"
+                            :disabled="inv.disabled"
+                            @click="checkbox_click"
+                            :data-id="inv.FID"
+                        />
+                    </view>
+                </template>
+                <template v-slot:footer>
+                    <view class="uni-list-item__foot">
+                        <text class="op_qty">
+                            <template v-if="inv.planned_qty">({{ inv.FQty - inv.planned_qty }})</template>
+                            {{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}
+                        </text>
+                        <text v-if="inv.checked_qty" class="status">-{{ inv.checked_qty }} {{ inv['FStockUnitId.FName'] }}</text>
+                    </view>
+                </template>
+            </uni-list-item>
+        </uni-list>
+        <uni-load-more
+            v-if="invs.length == 0"
+            status="nomore"
+            :content-text="{ contentnomore: '没有相关数据' }"
+        />
+    </uni-section>
+    
+    <view class="uni-goods-nav-wrapper">
+        <uni-goods-nav
+            :options="goods_nav.options" 
+            :button-group="goods_nav.button_group"
+            @click="goods_nav_click"
+            @button-click="goods_nav_button_click"
+        />
+    </view>
+    
+    <uni-drawer ref="material_drawer" :width="$store.state.drawer_width">
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
+            <uni-section title="入库物料列表" type="square">
+                <template v-slot:right>
+                    <view class="uni-section__right">
+                        <uni-icons type="closeempty" size="20" color="#333" @click="$refs.material_drawer.close()"/>
+                    </view>
+                </template>
+                
+                <uni-list>
+                    <template
+                        v-for="(obj, index) in outbound_task.outbound_list"
+                        :key="index"
+                        >
+                        <uni-list-item
+                            v-if="obj.stock_id == $store.state.cur_stock.FStockId"
+                            :right-text="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
+                            @click="material_no_click(obj.material_no)" clickable
+                            show-arrow
+                            >
+                            <template v-slot:body>
+                                <view class="uni-list-item__body">
+                                    <view class="title">
+                                        <uni-icons v-if="this.plan_form.material_no == obj.material_no" type="checkbox-filled" color="#007aff" />
+                                        {{ obj.material_no }}
+                                    </view>
+                                    <view class="note">
+                                        <view>名称：{{ obj.material_name }}</view> 
+                                        <view>规格：{{ obj.material_spec }}</view>
+                                    </view>
+                                </view>
+                            </template>
+                        </uni-list-item>
+                    </template>
+                </uni-list>
+            </uni-section>
+        </scroll-view>
+    </uni-drawer>
 </template>
 
 <script>
@@ -282,7 +319,7 @@
                if (e.index === 0) this.submit_delete(inv_plan) // btn:删除
             },
             goods_nav_click(e) {
-                if (e.index == 0) this.material_no_click() // btn:选择物料
+                if (e.index == 0) this.$refs.material_drawer.open()  // this.material_no_click() // btn:选择物料
                 if (e.index == 1) this.mode_click() // btn:选择模式
             },
             goods_nav_button_click(e) {
@@ -317,20 +354,25 @@
                     this.invs.forEach(x =>  x.disabled = !x.checked)
                 }
             },
-            material_no_click() {
-                let list = this.outbound_task.outbound_list.
-                filter(x => x.stock_id == store.state.cur_stock.FStockId).
-                map(x => this.plan_form.material_no == x.material_no ? '-> ' + x.material_no : x.material_no)
-                uni.showActionSheet({
-                    itemList: list,
-                    success: (e) => {
-                        if (list[e.tapIndex].startsWith('->')) return // 当前选中物料不变时，不做操作
-                        play_audio_prompt('success')
-                        let material_no = list[e.tapIndex]
-                        this.set_plan_form(material_no)
-                        this.load_data(material_no)
-                    }
-                })
+            material_no_click(material_no) {
+                this.$refs.material_drawer.close()
+                if (this.plan_form.material_no == material_no) return
+                this.plan_form.material_no = material_no
+                this.set_plan_form(material_no)
+                play_audio_prompt('success')
+                // let list = this.outbound_task.outbound_list.
+                // filter(x => x.stock_id == store.state.cur_stock.FStockId).
+                // map(x => this.plan_form.material_no == x.material_no ? '-> ' + x.material_no : x.material_no)
+                // uni.showActionSheet({
+                //     itemList: list,
+                //     success: (e) => {
+                //         if (list[e.tapIndex].startsWith('->')) return // 当前选中物料不变时，不做操作
+                //         play_audio_prompt('success')
+                //         let material_no = list[e.tapIndex]
+                //         this.set_plan_form(material_no)
+                //         this.load_data(material_no)
+                //     }
+                // })
             },
             mode_click() {
                 uni.showActionSheet({

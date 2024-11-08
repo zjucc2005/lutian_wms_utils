@@ -26,11 +26,11 @@
             </template>
             <template #footer>
                 <view class="uni-list-item__foot">
-                    <view class="op_qty">
-                        <text class="uni-mr-2">{{ op_type_dict[inv_plan.FOpType] }} </text>
-                        <text>{{ inv_plan['FOpQTY'] }} {{ inv_plan['FStockUnitId.FName'] }}</text>
-                    </view>
-                    <text class="status">{{ $store.state.document_status_dict[inv_plan.FDocumentStatu] }}</text>
+                    <view v-if="['in', 'add'].includes(inv_plan.FOpType)" class="text-error">{{ op_type_dict[inv_plan.FOpType] }}</view>
+                    <view v-if="['out', 'sub'].includes(inv_plan.FOpType)" class="text-primary">{{ op_type_dict[inv_plan.FOpType] }}</view>
+                    <view v-if="['mv'].includes(inv_plan.FOpType)">{{ op_type_dict[inv_plan.FOpType] }}</view>
+                    <view>{{ inv_plan['FOpQTY'] }} {{ inv_plan['FStockUnitId.FName'] }}</view>
+                    <view class="text-primary">{{ $store.state.document_status_dict[inv_plan.FDocumentStatu] }}</view>
                 </view>
             </template>
         </uni-list-item>

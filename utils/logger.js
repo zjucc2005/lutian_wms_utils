@@ -1,12 +1,13 @@
 import config from "@/config"
 const logger = {
-    dev: (...args) => {
-        if (config.env == 'dev') {
-            console.log(...args)
-        }   
-    },
     info: (...args) => {
-        if (config.log) console.log(...args)
+        if (config.log) console.info(...args)
+    },
+    warn: (...args) => {
+        if (config.log) console.warn(...args)
+    },
+    error: (...args) => {
+        if (config.log) console.error(...args)
     }
 }
 export default logger

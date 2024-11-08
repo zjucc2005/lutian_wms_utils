@@ -13,11 +13,11 @@
                 <uni-list-item
                     v-if="obj.material_no == plan_form.material_no && obj.dest_stock_id == $store.state.cur_stock.FStockId"
                     :right-text="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
-                    @click="material_no_click()" clickable
+                    @click="$refs.material_drawer.open()" clickable
                     >
                     <template v-slot:body>
                         <view class="uni-list-item__body">
-                            <text class="title">{{ obj.material_no }}</text>
+                            <view class="title">{{ obj.material_no }}</view>
                             <view class="note">
                                 <view>名称：{{ obj.material_name }}</view> 
                                 <view>规格：{{ obj.material_spec }}</view>
@@ -241,6 +241,45 @@
             @button-click="goods_nav_button_click"
         />
     </view>
+    
+    <uni-drawer ref="material_drawer" :width="$store.state.drawer_width">
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
+            <uni-section title="入库物料列表" type="square">
+                <template v-slot:right>
+                    <view class="uni-section__right">
+                        <uni-icons type="closeempty" size="20" color="#333" @click="$refs.material_drawer.close()"/>
+                    </view>
+                </template>
+                
+                <uni-list>
+                    <template
+                        v-for="(obj, index) in inbound_task.inbound_list"
+                        :key="index"
+                        >
+                        <uni-list-item
+                            v-if="obj.dest_stock_id == $store.state.cur_stock.FStockId"
+                            :right-text="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
+                            @click="material_no_click(obj.material_no)" clickable
+                            show-arrow
+                            >
+                            <template v-slot:body>
+                                <view class="uni-list-item__body">
+                                    <view class="title">
+                                        <uni-icons v-if="this.plan_form.material_no == obj.material_no" type="checkbox-filled" color="#007aff" />
+                                        {{ obj.material_no }}
+                                    </view>
+                                    <view class="note">
+                                        <view>名称：{{ obj.material_name }}</view> 
+                                        <view>规格：{{ obj.material_spec }}</view>
+                                    </view>
+                                </view>
+                            </template>
+                        </uni-list-item>
+                    </template>
+                </uni-list>
+            </uni-section>
+        </scroll-view>
+    </uni-drawer>
 </template>
 
 <script>
@@ -309,7 +348,7 @@
         },
         methods: {
             goods_nav_click(e) {
-                if (e.index === 0) this.material_no_click() // btn:选择物料
+                if (e.index === 0) this.$refs.material_drawer.open()  // this.material_no_click() // btn:选择物料
             },
             goods_nav_button_click(e) { 
                 if (this.step_active === 0) {
@@ -326,19 +365,24 @@
                     if (e.index === 1) this.if_submit_delete() // btn:删除
                 }
             },
-            material_no_click() {
-                let list = this.inbound_task.inbound_list.
-                filter(x => x.dest_stock_id == store.state.cur_stock.FStockId).
-                map(x => this.plan_form.material_no == x.material_no ? '-> ' + x.material_no : x.material_no)
-                uni.showActionSheet({
-                    itemList: list,
-                    success: (e) => {
-                        if (list[e.tapIndex].startsWith('->')) return // 当前选中物料不变时，不做操作
-                        play_audio_prompt('success')
-                        this.plan_form.material_no = list[e.tapIndex]
-                        this.init_plan_form(list[e.tapIndex])
-                    }
-                })
+            material_no_click(material_no) {
+                this.$refs.material_drawer.close()
+                if (this.plan_form.material_no == material_no) return
+                this.plan_form.material_no = material_no
+                this.init_plan_form(material_no)
+                play_audio_prompt('success')
+                // let list = this.inbound_task.inbound_list.
+                // filter(x => x.dest_stock_id == store.state.cur_stock.FStockId).
+                // map(x => this.plan_form.material_no == x.material_no ? '-> ' + x.material_no : x.material_no)
+                // uni.showActionSheet({
+                //     itemList: list,
+                //     success: (e) => {
+                //         if (list[e.tapIndex].startsWith('->')) return // 当前选中物料不变时，不做操作
+                //         play_audio_prompt('success')
+                //         this.plan_form.material_no = list[e.tapIndex]
+                //         this.init_plan_form(list[e.tapIndex])
+                //     }
+                // })
             },
             preview() {
                 if (this.step_active === 2) return // 已在预览页面，忽略

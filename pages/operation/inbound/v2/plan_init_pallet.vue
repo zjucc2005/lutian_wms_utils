@@ -109,7 +109,7 @@
     
     <!-- 扫描标识卡明细列表 -->
     <uni-drawer ref="detail_drawer" :width="$store.state.drawer_width">
-        <scroll-view scroll-y style="height: 100%;" @touchmove.stop.prevent>
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
             <uni-section title="操作明细" type="square"
                 :sub-title="inbound_task.status == 'init' ? '左滑可删除' : ''"
                 >

@@ -217,7 +217,7 @@
     
     <!-- 子物料明细汇总列表 -->
     <uni-drawer ref="detail_drawer" :width="$store.state.drawer_width">
-        <scroll-view scroll-y style="height: 100%;" @touchmove.stop.prevent>
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
             <uni-section title="子物料明细汇总" type="square"
                 sub-title="勾选的物料会显示在追踪列表"
                 >
@@ -272,7 +272,7 @@
     
     <!-- 扫描日志列表 -->
     <uni-drawer ref="log_drawer" mode="right" :width="$store.state.drawer_width">
-        <scroll-view scroll-y style="height: 100%;" @touchmove.stop.prevent>
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
             <uni-section :title="`${{ send: '发料', receive: '用料' }[op_type]}日志`" type="square"
                 sub-title="左滑可取消"
                 >
@@ -319,11 +319,11 @@
         </scroll-view>
     </uni-drawer>
     
+    <!-- 单据列表 -->
     <uni-popup ref="bill_popup" type="share" safe-area>
         <uni-section title="单据" type="square"
             v-if="bills.length"
             :style="{ borderRadius: '10px 10px 0 0' }"
-            @touchmove.stop.prevent
             >
             <template v-slot:right>
                 <view class="uni-section__right">
@@ -354,7 +354,7 @@
                     </template>
                 </uni-list-item>
             </uni-list>
-            <button type="primary" class="form-btn" @click="bills_combine_and_next">
+            <button v-if="step == 'bill'" type="primary" class="form-btn" @click="bills_combine_and_next">
                 <uni-icons type="checkmarkempty" color="#fff"></uni-icons> 合并提交
             </button>
         </uni-section>
