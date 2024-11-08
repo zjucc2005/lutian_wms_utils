@@ -82,7 +82,6 @@
         methods: {
             // action           
             handle_list_item_click(mount_info) {
-                console.log("this.mount_infos", this.mount_infos)
                 this.mount_info_drawer_data = this.inv_logs.filter(inv_log => inv_log['FMaterialId.FNumber'] == mount_info.material_no && inv_log.FOpType == 'in' && !inv_log.status)
                 this.$refs.mount_info_drawer.open()
             },

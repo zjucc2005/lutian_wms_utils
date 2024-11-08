@@ -322,7 +322,6 @@
             },
             submit_cancel(inv_log_id) {                
                 let inv_log = this.inv_logs.find(x => x.FID == inv_log_id)
-                console.log('submit_cancel inv_log', inv_log)
                 if (inv_log.FOpType == 'in' && !inv_log.status) {
                     let new_inv_log = new InvLog({
                         FOpType: 'in_cl',

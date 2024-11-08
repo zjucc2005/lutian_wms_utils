@@ -236,7 +236,6 @@
                 })
             },
             scan_code() {
-                console.log('debug', this.$data)
                 // #ifdef APP-PLUS
                 myScanCode.scanCode({}, (res) => {
                     if (res.success == 'true') this.handle_scan_code(res.result)
@@ -279,7 +278,6 @@
                         FOpStaffNo: store.state.cur_staff.FNumber,
                         FRemark: this.plan_form.remark
                     })
-                    // console.log('inv_plan', inv_plan)
                     uni.showLoading({ title: 'Loading' })
                     inv_plan.save().then(res => {
                         play_audio_prompt('success')
