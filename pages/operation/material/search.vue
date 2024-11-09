@@ -81,9 +81,7 @@
     import { play_audio_prompt } from '@/utils'
     import { search_bd_materials } from '@/utils/api'
     import K3CloudApi from '@/utils/k3cloudapi'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif 
+    import scan_code from '@/utils/scan_code'
     export default {
         data() {
             return {
@@ -120,22 +118,12 @@
                 if (e.index === 0) this.scan_code() // btn:扫码查询
             },
             scan_code() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') {
-                        this.search_form.material_no = res.result
-                        this.search()
-                    }
+                scan_code().then(res => {
+                    this.search_form.material_no = res.result
+                    this.search()
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        this.search_form.material_no = res.result
-                        this.search()
-                    }
-                })
-                // #endif
             },
             searchbar_icon_click(e) {
                 if (e == 'prefix') this.scan_code()

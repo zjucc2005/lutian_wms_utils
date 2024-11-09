@@ -56,7 +56,7 @@
         // 仓库流程 VERSION 2
         {
             "path": "pages/operation/index_v2",
-            "style": { "navigationBarTitleText": "作业" }
+            "style": { "navigationBarTitleText": "" }
         },
         {
             "path": "pages/operation/inbound/v2/index",

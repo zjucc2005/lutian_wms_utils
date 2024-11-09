@@ -54,9 +54,7 @@
     import store from '@/store'
     import { Inv } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif
+    import scan_code from '@/utils/scan_code'
     export default {
         data() {
             return {
@@ -101,20 +99,11 @@
                 if (e == 'prefix') this.scan_code()
             },
             scan_code() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') this.search_form.no = res.result
-                    // uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
+                scan_code().then(res => {
+                    this.search_form.no = res.result
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        this.search_form.no = res.result
-                        // uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
-                    }
-                })
-                // #endif
             },
             search_invs(material_no) {
                 play_audio_prompt('success')

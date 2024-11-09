@@ -130,9 +130,7 @@
     import { play_audio_prompt } from '@/utils'
     import { get_bd_material } from '@/utils/api'
     import { Inv, MoveCart } from '@/utils/model'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif 
+    import scan_code from '@/utils/scan_code'
     export default {
         data() {
             return {
@@ -252,18 +250,11 @@
                 // }
             },
             scan_code() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') this.handle_inv_search(res.result)
+                scan_code().then(res => {
+                    this.handle_inv_search(res.result)
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        this.handle_inv_search(res.result)
-                    }
-                })
-                // #endif
             },
             handle_inv_search(text) {
                 this.search_form.no = text

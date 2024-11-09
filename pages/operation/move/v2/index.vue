@@ -128,9 +128,6 @@
     import { InvPlan } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif
     export default {
         data() {
             return {

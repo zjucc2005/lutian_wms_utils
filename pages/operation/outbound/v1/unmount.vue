@@ -68,9 +68,7 @@
     import { Inv, InvLog, StockLoc } from '@/utils/model';
     import { is_material_no_format, is_loc_no_std_format, is_decimal_unit, describe_inv_log } from '@/utils';
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif
+    import scan_code from '@/utils/scan_code'
     export default {
         data() {
             return {
@@ -238,18 +236,11 @@
                 })
             },
             scan_code() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') this.handle_scan_code(res.result)
+                scan_code().then(res => {
+                    this.handle_scan_code(res.result)
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        this.handle_scan_code(res.result)
-                    }
-                });
-                // #endif
             },
             handle_scan_code(text) {
                 if (is_material_no_format(text)) {

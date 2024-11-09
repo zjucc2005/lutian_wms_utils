@@ -69,9 +69,7 @@
     import { OutboundTask } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif
+    import scan_code from '@/utils/scan_code'
     export default {
         data() {
             return {
@@ -159,18 +157,11 @@
                 this.outbound_task_form.outbound_list = []
             },
             scan_code() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') this.handle_scan_code(res.result)
+                scan_code().then(res => {
+                    this.handle_scan_code(res.result)
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        this.handle_scan_code(res.result)
-                    }
-                });
-                // #endif
             },
             handle_scan_code(text) {
                 this.outbound_task_form.bill_no = text

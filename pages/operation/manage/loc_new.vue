@@ -84,9 +84,7 @@
     import store from '@/store'
     import { play_audio_prompt } from '@/utils'
     import { StockLoc } from '@/utils/model'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif
+    import scan_code from '@/utils/scan_code'
     export default {
         data() {
             return {
@@ -225,18 +223,11 @@
                 this.$refs.new_dialog.open()
             },
             scan_code() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') this.handle_scan_code(res.result)
+                scan_code().then(res => {
+                    this.handle_scan_code(res.result)
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        this.handle_scan_code(res.result)
-                    }
-                });
-                // #endif
             },
             handle_scan_code(text) {
                 text = text.trim().toUpperCase()

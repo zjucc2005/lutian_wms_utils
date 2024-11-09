@@ -402,9 +402,7 @@
     import { get_bd_material, get_bd_supplier } from '@/utils/api'
     import { math_round, play_audio_prompt, is_decimal_unit } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif 
+    import scan_code from '@/utils/scan_code'
     export default {
         props: {
             t: {
@@ -719,20 +717,11 @@
                 })
             },
             scan_code() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') {
-                        this.after_scan_code(res.result)
-                    }
+                scan_code().then(res => {
+                    this.after_scan_code(res.result)
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        this.after_scan_code(res.result)
-                    }
-                })
-                // #endif
             },
             search() {
                 this.after_scan_code(this.no)

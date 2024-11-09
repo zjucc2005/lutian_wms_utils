@@ -48,7 +48,7 @@
 <script>
     import store from '@/store'
     import K3CloudApi from '@/utils/k3cloudapi'
-    import { get_bd_material } from '../../utils/api'
+    import { get_bd_material } from '@/utils/api'
     import { Inv } from '@/utils/model'
     export default {
         data() {

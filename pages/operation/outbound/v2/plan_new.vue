@@ -33,7 +33,7 @@
                 :show-extra-icon="true"
                 :extra-icon="{ color: '#007bff', size: '24', type: 'list' }"
                 title="点击选择物料"
-                @click="material_no_click" clickable
+                @click="$refs.material_drawer.open()" clickable
             />
         </uni-list>
     </uni-section>
@@ -205,9 +205,7 @@
     import store from '@/store'
     import { Inv, InvLog, InvPlan, StockLoc } from '@/utils/model'
     import { play_audio_prompt, is_material_no_format, is_loc_no_std_format, is_decimal_unit } from '@/utils'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif
+    import scan_code from '@/utils/scan_code'
     export default {
         data() {
             return {
@@ -395,18 +393,11 @@
                 })
             },
             scan_code() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') this.handle_scan_code(res.result)
+                scan_code().then(res => {
+                    this.handle_scan_code(res.result)
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        this.handle_scan_code(res.result)
-                    }
-                })
-                // #endif
             },
             async auto_allocate() {
                 // 自动分配处理逻辑
@@ -600,9 +591,9 @@
                     type = 'loc_no'
                 } else if (!this.plan_form.material_no) {
                     type = 'material_no'
-                } else if (!plan.mount_form.loc_no) {
+                } else if (!this.plan_form.loc_no) {
                     type = 'loc_no'
-                } 
+                }
                 if (type == 'material_no') {
                     let obj = this.outbound_task.outbound_list.find(x => x.material_no == text.trim())
                     if (obj) {

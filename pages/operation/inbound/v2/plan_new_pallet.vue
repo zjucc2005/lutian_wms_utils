@@ -40,7 +40,7 @@
                 :show-extra-icon="true"
                 :extra-icon="{ type: 'list', size: '24', color: '#007bff' }"
                 title="点击选择物料"
-                @click="material_no_click" clickable
+                @click="$refs.material_drawer.open()" clickable
             />
         </uni-list>
     </uni-section>
@@ -286,9 +286,6 @@
     import store from '@/store'
     import { InboundTask, Inv, InvPlan, StockLoc } from '@/utils/model'
     import { play_audio_prompt, is_decimal_unit, is_loc_no_std_format, compare_loc_no } from '@/utils'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif
     export default {
         data() {
             return {

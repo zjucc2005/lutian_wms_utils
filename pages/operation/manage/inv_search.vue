@@ -58,9 +58,7 @@
     import { get_bd_material } from '@/utils/api'
     import { Inv, StockLoc } from '@/utils/model'
     import { is_material_no_format, is_loc_no_std_format } from '@/utils'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif
+    import scan_code from '@/utils/scan_code'
     import ccShelf from '@/components/cc-shelf/cc-shelf.vue'
     export default {
         props: {
@@ -133,18 +131,11 @@
             },
             scan_code(scan_mode='') {
                 this.scan_mode = scan_mode
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') this.handle_scan_code(res.result)
+                scan_code().then(res => {
+                    this.handle_scan_code(res.result)
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        this.handle_scan_code(res.result)
-                    }
-                });
-                // #endif
             },
             async load_material(material_no) {
                 this.material = { material_no: material_no }

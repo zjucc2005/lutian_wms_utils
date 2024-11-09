@@ -295,9 +295,7 @@
     import { play_audio_prompt } from '@/utils'
     import { get_bd_material, search_bd_materials } from '@/utils/api'
     import { Inv, InvPlan } from '@/utils/model'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif 
+    import scan_code from '@/utils/scan_code'
     export default {
         data() {
             return {
@@ -402,22 +400,12 @@
                 uni.setStorageSync('mv_ex_cond', e.detail.value) // set
             },
             scan_code() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') {
-                        this.search_form.no = res.result
-                        this.before_search()
-                    }
+                scan_code().then(res => {
+                    this.search_form.no = res.result
+                    this.before_search()
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        this.search_form.no = res.result
-                        this.before_search()
-                    }
-                })
-                // #endif
             },
             open_move_dialog(inv) {
                 this.move_form.inv = inv

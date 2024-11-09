@@ -87,9 +87,7 @@
     import { play_audio_prompt } from '@/utils'
     import { InboundTask, InvPlan } from '@/utils/model'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif
+    import scan_code from '@/utils/scan_code'
     export default {
         data() {
             return {
@@ -154,22 +152,12 @@
                 })
             },
             scan_code() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') {
-                        this.search_form.bill_no = res.result
-                        this.handle_search()
-                    }
+                scan_code().then(res => {
+                    this.search_form.bill_no = res.result
+                    this.handle_search()
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        this.search_form.bill_no = res.result
-                        this.handle_search()
-                    }
-                })
-                // #endif
             },
             searchbar_icon_click(e) {
                 if (e == 'prefix') this.scan_code()

@@ -156,9 +156,7 @@
     import { get_bd_material } from '@/utils/api'
     import { InboundTask, InvPlan } from '@/utils/model'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif  
+    import scan_code from '@/utils/scan_code'
     export default {
         data() {
             return {
@@ -386,18 +384,11 @@
                 })
             },
             scan_code() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') this.after_scan_code(res.result)
+                scan_code().then(res => {
+                    this.after_scan_code(res.result)
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        this.after_scan_code(res.result)
-                    }
-                });
-                // #endif
             },  
             swipe_action_click(e, id) {
                 if (e.index === 0 && e.position == 'right') {

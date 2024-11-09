@@ -17,7 +17,17 @@
                             `组织：${stk_inv['FStockOrgId.FName']}`,
                             `仓库：${stk_inv.FStockName}`
                         ].join('\n')"
-                        :right-text="[stk_inv.FBaseQty, bd_material.MaterialBase[0].BaseUnitId.Name[0].Value].join(' ')" />
+                        :right-text="[stk_inv.FBaseQty, bd_material.MaterialBase[0].BaseUnitId.Name[0].Value].join(' ')">
+                        <template #body>
+                            <view class="uni-list-item__body">
+                                <view class="title">库存量(基本单位)</view>
+                                <view class="note">
+                                    <view>组织：<text :class="stk_inv.FStockOrgId == $store.state.cur_stock.FUseOrgId ? 'text-primary' : ''">{{ stk_inv['FStockOrgId.FName'] }}</text></view> 
+                                    <view>仓库：{{ stk_inv.FStockName }}</view>
+                                </view>
+                            </view>
+                        </template>
+                    </uni-list-item>
                 </template> 
             </template>
         </uni-list>
@@ -33,7 +43,7 @@
                     width: image_url.loading ? 0 : '100%',
                     height: image_url.loading ? 0 : ''
                 }"
-                @click="preview_image(image_url.original)"
+                @click="preview_image(index)"
                 @load="image_load_over(image_url)"
                 />
         </view>
@@ -70,7 +80,6 @@
                         { icon: 'left', text: '返回', info: 0 }
                     ],
                     button_group: [
-                        // { text: '扫码查询', color: '#fff', backgroundColor: store.state.goods_nav_color.red },
                         { text: '物料资料卡模板', color: '#fff', backgroundColor: store.state.goods_nav_color.grey }
                     ]
                 }
@@ -79,10 +88,6 @@
         onLoad(options) {
             if (options.id) {
                 this.load_material(options.id)
-                // this.search_form.material_id = options.m_id
-                // this.$nextTick(_ => {
-                //     this.search()
-                // })
             }
         },
         methods: {
@@ -90,7 +95,6 @@
                 if (e.index === 0) uni.navigateBack()
             },
             goods_nav_button_click(e) {
-                // if (e.index === 0) this.scan_code() // btn:扫码查询
                 if (e.index === 0) this.select_material_card() // btn:物料资料卡模板
             },
             image_load_over(image_url) {
@@ -147,14 +151,16 @@
                             stk_inv.FBaseQty += item.FBaseQty
                             continue
                         }
-                        stk_inventories.push({
-                            FBaseQty: item.FBaseQty,
-                            'FBaseUnitId.FName': item['FBaseUnitId.FName'],
-                            FStockName: item.FStockName,
-                            FStockId: item.FStockId,
-                            'FStockOrgId.FName': item['FStockOrgId.FName'],
-                            'FMaterialId.FNumber': item['FMaterialId.FNumber']
-                        })
+                        stk_inventories.push(item)
+                        // stk_inventories.push({
+                        //     FBaseQty: item.FBaseQty,
+                        //     'FBaseUnitId.FName': item['FBaseUnitId.FName'],
+                        //     FStockName: item.FStockName,
+                        //     FStockId: item.FStockId,
+                        //     FStockOrgId: item.FStockOrgId,
+                        //     'FStockOrgId.FName': item['FStockOrgId.FName'],
+                        //     'FMaterialId.FNumber': item['FMaterialId.FNumber']
+                        // })
                     }
                     this.stk_inventories = stk_inventories
                     this.goods_nav.button_group[0].backgroundColor = store.state.goods_nav_color.green

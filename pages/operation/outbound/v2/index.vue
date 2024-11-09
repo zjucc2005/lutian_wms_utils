@@ -87,9 +87,7 @@
     import { InvPlan } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif
+    import scan_code from '@/utils/scan_code'
     export default {
         data() {
             return {
@@ -147,18 +145,11 @@
                 if (e.index === 0) this.scan_code() // btn:扫码
             },
             scan_code() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') this.operate_plan(res.result)
+                scan_code().then(res => {
+                    this.operate_plan(res.result)
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        this.operate_plan(res.result)
-                    }
-                })
-                // #endif
             },
             async load_inv_plans() {
                 let options = { FStockId: store.state.cur_stock.FStockId, FOpType: 'out' }

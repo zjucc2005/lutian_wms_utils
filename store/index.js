@@ -64,8 +64,8 @@ const store = createStore({
                 uni.setStorageSync('cur_staff', { FName: state.cur_staff.FName })
             }
         },
-        guest_login(state) {
-            state.cur_stock = {}
+        guest_login(state, params) {
+            state.cur_stock = params.stock
             state.cur_staff = { FName: '访客账号', FNumber: 'GUEST' }
             state.role = 'guest'
             state.snowflake = new Snowflake(0)

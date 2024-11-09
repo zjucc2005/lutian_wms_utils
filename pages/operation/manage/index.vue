@@ -19,9 +19,7 @@
 
 <script>
     import { play_audio_prompt } from '@/utils'
-    // #ifdef APP-PLUS
-    const myScanCode = uni.requireNativePlugin('My-ScanCode')
-    // #endif
+    import scan_code from '@/utils/scan_code'
     export default {
         data() {
             return {
@@ -34,18 +32,11 @@
                 uni.navigateTo({ url: `/pages/operation/manage/${path}` })
             },
             handle_inv_search() {
-                // #ifdef APP-PLUS
-                myScanCode.scanCode({}, (res) => {
-                    if (res.success == 'true') uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
+                scan_code().then(res => {
+                    uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
                 })
-                // #endif               
-                // #ifndef APP-PLUS
-                uni.scanCode({
-                    success: (res) => {
-                        uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
-                    }
-                })
-                // #endif
             }
         }
     }
