@@ -244,7 +244,7 @@
     
     <uni-drawer ref="material_drawer" :width="$store.state.drawer_width">
         <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
-            <uni-section title="入库物料列表" type="square">
+            <uni-section title="入库物料列表" type="square" sub-title="点击切换当前物料">
                 <template v-slot:right>
                     <view class="uni-section__right">
                         <uni-icons type="closeempty" size="20" color="#333" @click="$refs.material_drawer.close()"/>
@@ -365,7 +365,6 @@
             material_no_click(material_no) {
                 this.$refs.material_drawer.close()
                 if (this.plan_form.material_no == material_no) return
-                this.plan_form.material_no = material_no
                 this.init_plan_form(material_no)
                 play_audio_prompt('success')
                 // let list = this.inbound_task.inbound_list.

@@ -149,7 +149,7 @@
             },
             async load_material(material_id) {
                 // this.$refs.search_drawer.close()
-                uni.navigateTo({ url: '/pages/operation/material/show?id=' + material_id  })
+                uni.navigateTo({ url: '/pages/operation/material/show?id=' + material_id })
             },
             _thumbnail_url(file_id) {
                 if(file_id.trim()) {

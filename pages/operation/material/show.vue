@@ -152,15 +152,6 @@
                             continue
                         }
                         stk_inventories.push(item)
-                        // stk_inventories.push({
-                        //     FBaseQty: item.FBaseQty,
-                        //     'FBaseUnitId.FName': item['FBaseUnitId.FName'],
-                        //     FStockName: item.FStockName,
-                        //     FStockId: item.FStockId,
-                        //     FStockOrgId: item.FStockOrgId,
-                        //     'FStockOrgId.FName': item['FStockOrgId.FName'],
-                        //     'FMaterialId.FNumber': item['FMaterialId.FNumber']
-                        // })
                     }
                     this.stk_inventories = stk_inventories
                     this.goods_nav.button_group[0].backgroundColor = store.state.goods_nav_color.green

@@ -81,7 +81,7 @@ class Inv {
         return sum_data
     }
     static async _get_all_recurse(options={}, meta={}, sum_data=[]) {
-        const fields = ['FID', 'FStockLocId', 'FStockLocId.FNumber', 'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FQty', 'FStockUnitId', 'FStockUnitId.FName', 'FBatchNo', 'FCreateTime']
+        const fields = ['FID', 'FStockLocId', 'FStockLocId.FNumber', 'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.FImageFileServer', 'FQty', 'FStockUnitId', 'FStockUnitId.FName', 'FBatchNo', 'FCreateTime']
         const data = {
             FormId: "PAEZ_C_INV",
             FieldKeys: fields.join(','),
