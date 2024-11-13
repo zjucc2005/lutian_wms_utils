@@ -85,6 +85,9 @@
                             <uni-icons v-if="bd_material[field].trim()" type="trash" size="24" color="#dd524d" @click="if_image_delete(index)" class="uni-mr-5" />
                             <button type="primary" size="mini" @click="image_upload(index)">选择上传</button>
                         </view>
+                        <view v-else class="uni-list-item__foot text-grey text-sm">
+                            创建组织下才可上传
+                        </view>
                     </template>
                 </uni-list-item>
             </uni-list>
