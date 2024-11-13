@@ -37,6 +37,8 @@ const play_audio_prompt = (type) => {
     }
 }
 
+
+
 /**
  * 判断物料编码格式
  * @return {Boolean}

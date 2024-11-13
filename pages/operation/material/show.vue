@@ -1,4 +1,8 @@
 <template>
+    <uni-popup ref="flash" type="message">
+        <uni-popup-message :type="flash_type" :message="flash_msg" :duration="5000"></uni-popup-message>
+    </uni-popup>
+    
     <uni-section title="物料详情" type="square"
         v-if="bd_material.Id"
         class="above-uni-goods-nav"
@@ -7,6 +11,8 @@
             <uni-list-item title="编码" :right-text="bd_material.Number" />
             <uni-list-item title="名称" :right-text="bd_material.Name[0]?.Value" />
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
+            <uni-list-item title="创建组织" :right-text="bd_material.CreateOrgId.Name[0]?.Value" />
+            <uni-list-item title="使用组织" :right-text="bd_material.UseOrgId.Name[0]?.Value" />
             <template v-if="['nrj_admin'].includes($store.state.role)">
                 <uni-list-item title="仓管员" :right-text="bd_material.F_PAEZ_Base1 ? bd_material.F_PAEZ_Base1.Name[0].Value : '' " />
                 <uni-list-item title="库位" :right-text="bd_material.F_PAEZ_Text_qtr2" />
@@ -43,13 +49,14 @@
                     width: image_url.loading ? 0 : '100%',
                     height: image_url.loading ? 0 : ''
                 }"
-                @click="preview_image(index)"
-                @load="image_load_over(image_url)"
+                :show-menu-by-longpress="true"
+                @click="image_preview(index)"
+                @load="image_url.loading = false"
                 />
-        </view>
+        </view>       
     </uni-section>
     
-    <view class="uni-goods-nav-wrapper">
+    <view v-if="['wh_admin', 'nrj_admin'].includes($store.state.role)" class="uni-goods-nav-wrapper">
         <uni-goods-nav 
             :options="goods_nav.options" 
             :button-group="goods_nav.button_group"
@@ -57,13 +64,40 @@
             @buttonClick="goods_nav_button_click"
         />
     </view>
+    
+    <uni-popup ref="image_popup" type="share" safe-area>
+        <uni-section title="上传图片" type="square"
+            :style="{ borderRadius: '10px 10px 0 0' }"
+            >
+            <template v-slot:right>
+                <view class="uni-section__right">
+                    <uni-icons type="closeempty" size="20" color="#333" @click="$refs.image_popup.close()"/>
+                </view>
+            </template>
+            <uni-list>
+                <uni-list-item v-for="(field, index) in image_fields" 
+                    :key="index"
+                    :title="`图片 ${index + 1}`"
+                    :thumb="_thumbnail_url(bd_material[field])"
+                    >
+                    <template #footer>
+                        <view v-if="bd_material.CreateOrgId.Id == $store.state.cur_stock.FUseOrgId" class="uni-list-item__foot">
+                            <uni-icons v-if="bd_material[field].trim()" type="trash" size="24" color="#dd524d" @click="if_image_delete(index)" class="uni-mr-5" />
+                            <button type="primary" size="mini" @click="image_upload(index)">选择上传</button>
+                        </view>
+                    </template>
+                </uni-list-item>
+            </uni-list>
+        </uni-section>
+    </uni-popup>
 </template>
 
 <script>
     import store from '@/store'
     import { play_audio_prompt } from '@/utils'
-    import { StkInventory } from '@/utils/model'
-    import K3CloudApi from '@/utils/k3cloudapi' 
+    import { BdMaterial, StkInventory } from '@/utils/model'
+    import { choose_image, read_file_as_base64 } from '@/utils/file'
+    import K3CloudApi from '@/utils/k3cloudapi'
     export default {
         props: {
             id: {
@@ -72,12 +106,16 @@
         },
         data() {
             return {
-                bd_material: {}, // 物料实例
-                stk_inventories: [], // 即时库存实例
-                image_urls: [], // 实例图片
+                bd_material: {},        // 物料实例
+                stk_inventories: [],    // 即时库存实例
+                image_urls: [],         // 实例图片
+                image_fields: ['ImageFileServer', 'F_PAEZ_ImageFileServer', 'F_PAEZ_ImageFileServer1'], // 图片字段
+                flash_type: '',
+                flash_msg: '',
                 goods_nav: {
                     options: [
-                        { icon: 'left', text: '返回', info: 0 }
+                        { icon: 'left', text: '返回', info: 0 },
+                        { icon: 'image', text: '上传图片'}
                     ],
                     button_group: [
                         { text: '物料资料卡模板', color: '#fff', backgroundColor: store.state.goods_nav_color.grey }
@@ -91,16 +129,27 @@
             }
         },
         methods: {
+            flash(type, msg) {
+                this.flash_type = type
+                this.flash_msg = msg
+                this.$refs.flash.open()
+            },
             goods_nav_click(e) {
                 if (e.index === 0) uni.navigateBack()
+                if (e.index === 1) this.$refs.image_popup.open()
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.select_material_card() // btn:物料资料卡模板
             },
-            image_load_over(image_url) {
-                image_url.loading = false
+            if_image_delete(image_field_index) {
+                uni.showActionSheet({
+                    itemList: [`删除图片${image_field_index + 1}`],
+                    success: (e) => {
+                        if (e.tapIndex === 0) this.image_delete(image_field_index)
+                    }
+                })
             },
-            preview_image(current) {
+            image_preview(current) {
                 uni.previewImage({
                     current: current,
                     urls: this.image_urls.map(x => x.original)
@@ -124,8 +173,42 @@
                     }
                 })
             },
+            async image_delete(image_field_index) {
+                let params = {}
+                params[this.image_fields[image_field_index]] = ''
+                await BdMaterial.update(this.bd_material.Id, params)
+                await this.load_material(this.bd_material.Id)
+            },
+            async image_upload(image_field_index) {
+                const { tempFiles } = await choose_image({ count: 1, sizeType: ['compressed'] })
+                uni.showLoading({ title: 'Loading' })
+                for (let i = 0; i < tempFiles.length; i++) {
+                    let temp_file = tempFiles[i]
+                    let base64_data = await read_file_as_base64(temp_file.path)
+                    let data = {
+                        FileName: temp_file.name,
+                        SendByte: base64_data
+                    }
+                    let upload_res = await K3CloudApi.upload_file(data)
+                    this.$logger.info('upload_res', upload_res)
+                    if (upload_res.data.Result.ResponseStatus.IsSuccess) {
+                        let params = {}
+                        params[this.image_fields[image_field_index]] = upload_res.data.Result.FileId
+                        let update_res = await BdMaterial.update(this.bd_material.Id, params)
+                        if (!update_res.data.Result.ResponseStatus.IsSuccess) {
+                            this.flash('error', update_res.data.Result.ResponseStatus.Errors[0]?.Message)
+                            uni.hideLoading()
+                            return
+                        }
+                    }
+                }
+                uni.hideLoading()
+                this.load_material(this.bd_material.Id) // reload
+            },
             async load_material(material_id) {
                 uni.showLoading({ title: 'Loading' })
+                this.image_urls = []
+                this.blank_image_fields = []
                 let view_res = await K3CloudApi.view('BD_MATERIAL', { Id: material_id })
                 if (view_res.data.Result.ResponseStatus.IsSuccess) {
                     let raw_data = view_res.data.Result.Result
@@ -139,6 +222,8 @@
                                 thumbnail: await K3CloudApi.download_url(raw_data[field], 1),
                                 loading: true
                             })
+                        } else {
+                            this.blank_image_fields.push(field)
                         }
                     }
                     // 加载即时库存数据
@@ -157,6 +242,13 @@
                     this.goods_nav.button_group[0].backgroundColor = store.state.goods_nav_color.green
                 }
                 uni.hideLoading()
+            },
+            _thumbnail_url(file_id) {
+                if(file_id.trim()) {
+                    return K3CloudApi.download_url_sync(file_id, 1, true)
+                } else {
+                    return '/static/default_40x40.png'
+                }
             }
         }
     }
@@ -183,5 +275,9 @@
       to {
         transform: rotate(360deg);
       }
+    }
+    .uni-list-item__foot {
+        flex-direction: row;
+        align-items: center;
     }
 </style>

@@ -524,6 +524,42 @@ const bill_query = async (data) => {
 }
 
 /**
+ * 上传附件接口
+ * @param data:Hash
+ *   @field FileName:String 文件名，必填
+ *   @field IsLast:Boolean 是否最后一次上传，必填
+ *   @field SendByte:String Base64 后的文件字节流，必填
+ * @return { String } Promise
+ */
+const upload_file = async (data) => {
+    const _data_ = {
+        IsLast: true,
+        ...data
+    }
+    return conn().then(_ => {
+        return new Promise((resolve, reject) => {
+            let t1 = Date.now()
+            logger.info("K3CloudApi.upload_file req:", _data_)
+            uni.request({
+                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.UploadFile.common.kdsvc'),
+                method: 'POST',
+                header: set_header(),
+                data: { data: _data_ },
+                success: (res) => {
+                    logger.info("K3CloudApi.upload_file res:", res)
+                    logger.info('K3CloudApi.upload_file cost', Date.now() - t1, 'ms')
+                    resolve(res)
+                },
+                fail: (err) => {
+                    logger.info("K3CloudApi.upload_file fail:", err)
+                    reject(err)
+                }
+            })
+        })    
+    })
+}
+
+/**
  * 下载文件接口
  * @param file_id:String
  * @return { String } Promise
@@ -578,6 +614,7 @@ const K3CloudApi = {
     batch_save,
     execute_bill_query,
     bill_query,
+    upload_file,
     download_url,
     download_url_sync
 }

@@ -19,7 +19,8 @@
         /* 模块配置 */
         "modules" : {
             "Share" : {},
-            "Barcode" : {}
+            "Barcode" : {},
+            "Camera" : {}
         },
         /* 应用发布信息 */
         "distribute" : {
@@ -43,6 +44,7 @@
                     "<uses-feature android:name=\"android.hardware.camera\"/>",
                     "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>"
                 ],
+                "targetSdkVersion" : "",
                 "minSdkVersion" : 21
             },
             /* ios打包配置 */

@@ -331,7 +331,7 @@
                 </view>
             </template>
             <uni-list>
-                <uni-list-item v-for="(bill, index) in bills">
+                <uni-list-item v-for="(bill, index) in bills" :key="index">
                     <template #body>
                         <view class="uni-list-item__body">
                             <view class="title">

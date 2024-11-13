@@ -7,9 +7,19 @@ import db_model from '@/utils/db_model';
  */
 class BdMaterial {
     constructor() {
-        
+
     }
 
+    static async update(id, options={}) {
+        const data = {
+            model: {
+                FMaterialId: id,
+                ...options
+            }
+        }
+        return K3CloudApi.save('BD_MATERIAL', data)
+    }
+    
     /** 
      * 搜索物料基础数据(模糊匹配)
      * @param options:Hash 参数集
