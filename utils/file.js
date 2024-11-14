@@ -7,7 +7,7 @@ const choose_image = async (options) => {
             // sourceType: ['album', 'camera'],
             ...options,
             success: (res) => {
-                console.log('chooseImage succ', res)
+                // console.log('chooseImage succ', res)
                 // #ifdef APP-PLUS
                     const { tempFilePaths, tempFiles } = res
                     for (let tempFile of tempFiles) {

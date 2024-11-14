@@ -113,6 +113,7 @@
                 stk_inventories: [],    // 即时库存实例
                 image_urls: [],         // 实例图片
                 image_fields: ['ImageFileServer', 'F_PAEZ_ImageFileServer', 'F_PAEZ_ImageFileServer1'], // 图片字段
+                f_image_fields: ['FImageFileServer', 'F_PAEZ_ImageFileServer', 'F_PAEZ_ImageFileServer1'], // F + 图片字段
                 flash_type: '',
                 flash_msg: '',
                 goods_nav: {
@@ -130,6 +131,9 @@
             if (options.id) {
                 this.load_material(options.id)
             }
+        },
+        mounted() {
+            // BdMaterial.update(2554297, { FImageFileServer: "9e56ca4797164f128d37fca3dbc9eaa3" })
         },
         methods: {
             flash(type, msg) {
@@ -178,7 +182,7 @@
             },
             async image_delete(image_field_index) {
                 let params = {}
-                params[this.image_fields[image_field_index]] = ''
+                params[this.f_image_fields[image_field_index]] = ''
                 await BdMaterial.update(this.bd_material.Id, params)
                 await this.load_material(this.bd_material.Id)
             },
@@ -196,7 +200,7 @@
                     this.$logger.info('upload_res', upload_res)
                     if (upload_res.data.Result.ResponseStatus.IsSuccess) {
                         let params = {}
-                        params[this.image_fields[image_field_index]] = upload_res.data.Result.FileId
+                        params[this.f_image_fields[image_field_index]] = upload_res.data.Result.FileId
                         let update_res = await BdMaterial.update(this.bd_material.Id, params)
                         if (!update_res.data.Result.ResponseStatus.IsSuccess) {
                             this.flash('error', update_res.data.Result.ResponseStatus.Errors[0]?.Message)
@@ -216,8 +220,8 @@
                 if (view_res.data.Result.ResponseStatus.IsSuccess) {
                     let raw_data = view_res.data.Result.Result
                     this.bd_material = raw_data
-                    let image_fields = ['ImageFileServer', 'F_PAEZ_ImageFileServer', 'F_PAEZ_ImageFileServer1']
-                    for (let field of image_fields) {
+                    // let image_fields = ['ImageFileServer', 'F_PAEZ_ImageFileServer', 'F_PAEZ_ImageFileServer1']
+                    for (let field of this.image_fields) {
                         if (raw_data[field]?.trim()) {
                             this.image_urls.push({
                                 id: raw_data[field],
