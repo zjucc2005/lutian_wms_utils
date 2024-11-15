@@ -11,9 +11,17 @@
             <uni-list-item title="编码" :right-text="bd_material.Number" />
             <uni-list-item title="名称" :right-text="bd_material.Name[0]?.Value" />
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
+            <uni-list-item
+                title="单箱标准数量"
+                :right-text="bd_material.MaterialStock[0].BoxStandardQty.toString()"
+                @click="edit_field('FBoxStandardQty')"
+                :clickable="is_admin"
+                :show-arrow="is_admin"
+                >
+            </uni-list-item>
             <uni-list-item title="创建组织" :right-text="bd_material.CreateOrgId.Name[0]?.Value" />
             <uni-list-item title="使用组织" :right-text="bd_material.UseOrgId.Name[0]?.Value" />
-            <template v-if="['nrj_admin'].includes($store.state.role)">
+            <!-- <template v-if="['nrj_admin', 'guest'].includes($store.state.role)"> -->
                 <uni-list-item title="仓管员" :right-text="bd_material.F_PAEZ_Base1 ? bd_material.F_PAEZ_Base1.Name[0].Value : '' " />
                 <uni-list-item title="库位" :right-text="bd_material.F_PAEZ_Text_qtr2" />
                 <template v-for="(stk_inv, index) in stk_inventories" :key="index">
@@ -35,7 +43,7 @@
                         </template>
                     </uni-list-item>
                 </template> 
-            </template>
+            <!-- </template> -->
         </uni-list>
         
         <!-- 图片展示，缩略图占位，等待原图加载完毕 -->
@@ -56,7 +64,7 @@
         </view>       
     </uni-section>
     
-    <view v-if="['wh_admin', 'nrj_admin'].includes($store.state.role)" class="uni-goods-nav-wrapper">
+    <view v-if="is_admin" class="uni-goods-nav-wrapper">
         <uni-goods-nav 
             :options="goods_nav.options" 
             :button-group="goods_nav.button_group"
@@ -82,7 +90,7 @@
                     thumb-size="lg"
                     >
                     <template #footer>
-                        <view v-if="bd_material.CreateOrgId.Id == $store.state.cur_stock.FUseOrgId" class="uni-list-item__foot">
+                        <view v-if="can_edit" class="uni-list-item__foot">
                             <uni-icons v-if="bd_material[field].trim()" type="trash" size="24" color="#dd524d" @click="if_image_delete(index)" class="uni-mr-5" />
                             <button type="primary" size="mini" @click="image_upload(index)">选择上传</button>
                         </view>
@@ -93,6 +101,19 @@
                 </uni-list-item>
             </uni-list>
         </uni-section>
+    </uni-popup>
+    
+    <uni-popup ref="edit_popup" type="dialog">
+        <uni-popup-dialog :title="edit_form.name"
+            confirm-text="提交更新"
+            @close="$refs.edit_popup.close()"
+            @confirm="submit_edit_field"
+            :before-close="true"
+            >
+            <view class="edit-form">
+                <uni-easyinput v-model="edit_form.value" trim="both" />
+            </view>
+        </uni-popup-dialog>
     </uni-popup>
 </template>
 
@@ -117,6 +138,7 @@
                 f_image_fields: ['FImageFileServer', 'F_PAEZ_ImageFileServer', 'F_PAEZ_ImageFileServer1'], // F + 图片字段
                 flash_type: '',
                 flash_msg: '',
+                edit_form: { name: '', type: String, field: '', value: '', value_was: '' },
                 goods_nav: {
                     options: [
                         { icon: 'left', text: '返回', info: 0 },
@@ -136,7 +158,31 @@
         mounted() {
             // BdMaterial.update(2554297, { FImageFileServer: "9e56ca4797164f128d37fca3dbc9eaa3" })
         },
+        computed: {
+            can_edit() {
+                return (store.state.cur_stock.FUseOrgId && store.state.cur_stock.FUseOrgId == this.bd_material.CreateOrgId.Id)
+            },
+            is_admin() {
+                return ['wh_admin', 'nrj_admin'].includes(store.state.role)
+            }
+        },
         methods: {
+            edit_field(field) {
+                if (!this.can_edit) {
+                    this.flash('warn', '创建组织下才可修改')
+                    return
+                }   
+                if (field == 'FBoxStandardQty') {
+                    this.edit_form = {
+                        field,
+                        type: Number,
+                        name: '单箱标准数量',
+                        value: this.bd_material.MaterialStock[0].BoxStandardQty,
+                        value_was: this.bd_material.MaterialStock[0].BoxStandardQty
+                    }
+                }
+                this.$refs.edit_popup.open()
+            },
             flash(type, msg) {
                 this.flash_type = type
                 this.flash_msg = msg
@@ -221,7 +267,6 @@
                 if (view_res.data.Result.ResponseStatus.IsSuccess) {
                     let raw_data = view_res.data.Result.Result
                     this.bd_material = raw_data
-                    // let image_fields = ['ImageFileServer', 'F_PAEZ_ImageFileServer', 'F_PAEZ_ImageFileServer1']
                     for (let field of this.image_fields) {
                         if (raw_data[field]?.trim()) {
                             this.image_urls.push({
@@ -251,12 +296,37 @@
                 }
                 uni.hideLoading()
             },
+            async submit_edit_field() {
+                if (this.edit_form.value == this.edit_form.value_was) {
+                    this.$refs.edit_popup.close()
+                    return // 数值未变，直接跳过
+                }
+                let params = {}
+                if (this.edit_form.field == 'FBoxStandardQty') {
+                    params = { SubHeadEntity1: { FBoxStandardQty: this.edit_form.value } }
+                } else {
+                    params[this.edit_form.field] = this.edit_form.value
+                }
+                uni.showLoading({ title: 'Loading' })
+                let update_res = await BdMaterial.update(this.bd_material.Id, params)
+                uni.hideLoading()
+                this.$refs.edit_popup.close()
+                if (!update_res.data.Result.ResponseStatus.IsSuccess) {
+                    this.flash('error', update_res.data.Result.ResponseStatus.Errors[0]?.Message)
+                    return
+                }
+                this.flash('success', '修改成功')
+                this.load_material(this.bd_material.Id)
+            },
             _thumbnail_url(file_id) {
                 if(file_id.trim()) {
                     return K3CloudApi.download_url_sync(file_id, 1, true)
                 } else {
                     return '/static/default_40x40.png'
                 }
+            },
+            test() {
+                console.log('编辑模式')
             }
         }
     }
@@ -287,5 +357,10 @@
     .uni-list-item__foot {
         flex-direction: row;
         align-items: center;
+    }
+    .edit-form {
+        width: 100%;
+        display: flex;
+        justify-content: center;
     }
 </style>
