@@ -65,10 +65,10 @@
                         name: '统计', permission: ['wh_admin'], icon_path: '/static/icon/tongji.png',
                         action: () => { this.goTo('statistics/index') }
                     },
-                    {
-                        name: '其他功能', permission: ['wh_admin'], icon_path: '/static/icon/qita.png',
-                        action: () => { this.goTo('manage/index') }
-                    }
+                    // {
+                    //     name: '其他功能', permission: ['wh_admin'], icon_path: '/static/icon/qita.png',
+                    //     action: () => { this.goTo('manage/index') }
+                    // }
                 ]
             }
         },

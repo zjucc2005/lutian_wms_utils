@@ -98,7 +98,10 @@
             }
         },
         onLoad(options) {
-            if (options.t) this.handle_scan_code(options.t)
+            if (options.t) {
+                this.scan_mode = 'material_no'
+                this.handle_scan_code(options.t)
+            }
         },
         mounted() {
             // this.handle_scan_code('3.08.02.01.10.0013') // 调试用

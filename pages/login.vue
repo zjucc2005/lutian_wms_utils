@@ -38,7 +38,6 @@
                 <button @click="$refs.guest_login_dialog.open()" class="uni-mt-11">访客账号登录</button>
             </uni-forms>
         </view>
-        
     </view>
     
     <uni-popup ref="guest_login_dialog" type="dialog">
@@ -57,7 +56,7 @@
                 <uni-forms ref="guest_login_form" :model="guest_login_form" :rules="guest_login_form_rules">
                     <uni-forms-item label="组织" name="use_org_id">
                         <uni-data-select
-                            v-model="guest_login_form.use_org_id"
+                            v-model="guest_login_form.org_id"
                             :localdata="stock_opts"
                             :clear="false"
                         />
@@ -117,10 +116,10 @@
                 bd_stocks: [],
                 stock_opts: [], // 仓库分组，data-picker为[组织,分组,仓库]3级选择
                 guest_login_form: {
-                    org_id: store.state.cur_stock.FUseOrgId
+                    org_id: '', // store.state.cur_stock.FUseOrgId
                 },
                 guest_login_form_rules: {
-                    use_org_id: {
+                    org_id: {
                         rules: [
                             { required: true, errorMessage: '请选择组织'}
                         ]
@@ -200,7 +199,7 @@
             // 访客登录要设定组织
             submit_guest_login() {
                 this.$refs.guest_login_form.validate().then(res => {
-                    let opt = this.stock_opts.find(x => x.value == this.guest_login_form.use_org_id)
+                    let opt = this.stock_opts.find(x => x.value == this.guest_login_form.org_id)
                     let params = {
                         stock: { 'FUseOrgId.FName': opt.text, FUseOrgId: opt.value }
                     }

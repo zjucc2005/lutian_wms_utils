@@ -6,14 +6,14 @@
                 :extra-icon="{ type: 'list', size: '24', color: '#007bff' }"
                 @click="goTo('inv_plans')" clickable
                 showArrow />
-            <uni-list-item title="库存变更日志"
+<!--            <uni-list-item title="库存变更日志"
                 :show-extra-icon="true"
                 :extra-icon="{ type: 'list', size: '24', color: '#4cd964' }"
                 clickable showArrow disabled />
             <uni-list-item title="库存分表"
                 :show-extra-icon="true"
                 :extra-icon="{ type: 'list', size: '24', color: '#dc3545' }"
-                clickable showArrow disabled />
+                clickable showArrow disabled /> -->
         </uni-list>
     </view>
 </template>

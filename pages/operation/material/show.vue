@@ -79,6 +79,7 @@
                     :key="index"
                     :title="`图片 ${index + 1}`"
                     :thumb="_thumbnail_url(bd_material[field])"
+                    thumb-size="lg"
                     >
                     <template #footer>
                         <view v-if="bd_material.CreateOrgId.Id == $store.state.cur_stock.FUseOrgId" class="uni-list-item__foot">

@@ -40,7 +40,7 @@ const read_file_as_base64 = async (url) => {
                     entry.file(file => {
                         let fileReader = new plus.io.FileReader()
                         fileReader.onloadend = (e) => {
-                            console.log('plus fileReader', e)
+                            // console.log('plus fileReader', e)
                             const base64_data = e.target.result.split(',')[1]
                             resolve(base64_data) 
                         }
