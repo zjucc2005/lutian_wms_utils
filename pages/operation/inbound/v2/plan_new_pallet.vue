@@ -57,40 +57,42 @@
             </view>
         </template>
         
-        <uni-table ref="pallet_infos" border stripe class="pallet-infos">
-            <uni-tr>
-                <uni-th align="center" width="150">每托数量</uni-th>
-                <uni-th align="center" width="150">托数</uni-th>
-                <uni-th align="center" width="50"></uni-th>
-            </uni-tr>
-            <uni-tr v-for="(info, index) in plan_form.pallet_infos" :key="index">
-                <uni-td align="center">
-                    <uni-easyinput type="number" :clearable="false" :input-border="false"
-                        v-model="info.per_qty"
-                        @blur="validate_pallet_info($event, info, 'per_qty')"
-                        style="text-align: center;"
-                        ></uni-easyinput>
-                </uni-td>
-                <uni-td align="center">
-                    <uni-easyinput type="number" :clearable="false" :input-border="false"
-                        v-model="info.pallet_qty"
-                        @blur="validate_pallet_info($event, info, 'pallet_qty')"
-                        style="text-align: center;"
-                        ></uni-easyinput>
-                </uni-td>
-                <uni-td align="center">
-                    <uni-icons type="minus" size="24" color="#dd524d"
-                        v-if="plan_form.pallet_infos.length > 1" disabled
-                        @click="del_pallet_info(index)">
-                    </uni-icons>
-                </uni-td>
-            </uni-tr>
-        </uni-table>
-        <button type="primary" 
-            v-if="plan_form.pallet_infos.length < 5"
-            @click="add_pallet_info" class="add-pallet-info-btn">
-            + 新增托盘规格
-        </button>
+        <view class="container">
+            <uni-table ref="pallet_infos" border stripe class="pallet-infos">
+                <uni-tr>
+                    <uni-th align="center" width="150">每托数量</uni-th>
+                    <uni-th align="center" width="150">托数</uni-th>
+                    <uni-th align="center" width="50"></uni-th>
+                </uni-tr>
+                <uni-tr v-for="(info, index) in plan_form.pallet_infos" :key="index">
+                    <uni-td align="center">
+                        <uni-easyinput type="number" :clearable="false" :input-border="false"
+                            v-model="info.per_qty"
+                            @blur="validate_pallet_info($event, info, 'per_qty')"
+                            style="text-align: center;"
+                            ></uni-easyinput>
+                    </uni-td>
+                    <uni-td align="center">
+                        <uni-easyinput type="number" :clearable="false" :input-border="false"
+                            v-model="info.pallet_qty"
+                            @blur="validate_pallet_info($event, info, 'pallet_qty')"
+                            style="text-align: center;"
+                            ></uni-easyinput>
+                    </uni-td>
+                    <uni-td align="center">
+                        <uni-icons type="minus" size="24" color="#dd524d"
+                            v-if="plan_form.pallet_infos.length > 1" disabled
+                            @click="del_pallet_info(index)">
+                        </uni-icons>
+                    </uni-td>
+                </uni-tr>
+            </uni-table>
+            <button type="primary" 
+                v-if="plan_form.pallet_infos.length < 5"
+                @click="add_pallet_info" class="add-pallet-info-btn">
+                + 新增托盘规格
+            </button>
+        </view>
     </uni-section>
      
     <uni-section title="配置信息" type="square"
@@ -751,14 +753,17 @@
         font-size: $uni-font-size-sm;
     }
     .pallet-infos {
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
         table {
             min-width: 0 !important;
         }
     }
     .add-pallet-info-btn {
-        border-radius: 0;
-        padding-top: 3px;
-        padding-bottom: 3px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        // padding-top: 3px;
+        // padding-bottom: 3px;
     }
     .plan-form {
         width: 100%;

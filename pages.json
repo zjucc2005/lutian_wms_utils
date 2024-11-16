@@ -60,7 +60,7 @@
         },
         {
             "path": "pages/operation/inbound/v2/index",
-            "style": { "navigationBarTitleText": "入库" }
+            "style": { "navigationBarTitleText": "入库", "enablePullDownRefresh": true }
         },
         {
             "path": "pages/operation/inbound/v2/plan_init",
@@ -88,7 +88,7 @@
         },
         {
             "path": "pages/operation/outbound/v2/index",
-            "style": { "navigationBarTitleText": "出库" }
+            "style": { "navigationBarTitleText": "出库", "enablePullDownRefresh": true }
         },
         {
             "path": "pages/operation/outbound/v2/plan_init",
@@ -104,7 +104,7 @@
         },
         {
             "path": "pages/operation/move/v2/index",
-            "style": { "navigationBarTitleText": "库存调整 - 计划" }
+            "style": { "navigationBarTitleText": "库存调整 - 计划", "enablePullDownRefresh": true }
         },
         {
             "path": "pages/operation/move/v2/plan_new",
@@ -139,14 +139,6 @@
             "path": "pages/operation/manage/loc_new",
             "style": { "navigationBarTitleText": "库位 - 新增库位" }
         },
-        // {
-        //     "path": "pages/operation/manage/material_search",
-        //     "style": { "navigationBarTitleText" : "物料查询" }
-        // },
-        // {
-        //     "path": "pages/operation/manage/material_card",
-        //     "style": { "navigationBarTitleText": "物料资料卡模板" }
-        // },
         {
             "path": "pages/my/index",
             "style": { "navigationBarTitleText": "我"}
@@ -221,11 +213,7 @@
         },
         {
             "path": "pages/operation/list/inv_plans",
-            "style": { 
-                "navigationBarTitleText": "列表 - 库存变更计划",
-                "enablePullDownRefresh": true,
-                "onReachBottomDistance": 50
-            }
+            "style": { "navigationBarTitleText": "列表 - 库存变更计划", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
         },
         {
             "path": "pages/operation/manufacture_order/index",
@@ -233,19 +221,11 @@
         },
         {
             "path": "pages/operation/manufacture_order/send_material",
-            "style": { 
-                "navigationBarTitleText": "生产订单 - 发料",
-                "enablePullDownRefresh": true,
-                "onReachBottomDistance": 50
-            }
+            "style": { "navigationBarTitleText": "生产订单 - 发料", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
         },
         {
             "path": "pages/operation/manufacture_order/issuemtr_logs",
-            "style": { 
-                "navigationBarTitleText": "发料用料日志",
-                "enablePullDownRefresh": true,
-                "onReachBottomDistance": 50
-            }
+            "style": { "navigationBarTitleText": "发料用料日志", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
         },
         {
             "path": "pages/operation/material/search",

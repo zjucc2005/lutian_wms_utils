@@ -134,6 +134,10 @@
                 this.goods_nav.admin_button_group[0].backgroundColor = store.state.goods_nav_color.blue
             }
         },
+        onPullDownRefresh() {
+            this.refresh()
+            uni.stopPullDownRefresh()
+        },
         methods: {
             // checkbox_click(e) {
             //     let group_item = this.inv_plan_groups.find(x => x.bill_no == e.target.dataset.bill_no)

@@ -163,6 +163,10 @@
         onShow() {
             this.load_inv_plans()
         },
+        onPullDownRefresh() {
+            this.refresh()
+            uni.stopPullDownRefresh()
+        },
         mounted() {
             // this.load_inv_plans()
         },

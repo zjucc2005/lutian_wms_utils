@@ -11,7 +11,7 @@
                 </uni-data-checkbox>
             </view>
         </template>
-        <view class="searchbar-container">
+        <view class="container">
             <uni-forms ref="form" :model="search_form" labelWidth="70px">
                 <uni-forms-item label="编码" name="material_no">
                     <uni-easyinput
@@ -27,11 +27,12 @@
                 <uni-forms-item label="规格" name="material_spec">
                     <uni-easyinput v-model="search_form.material_spec" trim="both"/>
                 </uni-forms-item>
+                <button @click="search" type="primary">
+                    <uni-icons type="search" color="#fff"></uni-icons> 搜索
+                </button>
             </uni-forms>
         </view>
-        <button @click="search" type="primary" class="form-btn">
-            <uni-icons type="search" color="#fff"></uni-icons> 搜索
-        </button>
+        
     </uni-section>
     
     <view class="uni-goods-nav-wrapper">
@@ -149,6 +150,7 @@
             },
             async load_material(material_id) {
                 // this.$refs.search_drawer.close()
+                play_audio_prompt('success')
                 uni.navigateTo({ url: '/pages/operation/material/show?id=' + material_id })
             },
             _thumbnail_url(file_id) {
@@ -163,7 +165,5 @@
 </script>
 
 <style lang="scss" scoped>
-    .form-btn {
-        border-radius: 0;
-    }
+
 </style>

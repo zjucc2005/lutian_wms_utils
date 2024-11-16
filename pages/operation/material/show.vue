@@ -111,7 +111,7 @@
             :before-close="true"
             >
             <view class="edit-form">
-                <uni-easyinput v-model="edit_form.value" trim="both" />
+                <uni-easyinput v-model="edit_form.value" :type="edit_form.type" trim="both" />
             </view>
         </uni-popup-dialog>
     </uni-popup>
@@ -138,7 +138,7 @@
                 f_image_fields: ['FImageFileServer', 'F_PAEZ_ImageFileServer', 'F_PAEZ_ImageFileServer1'], // F + 图片字段
                 flash_type: '',
                 flash_msg: '',
-                edit_form: { name: '', type: String, field: '', value: '', value_was: '' },
+                edit_form: { name: '', type: 'text', field: '', value: '', value_was: '' },
                 goods_nav: {
                     options: [
                         { icon: 'left', text: '返回', info: 0 },
@@ -175,7 +175,7 @@
                 if (field == 'FBoxStandardQty') {
                     this.edit_form = {
                         field,
-                        type: Number,
+                        type: 'number',
                         name: '单箱标准数量',
                         value: this.bd_material.MaterialStock[0].BoxStandardQty,
                         value_was: this.bd_material.MaterialStock[0].BoxStandardQty
@@ -314,9 +314,10 @@
                 if (!update_res.data.Result.ResponseStatus.IsSuccess) {
                     this.flash('error', update_res.data.Result.ResponseStatus.Errors[0]?.Message)
                     return
-                }
+                } 
+                await this.load_material(this.bd_material.Id)
                 this.flash('success', '修改成功')
-                this.load_material(this.bd_material.Id)
+                play_audio_prompt('success')
             },
             _thumbnail_url(file_id) {
                 if(file_id.trim()) {

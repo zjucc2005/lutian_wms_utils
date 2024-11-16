@@ -21,7 +21,7 @@ const choose_image = async (options) => {
                 // #endif
             },
             fail: (err) => {
-                console.log('chooseImage fail', err)
+                // console.log('chooseImage fail', err)
                 reject(err)
             },
             complete: (res) => {

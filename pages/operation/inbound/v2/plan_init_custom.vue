@@ -47,20 +47,20 @@
                         </template>
                     </uni-easyinput>
                 </uni-forms-item>
+                <uni-row>
+                    <uni-col :span="12">
+                        <button @click="scan_code" type="warn" class="form-btn left">
+                            <uni-icons type="scan" color="#fff"></uni-icons> 扫码
+                        </button>
+                    </uni-col>
+                    <uni-col :span="12">
+                        <button @click="add_to_inbound_task" type="primary" class="form-btn right">
+                            <uni-icons type="checkmarkempty" color="#fff"></uni-icons> 提交
+                        </button>
+                    </uni-col>
+                </uni-row>
             </uni-forms>
         </view>
-        <uni-row>
-            <uni-col :span="12">
-                <button @click="scan_code" type="warn" class="form-btn">
-                    <uni-icons type="scan" color="#fff"></uni-icons> 扫码
-                </button>
-            </uni-col>
-            <uni-col :span="12">
-                <button @click="add_to_inbound_task" type="primary" class="form-btn">
-                    <uni-icons type="checkmarkempty" color="#fff"></uni-icons> 提交
-                </button>
-            </uni-col>
-        </uni-row>
     </uni-section>
     
     <uni-section title="当前物料信息" type="square"
@@ -489,7 +489,14 @@
         color: $uni-text-color-grey;
     }
     .form-btn {
-        border-radius: 0;
+        &.left {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        &.right {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
     }
     .cover-image {
         position: absolute;

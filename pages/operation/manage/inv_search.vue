@@ -180,20 +180,26 @@
                     this.no = loc_no
                 })
             },
-            handle_scan_code(text) {
+            async handle_scan_code(text) {
                 text = text.trim()
                 if (!text) return
+                uni.showLoading({ title: 'Loading' })
                 if (this.scan_mode == 'material_no') {
-                    this.load_invs_by_material_no(text)
-                    this.load_material(text)
+                    await this.load_invs_by_material_no(text)
+                    await this.load_material(text)
+                    uni.hideLoading()
                 } else if (this.scan_mode == 'loc_no') {
-                    this.load_invs_by_loc_no(text)
+                    await this.load_invs_by_loc_no(text)
+                    uni.hideLoading()
                 } else if (is_material_no_format(text)) {
-                    this.load_invs_by_material_no(text)
-                    this.load_material(text)
+                    await this.load_invs_by_material_no(text)
+                    await this.load_material(text)
+                    uni.hideLoading()
                 } else if (is_loc_no_std_format(text)) {
-                    this.load_invs_by_loc_no(text)
+                    await this.load_invs_by_loc_no(text)
+                    uni.hideLoading()
                 } else {
+                    uni.hideLoading()
                     this.invs = []
                     this.mode = ''
                     this.no = ''
