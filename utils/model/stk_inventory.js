@@ -25,12 +25,8 @@ class StkInventory {
         const data = {
             FormId: "STK_Inventory",
             FieldKeys: fields.join(','),
-            FilterString: []
+            FilterString: K3CloudApi.query_filter({ FBaseQty_gt: 0, ...options })
         }
-        if (options['FMaterialId.FNumber']) {
-            data.FilterString.push({ Left: "", FieldName: "FMaterialId.FNumber", Compare: "67", Value: options['FMaterialId.FNumber'], Right: "", Logic: 0 })
-        }
-        data.FilterString.push({ Left: "", FieldName: "FBaseQty", Compare: "21", Value: 0, Right: "", Logic: 0 })
         if (meta.per_page) {
             data.Limit = meta.per_page
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page

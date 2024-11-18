@@ -13,15 +13,11 @@ import K3CloudApi from "@/utils/k3cloudapi";
  * @return { Hash/undefined } Promise
  */
 const validate_staff = async (staff_name, staff_no, org_id) => {
-    let fields = ['FName', 'FNumber', 'FForbiddenStatus', 'FBizOrgId', 'FBizOrgId.FName', 'FDeptId', 'FDeptId.FName']
+    let fields = ['FID', 'FName', 'FNumber', 'FForbiddenStatus', 'FBizOrgId', 'FBizOrgId.FName', 'FDeptId', 'FDeptId.FName']
     const data = {
         FormId: "BD_WAREHOUSEWORKERS",
         FieldKeys: fields.concat(['FOperatorGroupId', 'FOperatorGroupId.FName']).join(','),
-        FilterString: [
-            {"Left":"","FieldName":"FName","Compare":"67","Value":staff_name,"Right":"","Logic":0},
-            {"Left":"","FieldName":"FNumber","Compare":"67","Value":staff_no,"Right":"","Logic":0},
-            {"Left":"","FieldName":"FBizOrgId","Compare":"67","Value":org_id,"Right":"","Logic":0}
-        ]
+        FilterString: K3CloudApi.query_filter({ FName: staff_name, FNumber: staff_no, FBizOrgId: org_id })
     }
     return K3CloudApi.bill_query(data).then(res => {
         if (res.data.length === 0) {
@@ -61,12 +57,7 @@ const get_bd_supplier = async (supplier_no, use_org_id) => {
     const data = {
         FormId: 'BD_Supplier',
         FieldKeys: 'FSupplierId,FName,FNumber',
-        FilterString: [
-            { Left: "", FieldName: "FNumber", Compare: "67", Value: supplier_no, Right: "", Logic: 0 }
-        ]
-    }
-    if (use_org_id) {
-        data.FilterString.push({ Left: "", FieldName: "FUseOrgId", Compare: "67", Value: use_org_id, Right: "", Logic: 0 })
+        FilterString: K3CloudApi.query_filter({ FNumber: supplier_no, FUseOrgId: use_org_id })
     }
     return K3CloudApi.bill_query(data)
 }
@@ -81,10 +72,7 @@ const get_bd_material = async (material_no, use_org_id) => {
     const data = {
         FormId: 'BD_MATERIAL',
         FieldKeys: 'FMaterialId,FName,FNumber,FSpecification,FForbidStatus,FDocumentStatus,FBaseUnitId,FBaseUnitId.FNumber,FBaseUnitId.FName,FMaterialGroup.FName,FUseOrgId,FUseOrgId.FName,FImageFileServer',
-        FilterString: [
-            { Left: "", FieldName: "FNumber", Compare: "67", Value: material_no, Right: "", Logic: 0 },
-            { Left: "", FieldName: "FUseOrgId", Compare: "67", Value: use_org_id, Right: "", Logic: 0 }
-        ]
+        FilterString: K3CloudApi.query_filter({ FNumber: material_no, FUseOrgId: use_org_id }) 
     }
     return K3CloudApi.bill_query(data)
 }
@@ -147,7 +135,5 @@ export {
     get_bd_stocks,
     get_bd_supplier,
     get_bd_material,
-    search_bd_materials,
-    // get_all_bd_materials,
-    // get_bd_units,
+    search_bd_materials
 }

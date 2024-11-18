@@ -263,7 +263,7 @@
                 uni.showLoading({ title: 'Loading' })
                 this.image_urls = []
                 this.blank_image_fields = []
-                let view_res = await K3CloudApi.view('BD_MATERIAL', { Id: material_id })
+                let view_res = await BdMaterial.view(material_id)
                 if (view_res.data.Result.ResponseStatus.IsSuccess) {
                     let raw_data = view_res.data.Result.Result
                     this.bd_material = raw_data

@@ -165,9 +165,9 @@
             async load_inv_plans() {
                 let options = { FStockId: store.state.cur_stock.FStockId, FOpType: 'in' }
                 if (store.state.role == 'wh_admin') {       
-                    options.FDocumentStatus_in = ['A', 'B']
+                    options.FDocumentStatu_in = ['A', 'B']
                 } else {
-                    options.FDocumentStatus = 'A'
+                    options.FDocumentStatu = 'A'
                 }
                 uni.showLoading({ title: 'Loading' })
                 return InvPlan.query(options, { order: 'FCreateTime ASC' }).then(res => {

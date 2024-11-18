@@ -574,33 +574,63 @@ const download_url_sync = (file_id, nail=0) => {
     let token = store.state.conn_info?.Context?.UserToken
     return fullURL(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}&nail=${nail}`)
 }
+const thumbnail_url = (file_id, default_url='/static/default_40x40.png') => {
+    return file_id?.trim() ? download_url_sync(file_id, 1, true) : default_url
+}
 
-// const compare_dict = {
-//     'str:=': 67,
-//     'int:=': 76,
-//     'str:!=': 83,
-//     'int:!=': 70,
-//     'str:>': 72,
-//     'int:>': 21,
-//     'str:>=': 42,
-//     'int:>=': 65,
-//     'str:<': 44,
-//     'int:<': 36,
-//     'str:<=': 56,
-//     'int:<=': 19
-//     'str:is_null': 100,
-//     'str:is_not_null': 52,
-//     'str:like': 81,
-//     'str:contain': 17,
-//     'str:not_contain': 34,
-//     'str:prefix': 60,
-//     'str:suffix': 211,
-//     'str:in': 338,
-//     'str:not_in': 214,
-//     'str:!=(null)': 501,
-//     'str:not_contain(null)': 502,
-//     'str:not_in(null)': 503     
-// }
+
+/**
+ * Helper - 组装查询条件，返回查询SQL
+ * @param options:Hash 查询条件Object
+ * @return {String}
+ */
+const query_filter = (options = {}) => {
+    let filters = []
+    for (let k of Object.getOwnPropertyNames(options)) {
+        let { field, compare } = match_suffix(k)
+        if (options[k] instanceof Date) options[k] = options[k].toLocaleString()
+        switch (compare) {
+            case 'eq': filters.push(`${field} = '${options[k]}'`);                         break;
+            case 'ne': filters.push(`${field} != '${options[k]}'`);                        break;
+            case 'gt': filters.push(`${field} > '${options[k]}'`);                         break;
+            case 'ge': filters.push(`${field} >= '${options[k]}'`);                        break;
+            case 'lt': filters.push(`${field} < '${options[k]}'`);                         break;
+            case 'le': filters.push(`${field} <= '${options[k]}'`);                        break;
+            case 'lk': filters.push(`${field} LIKE '%${options[k]}%'`);                    break;
+            case 'sw': filters.push(`${field} LIKE '${options[k]}%'`);                     break;
+            case 'ew': filters.push(`${field} LIKE '%${options[k]}'`);                     break;
+            case 'in': filters.push(`${field} IN (${options[k].map(x => `'${x}'`)})`);     break;
+            case 'ni': filters.push(`${field} NOT IN (${options[k].map(x => `'${x}'`)})`); break;
+        }
+    }
+    return filters.join(' AND ')
+}
+
+/**
+ * Helper - 匹配查询方式（后缀）
+ * @param text:String
+ * @return {String} 返回查询SQL
+ */
+const match_suffix = (text) => {
+    /**
+     * eq  等于  equal
+     * ne  不等于  not equal
+     * gt  大于  greater than
+     * ge  大于等于  greater than or equal
+     * lt  小于  less than
+     * le  小于等于  less than or equal
+     * lk  相似:字符串  like (case_sensitive: false)
+     * sw  开头 start with
+     * ew  结尾 end with
+     * in  包含于:数组  in
+     * ni  不包含于:数组  not in
+     */
+    const suffix_list = ['eq', 'ne', 'gt', 'ge', 'lt', 'le', 'lk', 'sw', 'ew', 'in', 'ni']
+    let m = text.match(new RegExp(`(.+)_(${suffix_list.join('|')})`))
+    if (!m) return { field: text, compare: 'eq' }
+    return { field: m[1], compare: m[2] }
+}
+
 
 const K3CloudApi = {
     conn,
@@ -616,7 +646,9 @@ const K3CloudApi = {
     bill_query,
     upload_file,
     download_url,
-    download_url_sync
+    download_url_sync,
+    thumbnail_url,
+    query_filter
 }
 
 export default K3CloudApi

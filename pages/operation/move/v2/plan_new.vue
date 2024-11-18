@@ -17,8 +17,8 @@
                 v-model="search_form.no" 
                 placeholder="请输入搜索内容"
                 prefix-icon="scan"
-                @confirm="before_search"
-                @clear="before_search"
+                @confirm="search"
+                @clear="search"
                 @icon-click="searchbar_icon_click"
                 primary-color="rgb(238, 238, 238)"
                 :styles="{
@@ -28,45 +28,19 @@
                 }"
                 class="uni-mb-5"
             />
-            <!-- 搜索候选列表 -->
-            <uni-drawer ref="search_drawer" :width="$store.state.drawer_width">
-                <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
-                <uni-section :title="`模糊匹配：${search_form.no}`" type="square"
-                    sub-title="最多展示20条匹配结果"
-                    >
-                    <template v-slot:right>
-                        <view class="uni-section__right">
-                            <uni-icons type="closeempty" size="24" color="#333" @click="$refs.search_drawer.close()"/>
-                        </view>
-                    </template>
-                    <uni-list>
-                        <uni-list-item
-                            v-for="(material, index) in search_form.candidates"
-                            :key="index"
-                            :title="material.FNumber"
-                            :note="[
-                                `名称：${material.FName}`, 
-                                `规格：${material.FSpecification}`
-                            ].join('\n')"
-                            :thumb="_thumbnail_url(material.FImageFileServer)"
-                            thumb-size="lg"
-                            @click="handle_search(material.FNumber)" clickable
-                            show-arrow
-                            >
-                        </uni-list-item>
-                    </uni-list>
-                </uni-section>
-                </scroll-view>
-            </uni-drawer>
         </view>
-        
-        <uni-list v-if="material.material_no">
+    </uni-section>
+    
+    <uni-section title="物料信息" type="square" v-if="material.material_no">
+        <uni-list>
             <uni-list-item
                 :title="material.material_no"
                 :note="[
                     `名称：${material.material_name}`, 
                     `规格：${material.material_spec}`
                 ].join('\n')"
+                :thumb="thumbnail_url(material.material_image)"
+                thumb-size="lg"
             />
         </uni-list>
     </uni-section>
@@ -162,6 +136,37 @@
             @buttonClick="goods_nav_button_click"
         />
     </view>
+    
+    <!-- 搜索候选列表 -->
+    <uni-drawer ref="search_drawer" :width="$store.state.drawer_width">
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
+            <uni-section title="搜索结果" type="square"
+                sub-title="最多展示20条匹配结果"
+                >
+                <template v-slot:right>
+                    <view class="uni-section__right">
+                        <uni-icons type="closeempty" size="24" color="#333" @click="$refs.search_drawer.close()"/>
+                    </view>
+                </template>
+                <uni-list>
+                    <uni-list-item
+                        v-for="(material, index) in search_form.candidates"
+                        :key="index"
+                        :title="material.FNumber"
+                        :note="[
+                            `名称：${material.FName}`, 
+                            `规格：${material.FSpecification}`
+                        ].join('\n')"
+                        :thumb="thumbnail_url(material.FImageFileServer)"
+                        thumb-size="lg"
+                        @click="load_data(material.FNumber)" clickable
+                        show-arrow
+                        >
+                    </uni-list-item>
+                </uni-list>
+            </uni-section>
+        </scroll-view>
+    </uni-drawer>
     
     <uni-popup ref="move_dialog" type="dialog">
         <uni-popup-dialog
@@ -299,14 +304,14 @@
     export default {
         data() {
             return {
-                bd_materials: [], // 物料基础数据Array，cache
                 invs: [],
                 inv_plans: [],
                 material: {
                     material_no: '',
                     material_name: '',
                     material_spec: '',
-                    base_unit_name: ''
+                    base_unit_name: '',
+                    material_image: ''
                 },
                 search_form: {
                     no: '',
@@ -381,7 +386,7 @@
             }
         },
         mounted() {
-            if (this.search_form.no) this.handle_search()
+            if (this.search_form.no) this.load_data()
         },
         methods: {
             swipe_action_click(e, inv_plan) {
@@ -402,7 +407,7 @@
             scan_code() {
                 scan_code().then(res => {
                     this.search_form.no = res.result
-                    this.before_search()
+                    this.search()
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })
                 })
@@ -417,7 +422,7 @@
                 this.move_form = { type: 'move', inv: {}, dest_loc_no: '', op_qty: 0 }
             },
             // 物料模糊匹配
-            async before_search() {
+            async search() {
                 this._set_material()
                 this.invs = []
                 this.inv_plans = []
@@ -434,7 +439,7 @@
                     uni.hideLoading()
                     this.search_form.candidates = res.data
                     if (res.data.length > 1) this.$refs.search_drawer.open()
-                    if (res.data.length === 1) this.handle_search(res.data[0]?.FNumber)
+                    if (res.data.length === 1) this.load_data(res.data[0]?.FNumber)
                     if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
                 })
             },
@@ -483,7 +488,7 @@
                     
                 } catch (err) {}
             },
-            async handle_search(material_no) {
+            async load_data(material_no) {
                 if (!material_no) {
                     this._set_material()
                     this.invs = []
@@ -491,8 +496,6 @@
                     return
                 }
                 this.$refs.search_drawer.close()
-                // this.search_form.no = this.search_form.no.trim()
-                // let material_no = this.search_form.no
                 uni.showLoading({ title: 'Loading' })
                 let bd_material = await this.load_material(material_no)
                 this._set_material(bd_material)
@@ -522,7 +525,7 @@
                     FStockId: store.state.cur_stock.FStockId,
                     'FMaterialId.FNumber': material_no,
                     FOpType_in: ['mv', 'add', 'sub'],
-                    FDocumentStatus_in: ['A', 'B']
+                    FDocumentStatu_in: ['A', 'B']
                 }
                 const meta = { order: 'FStockLocId.FNumber ASC, FBatchNo ASC' }
                 uni.showLoading({ title: 'Loading' })
@@ -538,12 +541,10 @@
                 })
             },
             async load_material(material_no) {
-                // let bd_material = this.bd_materials.find(x => x.FNumber == material_no)
                 let bd_material = this.search_form.candidates.find(x => x.FNumber == material_no)
                 if (bd_material) return bd_material
                 let res = await get_bd_material(material_no, store.state.cur_stock.FUseOrgId)
                 if (res.data[0]) {                  
-                    // this.bd_materials.push(res.data[0])
                     return res.data[0]
                 }
             },
@@ -579,12 +580,14 @@
                     this.material.material_name = bd_material.FName
                     this.material.material_spec = bd_material.FSpecification
                     this.material.base_unit_name = bd_material['FBaseUnitId.FName']
+                    this.material.material_image = bd_material.FImageFileServer
                 } else {
                     this.material.material_id = ''
                     this.material.material_no = ''
                     this.material.material_name = ''
                     this.material.material_spec = ''
                     this.material.base_unit_name = 'Pcs'
+                    this.material.material_image = ''
                 }
             },
             _sum_planned_qty() {
@@ -600,12 +603,8 @@
                     })
                 })
             },
-            _thumbnail_url(file_id) {
-                if(file_id.trim()) {
-                    return K3CloudApi.download_url_sync(file_id, 1, true)
-                } else {
-                    return '/static/default_40x40.png'
-                }
+            thumbnail_url(file_id) {
+                return K3CloudApi.thumbnail_url(file_id)
             }
         }
     }

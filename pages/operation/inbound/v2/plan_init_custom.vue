@@ -200,7 +200,6 @@
 <script>
     import store from '@/store'
     import K3CloudApi from '@/utils/k3cloudapi'
-    // import { get_bd_material } from '@/utils/api'
     import { search_bd_materials } from '@/utils/api'
     import { InboundTask, InvPlan } from '@/utils/model'
     import { is_decimal_unit, play_audio_prompt } from '@/utils'

@@ -1,5 +1,5 @@
-import store from '@/store';
-import K3CloudApi from '@/utils/k3cloudapi';
+import store from '@/store'
+import K3CloudApi from '@/utils/k3cloudapi'
 
 /**
  * 前端库存日志模型
@@ -70,11 +70,6 @@ class InvLog {
     /**
      * 获取库存日志列表
      * @param options:Hash 参数集
-     *   @field FID:Integer 主键ID
-     *   @field FOpType_in:Array[String] 操作类型
-     *   @field FStockId:Integer 仓库
-     *   @field FBatchNo:String 批次号
-     *   @field FBillNo:String 单据编号
      * @param meta:Hash
      *   @field page:Integer
      *   @field per_page:Integer
@@ -84,23 +79,8 @@ class InvLog {
     static query(options={}, meta={}) {
         const data = {
             FormId: "PAEZ_C_INV_LOG",
-            FilterString: []
-        }
-        if (options.FID) {
-            data.FilterString.push({ Left: "", FieldName: "FID", Compare: "67", Value: options.FID, Right: "", Logic: 0 })
-        }
-        if (options.FOpType_in) {
-            data.FilterString.push({ Left: "", FieldName: "FOpType", Compare: "338", Value: options.FOpType_in.join(','), Right: "", Logic: 0 })
-        }
-        if (options.FStockId) {
-            data.FilterString.push({ Left: "", FieldName: "FStockId", Compare: "67", Value: options.FStockId, Right: "", Logic: 0 })
-        }
-        if (options.FBatchNo) {
-            data.FilterString.push({ Left: "", FieldName: "FBatchNo", Compare: "67", Value: options.FBatchNo, Right: "", Logic: 0 })
-        }
-        if (options.FBillNo) {
-            data.FilterString.push({ Left: "", FieldName: "FBillNo", Compare: "67", Value: options.FBillNo, Right: "", Logic: 0 })
-        }       
+            FilterString: K3CloudApi.query_filter(options)
+        }   
         if (meta.per_page) {
             data.Limit = meta.per_page
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
@@ -136,19 +116,7 @@ class InvLog {
         const data = {
             FormId: "PAEZ_C_INV_LOG",
             FieldKeys: ['FOpType', 'FInvIncre', 'FCreateTime'].join(','),
-            FilterString: []
-        }
-        if (options.FOpType_in) {
-            data.FilterString.push({ Left: "", FieldName: "FOpType", Compare: "338", Value: options.FOpType_in.join(','), Right: "", Logic: 0 })
-        }
-        if (options.FStockId) {
-            data.FilterString.push({ Left: "", FieldName: "FStockId", Compare: "67", Value: options.FStockId, Right: "", Logic: 0 })
-        }
-        if (options.FCreateTime_ge) {
-            data.FilterString.push({ Left: "", FieldName: "FCreateTime", Compare: "39", Value: options.FCreateTime_ge, Right: "", Logic: 0 })
-        }
-        if (options.FCreateTime_lt) {
-            data.FilterString.push({ Left: "", FieldName: "FCreateTime", Compare: "32", Value: options.FCreateTime_lt, Right: "", Logic: 0 })
+            FilterString: K3CloudApi.query_filter(options)
         }
         if (meta.per_page) {
             data.Limit = meta.per_page

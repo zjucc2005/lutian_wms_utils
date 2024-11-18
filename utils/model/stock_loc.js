@@ -119,21 +119,21 @@ class StockLoc {
         const data = {
             FormId: "PAEZ_C_STOCK_LOC",
             FieldKeys: fields.join(','),
-            FilterString: [],
+            FilterString: K3CloudApi.query_filter(options),
             Limit: 10000
         }
-        if (options.FStockId) {
-            data.FilterString.push({ Left: "", FieldName: "FStockId", Compare: "67", Value: options.FStockId, Right: "", Logic: 0 })
-        }
-        if (options.FNumber) {
-            data.FilterString.push({ Left: "", FieldName: "FNumber", Compare: "67", Value: options.FNumber, Right: "", Logic: 0 })
-        }
-        if (options.FNumber_in) {
-            data.FilterString.push({ Left: "", FieldName: "FNumber", Compare: "338", Value: options.FNumber_in.join(','), Right: "", Logic: 0 })
-        }
-        if (options.FForbidStatus) {
-            data.FilterString.push({ Left: "", FieldName: "FForbidStatus", Compare: "105", Value: options.FForbidStatus, Right: "", Logic: 0 })
-        }
+        // if (options.FStockId) {
+        //     data.FilterString.push({ Left: "", FieldName: "FStockId", Compare: "67", Value: options.FStockId, Right: "", Logic: 0 })
+        // }
+        // if (options.FNumber) {
+        //     data.FilterString.push({ Left: "", FieldName: "FNumber", Compare: "67", Value: options.FNumber, Right: "", Logic: 0 })
+        // }
+        // if (options.FNumber_in) {
+        //     data.FilterString.push({ Left: "", FieldName: "FNumber", Compare: "338", Value: options.FNumber_in.join(','), Right: "", Logic: 0 })
+        // }
+        // if (options.FForbidStatus) {
+        //     data.FilterString.push({ Left: "", FieldName: "FForbidStatus", Compare: "105", Value: options.FForbidStatus, Right: "", Logic: 0 })
+        // }
         if (meta.per_page) {
             data.Limit = meta.per_page
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page

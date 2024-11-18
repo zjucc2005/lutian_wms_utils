@@ -74,7 +74,7 @@
                 mode: '', // material_no/loc_no
                 display_mode: '', // grid/list
                 scan_mode: '', // material_no/loc_no，可以指定扫描的是哪种编码
-                no: '',                
+                no: '',
                 material: {
                     material_no: '',
                     material_name: '',

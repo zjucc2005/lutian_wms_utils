@@ -104,49 +104,7 @@ class IssuemtrLog {
     static query(options={}, meta={}) {
         const data = {
             FormId: "PAEZ_C_ISSUEMTR_LOG",
-            FilterString: []
-        }
-        if (options.FID) {
-            data.FilterString.push({ Left: "", FieldName: "FID", Compare: "67", Value: options.FID, Right: "", Logic: 0 })
-        }
-        if (options.FOpType) {
-            data.FilterString.push({ Left: "", FieldName: "FOpType", Compare: "67", Value: options.FOpType, Right: "", Logic: 0 })
-        }
-        if (options.FOpType_in) {
-            data.FilterString.push({ Left: "", FieldName: "FOpType", Compare: "338", Value: options.FOpType_in.join(','), Right: "", Logic: 0 })
-        }
-        if (options.FStockId) {
-            data.FilterString.push({ Left: "", FieldName: "FStockId", Compare: "67", Value: options.FStockId, Right: "", Logic: 0 })
-        }
-        if (options.FMaterialId) {
-            data.FilterString.push({ Left: "", FieldName: "FMaterialId", Compare: "67", Value: options.FMaterialId, Right: "", Logic: 0 })
-        }
-        if (options['FMaterialId.FNumber']) {
-            data.FilterString.push({ Left: "", FieldName: "FMaterialId.FNumber", Compare: "67", Value: options['FMaterialId.FNumber'], Right: "", Logic: 0 })
-        }
-        if (options['FMaterialId.FNumber_cont']) {
-            data.FilterString.push({ Left: "", FieldName: "FMaterialId.FNumber", Compare: "81", Value: options['FMaterialId.FNumber_cont'], Right: "", Logic: 0 })
-        }
-        if (options['FMaterialName_cont']) {
-            data.FilterString.push({ Left: "", FieldName: "FMaterialName", Compare: "81", Value: options['FMaterialName_cont'], Right: "", Logic: 0 })
-        }
-        if (options['FModel_cont']) {
-            data.FilterString.push({ Left: "", FieldName: "FModel", Compare: "81", Value: options['FModel_cont'], Right: "", Logic: 0 })
-        }
-        if (options.FBatchNo) {
-            data.FilterString.push({ Left: "", FieldName: "FBatchNo", Compare: "67", Value: options.FBatchNo, Right: "", Logic: 0 })
-        }
-        if (options.FBillNo) {
-            data.FilterString.push({ Left: "", FieldName: "FBillNo", Compare: "67", Value: options.FBillNo, Right: "", Logic: 0 })
-        }
-        if (options.FBillNo_in) {
-            data.FilterString.push({ Left: "", FieldName: "FBillNo", Compare: "338", Value: options.FBillNo_in.join(','), Right: "", Logic: 0 })
-        }
-        if (options.FCreateTime_ge) {
-            data.FilterString.push({ Left: "", FieldName: "FCreateTime", Compare: "39", Value: options.FCreateTime_ge, Right: "", Logic: 0 })
-        }
-        if (options.FCreateTime_le) {
-            data.FilterString.push({ Left: "", FieldName: "FCreateTime", Compare: "16", Value: options.FCreateTime_le, Right: "", Logic: 0 })
+            FilterString: K3CloudApi.query_filter(options)
         }
         if (meta.per_page) {
             data.Limit = meta.per_page
@@ -184,22 +142,7 @@ class IssuemtrLog {
         const data = {
             FormId: "PAEZ_C_ISSUEMTR_LOG",
             FieldKeys: ['FOpType', 'FOpQTY', 'FCreateTime'].join(','),
-            FilterString: []
-        }
-        if (options.FOpType_in) {
-            data.FilterString.push({ Left: "", FieldName: "FOpType", Compare: "338", Value: options.FOpType_in.join(','), Right: "", Logic: 0 })
-        }
-        if (options['FMaterialId.FNumber']) {
-            data.FilterString.push({ Left: "", FieldName: "FMaterialId.FNumber", Compare: "67", Value: options['FMaterialId.FNumber'], Right: "", Logic: 0 })
-        }
-        if (options.FBatchNo) {
-            data.FilterString.push({ Left: "", FieldName: "FBatchNo", Compare: "67", Value: options.FBatchNo, Right: "", Logic: 0 })
-        }
-        if (options.FCreateTime_ge) {
-            data.FilterString.push({ Left: "", FieldName: "FCreateTime", Compare: "39", Value: options.FCreateTime_ge, Right: "", Logic: 0 })
-        }
-        if (options.FCreateTime_lt) {
-            data.FilterString.push({ Left: "", FieldName: "FCreateTime", Compare: "32", Value: options.FCreateTime_lt, Right: "", Logic: 0 })
+            FilterString: K3CloudApi.query_filter(options)
         }
         if (meta.per_page) {
             data.Limit = meta.per_page

@@ -501,11 +501,11 @@
             },
             async load_inv_plans_ex() {
                 uni.showLoading({ title: 'Loading' })
-                return InvPlan.query({ 
+                return InvPlan.query({
                     FStockId: store.state.cur_stock.FStockId,
                     FBillNo_ne: this.inbound_task.bill_no,
                     FOpType: 'in',
-                    FDocumentStatus_in: ['A', 'B']
+                    FDocumentStatu_in: ['A', 'B']
                 }, { order: 'FCreateTime ASC' }).then(res => {
                     this.$logger.info('>>> 加载其余入库计划，完毕')
                     uni.hideLoading()

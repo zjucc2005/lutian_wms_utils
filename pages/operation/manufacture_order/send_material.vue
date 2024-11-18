@@ -735,9 +735,7 @@
             // 发料用料日志
             async load_issuemtr_logs() {
                 let options = {
-                    FStockId: store.state.cur_stock.FStockId,
                     FBillNo_in: this.bills.map(x => x.bill_no),
-                    // FBillNo: this.bill.bill_no,
                     FOpType: this.op_type
                 }
                 let meta = { order: 'FID DESC' }
@@ -829,8 +827,8 @@
             async load_prd_mos() {
                 let options = { FStatus: '4' }
                 if (this.prd_mo_search_form.bill_no) options.FBillNo_cont = this.prd_mo_search_form.bill_no
-                if (this.prd_mo_search_form.sale_order_no) options.FSaleOrderNo_cont = this.prd_mo_search_form.sale_order_no
-                if (this.prd_mo_search_form.chanxian2) options['F_LT_CX.FName_cont'] = this.prd_mo_search_form.chanxian2
+                if (this.prd_mo_search_form.sale_order_no) options.FSaleOrderNo_lk = this.prd_mo_search_form.sale_order_no
+                if (this.prd_mo_search_form.chanxian2) options['F_LT_CX.FName_lk'] = this.prd_mo_search_form.chanxian2
                 let meta = { order: 'FID DESC', page: this.prd_mo_search_form.page, per_page: this.prd_mo_search_form.per_page }
                 uni.showLoading({ title: 'Loading' })
                 this.prd_mo_load_more_status = 'loading'

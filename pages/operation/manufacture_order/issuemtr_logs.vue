@@ -208,9 +208,9 @@
                 }
                 if (this.search_form.create_time_ge) options.FCreateTime_ge = this.search_form.create_time_ge
                 if (this.search_form.create_time_le) options.FCreateTime_le = this.search_form.create_time_le
-                if (this.search_form.material_no) options['FMaterialId.FNumber_cont'] = this.search_form.material_no
-                if (this.search_form.material_name) options['FMaterialName_cont'] = this.search_form.material_name
-                if (this.search_form.material_spec) options['FModel_cont'] = this.search_form.material_spec
+                if (this.search_form.material_no) options['FMaterialId.FNumber_lk'] = this.search_form.material_no
+                if (this.search_form.material_name) options['FMaterialName_lk'] = this.search_form.material_name
+                if (this.search_form.material_spec) options['FModel_lk'] = this.search_form.material_spec
                 if (this.search_form.bill_no) options.FBillNo = this.search_form.bill_no
                 let meta = { page: this.page, per_page: this.per_page, order: 'FID DESC' }
                 this.load_more_status = 'loading'

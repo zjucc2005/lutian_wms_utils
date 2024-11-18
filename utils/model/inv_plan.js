@@ -143,68 +143,8 @@ class InvPlan {
     static async query(options={}, meta={}) {
         const data = {
             FormId: "PAEZ_C_INV_PLAN",
-            FilterString: []
+            FilterString: K3CloudApi.query_filter(options)
         }
-        if (options.FID) {
-            data.FilterString.push({ Left: "", FieldName: "FID", Compare: "67", Value: options.FID, Right: "", Logic: 0 })
-        }
-        if (options.FDocumentStatus) {
-            data.FilterString.push({ Left: "", FieldName: "FDocumentStatu", Compare: "105", Value: options.FDocumentStatus, Right: "", Logic: 0})      
-        }
-        if (options.FDocumentStatus_in) {
-            if (options.FDocumentStatus_in.length == 1) {
-                data.FilterString.push({ Left: "", FieldName: "FDocumentStatu", Compare: "105", Value: options.FDocumentStatus_in[0], Right: "", Logic: 0})
-            }
-            if (options.FDocumentStatus_in.length > 1) {
-                let filters = []
-                options.FDocumentStatus_in.forEach(status => {
-                    filters.push({ Left: "", FieldName: "FDocumentStatu", Compare: "105", Value: status, Right: "", Logic: 1 })
-                })
-                filters[0].Left = '('
-                filters[filters.length - 1].Right = ')'
-                filters[filters.length - 1].Logic = 0
-                filters.forEach(filter => {
-                    data.FilterString.push(filter)
-                })
-            }
-        }
-        if (options.FOpType) {
-            data.FilterString.push({ Left: "", FieldName: "FOpType", Compare: "67", Value: options.FOpType, Right: "", Logic: 0 })
-        }
-        if (options.FOpType_in) {
-            data.FilterString.push({ Left: "", FieldName: "FOpType", Compare: "338", Value: options.FOpType_in.join(','), Right: "", Logic: 0 })
-        }
-        if (options.FStockId) {
-            data.FilterString.push({ Left: "", FieldName: "FStockId", Compare: "67", Value: options.FStockId, Right: "", Logic: 0 })
-        }
-        if (options['FMaterialId.FNumber']) {
-            data.FilterString.push({ Left: "", FieldName: "FMaterialId.FNumber", Compare: "67", Value: options['FMaterialId.FNumber'], Right: "", Logic: 0 })
-        }
-        if (options['FMaterialId.FNumber_cont']) {
-            data.FilterString.push({ Left: "", FieldName: "FMaterialId.FNumber", Compare: "81", Value: options['FMaterialId.FNumber_cont'], Right: "", Logic: 0 })
-        }
-        if (options['FMaterialName_cont']) {
-            data.FilterString.push({ Left: "", FieldName: "FMaterialName", Compare: "81", Value: options['FMaterialName_cont'], Right: "", Logic: 0 })
-        }
-        if (options['FModel_cont']) {
-            data.FilterString.push({ Left: "", FieldName: "FModel", Compare: "81", Value: options['FModel_cont'], Right: "", Logic: 0 })
-        }
-        if (options.FBatchNo) {
-            data.FilterString.push({ Left: "", FieldName: "FBatchNo", Compare: "67", Value: options.FBatchNo, Right: "", Logic: 0 })
-        }
-        if (options.FBillNo) {
-            data.FilterString.push({ Left: "", FieldName: "FBillNo", Compare: "67", Value: options.FBillNo, Right: "", Logic: 0 })
-        }
-        if (options.FBillNo_ne) {
-            data.FilterString.push({ Left: "", FieldName: "FBillNo", Compare: "83", Value: options.FBillNo_ne, Right: "", Logic: 0 })
-        }
-        if (options.FCreateTime_ge) {
-            data.FilterString.push({ Left: "", FieldName: "FCreateTime", Compare: "39", Value: options.FCreateTime_ge, Right: "", Logic: 0 })
-        }
-        if (options.FCreateTime_le) {
-            data.FilterString.push({ Left: "", FieldName: "FCreateTime", Compare: "16", Value: options.FCreateTime_le, Right: "", Logic: 0 })
-        }
-        
         if (meta.per_page) {
             data.Limit = meta.per_page
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page

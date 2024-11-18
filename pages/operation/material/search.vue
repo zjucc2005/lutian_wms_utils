@@ -32,7 +32,6 @@
                 </button>
             </uni-forms>
         </view>
-        
     </uni-section>
     
     <view class="uni-goods-nav-wrapper">
@@ -80,7 +79,7 @@
 <script>
     import store from '@/store'
     import { play_audio_prompt } from '@/utils'
-    import { search_bd_materials } from '@/utils/api'
+    import { BdMaterial } from '@/utils/model'
     import K3CloudApi from '@/utils/k3cloudapi'
     import scan_code from '@/utils/scan_code'
     export default {
@@ -134,13 +133,13 @@
                 if (!this.search_form.material_no && !this.search_form.material_name && !this.search_form.material_spec) return
                 let options = {}
                 if (store.state.cur_stock.FUseOrgId) options.FUseOrgId = store.state.cur_stock.FUseOrgId
-                if (this.search_form.material_no) options.FNumber_cont = this.search_form.material_no
-                if (this.search_form.material_name) options.FName_cont = this.search_form.material_name
-                if (this.search_form.material_spec) options.FSpecification_cont = this.search_form.material_spec
-                if (this.search_form.ex_cond.includes('3.')) options.FNumber_pre = '3.'
+                if (this.search_form.material_no) options.FNumber_lk = this.search_form.material_no
+                if (this.search_form.material_name) options.FName_lk = this.search_form.material_name
+                if (this.search_form.material_spec) options.FSpecification_lk = this.search_form.material_spec
+                if (this.search_form.ex_cond.includes('3.')) options.FNumber_sw = '3.'
                 let meta = { per_page: 20, order: 'FMaterialId DESC' }
                 uni.showLoading({ title: 'Loading' })
-                search_bd_materials(options, meta).then(res => {
+                BdMaterial.query(options, meta).then(res => {
                     uni.hideLoading()
                     this.search_form.candidates = res.data
                     if (res.data.length > 1) this.$refs.search_drawer.open()
