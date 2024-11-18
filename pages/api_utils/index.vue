@@ -167,13 +167,23 @@
                 //     this.$logger.info('获取部门', res.data)
                 // })
                 
+                // const data = {
+                //     FormId: 'STK_Inventory',
+                //     FieldKeys: "FStockName,FBaseQty,FBaseUnitId.FName,FQty,FStockUnitId.FName,FSecQty,FSecUnitId.FName,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification",
+                //     Limit: 100,
+                //     FilterString: [
+                //         { Left: "", FieldName: "FMaterialId.FNumber", Compare: "67", Value: '3.01.02.01.04.0251', Right: "", Logic: 0 }
+                //     ]
+                // }
                 const data = {
-                    FormId: 'STK_Inventory',
-                    FieldKeys: "FStockName,FBaseQty,FBaseUnitId.FName,FQty,FStockUnitId.FName,FSecQty,FSecUnitId.FName,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification",
+                    FormId: 'BD_MATERIAL',
+                    FieldKeys: "FNumber,FName,FSpecification",
                     Limit: 100,
-                    FilterString: [
-                        { Left: "", FieldName: "FMaterialId.FNumber", Compare: "67", Value: '3.01.02.01.04.0251', Right: "", Logic: 0 }
-                    ]
+                    FilterString: "FForbiddderId IS NULL"
+                    // FilterString: [
+                    //     { Left: "", FieldName: "FModifierId.FName", Compare: "67", Value: 'Administrator', Right: "", Logic: 0 },
+                    //     { Left: '', FieldName: 'FModifyDate', Compare: '', Value: '2024-11-10', Right: '' , Logic: 0}
+                    // ]
                 }
                 K3CloudApi.bill_query(data)
                 

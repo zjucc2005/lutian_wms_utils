@@ -104,22 +104,36 @@
                 }
             },
             about() {
-                // #ifdef APP-PLUS
+                const base_info = uni.getAppBaseInfo()
                 uni.showModal({
                     title: '关于',
-                    content: `Version: ${plus.runtime.version}`, // app下使用
+                    content: [
+                        `名称: ${base_info.appName}`,
+                        `版本: ${base_info.appVersion}`,
+                        '作者: Cai Chang'
+                    ].join('\n'),
                     showCancel: false,
+                    confirmText: '关闭',
                     success: (res) => {},
                     fail: (err) => {}
                 })
-                // #endif
-                // #ifndef APP-PLUS
-                uni.showModal({
-                    title: '关于',
-                    content: '本功能仅在APP中使用',
-                    showCancel: false
-                })
-                // #endif
+                // // #ifdef APP-PLUS
+                // console.log('test', uni.getAppBaseInfo())
+                // uni.showModal({
+                //     title: '关于',
+                //     content: `Version: ${plus.runtime.version}\nAuthor: Cai Chang`, // app下使用
+                //     showCancel: false,
+                //     success: (res) => {},
+                //     fail: (err) => {}
+                // })
+                // // #endif
+                // // #ifdef H5
+                // uni.showModal({
+                //     title: '关于',
+                //     content: 'Author: Cai Chang',
+                //     showCancel: false
+                // })
+                // // #endif
             },
             goTo(path) {
                 uni.navigateTo({ url: `/pages/my/${path}` })

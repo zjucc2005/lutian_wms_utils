@@ -31,6 +31,8 @@ class Inv {
             FormId: "PAEZ_C_INV",
             FilterString: []
         }
+        let filter = []
+        
         if (options.FID) {
             data.FilterString.push({ Left: "", FieldName: "FID", Compare: "67", Value: options.FID, Right: "", Logic: 0 })
         }
@@ -85,12 +87,12 @@ class Inv {
         const data = {
             FormId: "PAEZ_C_INV",
             FieldKeys: fields.join(','),
-            FilterString: []
+            FilterString: ''
         }
-        if (options.FStockId) {
-            data.FilterString.push({ Left: "", FieldName: "FStockId", Compare: "67", Value: options.FStockId, Right: "", Logic: 0 })
-        }
-        data.FilterString.push({ Left: "", FieldName: "FQty", Compare: "21", Value: 0, Right: "", Logic: 0 })
+        let filters = []
+        if (options.FStockId) filters.push(`FStockId = ${options.FStockId}`)
+        filters.push('FQty > 0')
+        data.FilterString = filters.join(' AND ')
         if (meta.per_page) {
             data.Limit = meta.per_page
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page

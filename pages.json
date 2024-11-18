@@ -133,7 +133,7 @@
         },
         {
             "path": "pages/operation/manage/locs",
-            "style": { "navigationBarTitleText": "库位" }
+            "style": { "navigationBarTitleText": "库位", "enablePullDownRefresh": true }
         },
         {
             "path": "pages/operation/manage/loc_new",

@@ -66,6 +66,10 @@
         onShow() {
             this._set_goods_nav()
         },
+        onPullDownRefresh() {
+            this.refresh()
+            uni.stopPullDownRefresh()
+        },
         mounted() {
             StockLoc.query({ FStockId: store.state.cur_stock.FStockId, FForbidStatus: 'B' }).then(res => {
                 store.commit('update_stock_locs', res.data) // 只查询禁用库存
