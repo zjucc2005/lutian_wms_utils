@@ -19,31 +19,30 @@
                 :show-arrow="is_admin"
                 >
             </uni-list-item>
-            <uni-list-item title="创建组织" :right-text="bd_material.CreateOrgId.Name[0]?.Value" />
+            <!-- <uni-list-item title="创建组织" :right-text="bd_material.CreateOrgId.Name[0]?.Value" /> -->
             <uni-list-item title="使用组织" :right-text="bd_material.UseOrgId.Name[0]?.Value" />
-            <!-- <template v-if="['nrj_admin', 'guest'].includes($store.state.role)"> -->
-                <uni-list-item title="仓管员" :right-text="bd_material.F_PAEZ_Base1 ? bd_material.F_PAEZ_Base1.Name[0].Value : '' " />
-                <uni-list-item title="库位" :right-text="bd_material.F_PAEZ_Text_qtr2" />
-                <template v-for="(stk_inv, index) in stk_inventories" :key="index">
-                    <uni-list-item 
-                        title="库存量(基本单位)"
-                        :note="[
-                            `组织：${stk_inv['FStockOrgId.FName']}`,
-                            `仓库：${stk_inv.FStockName}`
-                        ].join('\n')"
-                        :right-text="[stk_inv.FBaseQty, bd_material.MaterialBase[0].BaseUnitId.Name[0].Value].join(' ')">
-                        <template #body>
-                            <view class="uni-list-item__body">
-                                <view class="title">库存量(基本单位)</view>
-                                <view class="note">
-                                    <view>组织：<text :class="stk_inv.FStockOrgId == $store.state.cur_stock.FUseOrgId ? 'text-primary' : ''">{{ stk_inv['FStockOrgId.FName'] }}</text></view> 
-                                    <view>仓库：{{ stk_inv.FStockName }}</view>
-                                </view>
+            <uni-list-item title="仓库" :right-text="bd_material.MaterialStock[0].StockId?.Name[0].Value" />
+            <uni-list-item title="仓管员" :right-text="bd_material.F_PAEZ_Base1 ? bd_material.F_PAEZ_Base1.Name[0].Value : '' " />
+            <uni-list-item title="库位" :right-text="bd_material.F_PAEZ_Text_qtr2" />
+            <template v-for="(stk_inv, index) in stk_inventories" :key="index">
+                <uni-list-item
+                    title="库存量(基本单位)"
+                    :note="[
+                        `组织：${stk_inv['FStockOrgId.FName']}`,
+                        `仓库：${stk_inv.FStockName}`
+                    ].join('\n')"
+                    :right-text="[stk_inv.FBaseQty, bd_material.MaterialBase[0].BaseUnitId.Name[0].Value].join(' ')">
+                    <template #body>
+                        <view class="uni-list-item__body">
+                            <view class="title">库存量(基本单位)</view>
+                            <view class="note">
+                                <view>组织：<text :class="stk_inv.FStockOrgId == $store.state.cur_stock.FUseOrgId ? 'text-primary' : ''">{{ stk_inv['FStockOrgId.FName'] }}</text></view> 
+                                <view>仓库：{{ stk_inv.FStockName }}</view>
                             </view>
-                        </template>
-                    </uni-list-item>
-                </template> 
-            <!-- </template> -->
+                        </view>
+                    </template>
+                </uni-list-item>
+            </template> 
         </uni-list>
         
         <!-- 图片展示，缩略图占位，等待原图加载完毕 -->
@@ -334,6 +333,13 @@
 </script>
 
 <style lang="scss" scoped>
+    .uni-list-item::v-deep {
+        .uni-list-item__extra-text {
+            color: #666;
+            font-size: 13px;
+        }
+    }
+    
     .image-card {
         margin: 10px;
         padding: 5px 5px 1px 5px;

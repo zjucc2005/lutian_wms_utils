@@ -1,5 +1,4 @@
 <template>
-    <!-- <uni-notice-bar text="测试版" single show-icon/> -->
     <uni-grid :column="grid_column" :highlight="true" :show-border="false">
         <template v-for="(nav, index) in navs" :key="index">
             <uni-grid-item v-if="nav.permission.includes($store.state.role) || nav.permission.includes('all')" @click="nav.action">
