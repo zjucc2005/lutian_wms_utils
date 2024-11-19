@@ -14,6 +14,7 @@
                     v-if="obj.material_no == plan_form.material_no && obj.dest_stock_id == $store.state.cur_stock.FStockId"
                     :right-text="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
                     @click="$refs.material_drawer.open()" clickable
+                    show-arrow
                     >
                     <template v-slot:body>
                         <view class="uni-list-item__body">

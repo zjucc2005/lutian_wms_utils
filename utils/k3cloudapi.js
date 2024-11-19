@@ -12,15 +12,15 @@ const set_header = () => {
     return { 'kdservice-sessionid': store.state.conn_info?.KDSVCSessionId }
 }
 
-const isConn = () => {
+const is_conn = () => {
     return (store.state.conn_info && store.state.conn_expired_at && store.state.conn_expired_at > Date.now())
 }
 
-const fullURL = (path) => {
+const full_url = (path) => {
     return `${api_config.endpoint}k3cloud/${path}`
 }
 
-const fieldKeys = (model_name) => {
+const default_field_keys = (model_name) => {
     return Object.getOwnPropertyNames(db_model[model_name]?.fields || {})
 }
 
@@ -39,11 +39,11 @@ const conn = async () => {
  */
 const conn_login_by_app_secret = async () => {
     return new Promise((resolve, reject) => {
-        if (isConn()) {
+        if (is_conn()) {
             return resolve(store.state.conn_info)
         }
         uni.request({
-            url: fullURL('Kingdee.BOS.WebApi.ServicesStub.AuthService.LoginByAppSecret.common.kdsvc'),
+            url: full_url('Kingdee.BOS.WebApi.ServicesStub.AuthService.LoginByAppSecret.common.kdsvc'),
             method: 'POST',
             data: { 
                 acctid: api_config.acctid, 
@@ -72,11 +72,11 @@ const conn_login_by_app_secret = async () => {
  */
 const conn_validate_user = async () => {
     return new Promise((resolve, reject) => {
-        if (isConn()) {
+        if (is_conn()) {
             return resolve(store.state.conn_info)
         }
         uni.request({
-            url: fullURL('Kingdee.BOS.WebApi.ServicesStub.AuthService.ValidateUser.common.kdsvc'),
+            url: full_url('Kingdee.BOS.WebApi.ServicesStub.AuthService.ValidateUser.common.kdsvc'),
             method: 'POST',
             data: { acctid: api_config.acctid, username: api_config.username, password: api_config.password, lcid: api_config.lcid },
             success: (res) => {
@@ -115,7 +115,7 @@ const view = async (form_id, data) => {
         return new Promise((resolve, reject) => {
             logger.info("K3CloudApi.view req:", form_id, _data_)
             uni.request({
-                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.View.common.kdsvc'),
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.View.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, data: _data_ },
@@ -157,7 +157,7 @@ const submit = async (form_id, data) => {
         return new Promise((resolve, reject) => {
             logger.info("K3CloudApi.submit req:", form_id, _data_)
             uni.request({
-                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Submit.common.kdsvc'),
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Submit.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, data: _data_ },
@@ -199,7 +199,7 @@ const audit = async (form_id, data) => {
         return new Promise((resolve, reject) => {
             logger.info("K3CloudApi.audit req:", form_id, _data_)
             uni.request({
-                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Audit.common.kdsvc'),
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Audit.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, data: _data_ },
@@ -240,7 +240,7 @@ const forbid = async (form_id, data) => {
         return new Promise((resolve, reject) => {
             logger.info("K3CloudApi.forbid req:", form_id, _data_)
             uni.request({
-                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteOperation.common.kdsvc'),
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteOperation.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, opNumber: 'Forbid', data: _data_ },
@@ -281,7 +281,7 @@ const enable = async (form_id, data) => {
         return new Promise((resolve, reject) => {
             logger.info("K3CloudApi.enable req:", form_id, _data_)
             uni.request({
-                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteOperation.common.kdsvc'),
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteOperation.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, opNumber: 'Enable', data: _data_ },
@@ -318,7 +318,7 @@ const _delete_ = async (form_id, data) => {
         return new Promise((resolve, reject) => {
             logger.info("K3CloudApi.delete req:", form_id, _data_)
             uni.request({
-                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Delete.common.kdsvc'),
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Delete.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, data: _data_ },
@@ -357,14 +357,13 @@ const _delete_ = async (form_id, data) => {
  */
 const save = async (form_id, data) => {
     const _data_ = {
-        // NeedReturnFields: fieldKeys(form_id),
         ...data
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
             logger.info("K3CloudApi.save req:", _data_)
             uni.request({
-                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Save.common.kdsvc'),
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Save.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, data: _data_ },
@@ -403,14 +402,13 @@ const save = async (form_id, data) => {
 */
 const batch_save = async (form_id, data) => {
     const _data_ = {
-        // NeedReturnFields: fieldKeys(form_id),
         ...data
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
             logger.info("K3CloudApi.save req:", form_id, _data_)
             uni.request({
-                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BatchSave.common.kdsvc'),
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BatchSave.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { formid: form_id, data: _data_ },
@@ -443,7 +441,7 @@ const batch_save = async (form_id, data) => {
 const execute_bill_query = async (data) => {
     const _data_ = {
         FormId: "",
-        FieldKeys: fieldKeys(data['FormId']).join(','),
+        FieldKeys: default_field_keys(data['FormId']).join(','),
         FilterString: [],
         OrderString: "",
         TopRowCount: 0,
@@ -457,7 +455,7 @@ const execute_bill_query = async (data) => {
             let t1 = Date.now()
             logger.info("K3CloudApi.execute_bill_query req:", _data_)
             uni.request({
-                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteBillQuery.common.kdsvc'),
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteBillQuery.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { data: _data_ },
@@ -491,7 +489,7 @@ const execute_bill_query = async (data) => {
 const bill_query = async (data) => {
     const _data_ = {
         FormId: "",
-        FieldKeys: fieldKeys(data['FormId']).join(','),
+        FieldKeys: default_field_keys(data['FormId']).join(','),
         FilterString: [],
         OrderString: "",
         TopRowCount: 0,
@@ -505,7 +503,7 @@ const bill_query = async (data) => {
             let t1 = Date.now()
             logger.info("K3CloudApi.bill_query req:", _data_)
             uni.request({
-                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BillQuery.common.kdsvc'),
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BillQuery.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { data: _data_ },
@@ -541,7 +539,7 @@ const upload_file = async (data) => {
             let t1 = Date.now()
             logger.info("K3CloudApi.upload_file req:", _data_)
             uni.request({
-                url: fullURL('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.UploadFile.common.kdsvc'),
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.UploadFile.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
                 data: { data: _data_ },
@@ -567,12 +565,12 @@ const upload_file = async (data) => {
 const download_url = (file_id, nail=0) => {
     return conn().then(_ => {
         let token = store.state.conn_info?.Context?.UserToken
-        return fullURL(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}&nail=${nail}`)
+        return full_url(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}&nail=${nail}`)
     })
 }
 const download_url_sync = (file_id, nail=0) => {
     let token = store.state.conn_info?.Context?.UserToken
-    return fullURL(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}&nail=${nail}`)
+    return full_url(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}&nail=${nail}`)
 }
 const thumbnail_url = (file_id, default_url='/static/default_40x40.png') => {
     return file_id?.trim() ? download_url_sync(file_id, 1, true) : default_url
@@ -588,7 +586,7 @@ const query_filter = (options = {}) => {
     let filters = []
     for (let k of Object.getOwnPropertyNames(options)) {
         let { field, compare } = match_suffix(k)
-        if (options[k] instanceof Date) options[k] = options[k].toLocaleString()
+        if (options[k] instanceof Date) options[k] = options[k].toLocaleString() // Date实例转成String
         switch (compare) {
             case 'eq': filters.push(`${field} = '${options[k]}'`);                         break;
             case 'ne': filters.push(`${field} != '${options[k]}'`);                        break;
@@ -613,12 +611,12 @@ const query_filter = (options = {}) => {
  */
 const match_suffix = (text) => {
     /**
-     * eq  等于  equal
-     * ne  不等于  not equal
+     * eq  等于  equal to
+     * ne  不等于  not equal to
      * gt  大于  greater than
-     * ge  大于等于  greater than or equal
+     * ge  大于等于  greater than or equal to
      * lt  小于  less than
-     * le  小于等于  less than or equal
+     * le  小于等于  less than or equal to
      * lk  相似:字符串  like (case_sensitive: false)
      * sw  开头 start with
      * ew  结尾 end with
@@ -634,6 +632,7 @@ const match_suffix = (text) => {
 
 const K3CloudApi = {
     conn,
+    full_url,
     view,
     submit,
     audit,

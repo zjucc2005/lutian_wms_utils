@@ -57,7 +57,6 @@
                     width: image_url.loading ? 0 : '100%',
                     height: image_url.loading ? 0 : ''
                 }"
-                :show-menu-by-longpress="true"
                 @click="image_preview(index)"
                 @load="image_url.loading = false"
                 />

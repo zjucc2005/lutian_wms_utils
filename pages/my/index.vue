@@ -32,6 +32,7 @@
             @click="logout" clickable
             />
     </uni-list>
+    <!-- <button @touchstart="touchstart" @touchmove="touchmove" @touchend="touchend">TOUCH</button> -->
 </template>
 
 <script>
@@ -43,6 +44,15 @@
             }
         },
         methods: {
+            // touchstart(e) {
+            //     console.log('touchstart', e)
+            // },
+            // touchmove(e) {
+            //     // console.log('touchmove', e)
+            // },
+            // touchend(e) {
+            //     console.log('touchend', e)
+            // },
             async check_update() {
                 // #ifdef APP-PLUS
                 // this.$logger.info('plus', plus)
@@ -117,23 +127,6 @@
                     success: (res) => {},
                     fail: (err) => {}
                 })
-                // // #ifdef APP-PLUS
-                // console.log('test', uni.getAppBaseInfo())
-                // uni.showModal({
-                //     title: '关于',
-                //     content: `Version: ${plus.runtime.version}\nAuthor: Cai Chang`, // app下使用
-                //     showCancel: false,
-                //     success: (res) => {},
-                //     fail: (err) => {}
-                // })
-                // // #endif
-                // // #ifdef H5
-                // uni.showModal({
-                //     title: '关于',
-                //     content: 'Author: Cai Chang',
-                //     showCancel: false
-                // })
-                // // #endif
             },
             goTo(path) {
                 uni.navigateTo({ url: `/pages/my/${path}` })
@@ -160,7 +153,6 @@
             //     })
             // },
             logout() {
-                const that = this
                 uni.showActionSheet({
                     itemList: ['退出登录'],
                     success: (e) => {

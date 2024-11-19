@@ -11,6 +11,7 @@
                     v-if="obj.material_no == plan_form.material_no"
                     :right-text="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
                     @click="$refs.material_drawer.open()" clickable
+                    show-arrow
                     >
                     <template v-slot:body>
                         <view class="uni-list-item__body">

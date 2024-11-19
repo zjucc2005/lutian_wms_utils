@@ -84,6 +84,10 @@
                 }
             }
         },
+        onPullDownRefresh() {
+            this.refresh()
+            uni.stopPullDownRefresh()
+        },
         mounted() {
             this.load_invs()
         },

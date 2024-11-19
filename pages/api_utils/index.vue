@@ -180,13 +180,33 @@
                     FieldKeys: "FNumber,FName,FSpecification",
                     Limit: 100,
                     FilterString: "FForbiddderId IS NULL"
-                    // FilterString: [
-                    //     { Left: "", FieldName: "FModifierId.FName", Compare: "67", Value: 'Administrator', Right: "", Logic: 0 },
-                    //     { Left: '', FieldName: 'FModifyDate', Compare: '', Value: '2024-11-10', Right: '' , Logic: 0}
-                    // ]
                 }
                 K3CloudApi.bill_query(data)
                 
+                // const data = { 
+                //     FormId: 'BD_MATERIAL',
+                //     GroupFieldKey: 'FMaterialGroup'
+                // }
+                // K3CloudApi.conn().then(_ => {
+                //     return new Promise((resolve, reject) => {
+                //         let t1 = Date.now()
+                //         uni.request({
+                //             url: K3CloudApi.full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.QueryGroupInfo.common.kdsvc'),
+                //             method: 'POST',
+                //             header: { 'kdservice-sessionid': store.state.conn_info?.KDSVCSessionId },
+                //             data: { formid: 'BD_MATERIAL', data: data },
+                //             success: (res) => {
+                //                 console.info("K3CloudApi.query_group_info res:", res)
+                //                 console.info('K3CloudApi.query_group_info cost', Date.now() - t1, 'ms')
+                //                 resolve(res)
+                //             },
+                //             fail: (err) => {
+                //                 console.info("K3CloudApi.query_group_info fail:", err)
+                //                 reject(err)
+                //             }
+                //         })
+                //     })    
+                // })
             },
             call_delete_api() {
                 // let form_id = 'PAEZ_C_INV'
