@@ -35,6 +35,7 @@
                 :extra-icon="{ color: '#007bff', size: '24', type: 'list' }"
                 title="点击选择物料"
                 @click="$refs.material_drawer.open()" clickable
+                show-arrow
             />
         </uni-list>
     </uni-section>
@@ -157,6 +158,7 @@
         <uni-goods-nav
             :options="goods_nav.options" 
             :button-group="goods_nav.button_group"
+            :fill="$store.state.goods_nav_fill"
             @click="goods_nav_click"
             @button-click="goods_nav_button_click"
         />

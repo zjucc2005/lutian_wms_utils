@@ -176,10 +176,9 @@
                 //     ]
                 // }
                 const data = {
-                    FormId: 'BD_MATERIAL',
-                    FieldKeys: "FNumber,FName,FSpecification",
-                    Limit: 100,
-                    FilterString: "FForbiddderId IS NULL"
+                    FormId: 'BAS_CMPItemData',
+                    FieldKeys: "FNumber,FName",
+                    Limit: 100
                 }
                 K3CloudApi.bill_query(data)
                 

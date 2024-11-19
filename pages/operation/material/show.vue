@@ -67,6 +67,7 @@
         <uni-goods-nav 
             :options="goods_nav.options" 
             :button-group="goods_nav.button_group"
+            :fill="$store.state.goods_nav_fill"
             @click="goods_nav_click"
             @buttonClick="goods_nav_button_click"
         />
@@ -144,7 +145,7 @@
                         { icon: 'image', text: '上传图片'}
                     ],
                     button_group: [
-                        { text: '物料资料卡模板', color: '#fff', backgroundColor: store.state.goods_nav_color.grey }
+                        { text: '打印模板', color: '#fff', backgroundColor: store.state.goods_nav_color.grey }
                     ]
                 }
             }

@@ -44,6 +44,7 @@
             <uni-goods-nav 
                 :options="goods_nav.options" 
                 :button-group="goods_nav.admin_button_group"
+                :fill="$store.state.goods_nav_fill"
                 @click="goods_nav_click"
                 @button-click="goods_nav_admin_button_click"
             />
@@ -76,6 +77,7 @@
             <uni-goods-nav 
                 :options="goods_nav.options" 
                 :button-group="goods_nav.staff_button_group"
+                :fill="$store.state.goods_nav_fill"
                 @click="goods_nav_click"
                 @button-click="goods_nav_staff_button_click"
             />

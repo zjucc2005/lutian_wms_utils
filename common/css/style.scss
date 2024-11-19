@@ -3,6 +3,7 @@
     display: none;
 }
 
+// 基础样式
 .container {
     // padding: 0 0.9375rem;
     padding: 0 15px;
@@ -10,7 +11,6 @@
 .searchbar-container {
     padding: 10px 15px;
 }
-
 .text-primary {
     color: $uni-color-primary;
 }
@@ -30,6 +30,7 @@
     font-size: 13px;
 }
 
+// 自定义样式
 .easyinput-suffix-text {
     color: $uni-text-color-placeholder;
     padding: 0 10px;

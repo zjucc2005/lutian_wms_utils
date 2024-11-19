@@ -210,6 +210,7 @@
         <uni-goods-nav 
             :options="goods_nav.options" 
             :button-group="goods_nav.button_group"
+            :fill="$store.state.goods_nav_fill"
             @click="goods_nav_click"
             @button-click="goods_nav_button_click"
         />
