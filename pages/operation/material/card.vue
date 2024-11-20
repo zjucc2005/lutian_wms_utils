@@ -178,14 +178,14 @@
                             text: { text: '参考图' }
                         },
                         {   
-                            span: 12,
+                            span: 12, style: { height: this.window_width * 0.25 + 'px' },
                             image: {
                                 url: await K3CloudApi.download_url(bd_material.ImageFileServer),
                                 style: { width: this.window_width * 0.5 + 'px', height: this.window_width * 0.25 + 'px' }
                             }
                         },
                         {   
-                            span: 6,
+                            span: 6, style: { height: this.window_width * 0.25 + 'px' },
                             style: { padding: '5px'},
                             qrcode: {
                                 ref: 'qrcode',
@@ -322,8 +322,9 @@
         }
     }
     .card-default::v-deep {
+        background-color: #fff;
         padding: 1px;
-        line-height: 2;
+        line-height: 1.5;
         font-weight: bold;
         font-size: 24px;
         .uni-col {
@@ -340,6 +341,7 @@
         .wlzlk-row {
             .uni-col {
                 padding: 4px;
+                height: 62px;
             }
         }
     }

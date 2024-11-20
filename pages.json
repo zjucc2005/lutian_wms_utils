@@ -238,6 +238,13 @@
         {
             "path": "pages/operation/material/card",
             "style": { "navigationBarTitleText": "物料资料卡模板" }
+        },
+        {
+            "path" : "components/cc-grid/cc-grid-item",
+            "style" : 
+            {
+                "navigationBarTitleText" : ""
+            }
         }
     ],
     "globalStyle": {

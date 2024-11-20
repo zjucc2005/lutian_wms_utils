@@ -1,4 +1,5 @@
 <template>
+    <!--
     <uni-grid :column="grid_column" :highlight="true" :show-border="false">
         <template v-for="(nav, index) in navs" :key="index">
             <uni-grid-item v-if="nav.permission.includes($store.state.role) || nav.permission.includes('all')" @click="nav.action">
@@ -9,13 +10,31 @@
             </uni-grid-item>
         </template>
     </uni-grid>
+    -->
+    
+    <!-- 自制组件，自适应窗口变化 -->
+    <cc-grid>
+        <template v-for="(nav, index) in navs" :key="index">
+            <cc-grid-item v-if="nav.permission.includes($store.state.role) || nav.permission.includes('all')" @click="nav.action">
+                <view class="grid-item-box">
+                    <image :src="nav.icon_path" mode="widthFix" class="grid-item-icon"></image>
+                    <text class="grid-item-text">{{ nav.name }}</text>
+                </view>
+            </cc-grid-item>
+        </template>
+    </cc-grid>
 </template>
 
 <script>
     import store from '@/store'
     import { play_audio_prompt } from '@/utils'
     import scan_code from '@/utils/scan_code'
+    import ccGrid from '@/components/cc-grid/cc-grid.vue'
+    import ccGridItem from '@/components/cc-grid/cc-grid-item.vue'
     export default {
+        components: {
+            ccGrid, ccGridItem
+        },
         data() {
             return {
                 // 导航界面信息

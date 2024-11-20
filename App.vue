@@ -10,7 +10,6 @@
                 uni.getSystemInfo({
                     success: (gsi_res) => { 
                         store.commit('set_system_info', gsi_res)
-                        // this.$logger.info('>>> 重新渲染页面')
                     }
                 })    
             })

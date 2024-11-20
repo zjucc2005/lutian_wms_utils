@@ -2,8 +2,8 @@
     "name" : "绿田WMS",
     "appid" : "__UNI__EFA5C5A",
     "description" : "绿田机械库存管理工具",
-    "versionName" : "1.0.8",
-    "versionCode" : 108,
+    "versionName" : "1.0.9",
+    "versionCode" : 109,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {
