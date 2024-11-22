@@ -1,6 +1,6 @@
 <template>
-    <view :style="{ width: width + 'px', height: width + 'px' }">
-        <view :class="{'cc-grid-highlight': highlight }" class="cc-grid-item" @click="_click">
+    <view :style="{ width: grid.grid_width + 'px', height: grid.grid_width + 'px' }">
+        <view :class="{ 'cc-grid-highlight': grid.highlight }" class="cc-grid-item" @click="_click">
             <slot />
         </view>
     </view>
@@ -13,15 +13,6 @@
         inject: ['grid'],
         data() {
             return {
-                highlight: true
-            }
-        },
-        created() {
-            this.highlight = this.grid.highlight
-        },
-        computed: {
-            width() {
-                return this.grid.grid_width
             }
         },
         methods: {
@@ -40,7 +31,7 @@
         cursor: pointer;
         /* #endif */
     }
-	.cc-grid-highlight:active {
-		background-color: #f1f1f1;
-	}
+    .cc-grid-highlight:active {
+        background-color: #f1f1f1;
+    }
 </style>

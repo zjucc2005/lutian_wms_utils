@@ -140,7 +140,7 @@
                 edit_form: { name: '', type: 'text', field: '', value: '', value_was: '' },
                 goods_nav: {
                     options: [
-                        { icon: 'left', text: '返回', info: 0 },
+                        { icon: 'left', text: '返回' },
                         { icon: 'image', text: '上传图片'}
                     ],
                     button_group: [

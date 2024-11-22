@@ -40,51 +40,51 @@
                 // 导航界面信息
                 navs: [
                     {
-                        name: '入库', permission: ['wh_admin'], icon_path: '/static/icon/ruku.png',
+                        name: '入库', permission: ['wh_admin'], icon_path: '/static/icon/nav_stock_in.png',
                         action: () => { this.goTo('inbound/v2/index') }
                     },
                     {
-                        name: '出库', permission: ['wh_admin'], icon_path: '/static/icon/chuku.png',
+                        name: '出库', permission: ['wh_admin'], icon_path: '/static/icon/nav_stock_out.png',
                         action: () => { this.goTo('outbound/v2/index') }
                     },
                     {
-                        name: '库存调整', permission: ['wh_admin'], icon_path: '/static/icon/kucuntiaozheng.png',
+                        name: '库存调整', permission: ['wh_admin'], icon_path: '/static/icon/nav_stock_move.png',
                         action: () => { this.goTo('move/v2/index') }
                     },
                     {
-                        name: '生产订单', permission: ['nrj_admin', 'guest'], icon_path: '/static/icon/zuoyefenpei_red.png',
+                        name: '生产订单', permission: ['nrj_admin', 'guest'], icon_path: '/static/icon/nav_list_move.png',
                         action: () => { this.goTo('manufacture_order/index') }
                     },
                     {
-                        name: '库存查询', permission: ['wh_admin', 'wh_staff'], icon_path: '/static/icon/saomiao.png',
+                        name: '库存查询', permission: ['wh_admin', 'wh_staff'], icon_path: '/static/icon/nav_scan.png',
                         action: () => { this.inv_search() }
                     },
                     {
-                        name: '库存总览', permission: ['wh_admin'], icon_path: '/static/icon/kucun.png',
+                        name: '库存总览', permission: ['wh_admin'], icon_path: '/static/icon/nav_stock.png',
                         action: () => { this.goTo('manage/invs') }
                     },
                     {
-                        name: '库位管理', permission: ['wh_admin'], icon_path: '/static/icon/kuwei.png',
+                        name: '库位管理', permission: ['wh_admin'], icon_path: '/static/icon/nav_stock_loc.png',
                         action: () => { this.goTo('manage/locs') }
                     },
                     {
-                        name: '库位报警', permission: ['wh_staff'], icon_path: '/static/icon/kuweibaojing.png',
+                        name: '库位报警', permission: ['wh_staff'], icon_path: '/static/icon/nav_stock_warn.png',
                         action: () => { this.goTo('manage/locs') }
                     },
                     {
-                        name: '物料查询', permission: ['all'], icon_path: '/static/icon/chaxunkucun.png',
+                        name: '物料查询', permission: ['all'], icon_path: '/static/icon/nav_stock_search.png',
                         action: () => { this.goTo('material/search') }
                     },
                     {
-                        name: '列表', permission: ['wh_admin'], icon_path: '/static/icon/liebiao.png',
+                        name: '列表', permission: ['wh_admin'], icon_path: '/static/icon/nav_list_search.png',
                         action: () => { this.goTo('list/index') }
                     },
                     {
-                        name: '统计', permission: ['wh_admin'], icon_path: '/static/icon/tongji.png',
+                        name: '统计', permission: ['wh_admin'], icon_path: '/static/icon/nav_chart.png',
                         action: () => { this.goTo('statistics/index') }
                     },
                     // {
-                    //     name: '其他功能', permission: ['wh_admin'], icon_path: '/static/icon/qita.png',
+                    //     name: '其他功能', permission: ['wh_admin'], icon_path: '/static/icon/nav_others.png',
                     //     action: () => { this.goTo('manage/index') }
                     // }
                 ]
@@ -137,6 +137,6 @@
         
     }
     .grid-item-icon {
-        width: 60px;
+        width: 64px;
     }
 </style>

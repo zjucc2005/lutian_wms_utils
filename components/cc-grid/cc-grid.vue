@@ -39,8 +39,8 @@
             grid_width() {
                 let window_width = store.state.system_info.windowWidth
                 if (this.column) return this.column
-                let column = window_width > 750 ? 6 : 3
-                return Math.max(125, Math.floor(window_width / column)) 
+                let column = window_width >= 768 ? 6 : 3
+                return Math.max(128, Math.floor(window_width / column)) 
             }
         }
     }

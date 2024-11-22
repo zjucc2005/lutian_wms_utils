@@ -126,10 +126,11 @@
                     </uni-easyinput>
                 </uni-forms-item>
             </uni-forms>
+            <button @click="submit_save" type="primary">
+                <uni-icons type="checkmarkempty" color="#fff"></uni-icons> 提交
+            </button>
         </view> 
-        <button @click="submit_save" type="primary" class="form-btn">
-            <uni-icons type="checkmarkempty" color="#fff"></uni-icons> 提交
-        </button>
+        
     </uni-section>
     
     <uni-section title="追踪物料列表" type="square"

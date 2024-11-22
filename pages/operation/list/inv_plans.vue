@@ -1,5 +1,44 @@
 <template>
-    <uni-list>
+    <uni-table v-if="$store.state.system_info.windowWidth >= 1200" ref="table" border stripe>
+        <uni-tr>
+            <uni-th align="center" width="160">时间</uni-th>
+            <uni-th align="center" width="80">操作类型</uni-th>
+            <uni-th align="center" width="60">数量</uni-th>
+            <uni-th align="center" width="80">计量单位</uni-th>
+            <uni-th align="center" width="160">物料编码</uni-th>
+            <uni-th align="center" width="200">物料名称</uni-th>
+            <uni-th align="center">规格型号</uni-th>
+            <uni-th align="center" width="80">批次</uni-th>
+            <uni-th align="center" width="120">库位</uni-th>
+            <uni-th align="center" width="120">目标库位</uni-th>
+            <uni-th align="center">单据编号</uni-th>
+            <uni-th align="center">备注</uni-th>
+            <uni-th align="center" width="120">操作员工编号</uni-th>
+            <uni-th align="center" width="80">状态</uni-th>
+        </uni-tr>
+        <uni-tr v-for="(inv_plan, index) in inv_plans" :key="index">
+            <uni-td>{{ formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</uni-td>
+            <uni-td>
+                <view v-if="['in', 'add'].includes(inv_plan.FOpType)" class="text-error">{{ op_type_dict[inv_plan.FOpType] }}</view>
+                <view v-if="['out', 'sub'].includes(inv_plan.FOpType)" class="text-primary">{{ op_type_dict[inv_plan.FOpType] }}</view>
+                <view v-if="['mv'].includes(inv_plan.FOpType)">{{ op_type_dict[inv_plan.FOpType] }}</view>
+            </uni-td>
+            <uni-td>{{ inv_plan['FOpQTY'] }}</uni-td>
+            <uni-td>{{ inv_plan['FStockUnitId.FName'] }}</uni-td>
+            <uni-td>{{ inv_plan['FMaterialId.FNumber'] }}</uni-td>
+            <uni-td>{{ inv_plan['FMaterialId.FName'] }}</uni-td>
+            <uni-td>{{ inv_plan['FMaterialId.FSpecification'] }}</uni-td>
+            <uni-td>{{ inv_plan.FBatchNo }}</uni-td>
+            <uni-td>{{ inv_plan['FStockLocId.FNumber'] }}</uni-td>
+            <uni-td><text class="text-primary">{{ inv_plan['FDestStockLocId.FNumber'] }}</text></uni-td>
+            <uni-td>{{ inv_plan.FBillNo }}</uni-td>
+            <uni-td>{{ inv_plan.FRemark }}</uni-td>
+            <uni-td>{{ inv_plan.FOpStaffNo }}</uni-td>
+            <uni-td><text class="text-primary">{{ $store.state.document_status_dict[inv_plan.FDocumentStatu] }}</text></uni-td>
+        </uni-tr>
+    </uni-table>
+    
+    <uni-list v-else>
         <uni-list-item
             v-for="(inv_plan, index) in inv_plans"
             :key="index"
@@ -8,7 +47,7 @@
                 <view class="uni-list-item__body">
                     <view class="title">{{ inv_plan['FMaterialId.FNumber'] }}</view>
                     <view class="note">
-                        <view>名称：{{ inv_plan['FMaterialId.FName'] }}</view> 
+                        <view>名称：{{ inv_plan['FMaterialId.FName'] }}</view>
                         <view>规格：{{ inv_plan['FMaterialId.FSpecification'] }}</view>
                         <view>批次：{{ inv_plan.FBatchNo }}</view>
                         <view>
@@ -96,7 +135,7 @@
                     bill_no: ''
                 },
                 page: 1,
-                per_page: 20,
+                per_page: 25,
                 load_more_status: 'more', // more,loading,nomore
                 op_type_dict: InvPlan.FOpTypeEnum,
                 fab_content: [
@@ -113,24 +152,6 @@
                         active: false
                     }
                 ]
-                // tr_fields: {
-                //     FOpType: "操作类型",
-                //     FOpQTY: "操作数量",
-                //     'FMaterialId.FName': "名称",
-                //     'FMaterialId.FSpecification': '规格',
-                //     'FMaterialId.FNumber': "物料编码",
-                //     'FStockUnitId.FName': '计量单位',
-                //     'FStockLocId.FNumber': "库位号",
-                //     FBatchNo: "批次号",
-                //     'FDestStockLocId.FNumber': "目标库位号",
-                //     FBillNo: "单据编号",
-                //     FRemark: "备注",
-                //     FDocumentStatu: "状态",
-                //     FOpStaffNo: "员工编号",
-                //     FCreateTime: "新建时间"
-                // },
-                
-
             }
         },
         onPullDownRefresh() {
