@@ -2,41 +2,43 @@
     <view class="container">
         <view class="logo-wrapper">
             <image src="/static/logo-wms.png"></image>
-            <view>内销货位</view>
+            <view>绿田WMS测试版 {{ 'v' + $store.state.system_info.appVersion }}</view>
         </view>
         <view class="form-wrapper">
-            <uni-forms ref="login_form" :model="login_form"  :rules="login_form_rules" labelWidth="60px" class="form">
-                <uni-forms-item label="仓库" name="stock_id">
-                    <uni-data-picker
-                        ref="stock_id_data_picker"
-                        v-model="login_form.stock_id"
-                        :localdata="stock_opts"
-                        @change="handle_stock_change"
-                        popup-title="请选择所属仓库"
-                        class="hidden-data-picker"                    
-                        >
-                        <template v-slot:default>
-                            <view class="custom-data-picker-input">
-                                <text v-if="login_form?.stock_id" class="selected">
-                                    {{ selected_stock_info() }}
-                                </text>
-                                <template v-else>
-                                    <text class="placeholder">请选择</text>
-                                </template>
-                                <uni-icons type="down" color="#999"></uni-icons>
-                            </view>
-                        </template>
-                    </uni-data-picker>
-                </uni-forms-item>
-                <uni-forms-item label="姓名" name="staff_name">
-                    <uni-easyinput v-model="login_form.staff_name" trim="both" />
-                </uni-forms-item>
-                <uni-forms-item label="工号" name="staff_no">
-                    <uni-easyinput v-model="login_form.staff_no" trim="both" />
-                </uni-forms-item>
-                <button type="primary" @click="submit_login">登录</button>
-                <button @click="$refs.guest_login_dialog.open()" class="uni-mt-11">访客账号登录</button>
-            </uni-forms>
+            <view class="form-box">
+                <uni-forms ref="login_form" :model="login_form"  :rules="login_form_rules" labelWidth="60px" class="form">
+                    <uni-forms-item label="仓库" name="stock_id">
+                        <uni-data-picker
+                            ref="stock_id_data_picker"
+                            v-model="login_form.stock_id"
+                            :localdata="stock_opts"
+                            @change="handle_stock_change"
+                            popup-title="请选择所属仓库"
+                            class="hidden-data-picker"
+                            >
+                            <template v-slot:default>
+                                <view class="custom-data-picker-input">
+                                    <text v-if="login_form?.stock_id" class="selected">
+                                        {{ selected_stock_info() }}
+                                    </text>
+                                    <template v-else>
+                                        <text class="placeholder">请选择</text>
+                                    </template>
+                                    <uni-icons type="down" color="#999"></uni-icons>
+                                </view>
+                            </template>
+                        </uni-data-picker>
+                    </uni-forms-item>
+                    <uni-forms-item label="姓名" name="staff_name">
+                        <uni-easyinput v-model="login_form.staff_name" trim="both" />
+                    </uni-forms-item>
+                    <uni-forms-item label="工号" name="staff_no">
+                        <uni-easyinput v-model="login_form.staff_no" trim="both" />
+                    </uni-forms-item>
+                    <button type="primary" @click="submit_login">登录</button>
+                    <button @click="$refs.guest_login_dialog.open()" class="uni-mt-11">访客账号登录</button>
+                </uni-forms>
+            </view>
         </view>
     </view>
     
@@ -54,7 +56,7 @@
                 <uni-notice-bar text="访客账号为公用账号，只能使用指定的功能" single/>
                 
                 <uni-forms ref="guest_login_form" :model="guest_login_form" :rules="guest_login_form_rules">
-                    <uni-forms-item label="组织" name="use_org_id">
+                    <uni-forms-item label="组织" name="org_id">
                         <uni-data-select
                             v-model="guest_login_form.org_id"
                             :localdata="stock_opts"
@@ -220,6 +222,16 @@
 </script>
 
 <style lang="scss" scoped>
+    page {
+        height: 100%;
+    }
+    .container {
+        height: 100%;
+        background-image: url('@/static/bg-lutian.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+        // background-position: center;
+    }
     .logo-wrapper {
         text-align: center;
         padding: 22px 0;
@@ -229,15 +241,25 @@
         }
         view {
             font-size: $uni-font-size-sm;
-            color: $uni-text-color-grey;
+            color: $uni-text-color-inverse;
         }
     }
     .form-wrapper {
         display: flex;
         justify-content: center;
-        .form {
+        .form-box {
+            background-color: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            // backdrop-filter: blur(1px);
+            padding: 24px 15px;
+            border-radius: 15px;
+            max-width: 480px;
             width: 100%;
-            max-width: 600px;
+            .form::v-deep {
+                .uni-forms-item__label {
+                    color: #fff;
+                }
+            }
         }
     }
     .custom-data-picker-input {

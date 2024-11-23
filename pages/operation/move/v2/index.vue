@@ -51,6 +51,7 @@
                 </uni-list-item>
             </uni-list>
             
+            <uni-load-more v-if="inv_plans.length === 0" status="nomore" />
         </uni-section>
         
         <view class="uni-goods-nav-wrapper">

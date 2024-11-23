@@ -1,6 +1,6 @@
 <template>
     <uni-popup ref="flash" type="message">
-        <uni-popup-message :type="flash_type" :message="flash_msg" :duration="5000"></uni-popup-message>
+        <uni-popup-message :type="flash_type" :message="flash_msg" :duration="2000"></uni-popup-message>
     </uni-popup>
     
     <uni-section title="物料详情" type="square"

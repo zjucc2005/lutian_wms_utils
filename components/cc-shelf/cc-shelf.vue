@@ -78,10 +78,11 @@
 <script>
     /**
      * cc-shelf 网格化库位展示
+     * @property {Array} stock_locs 库位数据
      * @property {Array} invs 库存数据
      * @property {Number} column grid 列数
-     * @property {Boolean} open = [true|false] 是否展开组件
      * @property {Boolean} onlyInv = [true|false] 是否只展示有库存的货架
+     * @property {Boolean} open = [true|false] 是否展开组件
      * @event {Function} click 点击 grid 触发事件
      * @example <cc-shelf :stock_locs="[]" :invs="[{...}]" open></cc-shelf>
      */

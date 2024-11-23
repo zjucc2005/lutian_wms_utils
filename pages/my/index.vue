@@ -1,5 +1,19 @@
 <template>
-    <uni-list class="uni-mb-10">
+    <uni-list class="uni-mb-5">
+        <uni-list-item title="关于" style="padding: 12px 0;">
+            <template #header>
+                <view class="avatar-thumb">{{ $store.state.cur_staff.FName?.slice(-2) }}</view>
+            </template>
+            <template #body>
+                <view>
+                    <view class="avatar-name uni-mb-5">{{ $store.state.cur_staff.FName }}</view>
+                    <view class="avatar-number">{{ $store.state.cur_staff['FDeptId.FName'] }}</view>
+                </view>
+            </template>
+        </uni-list-item>
+    </uni-list>
+    
+    <uni-list class="uni-mb-5">
         <uni-list-item title="检查更新"
             :show-extra-icon="true"
             :extra-icon="{ type: 'loop', size: '24', color: '#007bff' }"
@@ -168,6 +182,24 @@
     }
 </script>
 
-<style>
-
+<style lang="scss" scoped>
+    .avatar-thumb {
+        width: 64px;
+        height: 64px;
+        margin-right: 18px;
+        background-color: #007bff;
+        border-radius: 5px;
+        color: #fff;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .avatar-name {
+        font-size: 16px;
+    }
+    .avatar-number {
+        font-size: 14px;
+        color: $uni-text-color-grey;
+    }
 </style>

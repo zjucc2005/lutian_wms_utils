@@ -38,6 +38,8 @@
                     </template>
                 </uni-list-item>
             </uni-list>
+            
+            <uni-load-more v-if="inv_plan_groups.length === 0" status="nomore" />
         </uni-section>
         
         <view class="uni-goods-nav-wrapper">

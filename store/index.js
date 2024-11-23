@@ -67,7 +67,7 @@ const store = createStore({
         },
         guest_login(state, params) {
             state.cur_stock = params.stock
-            state.cur_staff = { FName: '访客账号', FNumber: 'GUEST' }
+            state.cur_staff = { FName: '访客', FNumber: 'GUEST' }
             state.role = 'guest'
             state.snowflake = new Snowflake(0)
         },
