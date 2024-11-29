@@ -163,9 +163,9 @@
                 })
             },
             call_test_api() {
-                // K3CloudApi.view('BD_DEPARTMENT', { Number: 'BM10211' }).then(res => {
-                //     this.$logger.info('获取部门', res.data)
-                // })
+                K3CloudApi.view('BD_DEPARTMENT', { Number: 'BM10007' }).then(res => {
+                    this.$logger.info('获取部门', res.data)
+                })
                 
                 // const data = {
                 //     FormId: 'STK_Inventory',
@@ -175,12 +175,12 @@
                 //         { Left: "", FieldName: "FMaterialId.FNumber", Compare: "67", Value: '3.01.02.01.04.0251', Right: "", Logic: 0 }
                 //     ]
                 // }
-                const data = {
-                    FormId: 'BAS_CMPItemData',
-                    FieldKeys: "FNumber,FName",
-                    Limit: 100
-                }
-                K3CloudApi.bill_query(data)
+                // const data = {
+                //     FormId: 'BAS_CMPItemData',
+                //     FieldKeys: "FNumber,FName",
+                //     Limit: 100
+                // }
+                // K3CloudApi.bill_query(data)
                 
                 // const data = { 
                 //     FormId: 'BD_MATERIAL',

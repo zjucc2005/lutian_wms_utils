@@ -2,7 +2,7 @@
     "pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
         {
             "path": "pages/login",
-            "style":  { "navigationBarTitleText": "登录" }
+            "style":  { "navigationBarTitleText": "登录", "navigationStyle": "custom" }
         },
         // 仓库流程 VERSION 1
         {
@@ -238,18 +238,11 @@
         {
             "path": "pages/operation/material/card",
             "style": { "navigationBarTitleText": "物料资料卡模板" }
-        },
-        {
-            "path" : "components/cc-grid/cc-grid-item",
-            "style" : 
-            {
-                "navigationBarTitleText" : ""
-            }
         }
     ],
     "globalStyle": {
         "navigationBarTextStyle": "#fff",
-        "navigationBarTitleText": "uni-app",
+        "navigationBarTitleText": "app",
         "navigationBarBackgroundColor": "#007aff",
         "backgroundColor": "#F8F8F8",
         "console": true

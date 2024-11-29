@@ -44,7 +44,7 @@
     
     <uni-popup ref="guest_login_dialog" type="dialog">
         <uni-popup-dialog
-            type="error"
+            type="warn"
             title="访客账号登录"
             cancelText="关闭"
             @close="$refs.guest_login_dialog.close()"
@@ -234,7 +234,7 @@
     }
     .logo-wrapper {
         text-align: center;
-        padding: 22px 0;
+        padding: 100px 0 20px 0;
         image {
             width: 80px;
             height: 80px;
