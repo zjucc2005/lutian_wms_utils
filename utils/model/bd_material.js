@@ -21,7 +21,6 @@ class BdMaterial {
     /** 
      * 搜索物料基础数据(模糊匹配)
      * @param options:Hash 参数集
-     *   @field no:String 搜索关键字，编码/名称/规格模糊匹配
      * @param meta:Hash 
      *   @field page:Integer
      *   @field per_page:Integer
@@ -34,6 +33,30 @@ class BdMaterial {
                       "FUseOrgId.FName", "FImageFileServer"]
         const data = {
             FormId: 'BD_MATERIAL',
+            FieldKeys: fields.join(','),
+            FilterString: K3CloudApi.query_filter(options)
+        }
+        if (meta.per_page) {
+            data.Limit = meta.per_page
+            if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
+        }
+        if (meta.order) data.OrderString = meta.order
+        return K3CloudApi.bill_query(data)
+    }
+    
+    /**
+     * 搜索存货类别数据
+     * @param options:Hash 参数集
+     * @param meta:Hash 
+     *   @field page:Integer
+     *   @field per_page:Integer
+     *   @field order:String
+     * @return {Hash} Promise
+     */
+    static async categories (options={}, meta={}) {
+        let fields = ['FMasterId', 'FNumber', 'FName', 'FDocumentStatus', 'FForbidStatus', 'FCreateOrgId', 'FCreateOrgId.FName', 'FUseOrgId', 'FUseOrgId.FName']
+        const data = {
+            FormId: 'BD_MATERIALCATEGORY',
             FieldKeys: fields.join(','),
             FilterString: K3CloudApi.query_filter(options)
         }

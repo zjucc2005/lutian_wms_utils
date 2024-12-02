@@ -25,6 +25,7 @@ const store = createStore({
         process_version: 'v2',     // 流程版本
         snowflake: null,           // 雪花算法实例，全局运行一个实例      
         bd_stocks: [],             // 基础数据，仓库，bd_开头的数据均采用api获取时的状态，不做数据处理
+        bd_materialcategories: [], // 基础数据，存货类别
         stock_locs: [],            // 基础数据，库位，登录时获取，在库位管理处可重新获取（刷新）
         stock_loc_opts: [],        // 基础数据，库位，uni-data-picker 用格式
         document_status_dict: { A: '已创建', B: '已提交', C: '已审核' },
@@ -80,6 +81,9 @@ const store = createStore({
         },
         set_bd_stocks(state, bd_stocks) {
             state.bd_stocks = bd_stocks
+        },
+        set_bd_materialcategories(state, bd_materialcategories) {
+            state.bd_materialcategories = bd_materialcategories
         },
         set_stock_locs(state, stock_locs) {
             state.stock_locs = stock_locs

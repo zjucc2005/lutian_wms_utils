@@ -73,7 +73,7 @@
     import store from '@/store'
     import { play_audio_prompt } from '@/utils'
     import { validate_staff, get_bd_stocks } from '@/utils/api'
-    import { StockLoc } from '@/utils/model'
+    import { BdMaterial, StockLoc } from '@/utils/model'
     export default {
         data() {
             return {
@@ -130,16 +130,26 @@
             }
         },
         mounted() {
-           this.load_stocks()
+            (async () => {
+                await this.load_stocks()
+                await this.load_bd_materialcategory()
+            })()
         },
         methods: {
-            load_stocks() {
+            async load_bd_materialcategory() {
+                if (!store.state.bd_materialcategories?.length) {
+                    return BdMaterial.categories().then(res => {
+                        store.commit('set_bd_materialcategories', res.data)
+                    })
+                } 
+            },
+            async load_stocks() {
                 if (store.state.bd_stocks?.length) {
                     this.bd_stocks = store.state.bd_stocks
                     this.set_stock_opts()
                 } else {
                     uni.showLoading({ title: 'Loading' })
-                    get_bd_stocks().then(res => {
+                    return get_bd_stocks().then(res => {
                         uni.hideLoading()
                         store.commit('set_bd_stocks', res.data)
                         this.bd_stocks = res.data

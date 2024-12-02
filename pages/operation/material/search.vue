@@ -1,6 +1,6 @@
 <template>
     <uni-section title="查询物料" type="square">
-        <template v-slot:right>
+        <!-- <template v-slot:right>
             <view class="uni-section__right">
                 <uni-data-checkbox multiple
                     v-model="search_form.ex_cond"
@@ -10,7 +10,7 @@
                     >
                 </uni-data-checkbox>
             </view>
-        </template>
+        </template> -->
         <view class="container">
             <uni-forms ref="form" :model="search_form" labelWidth="70px">
                 <uni-forms-item label="编码" name="material_no">
@@ -26,6 +26,9 @@
                 </uni-forms-item>
                 <uni-forms-item label="规格" name="material_spec">
                     <uni-easyinput v-model="search_form.material_spec" trim="both"/>
+                </uni-forms-item>
+                <uni-forms-item label="存货类别" name="material_category_id">
+                    <uni-data-select v-model="search_form.material_category_id" :localdata="material_categories" />
                 </uni-forms-item>
                 <button @click="search" type="primary">
                     <uni-icons type="search" color="#fff"></uni-icons> 搜索
@@ -90,9 +93,11 @@
                     material_no: '',
                     material_name: '',
                     material_spec: '',
-                    ex_cond: uni.getStorageSync('mv_ex_cond') || [], // get
+                    material_category_id: '',
+                    // ex_cond: uni.getStorageSync('mv_ex_cond') || [], // get
                     candidates: []
                 },
+                material_categories: store.state.bd_materialcategories.map(x => { return { value: x.FMasterId, text: x.FName } }),
                 goods_nav: {
                     options: [
                         { icon: 'clear', text: '清空', info: 0 }
@@ -108,6 +113,7 @@
                 this.search_form.material_no = ''
                 this.search_form.material_name = ''
                 this.search_form.material_spec = ''
+                this.search_form.material_category_id = ''
             },
             ex_cond_change(e) {
                 uni.setStorageSync('mv_ex_cond', e.detail.value) // set
@@ -137,7 +143,8 @@
                 if (this.search_form.material_no) options.FNumber_lk = this.search_form.material_no
                 if (this.search_form.material_name) options.FName_lk = this.search_form.material_name
                 if (this.search_form.material_spec) options.FSpecification_lk = this.search_form.material_spec
-                if (this.search_form.ex_cond.includes('3.')) options.FNumber_sw = '3.'
+                if (this.search_form.material_category_id) options.FCategoryId = this.search_form.material_category_id
+                // if (this.search_form.ex_cond.includes('3.')) options.FNumber_sw = '3.'
                 let meta = { per_page: 20, order: 'FMaterialId DESC' }
                 uni.showLoading({ title: 'Loading' })
                 BdMaterial.query(options, meta).then(res => {

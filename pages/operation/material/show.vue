@@ -11,6 +11,7 @@
             <uni-list-item title="编码" :right-text="bd_material.Number" />
             <uni-list-item title="名称" :right-text="bd_material.Name[0]?.Value" />
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
+            <uni-list-item title="存货类别" :right-text="bd_material.MaterialBase[0].CategoryID.Name[0].Value" />
             <uni-list-item
                 title="单箱标准数量"
                 :right-text="bd_material.MaterialStock[0].BoxStandardQty.toString()"

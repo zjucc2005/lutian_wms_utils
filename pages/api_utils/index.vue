@@ -49,7 +49,7 @@
     import store from '@/store'
     import K3CloudApi from '@/utils/k3cloudapi'
     import { get_bd_material } from '@/utils/api'
-    import { Inv } from '@/utils/model'
+    import { Inv, BdMaterial } from '@/utils/model'
     export default {
         data() {
             return {
@@ -163,9 +163,10 @@
                 })
             },
             call_test_api() {
-                K3CloudApi.view('BD_DEPARTMENT', { Number: 'BM10007' }).then(res => {
-                    this.$logger.info('获取部门', res.data)
-                })
+                BdMaterial.categories()
+                // K3CloudApi.view('BD_DEPARTMENT', { Number: 'BM10007' }).then(res => {
+                //     this.$logger.info('获取部门', res.data)
+                // })
                 
                 // const data = {
                 //     FormId: 'STK_Inventory',
