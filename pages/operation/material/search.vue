@@ -97,7 +97,7 @@
                     // ex_cond: uni.getStorageSync('mv_ex_cond') || [], // get
                     candidates: []
                 },
-                material_categories: store.state.bd_materialcategories.map(x => { return { value: x.FMasterId, text: x.FName } }),
+                material_categories: [],
                 goods_nav: {
                     options: [
                         { icon: 'clear', text: '清空', info: 0 }
@@ -107,6 +107,9 @@
                     ]
                 }
             }
+        },
+        mounted() {
+            this.load_bd_materialcategories()
         },
         methods: {
             clear() {
@@ -155,17 +158,28 @@
                     if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
                 })
             },
+            async load_bd_materialcategories() {
+                if (!store.state.bd_materialcategories?.length) {
+                    uni.showLoading({ title: 'Loading' })
+                    await BdMaterial.categories().then(res => {
+                        uni.hideLoading()
+                        store.commit('set_bd_materialcategories', res.data)
+                    })
+                }
+                this.material_categories = store.state.bd_materialcategories.map(x => { return { value: x.FMasterId, text: x.FName } })
+            },
             async load_material(material_id) {
                 // this.$refs.search_drawer.close()
                 play_audio_prompt('success')
                 uni.navigateTo({ url: '/pages/operation/material/show?id=' + material_id })
             },
             _thumbnail_url(file_id) {
-                if(file_id.trim()) {
-                    return K3CloudApi.download_url_sync(file_id, 1, true)
-                } else {
-                    return '/static/default_40x40.png'
-                }
+                return K3CloudApi.thumbnail_url(file_id)
+                // if(file_id.trim()) {
+                //     return K3CloudApi.download_url_sync(file_id, 1, true)
+                // } else {
+                //     return '/static/default_40x40.png'
+                // }
             }
         }
     }

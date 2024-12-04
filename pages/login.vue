@@ -130,19 +130,9 @@
             }
         },
         mounted() {
-            (async () => {
-                await this.load_stocks()
-                await this.load_bd_materialcategory()
-            })()
+            this.load_stocks()
         },
         methods: {
-            async load_bd_materialcategory() {
-                if (!store.state.bd_materialcategories?.length) {
-                    return BdMaterial.categories().then(res => {
-                        store.commit('set_bd_materialcategories', res.data)
-                    })
-                } 
-            },
             async load_stocks() {
                 if (store.state.bd_stocks?.length) {
                     this.bd_stocks = store.state.bd_stocks
