@@ -1,11 +1,11 @@
 <template>
     <view>
         <uni-collapse accordion>
-        	<uni-collapse-item v-for="(val, key) in state" :key="key" :title="key">
+            <uni-collapse-item v-for="(val, key) in state" :key="key" :title="key">
                 <view class="container">
                     <text class="text-sm">{{ val || 'null' }}</text>
                 </view>
-        	</uni-collapse-item>
+            </uni-collapse-item>
         </uni-collapse>
     </view>
 </template>

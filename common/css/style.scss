@@ -26,8 +26,14 @@
 .text-grey {
     color: $uni-text-color-grey;
 }
+.text-bold {
+    font-weight: bold;
+}
+.text-lg {
+    font-size: $uni-font-size-lg;
+}
 .text-sm {
-    font-size: 13px;
+    font-size: $uni-font-size-sm;
 }
 
 // 自定义样式
@@ -48,6 +54,12 @@
         font-weight: bold;
     }
 }
+// #ifdef H5
+.uni-list-item:hover {
+    background-color: #f1f1f1 !important;
+}
+// #endif
+
 .uni-list-item__head {
     display: flex;
     // flex-direction: column;

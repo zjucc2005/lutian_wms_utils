@@ -2,7 +2,7 @@
     <uni-list class="uni-mb-5">
         <uni-list-item title="关于" style="padding: 12px 0;">
             <template #header>
-                <view class="avatar-thumb">{{ $store.state.cur_staff.FName?.slice(-2) }}</view>
+                <view class="avatar-thumb" @click="avatar_click">{{ $store.state.cur_staff.FName?.slice(-2) }}</view>
             </template>
             <template #body>
                 <view>
@@ -17,27 +17,23 @@
         <uni-list-item title="检查更新"
             :show-extra-icon="true"
             :extra-icon="{ type: 'loop', size: '24', color: '#007bff' }"
-            @click="check_update" clickable showArrow />
+            @click="check_update" clickable
+            show-arrow />
         <uni-list-item title="关于"
             :show-extra-icon="true"
             :extra-icon="{ type: 'info', size: '24', color: '#007bff' }"
-            @click="about" clickable showArrow />
-        <!-- <uni-list-item title="位置"
-            :show-extra-icon="true" 
-            :extra-icon="{ color: '#007bff', size: '24', type: 'location' }"
-            @click="open_location" clickable showArrow />
-        <uni-list-item title="选项1"
-            :show-extra-icon="true" 
-            :extra-icon="{ color: '#28a745', size: '24', type: 'paperplane' }"
-            clickable showArrow />
-        <uni-list-item title="选项2"
+            @click="about" clickable
+            show-arrow />
+        <uni-list-item v-if="door.open" title="K3Cloud"
             :show-extra-icon="true"
-            :extra-icon="{ color: '#007bff', size: '24', type: 'staff' }"
-            clickable showArrow />
-        <uni-list-item title="选项3"
+            :extra-icon="{ type: 'pyq', size: '24', color: '#007bff' }"
+            @click="link_to('/pages/k3cloud/index')" clickable
+            show-arrow />
+        <uni-list-item v-if="door.open" title="全局状态"
             :show-extra-icon="true"
-            :extra-icon="{ color: '#dc3545', size: '24', type: 'gear' }"
-            clickable showArrow /> -->
+            :extra-icon="{ type: 'settings', size: '24', color: '#007bff' }"
+            @click="link_to('/pages/api_utils/store/store')" clickable
+            show-arrow />
     </uni-list>
     <uni-list>
         <uni-list-item title="退出"
@@ -51,13 +47,42 @@
 
 <script>
     import store from '@/store'
+    import { link_to } from '@/utils'
     export default {
         data() {
             return {
-                buttonRect: {}
+                door: {
+                    count: 0,
+                    last_timestamp: 0,
+                    duration: 500,
+                    threshold: 7,
+                    open: false
+                }
             }
         },
+        onHide() {
+            this.door.open = false
+        },
         methods: {
+            link_to,
+            avatar_click(e) {
+                let timestamp = Date.now()
+                if (this.door.last_timestamp === 0) {
+                    this.door.count = 1
+                    this.door.last_timestamp = timestamp
+                } else {
+                    if (this.door.last_timestamp + this.door.duration >= timestamp) {
+                        this.door.count += 1
+                        this.door.last_timestamp = timestamp
+                    } else {
+                        this.door.count = 1
+                        this.door.last_timestamp = timestamp
+                    }
+                }
+                if (this.door.count >= this.door.threshold) {
+                    this.door.open = true
+                } 
+            },
             // touchstart(e) {
             //     console.log('touchstart', e)
             // },
@@ -141,9 +166,6 @@
                     success: (res) => {},
                     fail: (err) => {}
                 })
-            },
-            goTo(path) {
-                uni.navigateTo({ url: `/pages/my/${path}` })
             },
             // open_location () {
             //     uni.getLocation({

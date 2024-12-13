@@ -142,7 +142,8 @@
                 goods_nav: {
                     options: [
                         { icon: 'left', text: '返回' },
-                        { icon: 'image', text: '上传图片'}
+                        { icon: 'image', text: '上传图片'},
+                        { icon: 'search', text: 'BOM' }
                     ],
                     button_group: [
                         { text: '打印模板', color: '#fff', backgroundColor: store.state.goods_nav_color.grey }
@@ -191,6 +192,7 @@
             goods_nav_click(e) {
                 if (e.index === 0) uni.navigateBack()
                 if (e.index === 1) this.$refs.image_popup.open()
+                if (e.index === 2) this.search_bom()
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.select_material_card() // btn:物料资料卡模板
@@ -208,6 +210,22 @@
                     current: current,
                     urls: this.image_urls.map(x => x.original)
                 });
+            },
+            search_bom() {
+                uni.showActionSheet({
+                    itemList: ['查询父项物料', '查询子项物料'],
+                    success: (e) => {
+                        // console.log('search_bom e', e)
+                        if (e.tapIndex === 0) {
+                            play_audio_prompt('success')
+                            uni.navigateTo({ url: `/pages/k3cloud/eng_bom/tree?material_no=${this.bd_material.Number}&sup=true`})
+                        }
+                        if (e.tapIndex === 1) {
+                            play_audio_prompt('success')
+                            uni.navigateTo({ url: `/pages/k3cloud/eng_bom/tree?material_no=${this.bd_material.Number}&sup=false`})
+                        }
+                    }
+                })
             },
             select_material_card() {
                 if (!this.bd_material.Id) return

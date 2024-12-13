@@ -238,6 +238,19 @@
         {
             "path": "pages/operation/material/card",
             "style": { "navigationBarTitleText": "物料资料卡模板" }
+        },
+        // k3cloud
+        {
+            "path": "pages/k3cloud/index",
+            "style": { "navigationBarTitleText": "K3Cloud" }
+        },
+        {
+            "path": "pages/k3cloud/eng_bom/index",
+            "style": { "navigationBarTitleText": "物料清单" }
+        },
+        {
+            "path": "pages/k3cloud/eng_bom/tree",
+            "style": { "navigationBarTitleText": "物料清单" }
         }
     ],
     "globalStyle": {
@@ -255,17 +268,6 @@
         "borderStyle": "black",
         "backgroundColor": "#F8F8F8",
         "list": [
-            // {
-            //     "pagePath": "pages/login",
-            //     "text": "登录页",
-            //     "iconfont": {
-            //         "text": "\ue65d",
-            //         "color": "#7A7E83",
-            //         "selectedText": "\ue65d",
-            //         "fontSize": "24px",
-            //         "selectedColor": "#007aff"
-            //     }
-            // },
             // {
             //     "pagePath": "pages/operation/index_v1",
             //     "text": "仓库V1",
@@ -288,6 +290,17 @@
                     "selectedColor": "#007aff"
                 }
             },
+            // {
+            //     "pagePath": "pages/k3cloud/index",
+            //     "text": "K3Cloud",
+            //     "iconfont": {
+            //         "text": "\ue682",
+            //         "color": "#7A7E83",
+            //         "selectedText": "\ue682",
+            //         "fontSize": "24px",
+            //         "selectedColor": "#007aff"
+            //     }
+            // },
             {
                 "pagePath": "pages/my/index",
                 "text": "我",

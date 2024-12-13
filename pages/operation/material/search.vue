@@ -1,16 +1,5 @@
 <template>
     <uni-section title="查询物料" type="square">
-        <!-- <template v-slot:right>
-            <view class="uni-section__right">
-                <uni-data-checkbox multiple
-                    v-model="search_form.ex_cond"
-                    :localdata="[{ text: '只查询成品', value: '3.' }]"
-                    @change="ex_cond_change"
-                    style="margin-right: -20px;"
-                    >
-                </uni-data-checkbox>
-            </view>
-        </template> -->
         <view class="container">
             <uni-forms ref="form" :model="search_form" labelWidth="70px">
                 <uni-forms-item label="编码" name="material_no">
@@ -50,8 +39,8 @@
     <!-- 搜索候选列表 -->
     <uni-drawer ref="search_drawer" :width="$store.state.drawer_width">
         <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
-            <uni-section title="搜索结果" type="square"
-                sub-title="最多展示20条搜索结果"
+            <uni-section :title="`搜索结果 ${search_form.candidates.length} 条`" type="square"
+                sub-title="最多展示50条搜索结果"
                 >
                 <template v-slot:right>
                     <view class="uni-section__right">
@@ -94,7 +83,6 @@
                     material_name: '',
                     material_spec: '',
                     material_category_id: '',
-                    // ex_cond: uni.getStorageSync('mv_ex_cond') || [], // get
                     candidates: []
                 },
                 material_categories: [],
@@ -147,8 +135,7 @@
                 if (this.search_form.material_name) options.FName_lk = this.search_form.material_name
                 if (this.search_form.material_spec) options.FSpecification_lk = this.search_form.material_spec
                 if (this.search_form.material_category_id) options.FCategoryId = this.search_form.material_category_id
-                // if (this.search_form.ex_cond.includes('3.')) options.FNumber_sw = '3.'
-                let meta = { per_page: 20, order: 'FMaterialId DESC' }
+                let meta = { per_page: 50, order: 'FNumber ASC' }
                 uni.showLoading({ title: 'Loading' })
                 BdMaterial.query(options, meta).then(res => {
                     uni.hideLoading()
@@ -169,17 +156,12 @@
                 this.material_categories = store.state.bd_materialcategories.map(x => { return { value: x.FMasterId, text: x.FName } })
             },
             async load_material(material_id) {
-                // this.$refs.search_drawer.close()
+                this.$refs.search_drawer.close()
                 play_audio_prompt('success')
                 uni.navigateTo({ url: '/pages/operation/material/show?id=' + material_id })
             },
             _thumbnail_url(file_id) {
                 return K3CloudApi.thumbnail_url(file_id)
-                // if(file_id.trim()) {
-                //     return K3CloudApi.download_url_sync(file_id, 1, true)
-                // } else {
-                //     return '/static/default_40x40.png'
-                // }
             }
         }
     }

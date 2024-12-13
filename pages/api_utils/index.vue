@@ -163,10 +163,10 @@
                 })
             },
             call_test_api() {
-                BdMaterial.categories()
-                // K3CloudApi.view('BD_DEPARTMENT', { Number: 'BM10007' }).then(res => {
-                //     this.$logger.info('获取部门', res.data)
-                // })
+                // BdMaterial.categories()
+                K3CloudApi.view('ENG_BOM', { Number: '2.02.08.04.0065_V1.000' }).then(res => {
+                    this.$logger.info('获取物料清单', res.data)
+                })
                 
                 // const data = {
                 //     FormId: 'STK_Inventory',

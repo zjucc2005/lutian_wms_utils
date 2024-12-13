@@ -17,7 +17,6 @@
         <cc-shelf
             :stock_locs="$store.state.stock_locs"
             :invs="invs"
-
             :open="cc_shelf_open"
             forbidable
             />

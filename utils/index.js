@@ -37,7 +37,10 @@ const play_audio_prompt = (type) => {
     }
 }
 
-
+const link_to = (path) => {
+    play_audio_prompt('success')
+    uni.navigateTo({ url: path })
+}
 
 /**
  * 判断物料编码格式
@@ -123,6 +126,7 @@ export {
     to_raw,
     math_round,
     play_audio_prompt,
+    link_to,
     is_material_no_format,
     is_loc_no_std_format,
     is_decimal_unit,

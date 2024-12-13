@@ -230,8 +230,21 @@
         background-image: url('@/static/bg-lutian.jpg');
         background-repeat: no-repeat;
         background-size: cover;
+        animation: move_bg 60s linear infinite;
         // background-position: center;
     }
+    @keyframes move_bg {
+        0% {
+            background-position: left center;
+        }
+        50% {
+            background-position: right center;
+        }
+        100% {
+            background-position: left center
+        }
+    }
+
     .logo-wrapper {
         text-align: center;
         padding: 100px 0 20px 0;
