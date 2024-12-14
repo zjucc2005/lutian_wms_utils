@@ -19,7 +19,7 @@ class EngBom {
      */
     static async query (options={}, meta={}) {
         let fields = ['FID', "FName", "FNumber", "FForbidStatus", "FDocumentStatus", 'FUseOrgId', 'FUseOrgId.FName', 
-                      'FBomCategory', "FMaterialId", 'FMaterialId.FNumber', 'FItemName', 'FItemModel', 'FOperId']
+                      'FBomCategory', "FMaterialId", 'FMaterialId.FNumber', 'FItemName', 'FItemModel', 'FOperId', 'FITEMPPROPERTY']
         const data = {
             FormId: 'ENG_BOM',
             FieldKeys: fields.join(','),

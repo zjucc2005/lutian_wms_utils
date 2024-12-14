@@ -102,8 +102,8 @@
                                     uni.showLoading({ title: 'loading' })
                                     return validate_staff(this.login_form.staff_name, this.login_form.staff_no, this.login_form.org_id).then(staff => {
                                         uni.hideLoading()
-                                        if (staff) {
-                                            if (staff.FForbiddenStatus != '0') return callback("账号禁用")
+                                        if (staff?.FName) {
+                                            if (staff.FForbidStatus != 'A') return callback("账号禁用")
                                             this.staff = staff
                                         } else {
                                             return callback('姓名或工号或分属组织错误')

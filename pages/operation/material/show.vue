@@ -8,7 +8,7 @@
         class="above-uni-goods-nav"
         >
         <uni-list>
-            <uni-list-item title="编码" :right-text="bd_material.Number" />
+            <uni-list-item title="编码" :right-text="bd_material.Number" @click="show_qrcode" clickable show-arrow />
             <uni-list-item title="名称" :right-text="bd_material.Name[0]?.Value" />
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
             <uni-list-item title="存货类别" :right-text="bd_material.MaterialBase[0].CategoryID.Name[0].Value" />
@@ -63,7 +63,7 @@
         </view>       
     </uni-section>
     
-    <view v-if="is_admin" class="uni-goods-nav-wrapper">
+    <view class="uni-goods-nav-wrapper">
         <uni-goods-nav 
             :options="goods_nav.options" 
             :button-group="goods_nav.button_group"
@@ -103,6 +103,16 @@
         </uni-section>
     </uni-popup>
     
+    <uni-popup ref="qrcode_popup" type="dialog">
+        <uni-popup-dialog title="分享二维码" type="info" confirm-text="完成" :show-close="false" style="min-width: 320px;">
+            <view>
+                <uqrcode ref="qrcode" :canvas-id="canvas_id" :value="bd_material.Number" :size="270"
+                    :options="{  }"
+                    ></uqrcode>
+            </view>
+        </uni-popup-dialog>
+    </uni-popup>
+    
     <uni-popup ref="edit_popup" type="dialog">
         <uni-popup-dialog :title="edit_form.name"
             confirm-text="提交更新"
@@ -138,6 +148,7 @@
                 f_image_fields: ['FImageFileServer', 'F_PAEZ_ImageFileServer', 'F_PAEZ_ImageFileServer1'], // F + 图片字段
                 flash_type: '',
                 flash_msg: '',
+                canvas_id: '',
                 edit_form: { name: '', type: 'text', field: '', value: '', value_was: '' },
                 goods_nav: {
                     options: [
@@ -161,7 +172,7 @@
         },
         computed: {
             can_edit() {
-                return (store.state.cur_stock.FUseOrgId && store.state.cur_stock.FUseOrgId == this.bd_material.CreateOrgId.Id)
+                return (store.state.cur_stock.FUseOrgId && store.state.cur_stock.FUseOrgId == this.bd_material.CreateOrgId.Id && this.is_admin)
             },
             is_admin() {
                 return ['wh_admin', 'nrj_admin'].includes(store.state.role)
@@ -244,6 +255,10 @@
                         }
                     }
                 })
+            },
+            show_qrcode() {
+                this.canvas_id = 'qrcode_' + Date.now() // 每次设定不一样的canvas_id，修复popup重新打开后canvas显示空白的问题
+                this.$refs.qrcode_popup.open()
             },
             async image_delete(image_field_index) {
                 let params = {}

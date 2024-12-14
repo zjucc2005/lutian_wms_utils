@@ -200,6 +200,7 @@
             flex: 1;
             max-width: 480px;
             display: flex;
+            z-index: 1;
             margin: 3px 0;
             padding: 6px 12px;
             background-color: #fff;

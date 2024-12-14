@@ -13,26 +13,57 @@ import K3CloudApi from "@/utils/k3cloudapi";
  * @return { Hash/undefined } Promise
  */
 const validate_staff = async (staff_name, staff_no, org_id) => {
-    let fields = ['FID', 'FName', 'FNumber', 'FForbiddenStatus', 'FBizOrgId', 'FBizOrgId.FName', 'FDeptId', 'FDeptId.FName']
+    let result = { FOperatorGroup: [] }
+    // validate warehouseworker
+    let fields = ['FID', 'FName', 'FNumber', 'FForbidStatus', 'FBizOrgId', 'FBizOrgId.FName']
     const data = {
         FormId: "BD_WAREHOUSEWORKERS",
         FieldKeys: fields.concat(['FOperatorGroupId', 'FOperatorGroupId.FName']).join(','),
         FilterString: K3CloudApi.query_filter({ FName: staff_name, FNumber: staff_no, FBizOrgId: org_id })
     }
-    return K3CloudApi.bill_query(data).then(res => {
-        if (res.data.length === 0) {
-            return Promise.resolve(null)
-        } else {
-            let result = { FOperatorGroup: [] }
-            for (let i in fields) {
-                result[fields[i]] = res.data[0][fields[i]]
-            }
-            for (let i in res.data) {
-                result.FOperatorGroup.push(res.data[i]['FOperatorGroupId.FName'])
-            }
-            return Promise.resolve(result)
+    let wh_res = await K3CloudApi.bill_query(data)
+    if (wh_res.data.length > 0) {
+        for (let i in fields) {
+            result[fields[i]] = wh_res.data[0][fields[i]]
         }
-    })
+        for (let i in wh_res.data) {
+            result.FOperatorGroup.push(wh_res.data[i]['FOperatorGroupId.FName'])
+        }
+    }
+    if (result?.FName) return result
+    // validate employee
+    let emp_fields = ['FID', 'FName', 'FNumber', 'FForbidStatus', 'FUseOrgId', 'FUseOrgId.FName']
+    const emp_data = {
+        FormId: "BD_EMPINFO",
+        FieldKeys: emp_fields.join(','),
+        FilterString: K3CloudApi.query_filter({ FName: staff_name, FNumber: staff_no, FUseOrgId: org_id })
+    }
+    let emp_res = await K3CloudApi.bill_query(emp_data)
+    if (emp_res.data.length > 0) {
+        let d = emp_res.data[0]
+        result.FID = d.FID
+        result.FName = d.FName
+        result.FNumber = d.FNumber
+        result.FForbidStatus = d.FForbidStatus
+        result.FBizOrgId = d.FUseOrgId
+        result['FBizOrgId.FName'] = d['FUseOrgId.FName']
+    }
+    return result 
+    // return K3CloudApi.bill_query(data).then(res => {
+    //     if (res.data.length === 0) {
+    //         return Promise.resolve(null)
+    //     } else {
+    //         let result = { FOperatorGroup: [] }
+    //         for (let i in fields) {
+    //             result[fields[i]] = res.data[0][fields[i]]
+    //         }
+    //         for (let i in res.data) {
+    //             result.FOperatorGroup.push(res.data[i]['FOperatorGroupId.FName'])
+    //         }
+    //         return Promise.resolve(result)
+    //     }
+    // })
+    
 }
 
 /** 

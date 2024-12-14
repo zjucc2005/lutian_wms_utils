@@ -7,7 +7,7 @@
             <template #body>
                 <view>
                     <view class="avatar-name uni-mb-5">{{ $store.state.cur_staff.FName }}</view>
-                    <view class="avatar-number">{{ $store.state.cur_staff['FDeptId.FName'] }}</view>
+                    <!-- <view class="avatar-number">{{ $store.state.cur_staff['FDeptId.FName'] }}</view> -->
                 </view>
             </template>
         </uni-list-item>

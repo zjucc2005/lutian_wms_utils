@@ -2,6 +2,7 @@
  * 该文件为前端模型整合文件
  * import { ModelName } from '../model'
  */
+import Enum from './enum'
 import InboundTask from './inbound_task'
 import OutboundTask from './outbound_task'
 import MoveCart from './move_cart'
@@ -16,6 +17,7 @@ import PrdMo from './prd_mo'
 import StkInventory from './stk_inventory'
 import StockLoc from './stock_loc'
 export {
+    Enum,
     InboundTask,
     OutboundTask,
     MoveCart,
