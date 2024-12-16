@@ -30,7 +30,7 @@
                             <view class="vertical-line"></view>
                             <view class="cc-tree-card-item__section">
                                 <view class="horizontal-line"></view>
-                                <view class="cc-tree-card-item__card" @click="child.bom_id ? search_bom(child.material_no) : ''">
+                                <view class="cc-tree-card-item__card" @click="child.bom_id ? search_bom(child.bom_id, child.material_no) : ''">
                                     <view class="cc-tree-card-item__body">
                                         <view v-if="child.bom_id" class="title">{{ child.material_no }} / <text class="text-primary">{{ child.bom_no }}</text></view>
                                         <view v-else class="title">{{ child.material_no }}</view>
@@ -58,6 +58,9 @@
     import { EngBom } from '@/utils/model'
     export default {
         props: {
+            bom_id: {
+                type: String
+            },
             material_no: {
                 type: String
             },
@@ -74,7 +77,10 @@
         },
         onLoad(options) {
             this._props = options
-            if (options.material_no) {
+            if (options.bom_id) {
+                this.load_eng_bom(options.bom_id)
+            }
+            else if (options.material_no) {
                 this.load_eng_boms(options.material_no, options.sup)
             }
         },
@@ -82,8 +88,8 @@
             // this.load_eng_boms('2.05.02.01.03.0003')
         },
         methods: {
-            search_bom(material_no) {
-                link_to(`/pages/k3cloud/eng_bom/tree?material_no=${material_no}&sup=false`)
+            search_bom(bom_id, material_no) {
+                link_to(`/pages/k3cloud/eng_bom/tree?bom_id=${bom_id}&material_no=${material_no}&sup=false`)
             },
             toggle(obj) {
                 obj.open = !obj.open
@@ -99,6 +105,14 @@
                 obj.open = true
                 obj.loaded = true
             },
+            // tree中查询子项时，用bom_id精准查询
+            async load_eng_bom(bom_id) {
+                uni.showLoading({ title: 'Loading' })
+                let view_res = await EngBom.view(bom_id)
+                uni.hideLoading()
+                this.tree_data = this._handle_eng_bom(view_res)
+            },
+            // 通用查询，返回数据根据组织归类
             async load_eng_boms(material_no, sup) {
                 let options = { 'FForbidStatus': 'A' }
                 if (sup == 'true') {
@@ -135,6 +149,42 @@
                         await this.load_children(obj)
                     }
                 }
+            },
+            _handle_eng_bom(response) {
+                if (response.data.Result.ResponseStatus.IsSuccess) {
+                    let r = response.data.Result.Result
+                    let bom = {
+                        bom_id: r.Id,
+                        bom_no: r.Number,
+                        material_id: r.MATERIALID_Id,
+                        material_no: r.MATERIALID.Number,
+                        material_name: r.MATERIALID.Name[0].Value,
+                        material_spec: r.MATERIALID.Specification[0].Value,
+                        use_org_id: r.UseOrgId_Id,
+                        use_org_name: r.UseOrgId.Name[0].Value,
+                        open: true,
+                        loaded: true,
+                        children: []
+                    } 
+                    for (let entity of r.TreeEntity.sort((x,y) => x.Seq - y.Seq)) {
+                        if (entity.CHILDUNITID_Id) {
+                            bom.children.push({
+                                bom_id: entity.BOMID_Id,
+                                bom_no: entity.BOMID?.Number,
+                                material_id: entity.MATERIALIDCHILD_Id,
+                                material_no: entity.MATERIALIDCHILD.Number,
+                                material_name: entity.MATERIALIDCHILD.Name[0].Value,
+                                material_spec: entity.MATERIALIDCHILD.Specification[0].Value,
+                                unit_id: entity.CHILDUNITID_Id,
+                                unit_name: entity.CHILDUNITID.Name[0].Value,
+                                numerator: entity.NUMERATOR,
+                                denominator: entity.DENOMINATOR,
+                            })
+                        }
+                    }
+                    return [bom]
+                }
+                return []
             },
             _handle_eng_bom_children(response) {
                 if (response.data.Result.ResponseStatus.IsSuccess) {
