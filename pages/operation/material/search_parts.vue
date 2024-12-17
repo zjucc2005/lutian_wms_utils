@@ -1,6 +1,6 @@
 <template>
     <template v-if="step == 'search'">
-        <uni-notice-bar single scrollable text="请尽可能提供详细的查询条件,查询范围过大时,可能会超时导致失败" />
+        <uni-notice-bar single scrollable text="请尽可能提供详细的查询条件,查询范围过大时,可能会超时导致失败,模糊查找时 %(百分号) 可以代替任意数个字符" />
         <uni-forms ref="search_form" :model="search_form" :rules="search_form_rules" labelWidth="70px">
             <uni-section title="整机信息" type="square">
                 <view class="container">
@@ -186,7 +186,6 @@
         },
         mounted() {
             this.load_bd_materialcategories()
-            console.log('bd_stocks', store.state.bd_stocks.find(x => x.FName == '绿田待转库'))
         },
         methods: {
             activate_step(step) {
@@ -250,6 +249,12 @@
                     uni.showLoading({ title: '查询BOM...' })
                     let res = await EngBom.query(options, {})
                     uni.hideLoading()
+                    if (res.data?.Result && !res.data.Result.ResponseStatus.IsSuccess) {
+                        uni.showToast({
+                            icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message, duration: 3000
+                        })
+                        return
+                    }
                     if (res.data.length > 1000) {
                         uni.showToast({
                             icon: 'none', title: '查询超时', duration: 3000
