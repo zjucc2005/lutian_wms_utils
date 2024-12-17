@@ -164,49 +164,18 @@
             },
             call_test_api() {
                 // BdMaterial.categories()
-                K3CloudApi.view('ENG_BOM', { Number: '2.02.08.04.0065_V1.000' }).then(res => {
-                    this.$logger.info('获取物料清单', res.data)
-                })
-                
-                // const data = {
-                //     FormId: 'STK_Inventory',
-                //     FieldKeys: "FStockName,FBaseQty,FBaseUnitId.FName,FQty,FStockUnitId.FName,FSecQty,FSecUnitId.FName,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification",
-                //     Limit: 100,
-                //     FilterString: [
-                //         { Left: "", FieldName: "FMaterialId.FNumber", Compare: "67", Value: '3.01.02.01.04.0251', Right: "", Logic: 0 }
-                //     ]
-                // }
-                // const data = {
-                //     FormId: 'BAS_CMPItemData',
-                //     FieldKeys: "FNumber,FName",
-                //     Limit: 100
-                // }
-                // K3CloudApi.bill_query(data)
-                
-                // const data = { 
-                //     FormId: 'BD_MATERIAL',
-                //     GroupFieldKey: 'FMaterialGroup'
-                // }
-                // K3CloudApi.conn().then(_ => {
-                //     return new Promise((resolve, reject) => {
-                //         let t1 = Date.now()
-                //         uni.request({
-                //             url: K3CloudApi.full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.QueryGroupInfo.common.kdsvc'),
-                //             method: 'POST',
-                //             header: { 'kdservice-sessionid': store.state.conn_info?.KDSVCSessionId },
-                //             data: { formid: 'BD_MATERIAL', data: data },
-                //             success: (res) => {
-                //                 console.info("K3CloudApi.query_group_info res:", res)
-                //                 console.info('K3CloudApi.query_group_info cost', Date.now() - t1, 'ms')
-                //                 resolve(res)
-                //             },
-                //             fail: (err) => {
-                //                 console.info("K3CloudApi.query_group_info fail:", err)
-                //                 reject(err)
-                //             }
-                //         })
-                //     })    
+                // K3CloudApi.view('ENG_BOM', { Number: '2.02.08.04.0065_V1.000' }).then(res => {
+                //     this.$logger.info('获取物料清单', res.data)
                 // })
+                let fields = ['FID', "FName", "FNumber", "FForbidStatus", "FDocumentStatus", 'FUseOrgId', 'FUseOrgId.FName',
+                              'FBomCategory', "FMaterialId", 'FMaterialId.FNumber', 'FItemName', 'FItemModel', 'FOperId', 'FITEMPPROPERTY']
+                const data = {
+                    FormId: 'ENG_BOM',
+                    FieldKeys: fields.join(','),
+                    FilterString: "FItemModel like '%6500n-6%' OR FItemName like '%6500n-6%'",
+                    //FilterString: "FMaterialId.FNumber = '3.01.01.01.07.0072'"
+                }
+                K3CloudApi.bill_query(data)
             },
             call_delete_api() {
                 // let form_id = 'PAEZ_C_INV'

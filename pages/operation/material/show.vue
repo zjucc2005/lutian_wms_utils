@@ -314,7 +314,7 @@
                     }
                     // 加载即时库存数据
                     let inv_res = await StkInventory.query({ 'FMaterialId.FNumber': raw_data.Number })
-                    let stk_inventory = { FBaseQty: 0 }
+                    // let stk_inventory = { FBaseQty: 0 }
                     let stk_inventories = [] // 按不同仓库分开
                     for (let item of inv_res.data) {
                         let stk_inv = stk_inventories.find(x => x.FStockId == item.FStockId)

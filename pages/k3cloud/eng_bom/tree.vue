@@ -132,7 +132,7 @@
                             bom_no: d.FNumber,
                             material_id: d.FMaterialId,
                             material_no: d['FMaterialId.FNumber'],
-                            material_name: d.FItemName,
+                            material_name: d['FMaterialId.FName'],
                             material_spec: d.FItemModel,
                             use_org_id: d.FUseOrgId,
                             use_org_name: d['FUseOrgId.FName'],
@@ -216,7 +216,6 @@
 
 <style lang="scss" scoped>
     .cc-tree-card__sub {
-        // transition: all 0.3s linear;
         &>.cc-tree-card-item {
             &:first-child {
                 .vertical-line {

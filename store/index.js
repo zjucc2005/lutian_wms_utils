@@ -25,6 +25,7 @@ const store = createStore({
         process_version: 'v2',     // 流程版本
         snowflake: null,           // 雪花算法实例，全局运行一个实例      
         bd_stocks: [],             // 基础数据，仓库，bd_开头的数据均采用api获取时的状态，不做数据处理
+        bd_stock_opts: [],         // 基础数据，仓库，uni-data-picker 用格式
         bd_materialcategories: [], // 基础数据，存货类别
         stock_locs: [],            // 基础数据，库位，登录时获取，在库位管理处可重新获取（刷新）
         stock_loc_opts: [],        // 基础数据，库位，uni-data-picker 用格式
@@ -81,6 +82,25 @@ const store = createStore({
         },
         set_bd_stocks(state, bd_stocks) {
             state.bd_stocks = bd_stocks
+            let stock_opts = []
+            for (let d of bd_stocks) {
+                if (d.FDocumentStatus != 'C' || d.FForbidStatus != 'A') continue
+                let org = stock_opts.find(opt => opt.value === d.FUseOrgId)
+                if (!org) {
+                    org = { text: d['FUseOrgId.FName'], value: d.FUseOrgId, children: [] }
+                    stock_opts.push(org)
+                }
+                // DEBUG: data-picker 会扁平化数据，再去查找父级，父级value相同时数据会乱, group.value重新组装以保证唯一性
+                let group_value = [d.FUseOrgId, d.FGroup].join(',')
+                let group = org.children.find(x => x.value == group_value)
+                if (!group) {
+                    group = { text: d['FGroup.FName'] || '未分组', value: group_value, children: [] }
+                    org.children.push(group)
+                }
+                group.children.push({ text: d.FName, value: d.FStockId })
+            }
+            stock_opts.sort((x, y) => x.value - y.value) // 按组织编号排序
+            state.bd_stock_opts = stock_opts
         },
         set_bd_materialcategories(state, bd_materialcategories) {
             state.bd_materialcategories = bd_materialcategories

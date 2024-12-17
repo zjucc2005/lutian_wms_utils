@@ -239,6 +239,10 @@
             "path": "pages/operation/material/card",
             "style": { "navigationBarTitleText": "物料资料卡模板" }
         },
+        {
+            "path": "pages/operation/material/search_parts",
+            "style": { "navigationBarTitleText": "配件查询" }
+        },
         // k3cloud
         {
             "path": "pages/k3cloud/index",

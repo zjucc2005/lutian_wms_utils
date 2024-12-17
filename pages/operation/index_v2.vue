@@ -63,17 +63,17 @@
                         action: () => { link_to('/pages/operation/material/search') }
                     },
                     {
+                        name: '配件查询', permission: ['all'], icon_path: '/static/icon/nav_node_tree.png',
+                        action: () => { link_to('/pages/operation/material/search_parts') }
+                    },
+                    {
                         name: '列表', permission: ['wh_admin'], icon_path: '/static/icon/nav_list_search.png',
                         action: () => { link_to('/pages/operation/list/index') }
                     },
                     {
                         name: '统计', permission: ['wh_admin'], icon_path: '/static/icon/nav_chart.png',
                         action: () => { link_to('/pages/operation/statistics/index') }
-                    },
-                    // {
-                    //     name: 'BOM查询', permission: ['all'], icon_path: '/static/icon/nav_stock_search.png',
-                    //     action: () => { link_to('/pages/k3cloud/eng_bom/tree') }
-                    // },
+                    }
                     // {
                     //     name: '其他功能', permission: ['wh_admin'], icon_path: '/static/icon/nav_others.png',
                     //     action: () => { link_to('/pages/operation/manage/index') }

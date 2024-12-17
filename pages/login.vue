@@ -6,17 +6,17 @@
         </view>
         <view class="form-wrapper">
             <view class="form-box">
-                <uni-forms ref="login_form" :model="login_form"  :rules="login_form_rules" labelWidth="60px" class="form">
+                <uni-forms ref="login_form" :model="login_form" :rules="login_form_rules" labelWidth="60px" class="form">
                     <uni-forms-item label="仓库" name="stock_id">
                         <uni-data-picker
                             ref="stock_id_data_picker"
                             v-model="login_form.stock_id"
-                            :localdata="stock_opts"
+                            :localdata="bd_stock_opts"
                             @change="handle_stock_change"
                             popup-title="请选择所属仓库"
                             class="hidden-data-picker"
                             >
-                            <template v-slot:default>
+                            <template #default>
                                 <view class="custom-data-picker-input">
                                     <text v-if="login_form?.stock_id" class="selected">
                                         {{ selected_stock_info() }}
@@ -59,7 +59,7 @@
                     <uni-forms-item label="组织" name="org_id">
                         <uni-data-select
                             v-model="guest_login_form.org_id"
-                            :localdata="stock_opts"
+                            :localdata="bd_stock_opts"
                             :clear="false"
                         />
                     </uni-forms-item>
@@ -116,7 +116,7 @@
                 },
                 staff: {},
                 bd_stocks: [],
-                stock_opts: [], // 仓库分组，data-picker为[组织,分组,仓库]3级选择
+                bd_stock_opts: [], // 仓库分组，data-picker为[组织,分组,仓库]3级选择
                 guest_login_form: {
                     org_id: '', // store.state.cur_stock.FUseOrgId
                 },
@@ -134,44 +134,18 @@
         },
         methods: {
             async load_stocks() {
-                if (store.state.bd_stocks?.length) {
-                    this.bd_stocks = store.state.bd_stocks
-                    this.set_stock_opts()
-                } else {
+                if (!store.state.bd_stocks?.length) {
                     uni.showLoading({ title: 'Loading' })
-                    return get_bd_stocks().then(res => {
-                        uni.hideLoading()
-                        store.commit('set_bd_stocks', res.data)
-                        this.bd_stocks = res.data
-                        this.set_stock_opts()
-                    })
+                    let res = await get_bd_stocks()
+                    uni.hideLoading()
+                    store.commit('set_bd_stocks', res.data)
                 }
+                this.bd_stocks = store.state.bd_stocks
+                this.bd_stock_opts = store.state.bd_stock_opts
             },
-            set_stock_opts() {
-                // 组织 - 分组 - 仓库
-                const stock_opts = []
-                for (let d of this.bd_stocks) {
-                    if (d.FDocumentStatus != 'C' || d.FForbidStatus != 'A') continue
-                    let org = stock_opts.find(opt => opt.value === d.FUseOrgId)
-                    if (!org) {
-                        org = { text: d['FUseOrgId.FName'], value: d.FUseOrgId, children: [] }
-                        stock_opts.push(org)
-                    }
-                    // DEBUG: data-picker 会扁平化数据，再去查找父级，父级value相同时数据会乱, group.value重新组装以保证唯一性
-                    let group_value = [d.FUseOrgId, d.FGroup].join(',')
-                    let group = org.children.find(x => x.value == group_value)
-                    if (!group) {
-                        group = { text: d['FGroup.FName'] || '未分组', value: group_value, children: [] }
-                        org.children.push(group)
-                    }
-                    group.children.push({ text: d.FName, value: d.FStockId })
-                }
-                stock_opts.sort((x, y) => x.value - y.value) // 按组织编号排序
-                this.stock_opts = stock_opts
-            },
-            show_stock_opts() {
-                this.$refs.stock_id_data_picker.show()
-            },
+            // show_stock_opts() {
+            //     this.$refs.stock_id_data_picker.show()
+            // },
             handle_stock_change(e) {
                 this.login_form.org_id = e.detail.value[0]?.value
             },
@@ -201,7 +175,7 @@
             // 访客登录要设定组织
             submit_guest_login() {
                 this.$refs.guest_login_form.validate().then(res => {
-                    let opt = this.stock_opts.find(x => x.value == this.guest_login_form.org_id)
+                    let opt = this.bd_stock_opts.find(x => x.value == this.guest_login_form.org_id)
                     let params = {
                         stock: { 'FUseOrgId.FName': opt.text, FUseOrgId: opt.value }
                     }

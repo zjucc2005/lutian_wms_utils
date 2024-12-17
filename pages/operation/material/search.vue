@@ -106,9 +106,6 @@
                 this.search_form.material_spec = ''
                 this.search_form.material_category_id = ''
             },
-            ex_cond_change(e) {
-                uni.setStorageSync('mv_ex_cond', e.detail.value) // set
-            },
             goods_nav_click(e) {
                 if (e.index === 0) this.clear()
             },
