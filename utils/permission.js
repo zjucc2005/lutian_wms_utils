@@ -20,7 +20,7 @@ const get_system_role = (operator_group=[]) => {
     for (let item of nrj_admin_list) {
         if (operator_group.includes(item)) return 'nrj_admin'
     }
-    return ''
+    return 'default'
 }
 
 export default {

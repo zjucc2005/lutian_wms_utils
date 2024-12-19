@@ -47,7 +47,7 @@
                         <uni-data-picker
                             ref="stock_id_data_picker"
                             v-model="search_form.child_stock_id"
-                            :localdata="bd_stock_opts"
+                            :localdata="$store.state.bd_stock_opts"
                             popup-title="请选择配件仓库"
                             >
                         </uni-data-picker>
@@ -172,7 +172,6 @@
                 search_res: [], // 查询BOM结果
                 tree_data: [], // 组装树形结构数据
                 stk_inventory: {}, // 即时库存数据dict
-                bd_stock_opts: store.state.bd_stock_opts,
                 material_categories: [],
                 goods_nav: {
                     options: [
@@ -183,6 +182,23 @@
                     ]
                 }
             }
+        },
+        onShow() {
+            let _this_ = this
+            // 限制搜索结果阶段(step=show)一次性左滑退出
+            uni.addInterceptor('navigateBack', {
+                invoke(args) {
+                    if (_this_.step == 'show') {
+                        _this_.activate_step('search')
+                        return false 
+                    } else {
+                        return true
+                    }
+                }
+            })
+        },
+        onHide() {
+            uni.removeInterceptor('navigateBack')
         },
         mounted() {
             this.load_bd_materialcategories()
@@ -220,7 +236,6 @@
                 if (e.index === 0) {
                     if (this.step == 'search') this.search() // btn:搜索
                     if (this.step == 'show') this.activate_step('search')
-                    // if (this.step == 'show') console.log("this.$data", this.$data)
                 }
             },
             scan_code(field) {
@@ -245,7 +260,7 @@
                     if (this.search_form.child_material_no) options['FMaterialIdChild.FNumber_lk'] = this.search_form.child_material_no
                     if (this.search_form.child_material_name) options['FMaterialIdChild.FName_lk'] = this.search_form.child_material_name
                     if (this.search_form.child_material_spec) options['FChildItemModel_lk'] = this.search_form.child_material_spec
-                    console.log('search options', options)
+                    // console.log('search options', options)
                     uni.showLoading({ title: '查询BOM...' })
                     let res = await EngBom.query(options, {})
                     uni.hideLoading()

@@ -22,13 +22,15 @@
                             <view class="note">
                                 <view>名称：{{ obj.material_name }}</view> 
                                 <view>规格：{{ obj.material_spec }}</view>
-                                <view>
+<!--                                <view>
                                     <uni-icons type="home" color="#999"></uni-icons>
                                     <text class="src-stock">{{ obj.src_stock_name || '?' }}</text>
                                     <uni-icons type="redo" color="#007bff" style="margin: 0 5px;"></uni-icons> 
                                     <uni-icons type="home" color="#007bff" ></uni-icons>
                                     <text class="dest-stock">{{ obj.dest_stock_name }}</text>
-                                </view>
+                                </view> -->
+                                <view v-if="obj.src_stock_name">调出仓库：{{ obj.src_stock_name }}</view>
+                                <view>调入仓库：<text class="text-primary">{{ obj.dest_stock_name }}</text></view>
                                 <view>批次：{{ obj.batch_no }}</view>
                             </view>
                         </view>
@@ -49,6 +51,7 @@
     
     <!-- display 1: form -->
     <uni-section title="填写托盘信息" type="square"
+        sub-title="‌‌总和 = ∑ (每托数量 x 托数)"
         v-if="step_active === 1"
         >
         <template v-slot:right>
@@ -636,23 +639,15 @@
             _activate_step(step) {
                 this.step_active = step
                 if (step === 0) {
-                    this.goods_nav.button_group[0].text = '返回'
-                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
                     this.goods_nav.button_group[1].text = '预览'
                     this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
                 } else if (step === 1) {
-                    this.goods_nav.button_group[0].text = '返回'
-                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
                     this.goods_nav.button_group[1].text = '预览'
                     this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.yellow
                 } else if (step === 2) {
-                    this.goods_nav.button_group[0].text = '返回'
-                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
                     this.goods_nav.button_group[1].text = '保存'
                     this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.blue
                 } else if (step === 3) {
-                    this.goods_nav.button_group[0].text = '返回'
-                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
                     this.goods_nav.button_group[1].text = '删除'
                     this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.red
                 }

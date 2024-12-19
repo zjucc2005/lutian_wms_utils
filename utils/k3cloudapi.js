@@ -588,8 +588,8 @@ const query_filter = (options = {}) => {
         let { field, compare } = match_suffix(k)
         if (options[k] instanceof Date) { 
             options[k] = options[k].toLocaleString() // Date实例转成String
-        } else {
-            options[k] = options[k].toString().replaceAll('\'', '').replaceAll(';', '') // 去掉特殊字符，防止sql注入
+        } else if (typeof(options[k]) === 'string') {
+            options[k] = options[k].replace(/\'|;/g, '') // 去掉特殊字符，防止sql注入
         }
         switch (compare) {
             case 'eq': filters.push(`${field} = '${options[k]}'`);                         break;

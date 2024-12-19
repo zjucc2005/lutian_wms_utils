@@ -19,13 +19,8 @@
                             <view class="note">
                                 <view>名称：{{ obj.material_name }}</view> 
                                 <view>规格：{{ obj.material_spec }}</view>
-                                <view>
-                                    <uni-icons type="home" color="#999"></uni-icons>
-                                    <text class="src-stock">{{ obj.src_stock_name }}</text>
-                                    <uni-icons type="redo" color="#007bff" style="margin: 0 5px;"></uni-icons> 
-                                    <uni-icons type="home" color="#007bff" ></uni-icons>
-                                    <text class="dest-stock">{{ obj.dest_stock_name }}</text>
-                                </view>
+                                <view v-if="obj.src_stock_name">调出仓库：{{ obj.src_stock_name }}</view>
+                                <view>调入仓库：<text class="text-primary">{{ obj.dest_stock_name }}</text></view>
                                 <view>批次：{{ obj.batch_no }}</view>
                             </view>
                         </view>

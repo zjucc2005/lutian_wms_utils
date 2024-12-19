@@ -40,7 +40,7 @@
                 let window_width = store.state.system_info.windowWidth
                 if (this.column) return window_width / this.column
                 let column = window_width >= 768 ? 6 : 3
-                return Math.max(128, window_width / column) 
+                return Math.max(96, window_width / column) 
             }
         }
     }

@@ -40,10 +40,7 @@
                             <view class="note">
                                 <view>名称：{{ obj.material_name }}</view> 
                                 <view>规格：{{ obj.material_spec }}</view>
-                                <view>
-                                    <uni-icons type="home" color="#007bff"></uni-icons>
-                                    <text class="stock">{{ obj.stock_name }}</text> 
-                                </view>
+                                <view>出货仓库：<text class="text-primary">{{ obj.stock_name }}</text></view>
                             </view>
                         </view>
                     </template>

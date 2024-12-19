@@ -97,18 +97,18 @@
             font-size: $uni-font-size-base;
             color: $uni-color-primary;
         }
-        .stock {
-            color: $uni-color-primary;
-            &.disabled {
-                color: $uni-color-error;
-            }
-        }
-        .dest-stock {
-            color: $uni-color-primary;
-            &.disabled {
-                color: $uni-color-error;
-            }
-        }
+        // .stock {
+        //     color: $uni-color-primary;
+        //     &.disabled {
+        //         color: $uni-color-error;
+        //     }
+        // }
+        // .dest-stock {
+        //     color: $uni-color-primary;
+        //     &.disabled {
+        //         color: $uni-color-error;
+        //     }
+        // }
         .batch_no {
             color: $uni-color-primary;
         }

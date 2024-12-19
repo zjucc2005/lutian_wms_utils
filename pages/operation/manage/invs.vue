@@ -32,6 +32,8 @@
                     `名称：${inv_group.material_name}`, 
                     `规格：${inv_group.material_spec}`
                 ].join('\n')"
+                :thumb="_thumbnail_url(inv_group.material_image)"
+                thumb-size="lg"
                 :rightText="[inv_group.qty, inv_group.base_unit_name].join(' ')"
                 @click="search_invs(inv_group.material_no)" clickable
                 show-arrow
@@ -57,6 +59,7 @@
     import store from '@/store'
     import { Inv } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
+    import K3CloudApi from '@/utils/k3cloudapi'
     import scan_code from '@/utils/scan_code'
     export default {
         data() {
@@ -165,12 +168,16 @@
                             material_no: inv['FMaterialId.FNumber'],
                             material_name: inv['FMaterialId.FName'],
                             material_spec: inv['FMaterialId.FSpecification'],
+                            material_image: inv['FMaterialId.FImageFileServer'],
                             qty: inv.FQty,
                             base_unit_name: inv['FStockUnitId.FName']
                         })
                     }
                 })
                 this.inv_groups = inv_groups
+            },
+            _thumbnail_url(file_id) {
+                return K3CloudApi.thumbnail_url(file_id)
             }
         }
     }

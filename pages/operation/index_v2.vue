@@ -59,11 +59,11 @@
                         action: () => { link_to('/pages/operation/manage/locs') }
                     },
                     {
-                        name: '物料查询', permission: ['all'], icon_path: '/static/icon/nav_stock_search.png',
+                        name: '物料查询', permission: ['default', 'wh_admin', 'wh_staff', 'nrj_admin', 'guest'], icon_path: '/static/icon/nav_stock_search.png',
                         action: () => { link_to('/pages/operation/material/search') }
                     },
                     {
-                        name: '配件查询', permission: ['all'], icon_path: '/static/icon/nav_node_tree.png',
+                        name: '配件查询', permission: ['default', 'wh_admin'], icon_path: '/static/icon/nav_node_tree.png',
                         action: () => { link_to('/pages/operation/material/search_parts') }
                     },
                     {
@@ -103,13 +103,10 @@
 <style lang="scss" scoped>
     .grid-item-box {
         flex: 1;
-        /* #ifndef APP-NVUE */
         display: flex;
-        /* #endif */
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 15px 0;
         
         // #ifdef H5
         &:hover {
@@ -122,7 +119,8 @@
             font-size: 14px;
             color: #666;
             font-weight: bold;
-            margin-top: 6px;
+            line-height: 24px;
+            margin-top: 10px;
             
         }
         .grid-item-icon {

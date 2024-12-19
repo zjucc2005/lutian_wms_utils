@@ -1,11 +1,11 @@
 <template>
     <uni-notice-bar single scrollable text="扫码获取单据中物料清单后，下一步新增计划明细" />
     
-    <uni-section title="查询单据编号" type="square">
+    <uni-section title="查询单据编号" sub-title="对直接调拨单扫码获取单据编号" type="square">
         <view class="searchbar-container">
             <uni-easyinput
                 v-model="search_form.bill_no" 
-                placeholder="请输入搜索内容"
+                placeholder="请输入单据编号"
                 prefix-icon="scan"
                 @confirm="handle_search"
                 @clear="handle_search"
@@ -39,13 +39,15 @@
                         <view class="note">
                             <view>名称：{{ obj.material_name }}</view>
                             <view>规格：{{ obj.material_spec }}</view>
-                            <view>
+<!--                            <view>
                                 <uni-icons type="home" color="#999"></uni-icons>
                                 <text class="src-stock">{{ obj.src_stock_name || '?' }}</text>
                                 <uni-icons type="redo" color="#007bff" style="margin: 0 5px;"></uni-icons> 
                                 <uni-icons type="home" color="#007bff" ></uni-icons>
                                 <text class="dest-stock">{{ obj.dest_stock_name }}</text>
-                            </view>
+                            </view> -->
+                            <view v-if="obj.src_stock_name">调出仓库：{{ obj.src_stock_name }}</view>
+                            <view>调入仓库：<text class="text-primary">{{ obj.dest_stock_name }}</text></view>
                             <view>批次：{{ obj.batch_no }}</view>
                         </view>
                     </view>
