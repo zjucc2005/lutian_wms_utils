@@ -152,7 +152,7 @@
                 edit_form: { name: '', type: 'text', field: '', value: '', value_was: '' },
                 goods_nav: {
                     options: [
-                        { icon: 'left', text: '返回' },
+                        // { icon: 'left', text: '返回' },
                         { icon: 'image', text: '上传图片'},
                         { icon: 'search', text: 'BOM' }
                     ],
@@ -201,9 +201,9 @@
                 this.$refs.flash.open()
             },
             goods_nav_click(e) {
-                if (e.index === 0) uni.navigateBack()
-                if (e.index === 1) this.$refs.image_popup.open()
-                if (e.index === 2) this.search_bom()
+                // if (e.index === 0) uni.navigateBack()
+                if (e.index === 0) this.$refs.image_popup.open()
+                if (e.index === 1) this.search_bom()
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.select_material_card() // btn:物料资料卡模板

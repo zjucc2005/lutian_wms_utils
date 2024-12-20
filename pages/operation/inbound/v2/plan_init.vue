@@ -59,7 +59,6 @@
                             :percent="_calc_percentage(obj)" 
                             stroke-width="2"
                             :active-color="_calc_percentage(obj) == 100 ? '#4cd964' : '#f0ad4e'"
-                            :active="true"
                         />
                     </view>
                 </template>

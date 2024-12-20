@@ -459,6 +459,7 @@
             FOpSN: "操作序列号",
             FOpType: "库存操作类型",
             FStockId: "仓库ID",
+            'FStockId.FName': '仓库',
             FStockLocId: "仓位号ID",
             'FStockLocId.FNumber': "仓位号",
             FDestStockLocId: "目标仓位号ID",

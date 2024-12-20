@@ -121,7 +121,7 @@
             font-weight: bold;
             line-height: 24px;
             margin-top: 10px;
-            
+            margin-bottom: -20px;
         }
         .grid-item-icon {
             width: 64px;

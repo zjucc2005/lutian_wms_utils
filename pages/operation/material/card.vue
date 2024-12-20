@@ -60,7 +60,7 @@
                 window_width: 1080,  // 屏幕宽度设定值，作为模板尺寸参考基准，使得APP/H5渲染的尺寸保持一致
                 goods_nav: {
                     options: [
-                        { icon: 'left', text: '返回' }
+                        // { icon: 'left', text: '返回' }
                     ],
                     button_group: [
                         { text: '导出图片', color: '#fff', backgroundColor: store.state.goods_nav_color.green }
@@ -97,7 +97,7 @@
                 // #endif
             },
             goods_nav_click(e) {
-                if (e.index === 0) uni.navigateBack()
+                // if (e.index === 0) uni.navigateBack()
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) {

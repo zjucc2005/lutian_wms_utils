@@ -23,6 +23,9 @@
 .text-error {
     color: $uni-color-error;
 }
+.text-default, .text-dark {
+    color: $uni-text-color;
+}
 .text-grey {
     color: $uni-text-color-grey;
 }
@@ -85,18 +88,18 @@
         color: $uni-text-color-grey;
         font-size: $uni-font-size-sm;
         overflow: hidden;
-        .loc_no {
-            font-size: $uni-font-size-base;
-            color: $uni-color-primary;
-        }
-        .src_loc_no {
-            font-size: $uni-font-size-base;
-            color: $uni-text-color;
-        }
-        .dest_loc_no {
-            font-size: $uni-font-size-base;
-            color: $uni-color-primary;
-        }
+        // .loc_no {
+        //     font-size: $uni-font-size-base;
+        //     color: $uni-color-primary;
+        // }
+        // .src_loc_no {
+        //     font-size: $uni-font-size-base;
+        //     color: $uni-text-color;
+        // }
+        // .dest_loc_no {
+        //     font-size: $uni-font-size-base;
+        //     color: $uni-color-primary;
+        // }
         // .stock {
         //     color: $uni-color-primary;
         //     &.disabled {
@@ -109,9 +112,9 @@
         //         color: $uni-color-error;
         //     }
         // }
-        .batch_no {
-            color: $uni-color-primary;
-        }
+        // .batch_no {
+        //     color: $uni-color-primary;
+        // }
     }
 }
 .uni-list-item__foot {

@@ -125,7 +125,7 @@
                 inv_plans: [],
                 goods_nav: {
                     options: [
-                        { icon: 'list', text: '全选' }
+                        { icon: 'checkbox', text: '全选' }
                     ],
                     admin_button_group: [
                         {

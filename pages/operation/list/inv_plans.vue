@@ -51,10 +51,10 @@
                         <view>规格：{{ inv_plan['FMaterialId.FSpecification'] }}</view>
                         <view>批次：{{ inv_plan.FBatchNo }}</view>
                         <view>
-                            库位：<text class="src_loc_no">{{ inv_plan['FStockLocId.FNumber'] }}</text>
+                            库位：<text class="text-default">{{ inv_plan['FStockLocId.FNumber'] }}</text>
                             <template v-if="inv_plan.FOpType == 'mv'">
-                                <uni-icons type="redo" size="20" color="#007bff"></uni-icons>
-                                <text class="dest_loc_no uni-ml-2">{{ inv_plan['FDestStockLocId.FNumber'] }}</text>
+                                <uni-icons type="redo" color="#007bff"></uni-icons>
+                                <text class="text-primary uni-ml-2">{{ inv_plan['FDestStockLocId.FNumber'] }}</text>
                             </template>
                         </view>
                         <view v-if="inv_plan.FBillNo?.trim()">单据：{{ inv_plan.FBillNo }}</view>

@@ -1,5 +1,5 @@
 <template>
-    <uni-notice-bar single scrollable text="点击库存列表，可查询库存明细" />
+    <uni-notice-bar single scrollable text="点击库存列表，可查询库存明细;长按弹出功能栏" />
     <uni-section title="当前仓库" type="square"
         :sub-title="[
             $store.state.cur_stock['FUseOrgId.FName'],
@@ -35,8 +35,9 @@
                 :thumb="_thumbnail_url(inv_group.material_image)"
                 thumb-size="lg"
                 :rightText="[inv_group.qty, inv_group.base_unit_name].join(' ')"
-                @click="search_invs(inv_group.material_no)" clickable
+                @click="show_invs(inv_group.material_no)" clickable
                 show-arrow
+                @longpress="inv_longpress(inv_group)"
                 >
             </uni-list-item>
         </uni-list>
@@ -115,9 +116,23 @@
                     uni.showToast({ icon: 'none', title: err })
                 })
             },
-            search_invs(material_no) {
+            show_invs(material_no) {
                 play_audio_prompt('success')
                 uni.navigateTo({ url: '/pages/operation/manage/inv_search?t=' + material_no })
+            },
+            show_material(material_id) {
+                if (!material_id) uni.showToast({ icon: 'none', title: '物料ID不能为空' })
+                play_audio_prompt('success')
+                uni.navigateTo({ url: `/pages/operation/material/show?id=${material_id}` })
+            },
+            inv_longpress(inv_group) {
+                uni.showActionSheet({
+                    itemList: ['物料详情', '库存明细'],
+                    success: (e) => {
+                        if (e.tapIndex === 0) this.show_material(inv_group.material_id)
+                        if (e.tapIndex === 1) this.show_invs(inv_group.material_no)
+                    }
+                })
             },
             inv_map() {
                 uni.navigateTo({

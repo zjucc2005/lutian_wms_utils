@@ -88,7 +88,7 @@
                 material_categories: [],
                 goods_nav: {
                     options: [
-                        { icon: 'clear', text: '清空', info: 0 }
+                        // { icon: 'clear', text: '清空', info: 0 }
                     ],
                     button_group: [
                         { text: '扫码查询', color: '#fff', backgroundColor: store.state.goods_nav_color.red },
@@ -107,7 +107,7 @@
                 this.search_form.material_category_id = ''
             },
             goods_nav_click(e) {
-                if (e.index === 0) this.clear()
+                // if (e.index === 0) this.clear()
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询
