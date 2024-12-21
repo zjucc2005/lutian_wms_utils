@@ -114,6 +114,9 @@
     import store from '@/store'
     import { InvPlan } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
+    // #ifdef H5
+    import { pdf_template_inv_plans_out } from '@/gen_pdf'
+    // #endif
     export default {
         props: {
             t: {
@@ -133,7 +136,14 @@
                             text: '审核确认',
                             backgroundColor: store.state.goods_nav_color.green,
                             color: '#fff'
+                        },
+                        // #ifdef H5
+                        {
+                            text: '预览PDF',
+                            backgroundColor: store.state.goods_nav_color.blue,
+                            color: '#fff'
                         }
+                        // #endif
                     ],
                     staff_button_group: [
                         {
@@ -160,6 +170,7 @@
             },
             goods_nav_admin_button_click(e) {
                 if (e.index == 0) this.submit_audit() // btn:审核确认
+                if (e.index === 1) this.preview_pdf() // btn: 预览PDF
             },
             goods_nav_staff_button_click(e) {
                 if (e.index == 0) this.submit_submit() // btn:提交
@@ -176,6 +187,14 @@
                     inv_plan.checked = !inv_plan.checked
                 }  
             },
+            // #ifdef H5
+            preview_pdf() {
+                let f = pdf_template_inv_plans_out(this.inv_plans)
+                let blob = f.output('blob') // 生成PDF文件的Blob对象
+                let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL
+                uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
+            },
+            // #endif
             async load_inv_plans() {
                 let options = { 
                     FStockId: store.state.cur_stock.FStockId,

@@ -144,6 +144,10 @@
             "style": { "navigationBarTitleText": "我"}
         },
         {
+            "path": "pages/my/preview_pdf",
+            "style": { "navigationBarTitleText": "预览PDF" }
+        },
+        {
             "path": "pages/api_utils/index",
             "style": { "navigationBarTitleText": "API调试" }
         },

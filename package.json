@@ -7,6 +7,8 @@
   "author": "zjucc2005 <zjucc2005@163.com>",
   "license": "MIT",
   "dependencies": {
-    "html2canvas": "^1.4.1"
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4"
   }
 }
