@@ -1,6 +1,8 @@
-// 兼容electron打包后的文件路径问题，本文件放到根目录
+// 1. 为了兼容electron打包后的文件路径问题，本文件放到根目录
+// 2. 不能兼容APP，打包apk时，需加上#ifdef H5条件编译
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
+import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
 
 const font_file_path = './static/font/SourceHanSansCN-Normal.ttf'
 const font_family = 'SourceHanSansCN'
@@ -61,6 +63,7 @@ const pdf_template_inv_plans_in = (inv_plans) => {
     f.setFontSize(10)
     f.text(`入库单号：${options.bill_no}`, 10, 25)
     f.text(`入库仓库：${options.stock_name}`, 10, 30)
+    f.text(`打印日期：${formatDate(Date.now(), 'yyyy-MM-dd')}`, 164, 30)
     // 表格
     let textWidth_1 = 0
     let textWidth_6 = 0
@@ -86,7 +89,9 @@ const pdf_template_inv_plans_in = (inv_plans) => {
         head: [ options.table_head ],
         body: options.table_body
     })
-    return f
+    let blob = f.output('blob') // 生成PDF文件的Blob对象
+    let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL
+    return url
 }
 
 const pdf_template_inv_plans_out = (inv_plans) => {
@@ -136,6 +141,7 @@ const pdf_template_inv_plans_out = (inv_plans) => {
     f.setFontSize(20)
     let title_x = (page_width - f.getTextWidth(options.title)) / 2
     f.text(options.title, title_x, 15)
+    // f.addImage('./static/logo-wms.png', 'png', 184, 8, 15, 15)
     // 副标题
     f.setFontSize(12)
     let subtitle_x = (page_width - f.getTextWidth(options.subtitle)) / 2
@@ -144,6 +150,7 @@ const pdf_template_inv_plans_out = (inv_plans) => {
     f.setFontSize(10)
     f.text(`出货单号：${options.bill_no}`, 10, 25)
     f.text(`出库仓库：${options.stock_name}`, 10, 30)
+    f.text(`打印日期：${formatDate(Date.now(), 'yyyy-MM-dd')}`, 164, 30)
     // 表格
     let textWidth_1 = 0
     let textWidth_5 = 0
@@ -168,7 +175,9 @@ const pdf_template_inv_plans_out = (inv_plans) => {
         head: [ options.table_head ],
         body: options.table_body
     })
-    return f
+    let blob = f.output('blob') // 生成PDF文件的Blob对象
+    let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL
+    return url
 }
 
 export {

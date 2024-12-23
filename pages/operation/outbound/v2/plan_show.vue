@@ -189,9 +189,7 @@
             },
             // #ifdef H5
             preview_pdf() {
-                let f = pdf_template_inv_plans_out(this.inv_plans)
-                let blob = f.output('blob') // 生成PDF文件的Blob对象
-                let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL
+                let url = pdf_template_inv_plans_out(this.inv_plans)
                 uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
             },
             // #endif
