@@ -167,15 +167,27 @@
                 // K3CloudApi.view('ENG_BOM', { Number: '2.02.08.04.0065_V1.000' }).then(res => {
                 //     this.$logger.info('获取物料清单', res.data)
                 // })
-                let fields = ['FID', "FName", "FNumber", "FForbidStatus", "FDocumentStatus", 'FUseOrgId', 'FUseOrgId.FName',
-                              'FBomCategory', "FMaterialId", 'FMaterialId.FNumber', 'FItemName', 'FItemModel', 'FOperId', 'FITEMPPROPERTY']
+                // let fields = ['FID', "FName", "FNumber", "FForbidStatus", "FDocumentStatus", 'FUseOrgId', 'FUseOrgId.FName',
+                //               'FBomCategory', "FMaterialId", 'FMaterialId.FNumber', 'FItemName', 'FItemModel', 'FOperId', 'FITEMPPROPERTY']
+                let fields = ['FID', 'FBillNo', 'F_PAEZ_Text']
                 const data = {
-                    FormId: 'ENG_BOM',
+                    FormId: 'SAL_DELIVERYNOTICE',
                     FieldKeys: fields.join(','),
-                    FilterString: "FItemModel like '%6500n-6%' OR FItemName like '%6500n-6%'",
+                    FilterString: "FCreateDate >= '2024-11-01'",
+                    Limit: 10000,
                     //FilterString: "FMaterialId.FNumber = '3.01.01.01.07.0072'"
                 }
-                K3CloudApi.bill_query(data)
+                let uniq_arr = []
+                K3CloudApi.bill_query(data).then(res => {
+                    for (let item of res.data) {
+                        let receiver = item['F.PAEZ.Text'].replace(/[*|发]快递/g, '')
+                        receiver = receiver.replace(/（售后）/g, '')
+                        if (!uniq_arr.includes(receiver)) {
+                            uniq_arr.push(receiver)
+                        }
+                    }
+                    console.log('收货人', uniq_arr.toSorted())
+                })
             },
             call_delete_api() {
                 // let form_id = 'PAEZ_C_INV'

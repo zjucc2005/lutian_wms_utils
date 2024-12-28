@@ -46,7 +46,7 @@
                                 <uni-icons type="home" color="#007bff" ></uni-icons>
                                 <text class="dest-stock">{{ obj.dest_stock_name }}</text>
                             </view> -->
-                            <view v-if="obj.src_stock_name">调出仓库：{{ obj.src_stock_name }}</view>
+                            <!-- <view v-if="obj.src_stock_name">调出仓库：{{ obj.src_stock_name }}</view> -->
                             <view>调入仓库：<text class="text-primary">{{ obj.dest_stock_name }}</text></view>
                             <view>批次：{{ obj.batch_no }}</view>
                         </view>
@@ -169,6 +169,9 @@
                 this.inbound_task = new InboundTask()
                 if (this.search_form.bill_no) {
                     this.search_form.bill_no = this.search_form.bill_no.trim().toUpperCase()
+                    if (this.search_form.bill_no.match(/^\d+$/)) {
+                        this.search_form.bill_no = 'ZJDB' + this.search_form.bill_no // 自动补充前缀
+                    }
                     await this.load_bill()
                     await this.load_inv_plans()
                 } else {
@@ -236,7 +239,7 @@
                     const data = response.data.Result.Result
                     let inbound_list = []
                     data.TransferDirectEntry.forEach(obj => {
-                        let inbound_obj = inbound_list.find(x => x.material_id == obj.MaterialID_Id)
+                        let inbound_obj = inbound_list.find(x => x.material_id == obj.DestMaterialId_Id)
                         if (inbound_obj) {
                             inbound_obj.base_unit_qty += obj.BaseQty // 合同相同物料ID
                         } else {

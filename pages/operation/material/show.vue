@@ -105,10 +105,9 @@
     
     <uni-popup ref="qrcode_popup" type="dialog">
         <uni-popup-dialog title="分享二维码" type="info" confirm-text="完成" :show-close="false" style="min-width: 320px;">
-            <view>
-                <uqrcode ref="qrcode" :canvas-id="canvas_id" :value="bd_material.Number" :size="270"
-                    :options="{  }"
-                    ></uqrcode>
+            <view align="center">
+                <uqrcode ref="qrcode" :canvas-id="canvas_id" :value="bd_material.Number" :size="270"></uqrcode>
+                <view class="text-grey uni-mt-5">{{ bd_material.Number }}</view>
             </view>
         </uni-popup-dialog>
     </uni-popup>

@@ -63,8 +63,12 @@
                         action: () => { link_to('/pages/operation/material/search') }
                     },
                     {
-                        name: '配件查询', permission: ['default', 'wh_admin'], icon_path: '/static/icon/nav_node_tree.png',
+                        name: '配件查询', permission: ['default'], icon_path: '/static/icon/nav_node_tree.png',
                         action: () => { link_to('/pages/operation/material/search_parts') }
+                    },
+                    {
+                        name: '出库查询', permission: ['default'], icon_path: '/static/icon/nav_truck.png',
+                        action: () => { link_to('/pages/operation/outbound/v2/search') }
                     },
                     {
                         name: '列表', permission: ['wh_admin'], icon_path: '/static/icon/nav_list_search.png',

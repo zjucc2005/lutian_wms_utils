@@ -103,6 +103,10 @@
             "style": { "navigationBarTitleText": "出库 - 计划" }
         },
         {
+            "path": "pages/operation/outbound/v2/search",
+            "style": { "navigationBarTitleText": "出库查询" }
+        },
+        {
             "path": "pages/operation/move/v2/index",
             "style": { "navigationBarTitleText": "库存调整 - 计划", "enablePullDownRefresh": true }
         },
@@ -320,18 +324,18 @@
                     "selectedColor": "#007aff"
                 }
             }
-            // ,
-            // {
-            //     "pagePath": "pages/api_utils/index",
-            //     "text": "API调试",
-            //     "iconfont": {
-            //         "text": "\ue653",
-            //         "color": "#7A7E83",
-            //         "selectedText": "\ue653",
-            //         "fontSize": "24px",
-            //         "selectedColor": "#007aff"
-            //     }
-            // }
+            ,
+            {
+                "pagePath": "pages/api_utils/index",
+                "text": "API调试",
+                "iconfont": {
+                    "text": "\ue653",
+                    "color": "#7A7E83",
+                    "selectedText": "\ue653",
+                    "fontSize": "24px",
+                    "selectedColor": "#007aff"
+                }
+            }
         ]
     }
 }

@@ -190,6 +190,7 @@
                     }
                 })
                 this.inv_groups = inv_groups
+                console.log('inv_groups', inv_groups)
             },
             _thumbnail_url(file_id) {
                 return K3CloudApi.thumbnail_url(file_id)

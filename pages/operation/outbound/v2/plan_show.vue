@@ -235,9 +235,8 @@
                             await InvPlan.execute(checked_inv_plans[i])
                         }
                         await this.load_inv_plans()
-                        // const eventChannel = this.getOpenerEventChannel()
-                        // eventChannel.emit('reloadInvPlans', { reload: true })
                         uni.hideLoading()
+                        uni.showToast({ title: '操作成功' })
                     } else {
                         uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
                     }

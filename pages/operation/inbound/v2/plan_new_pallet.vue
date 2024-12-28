@@ -29,7 +29,7 @@
                                     <uni-icons type="home" color="#007bff" ></uni-icons>
                                     <text class="dest-stock">{{ obj.dest_stock_name }}</text>
                                 </view> -->
-                                <view v-if="obj.src_stock_name">调出仓库：{{ obj.src_stock_name }}</view>
+                                <!-- <view v-if="obj.src_stock_name">调出仓库：{{ obj.src_stock_name }}</view> -->
                                 <view>调入仓库：<text class="text-primary">{{ obj.dest_stock_name }}</text></view>
                                 <view>批次：{{ obj.batch_no }}</view>
                             </view>
