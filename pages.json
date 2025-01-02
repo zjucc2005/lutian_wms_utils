@@ -121,7 +121,19 @@
         },
         {
             "path": "pages/operation/manage/invs",
-            "style": { "navigationBarTitleText": "库存", "enablePullDownRefresh": true }
+            "style": { 
+                "navigationBarTitleText": "库存",
+                "enablePullDownRefresh": true,
+                // "app-plus": {
+                //     "titleNView": {
+                //         "buttons": [{
+                //                 "type": "menu",
+                //                 "color": "#fff"
+                //             }
+                //         ]
+                //     }
+                // }
+            }
         },
         {
             "path": "pages/operation/manage/inv_search",
@@ -130,6 +142,10 @@
         {
             "path": "pages/operation/manage/inv_map",
             "style": { "navigationBarTitleText": "库存地图" }
+        },
+        {
+            "path": "pages/operation/manage/inv_check",
+            "style": { "navigationBarTitleText": "库存盘点" }
         },
         {
             "path": "pages/operation/manage/inv_init",
@@ -263,7 +279,7 @@
         {
             "path": "pages/k3cloud/eng_bom/tree",
             "style": { "navigationBarTitleText": "物料清单" }
-        }
+        }  
     ],
     "globalStyle": {
         "navigationBarTextStyle": "#fff",
@@ -324,18 +340,18 @@
                     "selectedColor": "#007aff"
                 }
             }
-            ,
-            {
-                "pagePath": "pages/api_utils/index",
-                "text": "API调试",
-                "iconfont": {
-                    "text": "\ue653",
-                    "color": "#7A7E83",
-                    "selectedText": "\ue653",
-                    "fontSize": "24px",
-                    "selectedColor": "#007aff"
-                }
-            }
+            // ,
+            // {
+            //     "pagePath": "pages/api_utils/index",
+            //     "text": "API调试",
+            //     "iconfont": {
+            //         "text": "\ue653",
+            //         "color": "#7A7E83",
+            //         "selectedText": "\ue653",
+            //         "fontSize": "24px",
+            //         "selectedColor": "#007aff"
+            //     }
+            // }
         ]
     }
 }

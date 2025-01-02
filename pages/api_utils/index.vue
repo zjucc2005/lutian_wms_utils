@@ -162,32 +162,39 @@
                     }
                 })
             },
-            call_test_api() {
+            async call_test_api() {
                 // BdMaterial.categories()
                 // K3CloudApi.view('ENG_BOM', { Number: '2.02.08.04.0065_V1.000' }).then(res => {
                 //     this.$logger.info('获取物料清单', res.data)
                 // })
                 // let fields = ['FID', "FName", "FNumber", "FForbidStatus", "FDocumentStatus", 'FUseOrgId', 'FUseOrgId.FName',
                 //               'FBomCategory', "FMaterialId", 'FMaterialId.FNumber', 'FItemName', 'FItemModel', 'FOperId', 'FITEMPPROPERTY']
+                let sta = {}
                 let fields = ['FID', 'FBillNo', 'F_PAEZ_Text']
-                const data = {
-                    FormId: 'SAL_DELIVERYNOTICE',
-                    FieldKeys: fields.join(','),
-                    FilterString: "FCreateDate >= '2024-11-01'",
-                    Limit: 10000,
-                    //FilterString: "FMaterialId.FNumber = '3.01.01.01.07.0072'"
-                }
-                let uniq_arr = []
-                K3CloudApi.bill_query(data).then(res => {
+                for (let i = 1; i <= 1; i ++) {
+                    const data = {
+                        FormId: 'SAL_DELIVERYNOTICE',
+                        FieldKeys: fields.join(','),
+                        FilterString: `FStockID = '2048838' AND FCreateDate BETWEEN '2024-01-01' AND '2024-12-31'`,
+                        Limit: 10000,
+                        //FilterString: "FMaterialId.FNumber = '3.01.01.01.07.0072'"
+                    }
+                    
+                    let res = await K3CloudApi.bill_query(data)
+                    let uniq_arr = []
+                    if (res.data) {
+                        
+                    }
                     for (let item of res.data) {
-                        let receiver = item['F.PAEZ.Text'].replace(/[*|发]快递/g, '')
+                        let receiver = item['F.PAEZ.Text'].trim().replace(/[*|发]快递/g, '')
                         receiver = receiver.replace(/（售后）/g, '')
                         if (!uniq_arr.includes(receiver)) {
                             uniq_arr.push(receiver)
                         }
                     }
-                    console.log('收货人', uniq_arr.toSorted())
-                })
+                    sta[i] = uniq_arr.toSorted()
+                }
+                console.log("收货人列表", sta)
             },
             call_delete_api() {
                 // let form_id = 'PAEZ_C_INV'

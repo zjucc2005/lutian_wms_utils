@@ -91,6 +91,21 @@
                 }
             }
         },
+        // 头部导航栏自定义按键绑定事件
+        onNavigationBarButtonTap(e) {
+            if (e.index === 0) {
+                uni.showActionSheet({
+                    itemList: ['库存盘点'],
+                    success: (e) => {
+                        if (e.tapIndex === 0) {
+                            play_audio_prompt('success')
+                            uni.navigateTo({ url: '/pages/operation/manage/inv_check' })
+                            // uni.showToast({ icon: 'error', title: '请联系开发人员' })
+                        }
+                    }
+                })
+            }
+        },
         onPullDownRefresh() {
             this.refresh()
             uni.stopPullDownRefresh()
