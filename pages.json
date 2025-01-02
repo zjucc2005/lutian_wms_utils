@@ -123,16 +123,16 @@
             "path": "pages/operation/manage/invs",
             "style": { 
                 "navigationBarTitleText": "库存",
-                "enablePullDownRefresh": true
-                // "app-plus": {
-                //     "titleNView": {
-                //         "buttons": [{
-                //                 "type": "menu",
-                //                 "color": "#fff"
-                //             }
-                //         ]
-                //     }
-                // }
+                "enablePullDownRefresh": true,
+                "app-plus": {
+                    "titleNView": {
+                        "buttons": [{
+                                "type": "menu",
+                                "color": "#fff"
+                            }
+                        ]
+                    }
+                }
             }
         },
         {
