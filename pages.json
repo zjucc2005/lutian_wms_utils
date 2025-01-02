@@ -123,7 +123,7 @@
             "path": "pages/operation/manage/invs",
             "style": { 
                 "navigationBarTitleText": "库存",
-                "enablePullDownRefresh": true,
+                "enablePullDownRefresh": true
                 // "app-plus": {
                 //     "titleNView": {
                 //         "buttons": [{
