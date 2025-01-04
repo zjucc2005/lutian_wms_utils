@@ -122,6 +122,14 @@ const describe_inv_log = (inv_log) => {
     return list.join("\n")
 }
 
+// 注意：s2ab是一个辅助函数，用于将字符串转换为ArrayBuffer
+const string_to_arraybuffer = (s) => {
+  var buf = new ArrayBuffer(s.length)
+  var view = new Uint8Array(buf)
+  for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF
+  return buf
+}
+
 export {
     to_raw,
     math_round,
@@ -131,5 +139,6 @@ export {
     is_loc_no_std_format,
     is_decimal_unit,
     compare_loc_no,
-    describe_inv_log
+    describe_inv_log,
+    string_to_arraybuffer
 }

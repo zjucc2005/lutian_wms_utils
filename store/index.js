@@ -15,7 +15,7 @@ const store = createStore({
 // #endif
     state: {
                                    // >>> 表示本地持久化
-        env: config.env,           // 运行环境
+        config: config,            // 运行配置
         system_info: null,         // 设备信息，开机获取
         conn_info: null,           // API连接成功返回数据
         conn_expired_at: null,     // API连接过期时间
@@ -73,9 +73,9 @@ const store = createStore({
             state.role = 'guest'
             state.snowflake = new Snowflake(0)
         },
-        set_env(state, env) {
-            state.env = env
-        },
+        // set_env(state, env) {
+        //     state.env = env
+        // },
         set_system_info(state, system_info) {
             state.system_info = system_info
             state.drawer_width = system_info.windowWidth * 0.88

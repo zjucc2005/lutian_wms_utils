@@ -121,19 +121,7 @@
         },
         {
             "path": "pages/operation/manage/invs",
-            "style": { 
-                "navigationBarTitleText": "库存",
-                "enablePullDownRefresh": true,
-                "app-plus": {
-                    "titleNView": {
-                        "buttons": [{
-                                "type": "menu",
-                                "color": "#fff"
-                            }
-                        ]
-                    }
-                }
-            }
+            "style": { "navigationBarTitleText": "库存", "enablePullDownRefresh": true }
         },
         {
             "path": "pages/operation/manage/inv_search",

@@ -2,6 +2,7 @@
 // 2. 不能兼容APP，打包apk时，需加上#ifdef H5条件编译
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
+import store from '@/store'
 import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
 
 const font_file_path = './static/font/SourceHanSansCN-Normal.ttf'
@@ -180,7 +181,75 @@ const pdf_template_inv_plans_out = (inv_plans) => {
     return url
 }
 
+const pdf_template_inv_check = (invs) => {
+    let options = {
+        title: '绿田机械股份有限公司',
+        subtitle: '盘点计划',
+        stock_name: store.state.cur_stock.FName,
+        table_head: ['物料编码', '物料名称', '规格型号', '库位', '批次', '单位', '账面数量', '盘点数量'],
+        table_body: []
+    }
+    for (let inv of invs) {
+        options.table_body.push([
+            inv['FMaterialId.FNumber'], inv['FMaterialId.FName'],inv['FMaterialId.FSpecification'],
+            inv['FStockLocId.FNumber'], inv.FBatchNo, inv['FStockUnitId.FName'], inv.FQty, ''
+        ])
+    }
+    // 初始化jsPDF对象
+    let f = new jsPDF({ orientation: 'landscape' })
+    f.addFont(font_file_path, font_family, 'normal') // 加载字体
+    f.setFont(font_family) // 设置字体
+    let page_width = f.internal.pageSize.getWidth()
+    // 标题
+    f.setFontSize(20)
+    let title_x = (page_width - f.getTextWidth(options.title)) / 2
+    f.text(options.title, title_x, 15)
+    // 副标题
+    f.setFontSize(12)
+    let subtitle_x = (page_width - f.getTextWidth(options.subtitle)) / 2
+    f.text(options.subtitle, subtitle_x, 22)
+    // 单号标识
+    f.setFontSize(10)
+    f.text(`盘点仓库：${options.stock_name}`, 10, 30)
+    f.text(`打印日期：${formatDate(Date.now(), 'yyyy-MM-dd')}`, 251, 30)
+    // 表格
+    let textWidth_1 = 0
+    for (let item of options.table_body) {
+        textWidth_1 = Math.max(textWidth_1, f.getTextWidth(item[1])) // 品名字符最小宽度
+    }
+    f.autoTable({
+        theme: 'grid',
+        startY: 32,
+        margin: { left: 10, right: 10, top: 10, bottom: 10 },
+        styles: { font: 'SourceHanSansCN', fontSize: 10, cellPadding: 1, minCellWidth: 9 },
+        headStyles: { fillColor: 0, halign: 'center'},
+        bodyStyles: { textColor: 0, lineColor: 120 },
+        columnStyles: {
+            0: { minCellWidth: 32 },
+            1: { minCellWidth: textWidth_1 + 2 },
+            3: { minCellWidth: 22.9 },
+            4: { minCellWidth: 17.5 },
+            5: { },
+            6: { minCellWidth: 16.2, halign: 'center' },
+            7: { minCellWidth: 16.2 },
+        },
+        head: [ options.table_head ],
+        body: options.table_body
+    })
+    // 添加页码
+    let total_pages = f.getNumberOfPages()
+    for (let i = 1; i <= total_pages; i++) {
+        f.setPage(i)
+        let t = `${i} / ${total_pages}`
+        f.text(t, 287 - f.getTextWidth(t), 203)
+    }
+    let blob = f.output('blob') // 生成PDF文件的Blob对象
+    let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL
+    return url
+}
+
 export {
     pdf_template_inv_plans_in,
-    pdf_template_inv_plans_out
+    pdf_template_inv_plans_out,
+    pdf_template_inv_check
 }

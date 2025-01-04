@@ -40,6 +40,11 @@
                 </uni-forms>
             </view>
         </view>
+        
+        <view v-if="$store.state.config.log" class="debug-wrapper">
+            <view>version: {{ $store.state.system_info.appVersion }}</view>
+            <view>log: true</view>
+        </view>
     </view>
     
     <uni-popup ref="guest_login_dialog" type="dialog">
@@ -247,6 +252,17 @@
                     color: #fff;
                 }
             }
+        }
+    }
+    .debug-wrapper {
+        margin: 15px auto;
+        background-color: #000;
+        padding: 15px;
+        border-radius: 15px;
+        max-width: 480px;
+        view {
+            font-size: $uni-font-size-sm;
+            color: $uni-text-color-inverse;
         }
     }
     .custom-data-picker-input {
