@@ -78,6 +78,7 @@
                         name: '统计', permission: ['wh_admin'], icon_path: '/static/icon/nav_chart.png',
                         action: () => { link_to('/pages/operation/statistics/index') }
                     }
+                    // ,
                     // {
                     //     name: '其他功能', permission: ['wh_admin'], icon_path: '/static/icon/nav_others.png',
                     //     action: () => { link_to('/pages/operation/manage/index') }

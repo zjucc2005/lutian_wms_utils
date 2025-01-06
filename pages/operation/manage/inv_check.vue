@@ -57,7 +57,7 @@
     import { pdf_template_inv_check } from '@/gen_pdf'
     // #endif
     import { play_audio_prompt, string_to_arraybuffer } from '@/utils'
-    import { BdMaterial, InvLog } from '@/utils/model'
+    import { BdMaterial, Inv, InvLog } from '@/utils/model'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     export default {
         data() {
@@ -85,12 +85,24 @@
                 }
             }
         },
-        onLoad(options) {
-            const eventChannel = this.getOpenerEventChannel();
-            eventChannel.on('sendInvs', res => {
-                this.invs = res.invs
-                this._init_check_invs()
-                // console.log('this.invs', this.invs)
+        // onLoad(options) {
+        //     const eventChannel = this.getOpenerEventChannel();
+        //     eventChannel.on('sendInvs', res => {
+        //         this.invs = res.invs
+        //         this._init_check_invs()
+        //         // console.log('this.invs', this.invs)
+        //     })
+        // },
+        mounted() {
+            this.$nextTick(_ => {
+                if (!this.invs.length) {
+                    uni.showLoading({ title: 'Loading' })
+                    Inv.get_all({ FStockId: store.state.cur_stock.FStockId }).then(res => {
+                        uni.hideLoading()
+                        this.invs = res
+                        this._init_check_invs()
+                    })
+                }
             })
         },
         computed: {
@@ -210,8 +222,13 @@
                 })
             },
             async submit_confirm() {
+                let check_invs = this.check_invs.filter(x => x.qty != x.check_qty)
+                if (check_invs.length === 0) {
+                    uni.showToast({ icon: 'none', title: '库存数量无误' })
+                    return
+                }
                 uni.showLoading({ title: '更新库存...' })
-                for (let check_inv of this.check_invs.filter(x => x.qty != x.check_qty)) {
+                for (let check_inv of check_invs) {
                     let options = {
                         FStockId: store.state.cur_stock.FStockId,
                         FStockLocNo: check_inv.stock_no,

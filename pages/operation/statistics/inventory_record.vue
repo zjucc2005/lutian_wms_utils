@@ -67,7 +67,7 @@
                     let options = {
                         FOpType_in: ['in', 'in_cl', 'out', 'out_cl'],
                         FStockId: store.state.cur_stock.FStockId,
-                        FCreateTime_ge: this.stime
+                        FCreateTime_ge: formatDate(this.stime, 'yyyy-MM-dd')
                     }
                     uni.showLoading({ title: 'Loading' })
                     let res = await InvLog.inventory_record(options)

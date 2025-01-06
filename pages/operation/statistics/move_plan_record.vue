@@ -69,10 +69,12 @@
                     let options = {
                         FOpType_in: ['mv_in', 'add', 'sub'],
                         FStockId: store.state.cur_stock.FStockId,
-                        FCreateTime_ge: this.stime
+                        FCreateTime_ge: formatDate(this.stime, 'yyyy-MM-dd')
                     }
+                    console.log('options', options)
                     uni.showLoading({ title: 'Loading' })
                     let res = await InvLog.inventory_record(options)
+                    console.log('res', res)
                     uni.hideLoading()
                     this.raw_data = res.map(x => { x[3] = Number(new Date(x[2])); return x })
                     this._set_chart_data_month()

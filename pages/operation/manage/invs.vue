@@ -157,7 +157,7 @@
                                 url: '/pages/operation/manage/inv_check',
                                 success: (res) => {
                                     play_audio_prompt('success')
-                                    res.eventChannel.emit('sendInvs', { invs: this.invs })
+                                    // res.eventChannel.emit('sendInvs', { invs: this.invs })
                                 }
                             })
                             // uni.showToast({ icon: 'error', title: '请联系开发人员' })
