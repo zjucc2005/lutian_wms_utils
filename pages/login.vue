@@ -74,7 +74,8 @@
     </uni-popup>
 </template>
 
-<script> 
+<script>
+    import checkUpdate from '@/uni_modules/uni-upgrade-center-app/utils/check-update'
     import store from '@/store'
     import { play_audio_prompt } from '@/utils'
     import { validate_staff, get_bd_stocks } from '@/utils/api'
@@ -133,6 +134,11 @@
                     }
                 }
             }
+        },
+        onReady() {
+            // #ifdef APP-PLUS
+            checkUpdate()
+            // #endif
         },
         mounted() {
             this.load_stocks()

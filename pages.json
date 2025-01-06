@@ -4,6 +4,22 @@
             "path": "pages/login",
             "style":  { "navigationBarTitleText": "登录", "navigationStyle": "custom" }
         },
+        {
+            "path": "uni_modules/uni-upgrade-center-app/pages/upgrade-popup",
+            "style": {
+                "disableScroll": true,
+                "app-plus": {
+                    "backgroundColorTop": "transparent",
+                    "background": "transparent",
+                    "titleNView": false,
+                    "scrollIndicator": false,
+                    "popGesture": "none",
+                    "animationType": "fade-in",
+                    "animationDuration": 200
+
+                }
+            }
+        },
         // 仓库流程 VERSION 1
         {
             "path": "pages/operation/index_v1",
