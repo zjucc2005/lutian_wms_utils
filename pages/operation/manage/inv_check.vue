@@ -1,5 +1,5 @@
 <template>
-    <uni-notice-bar single scrollable text="盘点数量和账面数量时,可不填写盘点数量" />
+    <uni-notice-bar single scrollable text="盘点数量和账面数量一致时,可不填写盘点数量" />
     <uni-section title="当前仓库" type="square"
         :sub-title="[
             $store.state.cur_stock['FUseOrgId.FName'],
@@ -37,7 +37,6 @@
             </uni-tr>
         </uni-table>
     </uni-section>
-    
     
     <view class="uni-goods-nav-wrapper">
         <uni-goods-nav 

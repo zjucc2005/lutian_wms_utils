@@ -91,7 +91,7 @@
                 // #ifdef H5
                 uni.showModal({
                     title: '检查更新',
-                    content: '本功能仅在APP中使用',
+                    content: 'PC版本更新需要自行下载(.exe)安装包文件进行安装\n具体下载地址，请咨询开发人员',
                     showCancel: false
                 })
                 // #endif
@@ -135,7 +135,6 @@
                 //     return
                 // }
                 // // #endif
-
             },
             // check_update_parse(data) {
             //     this.$logger.info('check_update_parse data', data)
