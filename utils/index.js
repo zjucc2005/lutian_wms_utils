@@ -130,6 +130,25 @@ const string_to_arraybuffer = (s) => {
   return buf
 }
 
+// 检查PC端更新
+const check_update_h5 = async () => {
+    let res = await uni.request({
+        url: 'https://zjucc2005.github.io/lutian_wms_utils/package.json',
+        method: 'GET'
+    })
+    if (res.statusCode == 200) {
+        // console.log('res', res.data)
+        store.commit('set_latest_version', res.data.versionCode)
+        if (res.data.versionCode > store.state.systemInfo.appVersioCode) {
+            uni.showModal({
+                title: '检查更新',
+                content: 'PC版本更新需要自行下载(.exe)安装包文件进行安装\n具体下载地址，请咨询开发人员',
+                showCancel: false
+            })
+        }
+    }
+}
+
 export {
     to_raw,
     math_round,
@@ -140,5 +159,6 @@ export {
     is_decimal_unit,
     compare_loc_no,
     describe_inv_log,
-    string_to_arraybuffer
+    string_to_arraybuffer,
+    check_update_h5
 }

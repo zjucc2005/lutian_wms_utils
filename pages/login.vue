@@ -2,7 +2,9 @@
     <view class="container">
         <view class="logo-wrapper">
             <image src="/static/logo-wms.png"></image>
-            <view>绿田WMS测试版 {{ 'v' + $store.state.system_info.appVersion }}</view>
+            <view>绿田WMS测试版 {{ 'v' + $store.state.system_info.appVersion }}
+                <uni-badge v-if="$store.state.latest_version > $store.state.system_info.appVersionCode" size="small" text="NEW" type="error"></uni-badge>
+            </view>
         </view>
         <view class="form-wrapper">
             <view class="form-box">
@@ -77,7 +79,7 @@
 <script>
     import checkUpdate from '@/uni_modules/uni-upgrade-center-app/utils/check-update'
     import store from '@/store'
-    import { play_audio_prompt } from '@/utils'
+    import { play_audio_prompt, check_update_h5 } from '@/utils'
     import { validate_staff, get_bd_stocks } from '@/utils/api'
     import { BdMaterial, StockLoc } from '@/utils/model'
     export default {
@@ -138,6 +140,9 @@
         onReady() {
             // #ifdef APP-PLUS
             checkUpdate()
+            // #endif
+            // #ifdef H5
+            check_update_h5()
             // #endif
         },
         mounted() {
