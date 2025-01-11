@@ -44,9 +44,8 @@ const createWindow = () => {
     
     win.loadFile('./app/index.html')
     // win.loadURL('http://lutian-wms-web.pages.dev/index.html')
-    // win.loadURL('http://static-mp-ddc93ee9-5973-4b66-ba04-9edef1f2c458.next.bspapp.com/web/index.html')
     // 打开调试窗口
-    // win.webContents.openDevTools()
+    win.webContents.openDevTools()
 }
 
 // init app

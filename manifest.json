@@ -4,6 +4,10 @@
     "description" : "绿田机械库存管理工具",
     "versionName" : "1.1.3",
     "versionCode" : 113,
+    "installPack" : {
+        "h5" : "https://musetransfer.com/s/s3kyoorgw",
+        "android" : ""
+    },
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {
