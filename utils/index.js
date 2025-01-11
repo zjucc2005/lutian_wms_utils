@@ -131,21 +131,38 @@ const string_to_arraybuffer = (s) => {
 }
 
 // 检查PC端更新
-const check_update_h5 = async () => {
+const get_latest_version = async (positive=false) => {
+    uni.showLoading({ title: 'Loading' })
     let res = await uni.request({
         url: 'https://zjucc2005.github.io/lutian_wms_utils/package.json',
         method: 'GET'
     })
+    uni.hideLoading()
     if (res.statusCode == 200) {
-        // console.log('res', res.data)
         store.commit('set_latest_version', res.data.versionCode)
-        if (res.data.versionCode > store.state.systemInfo.appVersioCode) {
+        // #ifdef H5
+        if (res.data.versionCode > store.state.system_info.appVersionCode) {
             uni.showModal({
-                title: '检查更新',
-                content: 'PC版本更新需要自行下载(.exe)安装包文件进行安装\n具体下载地址，请咨询开发人员',
-                showCancel: false
+                title: '发现新版本',
+                content: 'PC版本需要自行下载安装包进行更新\n是否下载新版本安装包？',
+                success: (e) => {
+                    if (e.cancel) return
+                    if (e.confirm) {
+                        window.open(res.data.installPack.h5, '_blank') // 跳转至外部下载页面
+                    }
+                }
             })
+        } else {
+            if (positive) {
+                // 主动检查更新时，返回提示
+                uni.showModal({
+                    title: '检查更新',
+                    content: '已经是最新版本',
+                    showCancel: false
+                })
+            }
         }
+        // #endif
     }
 }
 
@@ -160,5 +177,5 @@ export {
     compare_loc_no,
     describe_inv_log,
     string_to_arraybuffer,
-    check_update_h5
+    get_latest_version
 }

@@ -3,7 +3,8 @@
         <view class="logo-wrapper">
             <image src="/static/logo-wms.png"></image>
             <view>绿田WMS测试版 {{ 'v' + $store.state.system_info.appVersion }}
-                <uni-badge v-if="$store.state.latest_version > $store.state.system_info.appVersionCode" size="small" text="NEW" type="error"></uni-badge>
+                <uni-badge v-if="$store.state.latest_version > $store.state.system_info.appVersionCode"
+                    size="small" text="NEW" type="error" @click="get_latest_version"></uni-badge>
             </view>
         </view>
         <view class="form-wrapper">
@@ -79,7 +80,7 @@
 <script>
     import checkUpdate from '@/uni_modules/uni-upgrade-center-app/utils/check-update'
     import store from '@/store'
-    import { play_audio_prompt, check_update_h5 } from '@/utils'
+    import { play_audio_prompt, get_latest_version } from '@/utils'
     import { validate_staff, get_bd_stocks } from '@/utils/api'
     import { BdMaterial, StockLoc } from '@/utils/model'
     export default {
@@ -138,17 +139,16 @@
             }
         },
         onReady() {
+            get_latest_version()
             // #ifdef APP-PLUS
             checkUpdate()
-            // #endif
-            // #ifdef H5
-            check_update_h5()
             // #endif
         },
         mounted() {
             this.load_stocks()
         },
         methods: {
+            get_latest_version,
             async load_stocks() {
                 if (!store.state.bd_stocks?.length) {
                     uni.showLoading({ title: 'Loading' })

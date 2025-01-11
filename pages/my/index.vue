@@ -18,7 +18,16 @@
             :show-extra-icon="true"
             :extra-icon="{ type: 'loop', size: '24', color: '#007bff' }"
             @click="check_update" clickable
-            show-arrow />
+            show-arrow>
+            <template #body>
+                <view class="uni-list-item__body">
+                    <view class="title">检查更新
+                        <uni-badge v-if="$store.state.latest_version > $store.state.system_info.appVersionCode"
+                            size="small" text="NEW" type="error"></uni-badge>
+                    </view>
+                </view>
+            </template>
+        </uni-list-item>
         <uni-list-item title="关于"
             :show-extra-icon="true"
             :extra-icon="{ type: 'info', size: '24', color: '#007bff' }"
@@ -47,7 +56,7 @@
 <script>
     import checkUpdate from '@/uni_modules/uni-upgrade-center-app/utils/check-update'
     import store from '@/store'
-    import { link_to } from '@/utils'
+    import { link_to, get_latest_version } from '@/utils'
     export default {
         data() {
             return {
@@ -84,69 +93,14 @@
                 } 
             },
             async check_update() {
-                // #ifdef APP-PLUS
                 this.$logger.info('检查更新')
+                // #ifdef APP-PLUS
                 checkUpdate()
                 // #endif
                 // #ifdef H5
-                uni.showModal({
-                    title: '检查更新',
-                    content: 'PC版本更新需要自行下载(.exe)安装包文件进行安装\n具体下载地址，请咨询开发人员',
-                    showCancel: false
-                })
+                get_latest_version(true)
                 // #endif
-                // // #ifdef APP-PLUS
-                // // this.$logger.info('plus', plus)
-                // let res = await uni.request({
-                //     url: 'http://61.175.224.118:8664/update.xml',
-                //     method: 'GET'
-                // })
-                // this.$logger.info(res)
-                // let is_latest = true // check latest
-                // if (res.statusCode === 200) {
-                //     const { version, url, description } = this.check_update_parse(res.data)
-                //     is_latest = false
-                //     if (is_latest) {
-                //         uni.showModal({
-                //             title: '检查更新',
-                //             content: '已经是最新版本',
-                //             showCancel: false
-                //         })
-                //     } else {
-                //         uni.showModal({
-                //             title: '检查更新',
-                //             content: description,
-                //             confirmText: '立即下载更新',
-                //             success: (res) => {
-                //                 if (res.cancel) return
-                //                 if (res.confirm) {
-                //                     // 下载安装包
-                //                     this.$logger.info('下载安装包', url)
-                //                 }
-                //             }
-                //         })
-                //     }
-                // } else {
-                //     uni.showModal({
-                //         title: '检查更新',
-                //         content: '获取更新信息失败',
-                //         showCancel: false
-                //     })
-                //     return
-                // }
-                // // #endif
             },
-            // check_update_parse(data) {
-            //     this.$logger.info('check_update_parse data', data)
-            //     let version_match = data.match('<version>(.+)</version>')
-            //     let url_match = data.match('<url>(.+)</url>')
-            //     let description_match = data.match('<description>(.+)</description>')
-            //     return {
-            //         version: version_match[1],
-            //         url: url_match[1],
-            //         description: description_match[1]
-            //     }
-            // },
             about() {
                 const base_info = uni.getAppBaseInfo()
                 uni.showModal({

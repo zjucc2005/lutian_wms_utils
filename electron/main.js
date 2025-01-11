@@ -43,9 +43,8 @@ const createWindow = () => {
     // })
     
     win.loadFile('./app/index.html')
-    // win.loadURL('http://lutian-wms-web.pages.dev/index.html')
     // 打开调试窗口
-    win.webContents.openDevTools()
+    // win.webContents.openDevTools()
 }
 
 // init app
