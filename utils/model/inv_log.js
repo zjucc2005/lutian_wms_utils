@@ -68,6 +68,18 @@ class InvLog {
     }
     
     /**
+     * 批量删除
+     * @param ids:Array[Integer]
+     * @return {Hash} Promise
+     */
+    static async delete(ids=[]) {
+        const data = {
+            Ids: ids.join(',')
+        }
+        return K3CloudApi.delete('PAEZ_C_INV_LOG', data)
+    }
+    
+    /**
      * 获取库存日志列表
      * @param options:Hash 参数集
      * @param meta:Hash

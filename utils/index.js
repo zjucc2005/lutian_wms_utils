@@ -132,12 +132,12 @@ const string_to_arraybuffer = (s) => {
 
 // 检查PC端更新
 const get_latest_version = async (positive=false) => {
-    uni.showLoading({ title: 'Loading' })
+    // uni.showLoading({ title: 'Loading' })
     let res = await uni.request({
         url: 'https://zjucc2005.github.io/lutian_wms_utils/package.json',
         method: 'GET'
     })
-    uni.hideLoading()
+    // uni.hideLoading()
     if (res.statusCode == 200) {
         store.commit('set_latest_version', res.data.versionCode)
         // #ifdef H5

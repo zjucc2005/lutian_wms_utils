@@ -36,42 +36,44 @@
         </uni-collapse-item>
     </uni-collapse>
     
-    <uni-drawer ref="inv_drawer" mode="left" :width="$store.state.drawer_width" >
-        <uni-section :title="`库位：${drawer_stock_loc.FNumber}`" type="square">
-            <template v-slot:right>
-                <view class="uni-section__right">
-                    <uni-icons type="closeempty" size="24" color="#333" @click="drawer_close"/>
-                </view>
-            </template>
-            <template v-if="forbidable">
-                <button v-if="drawer_stock_loc.FForbidStatus == 'A'"
-                    type="warn" style="border-radius: 0;" 
-                    @click="stock_loc_forbid(drawer_stock_loc.FNumber)">
-                    库位报警
-                </button>
+    <uni-drawer ref="inv_drawer" mode="left" :width="Math.min($store.state.drawer_width, 480)" >
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
+            <uni-section :title="`库位：${drawer_stock_loc.FNumber}`" type="square">
+                <template v-slot:right>
+                    <view class="uni-section__right">
+                        <uni-icons type="closeempty" size="24" color="#333" @click="drawer_close"/>
+                    </view>
+                </template>
+                <template v-if="forbidable">
+                    <button v-if="drawer_stock_loc.FForbidStatus == 'A'"
+                        type="warn" style="border-radius: 0;" 
+                        @click="stock_loc_forbid(drawer_stock_loc.FNumber)">
+                        库位报警
+                    </button>
+                    
+                    <button v-if="drawer_stock_loc.FForbidStatus == 'B'" 
+                        type="primary" style="border-radius: 0;" 
+                        @click="stock_loc_enable(drawer_stock_loc.FNumber)">
+                        解除库位报警
+                    </button>
+                </template>
                 
-                <button v-if="drawer_stock_loc.FForbidStatus == 'B'" 
-                    type="primary" style="border-radius: 0;" 
-                    @click="stock_loc_enable(drawer_stock_loc.FNumber)">
-                    解除库位报警
-                </button>
-            </template>
-            
-            <uni-list>
-                <uni-list-item
-                    v-for="(inv, index) in invs.filter(x => x['FStockLocId.FNumber'] == drawer_stock_loc.FNumber)"
-                    :key="index"
-                    :title="inv['FMaterialId.FNumber']"
-                    :note="[
-                        `名称：${inv['FMaterialId.FName']}`, 
-                        `规格：${inv['FMaterialId.FSpecification']}`, 
-                        `批次：${inv.FBatchNo}`
-                    ].join('\n')"
-                    :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
-                    >
-                </uni-list-item>
-            </uni-list>
-        </uni-section>
+                <uni-list>
+                    <uni-list-item
+                        v-for="(inv, index) in invs.filter(x => x['FStockLocId.FNumber'] == drawer_stock_loc.FNumber)"
+                        :key="index"
+                        :title="inv['FMaterialId.FNumber']"
+                        :note="[
+                            `名称：${inv['FMaterialId.FName']}`, 
+                            `规格：${inv['FMaterialId.FSpecification']}`, 
+                            `批次：${inv.FBatchNo}`
+                        ].join('\n')"
+                        :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
+                        >
+                    </uni-list-item>
+                </uni-list>
+            </uni-section>
+        </scroll-view>
     </uni-drawer>
 </template>
 
@@ -297,6 +299,11 @@
 </script>
 
 <style lang="scss">
+    .uni-collapse-item__title-text {
+        font-size: $uni-font-size-lg !important;
+        font-weight: bold;
+    }
+    
 .shelf_swiper {
     .grid-item-box {
         flex: 1;

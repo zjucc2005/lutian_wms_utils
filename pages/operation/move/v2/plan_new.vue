@@ -99,6 +99,15 @@
     <uni-section title="库存信息" type="square"
         v-if="material.material_no" 
         class="above-uni-goods-nav">
+        <template v-slot:right>
+            <view class="uni-section__right">
+                <view class="text-md text-primary" @click="open_move_dialog(null)">
+                    <uni-icons type="plusempty" color="#007aff"></uni-icons>
+                    新增库存
+                </view>
+            </view>
+        </template>
+        
         <uni-list v-if="invs.length">
             <template v-for="(inv, index) in invs" :key="index">
                 <uni-list-item
@@ -184,8 +193,9 @@
                 <uni-data-checkbox
                     v-model="move_form.type" 
                     :localdata="[
-                        { text: '转移库位', value: 'move' },
-                        { text: '调整数量', value: 'edit' }
+                        { text: '转移库位', value: 'move', disable: edit_mode == 'new' },
+                        { text: '调整数量', value: 'edit', disable: edit_mode == 'new' },
+                        { text: '新增库存', value: 'new' }
                     ]"
                     class="uni-mb-10"
                     >
@@ -277,10 +287,43 @@
                                     <uni-number-box 
                                         v-model="move_form.edit_qty"
                                         :min="0"
+                                        :max="9999"
                                         :width="60"
                                     />
                                 </uni-forms-item>
                             </uni-col>
+                        </uni-row>
+                    </template>
+                    
+                    <template v-if="move_form.type == 'new'">
+                        <uni-row>
+                            <uni-forms-item label="库位" name="new_loc_no" label-width="40px">
+                                <uni-data-picker
+                                    v-model="move_form.new_loc_no"
+                                    :localdata="$store.state.stock_loc_opts"
+                                    split="-"
+                                    popup-title="请选择库位"
+                                />
+                            </uni-forms-item>
+                        </uni-row>
+                        <uni-row>
+                            <uni-forms-item label="批次" name="new_batch_no" label-width="40px">
+                                <uni-datetime-picker
+                                    v-model="move_form.new_batch_no" 
+                                    type="date" return-type="string"
+                                />
+                            </uni-forms-item>
+                        </uni-row>
+                        <uni-row>
+                            <uni-forms-item label="数量" name="new_qty" label-width="40px" >
+                                <uni-number-box
+                                    v-model="move_form.new_qty"
+                                    :min="1"
+                                    :max="9999"
+                                    :width="60"
+                                    style="padding-top: 5px; line-height: 25px;"
+                                />
+                            </uni-forms-item>
                         </uni-row>
                     </template>
                     
@@ -305,6 +348,7 @@
     export default {
         data() {
             return {
+                edit_mode: 'edit', // edit,new
                 invs: [],
                 inv_plans: [],
                 material: {
@@ -323,11 +367,14 @@
                     confirm_text: '新增'
                 },
                 move_form: {
-                    type: 'move', // move: 改库位, edit: 改数量
+                    type: 'move', // move: 改库位, edit: 改数量, new: 新增库位批次
                     inv: {},
-                    dest_loc_no: '',
-                    op_qty: 0,
-                    edit_qty: 0,
+                    dest_loc_no: '', // move
+                    op_qty: 0, // move
+                    edit_qty: 0, // edit
+                    new_loc_no: '', // new
+                    new_batch_no: '', // new
+                    new_qty: 0, // new
                     remark: ''
                 },
                 move_form_rules: {
@@ -346,12 +393,22 @@
                             }
                         ]
                     },
+                    new_loc_no: {
+                        rules: [
+                            { required: true, errorMessage: '库位号不能为空' },
+                        ]
+                    },
+                    new_batch_no: {
+                        rules: [
+                            { required: true, errorMessage: '批次号不能为空' },
+                        ]
+                    },
                     op_qty: {
                         rules: [
                             {
                                 validateFunction: (rule, value, data, callback) => {
                                     if (value <= 0 && this.move_form.type == 'move') return callback('移库数量必须大于0')
-                                    if (value < 0 && this.move_form.type == 'edit') return callback('调整数量必须大于等于0')
+                                    // if (value < 0 && this.move_form.type == 'edit') return callback('调整数量必须大于等于0')
                                     if (value > this.move_form.inv.FQty - this.move_form.inv.planned_qty) {
                                         return callback('调整总数超过上限')
                                     }
@@ -364,6 +421,15 @@
                             {
                                 validateFunction: (rule, value, data, callback) => {
                                     if (value === this.move_form.inv.FQty) return callback('库存数量没有变化')
+                                }
+                            }
+                        ]
+                    },
+                    new_qty: {
+                        rules: [
+                            {
+                                validateFunction: (rule, value, data, callback) => {
+                                    if (value <= 0) return callback('新增数量必须大于0')
                                 }
                             }
                         ]
@@ -414,8 +480,14 @@
                 })
             },
             open_move_dialog(inv) {
-                this.move_form.inv = inv
-                this.move_form.edit_qty = inv.FQty
+                if (inv) {
+                    this.edit_mode = 'edit'
+                    this.move_form.inv = inv
+                    this.move_form.edit_qty = inv.FQty
+                } else {
+                    this.edit_mode = 'new'
+                    this.move_form.type = 'new'
+                }
                 this.$refs.move_dialog.open()
             },
             close_move_dialog() {
@@ -469,6 +541,17 @@
                             FMaterialId: this.move_form.inv.FMaterialId,
                             FOpQTY: Math.abs(diff),
                             FBatchNo: this.move_form.inv.FBatchNo,
+                            FOpStaffNo: store.state.cur_staff.FNumber,
+                            FRemark: this.move_form.remark?.trim()
+                        })
+                    } else if (this.move_form.type == 'new') {
+                        inv_plan = new InvPlan({
+                            FOpType: 'add',
+                            FStockId: store.state.cur_stock.FStockId,
+                            FStockLocNo: this.move_form.new_loc_no,
+                            FMaterialId: this.material.material_id,
+                            FOpQTY: this.move_form.new_qty,
+                            FBatchNo: this.move_form.new_batch_no.replace(/-/g, ''),
                             FOpStaffNo: store.state.cur_staff.FNumber,
                             FRemark: this.move_form.remark?.trim()
                         })

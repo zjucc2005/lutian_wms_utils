@@ -49,7 +49,7 @@
     import store from '@/store'
     import K3CloudApi from '@/utils/k3cloudapi'
     import { get_bd_material } from '@/utils/api'
-    import { Inv, BdMaterial } from '@/utils/model'
+    import { Inv, BdMaterial, StockLoc } from '@/utils/model'
     export default {
         data() {
             return {
@@ -202,12 +202,24 @@
                 //     Ids: '100023'
                 // }
                 // K3CloudApi.delete(form_id, data)
-                
-                let form_id = 'PAEZ_C_INV_PLAN'
-                let data = {
-                    Ids: '100098,100099,100100'
-                }
-                K3CloudApi.delete(form_id, data)
+                // let options = { FNumber_in: ['NX3-B01-125', 'NX3-B01-225', 'NX3-B01-325'] }
+                // StockLoc.query(options).then(res => {
+                //     let ids = res.data.map(d => d.FStockId)
+                //     // console.log('ids', ids)
+                //     StockLoc.delete(ids)
+                // })
+                StockLoc.query({ FDocumentStatus: 'D' }).then(res => {
+                    let form_id = 'PAEZ_C_STOCK_LOC'
+                    let data = {
+                        Numbers: res.data.map(e => e.FNumber)
+                    }
+                    K3CloudApi.delete(form_id, data)
+                })
+                // let form_id = 'PAEZ_C_STOCK_LOC'
+                // let data = {
+                //     Numbers: ['NX3-B01-125', 'NX3-B01-225', 'NX3-B01-325']
+                // }
+                // K3CloudApi.delete(form_id, data)
             }
         }
     }
