@@ -20,7 +20,14 @@
                 :show-arrow="is_admin"
                 >
             </uni-list-item>
-            <!-- <uni-list-item title="创建组织" :right-text="bd_material.CreateOrgId.Name[0]?.Value" /> -->
+            <uni-list-item
+                title="单托标准数量"
+                :right-text="bd_material.F_RGEN_Text_qtr"
+                @click="edit_field('F_RGEN_Text_qtr')"
+                :clickable="is_admin"
+                :show-arrow="is_admin"
+                >
+            </uni-list-item>
             <uni-list-item title="使用组织" :right-text="bd_material.UseOrgId.Name[0]?.Value" />
             <uni-list-item title="仓库" :right-text="bd_material.MaterialStock[0].StockId?.Name[0].Value" />
             <uni-list-item title="仓管员" :right-text="bd_material.F_PAEZ_Base1 ? bd_material.F_PAEZ_Base1.Name[0].Value : '' " />
@@ -190,6 +197,14 @@
                         name: '单箱标准数量',
                         value: this.bd_material.MaterialStock[0].BoxStandardQty,
                         value_was: this.bd_material.MaterialStock[0].BoxStandardQty
+                    }
+                } else if (field == 'F_RGEN_Text_qtr') {
+                    this.edit_form = {
+                        field,
+                        type: 'text',
+                        name: '单托标准数量',
+                        value: this.bd_material.F_RGEN_Text_qtr,
+                        value_was: this.bd_material.F_RGEN_Text_qtr
                     }
                 }
                 this.$refs.edit_popup.open()
