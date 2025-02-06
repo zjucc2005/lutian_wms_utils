@@ -613,7 +613,7 @@
             },
             // 设定库位号占用信息 loc_nos: [{ loc_no: String, idle: Boolean }]
             _set_loc_nos() {
-                this.stock_loc_opts = store.state.stock_loc_opts // 下拉栏选项
+                this.stock_loc_opts = JSON.parse(JSON.stringify(store.state.stock_loc_opts)) // 下拉栏选项，deep copy
                 this.stock_loc_opts.forEach(depot => {
                     depot.children.forEach(shelf => {
                         shelf.children.forEach(loc => loc.disable = !this._is_idle(loc.value))
