@@ -139,7 +139,8 @@
                 refresh_interval: 30 * 1000, // 30s
                 goods_nav: {
                     options: [
-                        { icon: 'refreshempty', text: '刷新' }
+                        { icon: 'refreshempty', text: '刷新' },
+                        { icon: 'checkbox', text: '全选' }
                     ],
                     admin_button_group: [
                         {
@@ -174,12 +175,12 @@
             // this.load_inv_plans()
         },
         methods: {
-            // check_all() {
-            //     let checked_all = !this.inv_plans.find(inv_plan => !inv_plan.disabled && !inv_plan.checked)
-            //     this.inv_plans.forEach(inv_plan => {
-            //         if (!inv_plan.disabled) inv_plan.checked = !checked_all
-            //     })
-            // },
+            check_all() {
+                let checked_all = !this.inv_plans.find(inv_plan => !inv_plan.disabled && !inv_plan.checked)
+                this.inv_plans.forEach(inv_plan => {
+                    if (!inv_plan.disabled) inv_plan.checked = !checked_all
+                })
+            },
             checkbox_click(e) {
                 let inv_plan = this.inv_plans.find(x => x.FID == e.target.dataset.id)
                 if (inv_plan && !inv_plan.disabled) {
@@ -188,6 +189,7 @@
             },
             goods_nav_click(e) {
                 if (e.index === 0) this.refresh() // btn:刷新
+                if (e.index === 1) this.check_all() // btn:全选
             },
             goods_nav_admin_button_click(e) {
                 if (e.index === 0) this.submit_audit() // btn:审核确认

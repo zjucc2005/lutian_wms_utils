@@ -1,7 +1,7 @@
 <template>
     <uni-notice-bar single scrollable text="查询物料获取库存信息，然后点击库存明细新增计划" />
     <uni-section title="查询物料" type="square">
-        <template v-slot:right>
+        <!-- <template v-slot:right>
             <view class="uni-section__right">
                 <uni-data-checkbox multiple
                     v-model="search_form.ex_cond"
@@ -28,6 +28,30 @@
                 }"
                 class="uni-mb-5"
             />
+        </view> -->
+        <view class="container">
+            <uni-forms ref="form" :model="search_form" labelWidth="70px">
+                <uni-forms-item label="编码" name="material_no">
+                    <uni-easyinput
+                        v-model="search_form.material_no"
+                        trim="both"
+                        prefix-icon="scan"
+                        @icon-click="searchbar_icon_click"
+                    />
+                </uni-forms-item>
+                <uni-forms-item label="名称" name="material_name">
+                    <uni-easyinput v-model="search_form.material_name" trim="both"/>
+                </uni-forms-item>
+                <uni-forms-item label="规格" name="material_spec">
+                    <uni-easyinput v-model="search_form.material_spec" trim="both"/>
+                </uni-forms-item>
+                <uni-forms-item label="存货类别" name="material_category_id">
+                    <uni-data-select v-model="search_form.material_category_id" :localdata="material_categories" />
+                </uni-forms-item>
+                <button @click="search" type="primary">
+                    <uni-icons type="search" color="#fff"></uni-icons> 搜索
+                </button>
+            </uni-forms>
         </view>
     </uni-section>
     
@@ -343,7 +367,7 @@
     import K3CloudApi from '@/utils/k3cloudapi'
     import { play_audio_prompt } from '@/utils'
     import { get_bd_material, search_bd_materials } from '@/utils/api'
-    import { Inv, InvPlan } from '@/utils/model'
+    import { BdMaterial, Inv, InvPlan } from '@/utils/model'
     import scan_code from '@/utils/scan_code'
     export default {
         data() {
@@ -351,6 +375,7 @@
                 edit_mode: 'edit', // edit,new
                 invs: [],
                 inv_plans: [],
+                material_categories: [],
                 material: {
                     material_no: '',
                     material_name: '',
@@ -361,6 +386,10 @@
                 search_form: {
                     no: '',
                     ex_cond: uni.getStorageSync('mv_ex_cond') || [], // get
+                    material_no: '',
+                    material_name: '',
+                    material_spec: '',
+                    material_category_id: '',
                     candidates: []
                 },
                 move_dialog: {
@@ -454,6 +483,7 @@
         },
         mounted() {
             if (this.search_form.no) this.load_data()
+            this.load_bd_materialcategories()
         },
         methods: {
             swipe_action_click(e, inv_plan) {
@@ -495,20 +525,42 @@
                 this.move_form = { type: 'move', inv: {}, dest_loc_no: '', op_qty: 0 }
             },
             // 物料模糊匹配
+            // async search() {
+            //     this._set_material()
+            //     this.invs = []
+            //     this.inv_plans = []
+            //     this.search_form.no = this.search_form.no.trim()
+            //     if (!this.search_form.no) return
+            //     let options = { 
+            //         no: this.search_form.no, 
+            //         FUseOrgId: store.state.cur_stock.FUseOrgId,
+            //     }
+            //     if (this.search_form.ex_cond.includes('3.')) options.FNumber_pre = '3.'
+            //     let meta = { per_page: 20, order: 'FMaterialId DESC' }
+            //     uni.showLoading({ title: 'Loading' })
+            //     search_bd_materials(options, meta).then(res => {
+            //         uni.hideLoading()
+            //         this.search_form.candidates = res.data
+            //         if (res.data.length > 1) this.$refs.search_drawer.open()
+            //         if (res.data.length === 1) this.load_data(res.data[0]?.FNumber)
+            //         if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
+            //     })
+            // },
+            // 物料模糊匹配
             async search() {
                 this._set_material()
                 this.invs = []
                 this.inv_plans = []
-                this.search_form.no = this.search_form.no.trim()
-                if (!this.search_form.no) return
-                let options = { 
-                    no: this.search_form.no, 
-                    FUseOrgId: store.state.cur_stock.FUseOrgId,
-                }
-                if (this.search_form.ex_cond.includes('3.')) options.FNumber_pre = '3.'
-                let meta = { per_page: 20, order: 'FMaterialId DESC' }
+                if (!this.search_form.material_no && !this.search_form.material_name && !this.search_form.material_spec) return
+                let options = {}
+                if (store.state.cur_stock.FUseOrgId) options.FUseOrgId = store.state.cur_stock.FUseOrgId
+                if (this.search_form.material_no) options.FNumber_lk = this.search_form.material_no
+                if (this.search_form.material_name) options.FName_lk = this.search_form.material_name
+                if (this.search_form.material_spec) options.FSpecification_lk = this.search_form.material_spec
+                if (this.search_form.material_category_id) options.FCategoryId = this.search_form.material_category_id
+                let meta = { per_page: 50, order: 'FNumber ASC' }
                 uni.showLoading({ title: 'Loading' })
-                search_bd_materials(options, meta).then(res => {
+                BdMaterial.query(options, meta).then(res => {
                     uni.hideLoading()
                     this.search_form.candidates = res.data
                     if (res.data.length > 1) this.$refs.search_drawer.open()
@@ -628,9 +680,19 @@
                 let bd_material = this.search_form.candidates.find(x => x.FNumber == material_no)
                 if (bd_material) return bd_material
                 let res = await get_bd_material(material_no, store.state.cur_stock.FUseOrgId)
-                if (res.data[0]) {                  
+                if (res.data[0]) {
                     return res.data[0]
                 }
+            },
+            async load_bd_materialcategories() {
+                if (!store.state.bd_materialcategories?.length) {
+                    uni.showLoading({ title: 'Loading' })
+                    await BdMaterial.categories().then(res => {
+                        uni.hideLoading()
+                        store.commit('set_bd_materialcategories', res.data)
+                    })
+                }
+                this.material_categories = store.state.bd_materialcategories.map(x => { return { value: x.FMasterId, text: x.FName } })
             },
             async submit_delete(inv_plan) {
                 if (inv_plan.FDocumentStatu == 'A') {

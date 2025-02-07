@@ -122,6 +122,7 @@
                 :title="inv['FStockLocId.FNumber']"
                 :note="`批次：${inv.FBatchNo}`"
                 :right-text="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
+                @click="console.log('cc')" clickable
                 >
                 <template v-slot:header>
                     <view class="uni-list-item__head">

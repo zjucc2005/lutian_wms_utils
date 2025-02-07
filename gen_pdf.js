@@ -105,9 +105,9 @@ const pdf_template_inv_plans_out = (inv_plans) => {
         table_body: []
     }
     let group = {}
-    let inv_plans_sorted = inv_plans.sort((x, y) => x['FMaterialId.FNumber'] > y['FMaterialId.FNumber'] ? 1 : -1 )
-    for (let i = 0; i < inv_plans_sorted.length; i++) {
-        let inv_plan = inv_plans_sorted[i]
+    // let inv_plans_sorted = inv_plans.sort((x, y) => x['FMaterialId.FNumber'] > y['FMaterialId.FNumber'] ? 1 : -1 )
+    for (let i = 0; i < inv_plans.length; i++) {
+        let inv_plan = inv_plans[i]
         options.bill_no ||= inv_plan.FBillNo
         options.stock_name ||= inv_plan['FStockId.FName']
         if (group.material_no) {
