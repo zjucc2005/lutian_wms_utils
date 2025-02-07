@@ -38,7 +38,9 @@
     
     <uni-drawer ref="inv_drawer" mode="left" :width="Math.min($store.state.drawer_width, 480)" >
         <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
-            <uni-section :title="`库位：${drawer_stock_loc.FNumber}`" type="square">
+            <uni-section :title="`库位：${drawer_stock_loc.FNumber}`"
+                :sub-title="drawer_stock_loc.FRemark ? `备注：${drawer_stock_loc.FRemark}` : ''"
+                type="square">
                 <template v-slot:right>
                     <view class="uni-section__right">
                         <uni-icons type="closeempty" size="24" color="#333" @click="drawer_close"/>

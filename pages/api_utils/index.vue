@@ -163,63 +163,68 @@
                 })
             },
             async call_test_api() {
-                // BdMaterial.categories()
-                // K3CloudApi.view('ENG_BOM', { Number: '2.02.08.04.0065_V1.000' }).then(res => {
-                //     this.$logger.info('获取物料清单', res.data)
-                // })
-                // let fields = ['FID', "FName", "FNumber", "FForbidStatus", "FDocumentStatus", 'FUseOrgId', 'FUseOrgId.FName',
-                //               'FBomCategory', "FMaterialId", 'FMaterialId.FNumber', 'FItemName', 'FItemModel', 'FOperId', 'FITEMPPROPERTY']
-                let sta = {}
-                let fields = ['FID', 'FBillNo', 'F_PAEZ_Text']
-                for (let i = 1; i <= 1; i ++) {
-                    const data = {
-                        FormId: 'SAL_DELIVERYNOTICE',
-                        FieldKeys: fields.join(','),
-                        FilterString: `FStockID = '2048838' AND FCreateDate BETWEEN '2024-01-01' AND '2024-12-31'`,
-                        Limit: 10000,
-                        //FilterString: "FMaterialId.FNumber = '3.01.01.01.07.0072'"
-                    }
-                    
-                    let res = await K3CloudApi.bill_query(data)
-                    let uniq_arr = []
-                    if (res.data) {
-                        
-                    }
-                    for (let item of res.data) {
-                        let receiver = item['F.PAEZ.Text'].trim().replace(/[*|发]快递/g, '')
-                        receiver = receiver.replace(/（售后）/g, '')
-                        if (!uniq_arr.includes(receiver)) {
-                            uniq_arr.push(receiver)
+                let shelf = 'B20'
+                let grids = [101,201,301]
+                // let grids = []
+                // for (let i = 1; i < 24; i ++) { grids.push(300+i) }
+                let numbers = grids.map(e => {
+                    return `NX3-${shelf}-${e}`
+                })
+                StockLoc.query({FNumber_in: numbers}).then(res => {
+                    console.log('res', res)
+                    res.data.forEach(e => {
+                        let data = {
+                            model: {
+                                FID: e.FID,
+                                FPalletSpace: 1
+                            }
                         }
-                    }
-                    sta[i] = uniq_arr.toSorted()
-                }
-                console.log("收货人列表", sta)
+                        K3CloudApi.save('PAEZ_C_STOCK_LOC', data)
+                    })
+                    
+                    // let form_id = 'PAEZ_C_STOCK_LOC'
+                    // let data = {
+                    //     Numbers: res.data.map(e => e.FNumber)
+                    // }
+                    // K3CloudApi.delete(form_id, data)
+                })
+                
+                
+                // let sta = {}
+                // let fields = ['FID', 'FBillNo', 'F_PAEZ_Text']
+                // for (let i = 1; i <= 1; i ++) {
+                //     const data = {
+                //         FormId: 'SAL_DELIVERYNOTICE',
+                //         FieldKeys: fields.join(','),
+                //         FilterString: `FStockID = '2048838' AND FCreateDate BETWEEN '2024-01-01' AND '2024-12-31'`,
+                //         Limit: 10000,
+                //         //FilterString: "FMaterialId.FNumber = '3.01.01.01.07.0072'"
+                //     }
+                    
+                //     let res = await K3CloudApi.bill_query(data)
+                //     let uniq_arr = []
+                //     if (res.data) {
+                        
+                //     }
+                //     for (let item of res.data) {
+                //         let receiver = item['F.PAEZ.Text'].trim().replace(/[*|发]快递/g, '')
+                //         receiver = receiver.replace(/（售后）/g, '')
+                //         if (!uniq_arr.includes(receiver)) {
+                //             uniq_arr.push(receiver)
+                //         }
+                //     }
+                //     sta[i] = uniq_arr.toSorted()
+                // }
+                // console.log("收货人列表", sta)
             },
             call_delete_api() {
-                // let form_id = 'PAEZ_C_INV'
-                // let data = {
-                //     Ids: '100023'
-                // }
-                // K3CloudApi.delete(form_id, data)
-                // let options = { FNumber_in: ['NX3-B01-125', 'NX3-B01-225', 'NX3-B01-325'] }
-                // StockLoc.query(options).then(res => {
-                //     let ids = res.data.map(d => d.FStockId)
-                //     // console.log('ids', ids)
-                //     StockLoc.delete(ids)
+                // StockLoc.query({ FDocumentStatus: 'D' }).then(res => {
+                //     let form_id = 'PAEZ_C_STOCK_LOC'
+                //     let data = {
+                //         Numbers: res.data.map(e => e.FNumber)
+                //     }
+                //     K3CloudApi.delete(form_id, data)
                 // })
-                StockLoc.query({ FDocumentStatus: 'D' }).then(res => {
-                    let form_id = 'PAEZ_C_STOCK_LOC'
-                    let data = {
-                        Numbers: res.data.map(e => e.FNumber)
-                    }
-                    K3CloudApi.delete(form_id, data)
-                })
-                // let form_id = 'PAEZ_C_STOCK_LOC'
-                // let data = {
-                //     Numbers: ['NX3-B01-125', 'NX3-B01-225', 'NX3-B01-325']
-                // }
-                // K3CloudApi.delete(form_id, data)
             }
         }
     }

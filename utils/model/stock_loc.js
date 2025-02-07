@@ -115,7 +115,7 @@ class StockLoc {
      * @return {Hash} Promise
      */    
     static async query(options={}, meta={}) {
-        let fields = ['FNumber', 'FDocumentStatus', 'FForbidStatus', 'FStockId']
+        let fields = ['FID', 'FNumber', 'FDocumentStatus', 'FForbidStatus', 'FStockId', 'FRemark', 'FPalletSpace']
         const data = {
             FormId: "PAEZ_C_STOCK_LOC",
             FieldKeys: fields.join(','),
