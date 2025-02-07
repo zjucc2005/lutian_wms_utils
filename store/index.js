@@ -18,6 +18,12 @@ const store = createStore({
         config: config,            // 运行配置
         latest_version: 0,         // 最新版本号
         system_info: null,         // 设备信息，开机获取
+        // #ifdef H5
+        device_type: 'h5',
+        // #endif
+        // #ifdef APP-PLUS
+        device_type: 'app-plus',
+        // #endif
         conn_info: null,           // API连接成功返回数据
         conn_expired_at: null,     // API连接过期时间
         cur_stock: {},             // >>> 当前作业仓库

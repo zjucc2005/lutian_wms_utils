@@ -70,7 +70,7 @@
     </uni-section>
     
     <uni-section title="当前计划明细" type="square"
-        sub-title="左滑可删除"
+        :sub-title="$store.state.device_type == 'app-plus' ? '左滑可删除' : ''"
         v-if="inv_plans.length">
         <template v-slot:right>
             <view class="uni-section__right">
@@ -106,13 +106,18 @@
                     
                     <template v-slot:footer>
                         <view class="uni-list-item__foot">
-                            <view class="op_qty">
-                                <text v-if="inv_plan.FOpType == 'mv'" class="text-primary">移动 </text>
-                                <text v-if="inv_plan.FOpType == 'add'" class="text-error">增加 </text>
-                                <text v-if="inv_plan.FOpType == 'sub'" class="text-success">减少 </text>
-                                <text>{{ inv_plan.FOpQTY }} {{ inv_plan['FStockUnitId.FName'] }}</text>
+                            <view>
+                                <view class="op_qty">
+                                    <text v-if="inv_plan.FOpType == 'mv'" class="text-primary">移动 </text>
+                                    <text v-if="inv_plan.FOpType == 'add'" class="text-error">增加 </text>
+                                    <text v-if="inv_plan.FOpType == 'sub'" class="text-success">减少 </text>
+                                    <text>{{ inv_plan.FOpQTY }} {{ inv_plan['FStockUnitId.FName'] }}</text>
+                                </view>
+                                <text class="status">{{ inv_plan.status }}</text>
                             </view>
-                            <text class="status">{{ inv_plan.status }}</text>
+                            <view v-if="$store.state.device_type == 'h5' && !inv_plan.status">
+                                <uni-icons type="trash" size="24" color="#dd524d" @click="submit_delete(inv_plan)" class="uni-ml-5" />
+                            </view>
                         </view>
                     </template>
                 </uni-list-item>
@@ -774,5 +779,9 @@
             color: $uni-text-color;
             height: 50px;
         }
+    }
+    .uni-list-item__foot {
+        flex-direction: row;
+        align-items: center;
     }
 </style>

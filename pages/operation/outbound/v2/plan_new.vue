@@ -7,7 +7,7 @@
                 v-for="(obj, index) in outbound_task.outbound_list"
                 :key="index"
                 >
-                <uni-list-item                   
+                <uni-list-item
                     v-if="obj.material_no == plan_form.material_no"
                     :right-text="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
                     @click="$refs.material_drawer.open()" clickable
@@ -44,7 +44,7 @@
             <uni-forms-item label="库位号" name="loc_no" required>
                 <uni-data-picker
                     v-model="plan_form.loc_no"
-                    :localdata="$store.state.stock_loc_opts"
+                    :localdata="stock_loc_opts"
                     split="-"
                     popup-title="请选择库位"
                 />
@@ -63,7 +63,7 @@
     </view>
    
     <uni-section type="square" title="当前计划明细"
-        sub-title="左滑可删除"
+        :sub-title="$store.state.device_type == 'app-plus' ? '左滑可删除' : ''"
         v-if="inv_plans.length"
         :class="op_mode == 'scan' ? 'above-uni-goods-nav' : ''">
         <template v-slot:right>
@@ -88,9 +88,14 @@
                     :note="`批次：${inv_plan.FBatchNo}`"
                 >
                     <template v-slot:footer>
-                        <view class="uni-list-item__foot">
-                            <text class="op_qty">{{ inv_plan.FOpQTY }} {{ inv_plan['FStockUnitId.FName'] }}</text>
-                            <text class="status">{{ inv_plan.status }}</text>
+                        <view class="uni-list-item__foot" style="flex-direction: row;">
+                            <view>
+                                <view class="op_qty">{{ inv_plan.FOpQTY }} {{ inv_plan['FStockUnitId.FName'] }}</view>
+                                <view class="status">{{ inv_plan.status }}</view>
+                            </view>
+                            <view v-if="$store.state.device_type == 'h5' && !inv_plan.status">
+                                <uni-icons type="trash" size="24" color="#dd524d" @click="submit_delete(inv_plan)" class="uni-ml-5" />
+                            </view>
                         </view>
                     </template>
                 </uni-list-item>
@@ -99,6 +104,7 @@
     </uni-section>
     
     <uni-section title="库存信息"
+        sub-title="点击勾选的行，修改选择的库存数"
         v-if="op_mode == 'check'"
         class="above-uni-goods-nav">
         <template v-slot:decoration>
@@ -122,7 +128,8 @@
                 :title="inv['FStockLocId.FNumber']"
                 :note="`批次：${inv.FBatchNo}`"
                 :right-text="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
-                @click="console.log('cc')" clickable
+                @click="edit_checked_qty(inv)" clickable
+                :show-arrow="inv.checked"
                 >
                 <template v-slot:header>
                     <view class="uni-list-item__head">
@@ -200,6 +207,19 @@
             </uni-section>
         </scroll-view>
     </uni-drawer>
+
+    <!-- 修改checked_qty -->
+    <uni-popup ref="checked_qty_dialog" type="dialog">
+        <uni-popup-dialog title="修改选择的库存数" type="error" :show-close="false">
+            <view class="plan-form">
+                <uni-number-box 
+                    v-model="inv_editing.checked_qty" 
+                    :min="0" :max="inv_editing.FQty"
+                    @change="change_checked_qty"
+                />
+            </view>
+        </uni-popup-dialog>
+    </uni-popup>
 </template>
 
 <script>
@@ -213,6 +233,7 @@
                 op_mode: 'scan',
                 outbound_task: {},
                 invs: [],
+                inv_editing: {},
                 inv_plans: [],
                 plan_form: {
                     material_no: '',
@@ -313,6 +334,13 @@
                 store.commit('update_stock_locs', res.data) // 只查询禁用库存
             }) 
         },
+        computed: {
+            stock_loc_opts() {
+                return this.invs.map(inv => {
+                    return { text: inv['FStockLocId.FNumber'], value: inv['FStockLocId.FNumber'] }
+                })
+            }
+        },
         methods: {
             swipe_action_click(e, inv_plan) {
                if (e.index === 0) this.submit_delete(inv_plan) // btn:删除
@@ -349,9 +377,21 @@
                 let checking_qty = Math.min(inv.FQty, plan_qty - sum_checked_qty)
                 inv.checked = true
                 inv.checked_qty = checking_qty
-                if (sum_checked_qty + checking_qty >= plan_qty) {
-                    this.invs.forEach(x =>  x.disabled = !x.checked)
+                // if (sum_checked_qty + checking_qty >= plan_qty) {
+                //     this.invs.forEach(x =>  x.disabled = !x.checked)
+                // }
+            },
+            check_inv(inv) {
+                
+            },
+            edit_checked_qty(inv) {
+                if (inv.checked) {
+                    this.$refs.checked_qty_dialog.open()
+                    this.inv_editing = inv
                 }
+            },
+            change_checked_qty(e) {
+                this.inv_editing.checked = e > 0
             },
             material_no_click(material_no) {
                 this.$refs.material_drawer.close()
@@ -676,5 +716,12 @@
 </script>
 
 <style lang="scss">
-
+    .uni-list-item__foot {
+        align-items: center;
+    }
+    .plan-form {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
 </style>

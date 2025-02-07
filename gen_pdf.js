@@ -3,7 +3,7 @@
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 import store from '@/store'
-import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js' 
 
 const font_file_path = './static/font/SourceHanSansCN-Normal.ttf'
 const font_family = 'SourceHanSansCN'
@@ -95,14 +95,16 @@ const pdf_template_inv_plans_in = (inv_plans) => {
     return url
 }
 
-const pdf_template_inv_plans_out = (inv_plans) => {
+const pdf_template_inv_plans_out = (inv_plans, _options={}) => {
+    console.log('_options', _options)
     let options = {
         title: '绿田机械股份有限公司',
         subtitle: '发货通知单拣货计划',
         bill_no: '',
         stock_name: '',
         table_head: ['序号', '品名', '规格', '数量', '单位', '仓位号', '备注'],
-        table_body: []
+        table_body: [],
+        ..._options
     }
     let group = {}
     // let inv_plans_sorted = inv_plans.sort((x, y) => x['FMaterialId.FNumber'] > y['FMaterialId.FNumber'] ? 1 : -1 )
@@ -150,8 +152,9 @@ const pdf_template_inv_plans_out = (inv_plans) => {
     // 单号标识
     f.setFontSize(10)
     f.text(`出货单号：${options.bill_no}`, 10, 25)
-    f.text(`出库仓库：${options.stock_name}`, 10, 30)
-    f.text(`打印日期：${formatDate(Date.now(), 'yyyy-MM-dd')}`, 164, 30)
+    f.text(`收货人：${options.receiver}`, 10, 30)
+    f.text(`打印日期：${formatDate(Date.now(), 'yyyy-MM-dd')}`, 164, 25)
+    f.text(`出库仓库：${options.stock_name}`, 200 - f.getTextWidth(`出库仓库：${options.stock_name}`), 30)
     // 表格
     let textWidth_1 = 0
     let textWidth_5 = 0

@@ -49,7 +49,7 @@
     import store from '@/store'
     import K3CloudApi from '@/utils/k3cloudapi'
     import { get_bd_material } from '@/utils/api'
-    import { Inv, BdMaterial, StockLoc } from '@/utils/model'
+    import { Inv, InvPlan, InvLog, BdMaterial, StockLoc } from '@/utils/model'
     export default {
         data() {
             return {
@@ -225,6 +225,10 @@
                 //     }
                 //     K3CloudApi.delete(form_id, data)
                 // })
+                // Inv.query({ FMaterialId: '' }).then(res => {
+                //     Inv.delete(res.data.map(e => e.FID))
+                // })
+                
             }
         }
     }

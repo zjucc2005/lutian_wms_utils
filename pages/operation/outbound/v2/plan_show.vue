@@ -112,6 +112,7 @@
 
 <script>
     import store from '@/store'
+    import K3CloudApi from '@/utils/k3cloudapi'
     import { InvPlan } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
     // #ifdef H5
@@ -188,8 +189,13 @@
                 }  
             },
             // #ifdef H5
-            preview_pdf() {
-                let url = pdf_template_inv_plans_out(this.inv_plans)
+            async preview_pdf() {
+                let response = await K3CloudApi.view('SAL_DELIVERYNOTICE', { Number: this.bill_no })
+                let receiver = ''
+                if (response.data.Result.ResponseStatus.IsSuccess) {
+                    receiver = response.data.Result.Result.F_PAEZ_Text
+                }
+                let url = pdf_template_inv_plans_out(this.inv_plans, { receiver: receiver })
                 uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
             },
             // #endif
