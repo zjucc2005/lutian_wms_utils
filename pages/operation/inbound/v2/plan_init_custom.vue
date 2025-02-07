@@ -1,10 +1,47 @@
 <template>
-    <uni-notice-bar single scrollable text="手工录入物料信息后，下一步新增计划明细" />
-    <uni-section title="添加物料信息" type="square"
-        sub-title="查询获取物料信息"
+    <!-- <uni-notice-bar single scrollable text="手工录入物料信息后，下一步新增计划明细" /> -->
+    <uni-section title="1. 查询物料" type="square"
         v-if="inbound_task.status == 'init'"
         >
-        <template v-slot:right>
+        <view class="container">
+            <uni-forms ref="search_form" :model="search_form" labelWidth="70px">
+                <uni-forms-item label="编码" name="material_no">
+                    <uni-easyinput
+                        v-model="search_form.material_no"
+                        trim="both"
+                        prefix-icon="scan"
+                        @icon-click="searchbar_icon_click"
+                    />
+                </uni-forms-item>
+                <uni-forms-item label="名称" name="material_name">
+                    <uni-easyinput v-model="search_form.material_name" trim="both"/>
+                </uni-forms-item>
+                <uni-forms-item label="规格" name="material_spec">
+                    <uni-easyinput v-model="search_form.material_spec" trim="both"/>
+                </uni-forms-item>
+                <uni-forms-item label="存货类别" name="material_category_id">
+                    <uni-data-select v-model="search_form.material_category_id" :localdata="material_categories" />
+                </uni-forms-item>
+                <uni-row>
+                    <uni-col :span="12">
+                        <button @click="scan_code" type="warn" class="form-btn left">
+                            <uni-icons type="scan" color="#fff"></uni-icons> 扫码
+                        </button>
+                    </uni-col>
+                    <uni-col :span="12">
+                        <button @click="search" type="primary" class="form-btn right">
+                            <uni-icons type="checkmarkempty" color="#fff"></uni-icons> 搜索
+                        </button>
+                    </uni-col>
+                </uni-row>
+            </uni-forms>
+        </view>
+    </uni-section>
+    
+    <uni-section title="2. 提交物料数量" type="square"
+        v-if="inbound_task.status == 'init'"
+        >
+        <!-- <template v-slot:right>
             <view class="uni-section__right">
                 <uni-data-checkbox multiple
                     v-model="ex_cond"
@@ -14,10 +51,29 @@
                     >
                 </uni-data-checkbox>
             </view>
-        </template>
+        </template> -->
+        <uni-list v-if="form.material_id">
+            <uni-list-item
+                :title="form.material_no"
+                :note="[
+                    `名称：${form.material_name}`, 
+                    `规格：${form.material_spec}`
+                ].join('\n')"
+                :thumb="thumbnail_url(form.material_image)"
+                thumb-size="lg"
+            />
+        </uni-list>
+        <uni-list v-else>
+            <uni-list-item
+                :show-extra-icon="true"
+                :extra-icon="{ type: 'info', size: '24', color: '#007bff' }"
+                title="请先查询获取物料信息"
+            />
+        </uni-list>
         <view class="container">
             <uni-forms ref="form" :model="form" :rules="form_rules" labelWidth="70px">
-                <uni-forms-item label="物料查询" name="material_no">
+                <uni-forms-item name="material_id" style="height: 0;"></uni-forms-item>
+                <!-- <uni-forms-item name="material_id">
                     <uni-easyinput
                         v-model="form.no"
                         trim="both"
@@ -34,7 +90,7 @@
                     <view class="form-info">编码：{{ form.material_no || '-' }}</view>
                     <view class="form-info">名称：{{ form.material_name || '-' }}</view>
                     <view class="form-info">规格：{{ form.material_spec || '-' }}</view>
-                </uni-forms-item>
+                </uni-forms-item> -->
                 
                 <uni-forms-item label="物料数量" name="base_unit_qty">
                     <uni-easyinput
@@ -47,18 +103,9 @@
                         </template>
                     </uni-easyinput>
                 </uni-forms-item>
-                <uni-row>
-                    <uni-col :span="12">
-                        <button @click="scan_code" type="warn" class="form-btn left">
-                            <uni-icons type="scan" color="#fff"></uni-icons> 扫码
-                        </button>
-                    </uni-col>
-                    <uni-col :span="12">
-                        <button @click="add_to_inbound_task" type="primary" class="form-btn right">
-                            <uni-icons type="checkmarkempty" color="#fff"></uni-icons> 提交
-                        </button>
-                    </uni-col>
-                </uni-row>
+                <button @click="add_to_inbound_task" type="primary">
+                    <uni-icons type="checkmarkempty" color="#fff"></uni-icons> 提交
+                </button>
             </uni-forms>
         </view>
     </uni-section>
@@ -131,14 +178,14 @@
             </template>
             <uni-list>
                 <uni-list-item
-                    v-for="(material, index) in bd_materials"
+                    v-for="(material, index) in search_form.candidates"
                     :key="index"
                     :title="material.FNumber"
                     :note="[
                         `名称：${material.FName}`, 
                         `规格：${material.FSpecification}`
                     ].join('\n')"
-                    :thumb="_thumbnail_url(material.FImageFileServer)"
+                    :thumb="thumbnail_url(material.FImageFileServer)"
                     thumb-size="lg"
                     @click="select_material(material)" clickable
                     show-arrow
@@ -153,7 +200,7 @@
     <uni-drawer ref="detail_drawer" :width="$store.state.drawer_width">
         <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
             <uni-section title="操作明细" type="square"
-                :sub-title="inbound_task.status == 'init' ? '左滑可删除' : ''"
+                :sub-title="inbound_task.status == 'init' && $store.state.device_type == 'app-plus' ? '左滑可删除' : ''"
                 >
                 <template v-slot:right>
                     <view class="uni-section__right">
@@ -180,8 +227,11 @@
                                 </view>
                             </template>
                             <template v-slot:footer>
-                                <view class="uni-list-item__foot">
-                                    <text>{{ obj.base_unit_qty }} {{ obj.base_unit_name }}</text>
+                                <view class="uni-list-item__foot flex-row">
+                                    <view>{{ obj.base_unit_qty }} {{ obj.base_unit_name }}</view>
+                                    <view v-if="$store.state.device_type == 'h5'">
+                                        <uni-icons type="trash" size="24" color="#dd524d" @click="delete_inbound_list(obj._id)" class="uni-ml-5" />
+                                    </view>
                                 </view>
                             </template>
                         </uni-list-item>
@@ -196,7 +246,7 @@
     import store from '@/store'
     import K3CloudApi from '@/utils/k3cloudapi'
     import { search_bd_materials } from '@/utils/api'
-    import { InboundTask, InvPlan } from '@/utils/model'
+    import { InboundTask, BdMaterial, InvPlan } from '@/utils/model'
     import { is_decimal_unit, play_audio_prompt } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     import scan_code from '@/utils/scan_code'
@@ -207,24 +257,37 @@
                 ex_cond: uni.getStorageSync('mv_ex_cond') || [], // get
                 inbound_task: {},
                 inv_plans: [],
+                material_categories: [],
                 is_completed: false,
+                search_form: {
+                    material_no: '',
+                    material_name: '',
+                    material_spec: '',
+                    material_category_id: '',
+                    candidates: []
+                },
                 form: {
-                    no: '',
                     material_id: '',
                     material_no: '',
                     material_name: '',
                     material_spec: '',
+                    material_image: '',
                     base_unit_qty: '',
                     base_unit_qty_focus: false,
                     base_unit_name: 'Pcs',
-                    decimal_unit: false
+                    decimal_unit: false,
                 },
                 form_rules: {
-                    material_no: {
+                    material_id: {
                         rules: [
-                            { required: true, errorMessage: '物料编码不能为空' }
+                            { required: true, errorMessage: '请先查询获取物料信息' }
                         ]
                     },
+                    // material_no: {
+                    //     rules: [
+                    //         { required: true, errorMessage: '物料编码不能为空' }
+                    //     ]
+                    // },
                     base_unit_qty: {
                         rules: [
                             { required: true, errorMessage: '物料数量不能为空' },
@@ -280,6 +343,9 @@
                 this.load_inv_plans()
             }
         },
+        mounted() {
+            this.load_bd_materialcategories()  
+        },
         methods: {
             formatDate,
             add_to_inbound_task() {
@@ -299,17 +365,21 @@
                         created_at: Date.now()
                     })
                     this._init_form()
-                    this.form.no = ''
                     play_audio_prompt('success')
                     uni.showToast({ icon: 'none', title: '提交成功' })
                 }).catch(err => {})
             },
-            ex_cond_change(e) {
-                uni.setStorageSync('mv_ex_cond', e.detail.value) // set
+            delete_inbound_list(id) {
+                let inbound_task = new InboundTask(this.inbound_task)
+                this.inbound_task = inbound_task.del_inbound_list(id)
+                play_audio_prompt('delete')
             },
-            form_icon_click(name) {
-                if (name == 'scan') this.scan_code()
-            },
+            // ex_cond_change(e) {
+            //     uni.setStorageSync('mv_ex_cond', e.detail.value) // set
+            // },
+            // form_icon_click(name) {
+            //     if (name == 'scan') this.scan_code()
+            // },
             goods_nav_click(e) {
                 if (e.index === 0) {
                     this.$refs.detail_drawer.open()
@@ -369,11 +439,14 @@
             },
             scan_code() {
                 scan_code().then(res => {
-                    this.form.no = res.result
+                    this.search_form.material_no = res.result
                     this.search()
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })
                 })
+            },
+            searchbar_icon_click() {
+                this.scan_code()
             },
             select_material(bd_material) {
                 this._set_form(bd_material)
@@ -381,10 +454,8 @@
             },
             swipe_action_click(e, id) {
                 if (e.index === 0 && e.position == 'right') {
-                    let inbound_task = new InboundTask(this.inbound_task)
-                    this.inbound_task = inbound_task.del_inbound_list(id)
+                    this.delete_inbound_list(id)
                     this.$refs.swipe_action.closeAll()
-                    play_audio_prompt('delete')
                 } 
             },
             async load_inv_plans() {
@@ -397,26 +468,58 @@
                     this._calc_progress(res.data) // 判定计划比率和是否已完成
                 })
             },
+            async load_bd_materialcategories() {
+                if (!store.state.bd_materialcategories?.length) {
+                    uni.showLoading({ title: 'Loading' })
+                    await BdMaterial.categories().then(res => {
+                        uni.hideLoading()
+                        store.commit('set_bd_materialcategories', res.data)
+                    })
+                }
+                this.material_categories = store.state.bd_materialcategories.map(x => { return { value: x.FMasterId, text: x.FName } })
+            },
             // 物料模糊匹配
             async search() {
-                this._init_form()
-                this.form.no = this.form.no.trim()
-                if (!this.form.no) return
-                let options = { 
-                    no: this.form.no, 
-                    FUseOrgId: store.state.cur_stock.FUseOrgId,
-                }
-                if (this.ex_cond.includes('3.')) options.FNumber_pre = '3.'
-                let meta = { per_page: 20, order: 'FMaterialId DESC' }
+                this._set_material()
+                this.invs = []
+                this.inv_plans = []
+                if (!this.search_form.material_no && !this.search_form.material_name && !this.search_form.material_spec) return
+                let options = {}
+                if (store.state.cur_stock.FUseOrgId) options.FUseOrgId = store.state.cur_stock.FUseOrgId
+                if (this.search_form.material_no) options.FNumber_lk = this.search_form.material_no
+                if (this.search_form.material_name) options.FName_lk = this.search_form.material_name
+                if (this.search_form.material_spec) options.FSpecification_lk = this.search_form.material_spec
+                if (this.search_form.material_category_id) options.FCategoryId = this.search_form.material_category_id
+                let meta = { per_page: 50, order: 'FNumber ASC' }
                 uni.showLoading({ title: 'Loading' })
-                search_bd_materials(options, meta).then(res => {
+                BdMaterial.query(options, meta).then(res => {
                     uni.hideLoading()
-                    this.bd_materials = res.data
+                    this.search_form.candidates = res.data
                     if (res.data.length > 1) this.$refs.search_drawer.open()
                     if (res.data.length === 1) this._set_form(res.data[0])
                     if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
                 })
             },
+            // 物料模糊匹配
+            // async search() {
+            //     this._init_form()
+            //     this.form.no = this.form.no.trim()
+            //     if (!this.form.no) return
+            //     let options = { 
+            //         no: this.form.no, 
+            //         FUseOrgId: store.state.cur_stock.FUseOrgId,
+            //     }
+            //     if (this.ex_cond.includes('3.')) options.FNumber_pre = '3.'
+            //     let meta = { per_page: 20, order: 'FMaterialId DESC' }
+            //     uni.showLoading({ title: 'Loading' })
+            //     search_bd_materials(options, meta).then(res => {
+            //         uni.hideLoading()
+            //         this.bd_materials = res.data
+            //         if (res.data.length > 1) this.$refs.search_drawer.open()
+            //         if (res.data.length === 1) this._set_form(res.data[0])
+            //         if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
+            //     })
+            // },
             _calc_percentage(obj) {
                 let planned_qty = 0
                 this.inv_plans.forEach(inv_plan => {
@@ -448,10 +551,15 @@
                 this.form.material_no = ''
                 this.form.material_name = ''
                 this.form.material_spec = ''
+                this.form.material_image = ''
                 this.form.base_unit_qty = ''
                 this.form.base_unit_qty_focus = false
                 this.form.base_unit_name = 'Pcs'
                 this.form.decimal_unit = false
+                
+                this.search_form.material_no = ''
+                this.search_form.material_name = ''
+                this.search_form.material_spec = ''
             },
             _set_form(bd_material) {
                 if (bd_material) {
@@ -466,12 +574,32 @@
                     this._init_form()
                 }
             },
-            _thumbnail_url(file_id) {
-                if(file_id.trim()) {
-                    return K3CloudApi.download_url_sync(file_id, 1, true)
+            _set_material(bd_material) {
+                if (bd_material) {
+                    this.form.material_id = bd_material.FMaterialId
+                    this.form.material_no = bd_material.FNumber
+                    this.form.material_name = bd_material.FName
+                    this.form.material_spec = bd_material.FSpecification
+                    this.form.base_unit_name = bd_material['FBaseUnitId.FName']
+                    this.form.material_image = bd_material.FImageFileServer
                 } else {
-                    return '/static/default_40x40.png'
+                    this.form.material_id = ''
+                    this.form.material_no = ''
+                    this.form.material_name = ''
+                    this.form.material_spec = ''
+                    this.form.base_unit_name = 'Pcs'
+                    this.form.material_image = ''
                 }
+            },
+            // _thumbnail_url(file_id) {
+            //     if(file_id.trim()) {
+            //         return K3CloudApi.download_url_sync(file_id, 1, true)
+            //     } else {
+            //         return '/static/default_40x40.png'
+            //     }
+            // },
+            thumbnail_url(file_id) {
+                return K3CloudApi.thumbnail_url(file_id)
             }
         }
     }
@@ -498,5 +626,9 @@
         right: 50px;
         width: 128px;
         height: 128px;
+    }
+    .uni-list-item__foot.flex-row {
+        flex-direction: row;
+        align-items: center;
     }
 </style>

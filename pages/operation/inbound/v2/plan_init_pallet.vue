@@ -108,7 +108,7 @@
     <uni-drawer ref="detail_drawer" :width="$store.state.drawer_width">
         <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
             <uni-section title="操作明细" type="square"
-                :sub-title="inbound_task.status == 'init' ? '左滑可删除' : ''"
+                :sub-title="inbound_task.status == 'init' && $store.state.device_type == 'app-plus' ? '左滑可删除' : ''"
                 >
                 <template v-slot:right>
                     <view class="uni-section__right">
@@ -135,8 +135,11 @@
                                 </view>
                             </template>
                             <template v-slot:footer>
-                                <view class="uni-list-item__foot">
-                                    <text>{{ info.base_unit_qty }} {{ info.base_unit_name }}</text>
+                                <view class="uni-list-item__foot flex-row">
+                                    <view>{{ info.base_unit_qty }} {{ info.base_unit_name }}</view>
+                                    <view v-if="$store.state.device_type == 'h5'">
+                                        <uni-icons type="trash" size="24" color="#dd524d" @click="delete_pallet_info(info._id)" class="uni-ml-5" />
+                                    </view>
                                 </view>
                             </template>
                         </uni-list-item>
@@ -294,6 +297,11 @@
                 this.form.base_unit_qty_focus = true
                 this.material_no_change()
             },
+            delete_pallet_info(id) {
+                let inbound_task = new InboundTask(this.inbound_task)
+                this.inbound_task = inbound_task.del_pallet_info(id)
+                play_audio_prompt('delete')
+            },
             form_icon_click(name) {
                 if (name == 'scan') this.scan_code()
             },
@@ -389,10 +397,8 @@
             },  
             swipe_action_click(e, id) {
                 if (e.index === 0 && e.position == 'right') {
-                    let inbound_task = new InboundTask(this.inbound_task)
-                    this.inbound_task = inbound_task.del_pallet_info(id)
+                    this.delete_pallet_info(id)
                     this.$refs.swipe_action.closeAll()
-                    play_audio_prompt('delete')
                 } 
             },
             async load_inv_plans() {
@@ -486,5 +492,9 @@
         right: 50px;
         width: 128px;
         height: 128px;
+    }
+    .uni-list-item__foot.flex-row {
+        flex-direction: row;
+        align-items: center;
     }
 </style>
