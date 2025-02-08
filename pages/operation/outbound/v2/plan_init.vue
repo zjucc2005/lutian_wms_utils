@@ -81,6 +81,7 @@
     import K3CloudApi from '@/utils/k3cloudapi'
     import { OutboundTask, InvPlan } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
+    import { pdf_template_inv_plans_out } from '@/gen_pdf.js'
     import scan_code from '@/utils/scan_code'
     export default {
         data() {
@@ -90,10 +91,14 @@
                 search_form: {
                     bill_no: ''
                 },
+                receiver: '', // 收货人
                 is_completed: false,
                 goods_nav: {
                     options: [
-                        { icon: 'cart', text: '计划', info: '' }
+                        { icon: 'cart', text: '计划', info: '' },
+                        // #ifdef H5
+                        { icon: 'map', text: 'PDF' },
+                        // #endif
                     ],
                     button_group: [
                         {
@@ -119,6 +124,7 @@
         methods: {
             goods_nav_click(e) {
                 if (e.index === 0) this.$logger.info('this.$data', this.$data)
+                if (e.index === 1) this.preview_pdf()
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询单据
@@ -181,6 +187,16 @@
                     this.inv_plans = []
                 }
             },
+            // #ifdef H5
+            async preview_pdf() {
+                if (!this.inv_plans.length) {
+                    uni.showToast({ icon: 'none', title: '未找到计划信息' })
+                    return
+                }
+                let url = pdf_template_inv_plans_out(this.inv_plans, { receiver: this.receiver })
+                uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
+            },
+            // #endif
             new_plan(material_no) {
                 if (!this.search_form.bill_no) {
                     uni.showToast({ icon: 'none', title: '单据编号不能为空' })
@@ -231,6 +247,7 @@
             _handle_fhtzd_data(response) {
                 if (response.data.Result.ResponseStatus.IsSuccess) {
                     const data = response.data.Result.Result
+                    this.receiver = data.F_PAEZ_Text
                     let outbound_list = []
                     data.SAL_DELIVERYNOTICEENTRY.forEach(obj => {
                         let outbound_obj = outbound_list.find(x => x.material_id == obj.MaterialID_Id)

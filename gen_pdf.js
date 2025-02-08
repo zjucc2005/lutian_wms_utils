@@ -96,7 +96,6 @@ const pdf_template_inv_plans_in = (inv_plans) => {
 }
 
 const pdf_template_inv_plans_out = (inv_plans, _options={}) => {
-    console.log('_options', _options)
     let options = {
         title: '绿田机械股份有限公司',
         subtitle: '发货通知单拣货计划',
