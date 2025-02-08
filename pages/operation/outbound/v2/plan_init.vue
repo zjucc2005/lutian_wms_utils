@@ -81,8 +81,10 @@
     import K3CloudApi from '@/utils/k3cloudapi'
     import { OutboundTask, InvPlan } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
-    import { pdf_template_inv_plans_out } from '@/gen_pdf.js'
     import scan_code from '@/utils/scan_code'
+    // #ifdef H5
+    import { pdf_template_inv_plans_out } from '@/gen_pdf.js'
+    // #endif
     export default {
         data() {
             return {
