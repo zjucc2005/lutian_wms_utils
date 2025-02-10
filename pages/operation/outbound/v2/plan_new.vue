@@ -20,6 +20,7 @@
                                 <view>名称：{{ obj.material_name }}</view> 
                                 <view>规格：{{ obj.material_spec }}</view>
                                 <view>出货仓库：<text class="text-primary">{{ obj.stock_name }}</text></view>
+                                <view>未出库数量（仅供参考）：{{ obj.remain_out_qty }}</view>
                             </view>
                         </view>
                     </template>
@@ -110,7 +111,7 @@
         <template v-slot:decoration>
             <view class="uni-section__decoration">
                 <uni-icons type="search" size="30" color="#007aff"
-                    @click="search_invs(plan_form.material_no)" />
+                    @click="search_invs" />
             </view>                
         </template>
         <template v-slot:right>
@@ -225,7 +226,7 @@
 <script>
     import store from '@/store'
     import { Inv, InvLog, InvPlan, StockLoc } from '@/utils/model'
-    import { play_audio_prompt, is_material_no_format, is_loc_no_std_format, is_decimal_unit } from '@/utils'
+    import { play_audio_prompt, is_material_no_format, is_loc_no_std_format, is_decimal_unit, link_to } from '@/utils'
     import scan_code from '@/utils/scan_code'
     export default {
         data() {
@@ -382,9 +383,6 @@
                 //     this.invs.forEach(x =>  x.disabled = !x.checked)
                 // }
             },
-            check_inv(inv) {
-                
-            },
             edit_checked_qty(inv) {
                 if (inv.checked) {
                     this.$refs.checked_qty_dialog.open()
@@ -400,19 +398,6 @@
                 this.set_plan_form(material_no)
                 this.load_data(material_no)
                 play_audio_prompt('success')
-                // let list = this.outbound_task.outbound_list.
-                // filter(x => x.stock_id == store.state.cur_stock.FStockId).
-                // map(x => this.plan_form.material_no == x.material_no ? '-> ' + x.material_no : x.material_no)
-                // uni.showActionSheet({
-                //     itemList: list,
-                //     success: (e) => {
-                //         if (list[e.tapIndex].startsWith('->')) return // 当前选中物料不变时，不做操作
-                //         play_audio_prompt('success')
-                //         let material_no = list[e.tapIndex]
-                //         this.set_plan_form(material_no)
-                //         this.load_data(material_no)
-                //     }
-                // })
             },
             mode_click() {
                 uni.showActionSheet({
@@ -669,10 +654,20 @@
                     uni.showToast({ icon: 'none', title: '未知号码' })
                 } 
             },
-            search_invs(material_no) {
-                if (!material_no) uni.showToast({ icon: 'none', title: '请先选择物料' })
-                uni.navigateTo({ url: '/pages/operation/manage/inv_search?t=' + material_no })
+            search_invs() {
+                if (!this.plan_form.material_id) {
+                    uni.showToast({ icon: 'none', title: '请先选择物料' })
+                    return
+                }
+                uni.showActionSheet({
+                    itemList: ['物料详情', '库存明细'],
+                    success: (e) => {
+                        if (e.tapIndex === 0) link_to(`/pages/operation/material/show?id=${this.plan_form.material_id}`)
+                        if (e.tapIndex === 1) link_to('/pages/operation/manage/inv_search?t=' + this.plan_form.material_no)
+                    }
+                })
             },
+            
             set_op_mode(mode) {
                 if (mode == 'check') {
                     this.op_mode = 'check'
@@ -690,10 +685,12 @@
             set_plan_form(material_no) {
                 let obj = this.outbound_task.outbound_list.find(x => x.material_no == material_no)
                 if (obj) {
+                    this.plan_form.material_id = obj.material_id
                     this.plan_form.material_no = obj.material_no
                     this.plan_form.base_unit_name = obj.base_unit_name
                     this.plan_form.decimal_unit = is_decimal_unit(obj.base_unit_name)
                 } else {
+                    this.plan_form.material_id = ''
                     this.plan_form.material_no = ''
                     this.plan_form.base_unit_name = 'Pcs'
                     this.plan_form.decimal_unit = false

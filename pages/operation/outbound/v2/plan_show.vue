@@ -195,7 +195,9 @@
                 if (response.data.Result.ResponseStatus.IsSuccess) {
                     receiver = response.data.Result.Result.F_PAEZ_Text
                 }
-                let url = pdf_template_inv_plans_out(this.inv_plans, { receiver: receiver })
+                let inv_plans = this.inv_plans.filter(x => x.checked)
+                if (inv_plans.length === 0) inv_plans = this.inv_plans 
+                let url = pdf_template_inv_plans_out(inv_plans, { receiver: receiver })
                 uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
             },
             // #endif

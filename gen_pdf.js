@@ -15,7 +15,7 @@ const pdf_template_inv_plans_in = (inv_plans) => {
         bill_no: '',
         stock_name: '',
         table_head: ['序号', '品名', '规格', '数量', '单位', '托数', '仓位号', '备注'],
-        table_body: []
+        table_body: [['序号', '品名', '规格', '数量', '单位', '托数', '仓位号', '备注']]
     }
     let group = {}
     let inv_plans_sorted = inv_plans.sort((x, y) => x['FMaterialId.FNumber'] > y['FMaterialId.FNumber'] ? 1 : -1 )
@@ -87,7 +87,7 @@ const pdf_template_inv_plans_in = (inv_plans) => {
             5: { halign: 'center' },
             6: { minCellWidth: textWidth_6 + 2 }
         },
-        head: [ options.table_head ],
+        head: [],
         body: options.table_body
     })
     let blob = f.output('blob') // 生成PDF文件的Blob对象
@@ -102,7 +102,7 @@ const pdf_template_inv_plans_out = (inv_plans, _options={}) => {
         bill_no: '',
         stock_name: '',
         table_head: ['序号', '品名', '规格', '数量', '单位', '仓位号', '备注'],
-        table_body: [],
+        table_body: [['序号', '品名', '规格', '数量', '单位', '仓位号', '备注']],
         ..._options
     }
     let group = {}
@@ -175,7 +175,7 @@ const pdf_template_inv_plans_out = (inv_plans, _options={}) => {
             4: { halign: 'center' },
             5: { minCellWidth: textWidth_5 + 2 }
         },
-        head: [ options.table_head ],
+        head: [],
         body: options.table_body
     })
     let blob = f.output('blob') // 生成PDF文件的Blob对象

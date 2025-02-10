@@ -188,7 +188,9 @@
             },
             // #ifdef H5
             preview_pdf() {
-                let url = pdf_template_inv_plans_in(this.inv_plans)
+                let inv_plans = this.inv_plans.filter(x => x.checked)
+                if (inv_plans.length === 0) inv_plans = this.inv_plans 
+                let url = pdf_template_inv_plans_in(inv_plans)
                 uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
             },
             // #endif

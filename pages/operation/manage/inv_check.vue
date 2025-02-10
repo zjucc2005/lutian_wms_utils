@@ -145,22 +145,30 @@
             // 选择盘点模板
             check_template_download() {
                 uni.showActionSheet({
-                    itemList: ['盘点模板（打印用PDF）', '盘点模板（导入用Excel）'],
+                    itemList: ['盘点模板（打印用PDF，库位排序）', '盘点模板（打印用PDF，物料排序）', '盘点模板（导入用Excel，库位排序）', '盘点模板（导入用Excel，物料排序）'],
                     success: (e) => {
-                        if (e.tapIndex === 0) {
-                            this.check_template_pdf()
-                        }
-                        if (e.tapIndex === 1) {
-                            this.check_template_excel()
-                        }
+                        if (e.tapIndex === 0) this.check_template_pdf('loc_no')
+                        if (e.tapIndex === 1) this.check_template_pdf('material_no')
+                        if (e.tapIndex === 2) this.check_template_excel('loc_no')
+                        if (e.tapIndex === 3) this.check_template_excel('material_no')
                     }
                 })
             },
-            check_template_pdf() {
+            check_template_pdf(mode) {
+                if (mode == 'loc_no') {
+                    this.invs.sort((x, y) => x['FStockLocId.FNumber'] > y['FStockLocId.FNumber'] ? 1 : -1 )
+                } else if (mode == 'material_no') {
+                    this.invs.sort((x, y) => x['FMaterialId.FNumber'] > y['FMaterialId.FNumber'] ? 1 : -1 )
+                }
                 let url = pdf_template_inv_check(this.invs)
                 uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
             },
-            check_template_excel() {
+            check_template_excel(mode) {
+                if (mode == 'loc_no') {
+                    this.invs.sort((x, y) => x['FStockLocId.FNumber'] > y['FStockLocId.FNumber'] ? 1 : -1 )
+                } else if (mode == 'material_no') {
+                    this.invs.sort((x, y) => x['FMaterialId.FNumber'] > y['FMaterialId.FNumber'] ? 1 : -1 )
+                }
                 let sheet_data = [
                     ['物料编码', '物料名称', '规格型号', '库位', '批次', '单位', '账面数量', '盘点数量']
                 ]

@@ -53,6 +53,7 @@
                                 <view>名称：{{ obj.material_name }}</view> 
                                 <view>规格：{{ obj.material_spec }}</view>
                                 <view>出货仓库：<text class="text-primary">{{ obj.stock_name }}</text></view>
+                                <view>未出库数量（仅供参考）：{{ obj.remain_out_qty }}</view>
                             </view>
                         </view>
                     </template>
@@ -279,7 +280,8 @@
                                 base_unit_no: obj.BaseUnitID.Number,
                                 stock_id: obj.StockID.Id,
                                 stock_name: obj.StockID.Name[0]?.Value,
-                                planned_qty: 0
+                                planned_qty: 0,
+                                remain_out_qty: obj.RemainOutQty
                             })
                         }
                     })

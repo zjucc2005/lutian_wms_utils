@@ -35,9 +35,9 @@
                 :thumb="_thumbnail_url(inv_group.material_image)"
                 thumb-size="lg"
                 :rightText="[inv_group.qty, inv_group.base_unit_name].join(' ')"
-                @click="show_invs(inv_group.material_no)" clickable
+                @click="list_click(inv_group)" clickable
                 show-arrow
-                @longpress="inv_longpress(inv_group)"
+                @longpress="list_click(inv_group)"
                 >
             </uni-list-item>
         </uni-list>
@@ -59,7 +59,7 @@
 <script>
     import store from '@/store'
     import { Inv } from '@/utils/model'
-    import { play_audio_prompt } from '@/utils'
+    import { play_audio_prompt, link_to } from '@/utils'
     import K3CloudApi from '@/utils/k3cloudapi'
     import scan_code from '@/utils/scan_code'
     export default {
@@ -120,24 +120,35 @@
                     uni.showToast({ icon: 'none', title: err })
                 })
             },
-            show_invs(material_no) {
-                play_audio_prompt('success')
-                uni.navigateTo({ url: '/pages/operation/manage/inv_search?t=' + material_no })
-            },
-            show_material(material_id) {
-                if (!material_id) uni.showToast({ icon: 'none', title: '物料ID不能为空' })
-                play_audio_prompt('success')
-                uni.navigateTo({ url: `/pages/operation/material/show?id=${material_id}` })
-            },
-            inv_longpress(inv_group) {
+            // show_invs(material_no) {
+            //     link_to('/pages/operation/manage/inv_search?t=' + material_no)
+            // },
+            // show_material(material_id) {
+            //     if (!material_id) uni.showToast({ icon: 'none', title: '物料ID不能为空' })
+            //     link_to(`/pages/operation/material/show?id=${material_id}`)
+            // },
+            list_click(inv_group) {
+                if (!inv_group.material_id) {
+                    uni.showToast({ icon: 'none', title: '物料ID不能为空' })
+                    return
+                } 
                 uni.showActionSheet({
                     itemList: ['物料详情', '库存明细'],
                     success: (e) => {
-                        if (e.tapIndex === 0) this.show_material(inv_group.material_id)
-                        if (e.tapIndex === 1) this.show_invs(inv_group.material_no)
+                        if (e.tapIndex === 0) link_to(`/pages/operation/material/show?id=${material_id}`)
+                        if (e.tapIndex === 1) link_to('/pages/operation/manage/inv_search?t=' + material_no)
                     }
                 })
             },
+            // inv_longpress(inv_group) {
+            //     uni.showActionSheet({
+            //         itemList: ['物料详情', '库存明细'],
+            //         success: (e) => {
+            //             if (e.tapIndex === 0) this.show_material(inv_group.material_id)
+            //             if (e.tapIndex === 1) this.show_invs(inv_group.material_no)
+            //         }
+            //     })
+            // },
             inv_map() {
                 uni.navigateTo({
                     url: '/pages/operation/manage/inv_map',
