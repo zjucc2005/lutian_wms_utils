@@ -214,7 +214,7 @@
             <view class="plan-form">
                 <uni-number-box 
                     v-model="inv_editing.checked_qty" 
-                    :min="0" :max="inv_editing.FQty"
+                    :min="0" :max="inv_editing.FQty - inv_editing.planned_qty"
                     @change="change_checked_qty"
                 />
             </view>
@@ -235,6 +235,7 @@
                 invs: [],
                 inv_editing: {},
                 inv_plans: [],
+                inv_plans_ex: [],
                 plan_form: {
                     material_no: '',
                     loc_no: '',
@@ -501,6 +502,7 @@
             async load_data(material_no) {
                 await this.load_invs(material_no)
                 await this.load_inv_plans(material_no)
+                await this.load_inv_plans_ex(material_no)
                 this._update_inv_status()
             },
             async load_invs(material_no) {
@@ -538,6 +540,19 @@
                     this.plan_form.is_complete = this._sum_planned_qty() >= outbound_obj.base_unit_qty
                     this._toggle_save_btn()
                     return res.data
+                })
+            },
+            async load_inv_plans_ex(material_no) {
+                uni.showLoading({ title: 'Loading' })
+                return InvPlan.query({
+                    FStockId: store.state.cur_stock.FStockId,
+                    FBillNo_ne: this.outbound_task.bill_no,
+                    FOpType: 'out',
+                    FDocumentStatu_in: ['A', 'B']
+                }, { order: 'FCreateTime ASC' }).then(res => {
+                    this.$logger.info('>>> 加载其余入库计划，完毕')
+                    uni.hideLoading()
+                    this.inv_plans_ex = res.data
                 })
             },
             async submit_delete(inv_plan) {
@@ -704,7 +719,13 @@
                     inv.checked_qty = 0
                     inv.planned_qty = 0
                     this.inv_plans.forEach(inv_plan => {
-                        if (inv_plan['FStockLocId.FNumber'] == inv['FStockLocId.FNumber'] && inv_plan.FBatchNo ==  inv.FBatchNo && ['A', 'B'].includes(inv_plan.FDocumentStatu)) {
+                        if (inv_plan['FStockLocId.FNumber'] == inv['FStockLocId.FNumber'] && inv_plan.FBatchNo == inv.FBatchNo && ['A', 'B'].includes(inv_plan.FDocumentStatu)) {
+                            inv.planned_qty += inv_plan.FOpQTY
+                            if (inv.planned_qty >= inv.FQty) inv.disabled = true
+                        }
+                    })
+                    this.inv_plans_ex.forEach(inv_plan => {
+                        if (inv_plan['FStockLocId.FNumber'] == inv['FStockLocId.FNumber'] && inv_plan.FBatchNo == inv.FBatchNo && ['A', 'B'].includes(inv_plan.FDocumentStatu)) {
                             inv.planned_qty += inv_plan.FOpQTY
                             if (inv.planned_qty >= inv.FQty) inv.disabled = true
                         }
