@@ -5,6 +5,8 @@
                 <uni-list-item
                     v-for="(inv_plan, index) in inv_plans"
                     :key="index"
+                    @click="link_to(`/pages/operation/move/v2/plan_new?material_no=${inv_plan['FMaterialId.FNumber']}`)"
+                    clickable
                     >
                     <template v-slot:header>
                         <view class="uni-list-item__head">
@@ -129,7 +131,7 @@
 <script>
     import store from '@/store'
     import { InvPlan } from '@/utils/model'
-    import { play_audio_prompt } from '@/utils'
+    import { play_audio_prompt, link_to } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     export default {
         data() {
@@ -175,6 +177,7 @@
             // this.load_inv_plans()
         },
         methods: {
+            link_to,
             check_all() {
                 let checked_all = !this.inv_plans.find(inv_plan => !inv_plan.disabled && !inv_plan.checked)
                 this.inv_plans.forEach(inv_plan => {

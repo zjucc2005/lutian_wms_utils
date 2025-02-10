@@ -71,6 +71,8 @@
                             `批次：${inv.FBatchNo}`
                         ].join('\n')"
                         :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
+                        @click="inv_menu(inv)"
+                        clickable
                         >
                     </uni-list-item>
                 </uni-list>
@@ -92,6 +94,7 @@
      */
     
     import store from '@/store'
+    import { link_to } from '@/utils'
     import { StockLoc } from '@/utils/model'
     export default {
         name:"cc-shelf",
@@ -271,6 +274,20 @@
             },
             drawer_close() {
                 this.$refs.inv_drawer.close()
+            },
+            inv_menu(inv) {
+                if (!inv.FMaterialId) {
+                    uni.showToast({ icon: 'none', title: '物料ID不能为空' })
+                    return
+                } 
+                uni.showActionSheet({
+                    itemList: ['库存明细', '库存调整', '物料详情'],
+                    success: (e) => {
+                        if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${inv['FMaterialId.FNumber']}`)
+                        if (e.tapIndex === 1) link_to(`/pages/operation/move/v2/plan_new?material_no=${inv['FMaterialId.FNumber']}`)
+                        if (e.tapIndex === 2) link_to(`/pages/operation/material/show?id=${inv.FMaterialId}`)
+                    }
+                })
             },
             stock_loc_forbid(loc_no) {
                 uni.showLoading({ title: 'Loading' })

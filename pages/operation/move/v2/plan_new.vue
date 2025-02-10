@@ -1,34 +1,6 @@
 <template>
     <uni-notice-bar single scrollable text="查询物料获取库存信息，然后点击库存明细新增计划" />
     <uni-section title="查询物料" type="square">
-        <!-- <template v-slot:right>
-            <view class="uni-section__right">
-                <uni-data-checkbox multiple
-                    v-model="search_form.ex_cond"
-                    :localdata="[{ text: '只查询成品', value: '3.' }]"
-                    @change="ex_cond_change"
-                    style="margin-right: -20px;"
-                    >
-                </uni-data-checkbox>
-            </view>
-        </template>
-        <view class="searchbar-container">
-            <uni-easyinput
-                v-model="search_form.no" 
-                placeholder="请输入搜索内容"
-                prefix-icon="scan"
-                @confirm="search"
-                @clear="search"
-                @icon-click="searchbar_icon_click"
-                primary-color="rgb(238, 238, 238)"
-                :styles="{
-                    color: '#000',
-                    backgroundColor: 'rgb(238, 238, 238)',
-                    borderColor: 'rgb(238, 238, 238)'
-                }"
-                class="uni-mb-5"
-            />
-        </view> -->
         <view class="container">
             <uni-forms ref="form" :model="search_form" labelWidth="70px">
                 <uni-forms-item label="编码" name="material_no">
@@ -375,6 +347,11 @@
     import { BdMaterial, Inv, InvPlan } from '@/utils/model'
     import scan_code from '@/utils/scan_code'
     export default {
+        props: {
+            material_no: {
+                type: String
+            }
+        },
         data() {
             return {
                 edit_mode: 'edit', // edit,new
@@ -390,7 +367,6 @@
                 },
                 search_form: {
                     no: '',
-                    ex_cond: uni.getStorageSync('mv_ex_cond') || [], // get
                     material_no: '',
                     material_name: '',
                     material_spec: '',
@@ -486,8 +462,14 @@
                 }
             }
         },
+        onLoad(options) {
+            if (options.material_no) {
+                this.search_form.material_no = options.material_no
+                this.search()
+            }
+        },
         mounted() {
-            if (this.search_form.no) this.load_data()
+            // if (this.search_form.material_no) this.load_data(this.search_form.material_no)
             this.load_bd_materialcategories()
         },
         methods: {
@@ -502,9 +484,6 @@
             },
             searchbar_icon_click(e) {
                 if (e == 'prefix') this.scan_code()
-            },
-            ex_cond_change(e) {
-                uni.setStorageSync('mv_ex_cond', e.detail.value) // set
             },
             scan_code() {
                 scan_code().then(res => {
@@ -529,28 +508,6 @@
                 this.$refs.move_dialog.close()
                 this.move_form = { type: 'move', inv: {}, dest_loc_no: '', op_qty: 0 }
             },
-            // 物料模糊匹配
-            // async search() {
-            //     this._set_material()
-            //     this.invs = []
-            //     this.inv_plans = []
-            //     this.search_form.no = this.search_form.no.trim()
-            //     if (!this.search_form.no) return
-            //     let options = { 
-            //         no: this.search_form.no, 
-            //         FUseOrgId: store.state.cur_stock.FUseOrgId,
-            //     }
-            //     if (this.search_form.ex_cond.includes('3.')) options.FNumber_pre = '3.'
-            //     let meta = { per_page: 20, order: 'FMaterialId DESC' }
-            //     uni.showLoading({ title: 'Loading' })
-            //     search_bd_materials(options, meta).then(res => {
-            //         uni.hideLoading()
-            //         this.search_form.candidates = res.data
-            //         if (res.data.length > 1) this.$refs.search_drawer.open()
-            //         if (res.data.length === 1) this.load_data(res.data[0]?.FNumber)
-            //         if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
-            //     })
-            // },
             // 物料模糊匹配
             async search() {
                 this._set_material()

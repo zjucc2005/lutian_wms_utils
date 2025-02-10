@@ -110,8 +110,7 @@
         class="above-uni-goods-nav">
         <template v-slot:decoration>
             <view class="uni-section__decoration">
-                <uni-icons type="search" size="30" color="#007aff"
-                    @click="search_invs" />
+                <uni-icons type="search" size="30" color="#007aff" @click="inv_menu" />
             </view>                
         </template>
         <template v-slot:right>
@@ -654,16 +653,16 @@
                     uni.showToast({ icon: 'none', title: '未知号码' })
                 } 
             },
-            search_invs() {
+            inv_menu() {
                 if (!this.plan_form.material_id) {
                     uni.showToast({ icon: 'none', title: '请先选择物料' })
                     return
                 }
                 uni.showActionSheet({
-                    itemList: ['物料详情', '库存明细'],
+                    itemList: ['库存明细', '物料详情'],
                     success: (e) => {
-                        if (e.tapIndex === 0) link_to(`/pages/operation/material/show?id=${this.plan_form.material_id}`)
-                        if (e.tapIndex === 1) link_to('/pages/operation/manage/inv_search?t=' + this.plan_form.material_no)
+                        if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${this.plan_form.material_no}`)
+                        if (e.tapIndex === 1) link_to(`/pages/operation/material/show?id=${this.plan_form.material_id}`)
                     }
                 })
             },
