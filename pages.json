@@ -95,8 +95,16 @@
             "style":  { "navigationBarTitleText": "入库 - 新增计划" }
         },
         {
-            "path": "pages/operation/inbound/v2/plan_new_pallet",
-            "style": { "navigationBarTitleText": "入库 - 新增计划（托盘）" }
+            "path": "pages/operation/inbound/v2/plan_new_pallet_old",
+            "style": { "navigationBarTitleText": "入库 - 新增计划（托盘）OLD" }
+        },
+        {
+            "path" : "pages/operation/inbound/v2/plan_new_pallet",
+            "style":  { "navigationBarTitleText": "入库 - 新增计划（托盘）"}
+        },
+        {
+            "path": "pages/operation/inbound/v2/allocate_loc_no",
+            "style":  { "navigationBarTitleText": "分配库位（托盘）" }
         },
         {
             "path": "pages/operation/inbound/v2/plan_show",
@@ -283,7 +291,7 @@
         {
             "path": "pages/k3cloud/eng_bom/tree",
             "style": { "navigationBarTitleText": "物料清单" }
-        }  
+        }
     ],
     "globalStyle": {
         "navigationBarTextStyle": "#fff",

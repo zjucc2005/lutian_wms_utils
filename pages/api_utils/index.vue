@@ -163,31 +163,36 @@
                 })
             },
             async call_test_api() {
-                let shelf = 'B20'
-                let grids = [101,201,301]
-                // let grids = []
-                // for (let i = 1; i < 24; i ++) { grids.push(300+i) }
-                let numbers = grids.map(e => {
-                    return `NX3-${shelf}-${e}`
+                InvPlan.query({ 'FMaterialId.FNumber': '3.03.02.02.01.0411' }).then(res => {
+                    res.data
                 })
-                StockLoc.query({FNumber_in: numbers}).then(res => {
-                    console.log('res', res)
-                    res.data.forEach(e => {
-                        let data = {
-                            model: {
-                                FID: e.FID,
-                                FPalletSpace: 1
-                            }
-                        }
-                        K3CloudApi.save('PAEZ_C_STOCK_LOC', data)
-                    })
-                    
-                    // let form_id = 'PAEZ_C_STOCK_LOC'
-                    // let data = {
-                    //     Numbers: res.data.map(e => e.FNumber)
-                    // }
-                    // K3CloudApi.delete(form_id, data)
-                })
+                
+                // let shelf = 'B20'
+                // let grids = [101,201,301]
+                // // let grids = []
+                // // for (let i = 1; i < 24; i ++) { grids.push(300+i) }
+                // let numbers = grids.map(e => {
+                //     return `NX3-${shelf}-${e}`
+                // })
+                // StockLoc.query({FNumber_in: numbers}).then(res => {
+                //     console.log('res', res)
+                //     res.data.forEach(e => {
+                //         let data = {
+                //             model: {
+                //                 FID: e.FID,
+                //                 FPalletSpace: 1
+                //             }
+                //         }
+                //         K3CloudApi.save('PAEZ_C_STOCK_LOC', data)
+                //     })
+                // })
+                // let data = {
+                //     model: {
+                //         FID: 100521,
+                //         FOpQTY: 96
+                //     }
+                // }
+                // K3CloudApi.save('PAEZ_C_INV_PLAN', data)
                 
                 
                 // let sta = {}
@@ -228,7 +233,9 @@
                 // Inv.query({ FMaterialId: '' }).then(res => {
                 //     Inv.delete(res.data.map(e => e.FID))
                 // })
-                
+                // InvPlan.query({ FMaterialId: '' }).then(res => {
+                //     InvPlan.delete(res.data.map(e => e.FID))
+                // })
             }
         }
     }

@@ -19,8 +19,20 @@
                     }"
                 />
             </view>
+            <uni-list v-if="receiver">
+                <uni-list-item
+                    :show-extra-icon="true"
+                    :extra-icon="{ type: 'person',  color: '#007bff' }"
+                    title="收货人"
+                    >
+                    <template v-slot:footer>
+                        <view class="uni-list-item__foot">
+                            <view class="text-dark text-lg text-bold">{{ receiver }}</view>
+                        </view>
+                    </template>
+                </uni-list-item>
+            </uni-list>
         </uni-section>
-        
         <uni-section title="出库物料信息" type="square"
             v-if="outbound_task.outbound_list?.length"
             class="above-uni-goods-nav"
@@ -145,6 +157,7 @@
             },
             async handle_search(e) {
                 this.is_completed = false
+                this.receiver = ''
                 this.outbound_task = new OutboundTask()
                 if (this.search_form.bill_no) {
                     this.search_form.bill_no = this.search_form.bill_no.trim().toUpperCase()

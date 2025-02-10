@@ -1,8 +1,22 @@
 <template>
+    <uni-section title="分配托盘库位" type="square"
+        sub-title="点击选择可以分配的托盘库位"
+        sub-title-color="#007aff"
+        >
+    </uni-section>
+    <uni-list>
+        <uni-list-item
+            :show-extra-icon="true"
+            :extra-icon="{ type: 'right',  color: '#007bff' }"
+            title="已分配托盘数"
+            :rightText="`${sum_plt_alloc()} / ${pallet_qty}`"
+            >
+        </uni-list-item>
+    </uni-list>
     <uni-collapse>
         <uni-collapse-item
             v-for="shelf in grid_shelves"
-            :title="shelf.name" :open="open" title-border="show"
+            :title="shelf.name" open title-border="show"
             >
             <view class="content">
                 <swiper :indicator-dots="true" :style="{ height: `${get_swiper_height(shelf)}px` }" class="shelf_swiper">
@@ -26,7 +40,10 @@
                                 >
                                 <view :class="['grid-item-box', grid.style]">
                                     <view class="name">{{ grid.name }}</view>
-                                    <view v-if="grid.qty" class="qty">{{ grid.qty > 9999 ? '9999+' : grid.qty }}</view>
+                                    <view v-if="grid.checked">
+                                        <uni-icons type="checkmarkempty" :size="grid_width * 0.5"></uni-icons>
+                                        <view class="pallet_qty">{{ grid.plt_alloc }}</view>
+                                    </view>
                                 </view>
                             </uni-grid-item>
                         </uni-grid>
@@ -35,118 +52,92 @@
             </view>
         </uni-collapse-item>
     </uni-collapse>
-    
-    <uni-drawer ref="inv_drawer" mode="left" :width="Math.min($store.state.drawer_width, 480)" >
-        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
-            <uni-section :title="`库位：${drawer_stock_loc.FNumber}`"
-                :sub-title="drawer_stock_loc.FRemark ? `备注：${drawer_stock_loc.FRemark}` : ''"
-                type="square">
-                <template v-slot:right>
-                    <view class="uni-section__right">
-                        <uni-icons type="closeempty" size="24" color="#333" @click="drawer_close"/>
-                    </view>
-                </template>
-                <template v-if="forbidable">
-                    <button v-if="drawer_stock_loc.FForbidStatus == 'A'"
-                        type="warn" style="border-radius: 0;" 
-                        @click="stock_loc_forbid(drawer_stock_loc.FNumber)">
-                        库位报警
-                    </button>
-                    
-                    <button v-if="drawer_stock_loc.FForbidStatus == 'B'" 
-                        type="primary" style="border-radius: 0;" 
-                        @click="stock_loc_enable(drawer_stock_loc.FNumber)">
-                        解除库位报警
-                    </button>
-                </template>
-                
-                <uni-list>
-                    <uni-list-item
-                        v-for="(inv, index) in invs.filter(x => x['FStockLocId.FNumber'] == drawer_stock_loc.FNumber)"
-                        :key="index"
-                        :title="inv['FMaterialId.FNumber']"
-                        :note="[
-                            `名称：${inv['FMaterialId.FName']}`, 
-                            `规格：${inv['FMaterialId.FSpecification']}`, 
-                            `批次：${inv.FBatchNo}`
-                        ].join('\n')"
-                        :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
-                        >
-                    </uni-list-item>
-                </uni-list>
-            </uni-section>
-        </scroll-view>
-    </uni-drawer>
+
+    <view class="uni-goods-nav-wrapper">
+        <uni-goods-nav 
+            :options="goods_nav.options" 
+            :button-group="goods_nav.button_group"
+            :fill="$store.state.goods_nav_fill"
+            @click="goods_nav_click"
+            @button-click="goods_nav_button_click"
+        />
+    </view>
 </template>
 
 <script>
-    /**
-     * cc-shelf 网格化库位展示
-     * @property {Array} stock_locs 库位数据
-     * @property {Array} invs 库存数据
-     * @property {Number} column grid 列数
-     * @property {Boolean} onlyInv = [true|false] 是否只展示有库存的货架
-     * @property {Boolean} open = [true|false] 是否展开组件
-     * @event {Function} click 点击 grid 触发事件
-     * @example <cc-shelf :stock_locs="[]" :invs="[{...}]" open></cc-shelf>
-     */
-    
     import store from '@/store'
-    import { StockLoc } from '@/utils/model'
+    import { is_loc_no_std_format } from '@/utils'
     export default {
-        name:"cc-shelf",
-        // emits: ['click'],
-        props: {
-            stock_locs: {
-                type: Array,
-                default: []
-            },
-            invs: {
-                type: Array,
-                default: []
-            },
-            // column: {
-            //     type: Number,
-            //     default: 10
-            // },
-            onlyInv: {
-                type: Boolean,
-                default: false
-            },
-            open: {
-                type: Boolean,
-                default: false
-            },
-            forbidable: {
-                type: Boolean,
-                default: false
-            }
+        onLoad(options) {
+            const eventChannel = this.getOpenerEventChannel()
+            eventChannel.on('initStockLocs', res => {
+                // this.$logger.info('eventChannel res:', res)
+                this.stock_locs = res.stock_locs || []
+                this.pallet_qty = res.pallet_qty || 0
+                this.get_grid_shelves()
+                this.get_grid_width()
+            })
         },
         data() {
             return {
+                stock_locs: [],
+                pallet_qty: 0,
                 grid_group_width: 0, // 设定 grid wrapper 宽度，在界面缩放后能保持原布局不乱
                 grid_width: 0,       // 设定 grid 宽度，uni-grid组件里计算宽度有兼容性问题
-                drawer_loc_no: ''
+                grid_shelves: [],
+                allocate_info: [], // 分配的库位和对应托盘位数量， { no: '', plt_space: 2 }
+                goods_nav: {
+                    options: [
+                        { icon: 'map-filled', text: '库位', info: 0 }
+                    ],
+                    button_group: [
+                        {
+                            text: '返回',
+                            backgroundColor: store.state.goods_nav_color.grey,
+                            color: '#fff'
+                        },
+                        {
+                            text: '预览',
+                            backgroundColor: store.state.goods_nav_color.yellow,
+                            color: '#fff'
+                        }
+                    ]
+                }
             }
         },
-        mounted() {
-            this.$nextTick(()=>{
-            	this.get_grid_width()
-            })
-        },
         computed: {
-            column () {
-                // return 10
+            column() {
                 if (store.state.system_info.windowWidth > 1000) {
                     return 30
                 } else {
                     return 10
                 }
+            }
+        },
+        methods: {
+            goods_nav_click(e) {
+                if (e.index === 0) this.$logger.info('this.$data', this.$data) // btn:查看已选库位
             },
-            grid_shelves() {
+            goods_nav_button_click(e) {
+                if (e.index === 0) uni.navigateBack()
+                if (e.index === 1) this.preview()
+            },
+            preview() {
+                if (this.sum_plt_alloc() < this.pallet_qty) {
+                    uni.showToast({ icon: 'none', title: `${this.pallet_qty - this.sum_plt_alloc()}个托盘未分配` })
+                    return
+                }
+                const eventChannel = this.getOpenerEventChannel()
+                eventChannel.emit('allocateInfo', { allocate_info: this.allocate_info })
+                uni.navigateBack()
+            },
+            // 生成grid_shelves
+            get_grid_shelves() {
                 let grid_shelves = []
                 this.stock_locs.forEach(stock_loc => {
-                    if (this.is_loc_no_std_format(stock_loc.FNumber)) {
+                    let plt_space = stock_loc.FPalletSpace
+                    if (!stock_loc.idle && plt_space > 0 ) plt_space -= 1
+                    if (is_loc_no_std_format(stock_loc.FNumber)) {
                         let loc_no_arr = stock_loc.FNumber.split('-')
                         let name = loc_no_arr.slice(0,2).join('-')
                         let x = loc_no_arr[2].slice(1,3) * 1
@@ -156,18 +147,23 @@
                         if (stock_loc.FForbidStatus == 'B') {
                             status = 'forbidden'
                             style = 'error'
+                            plt_space = 0
+                        } else if (plt_space == 0) {
+                            style = 'error'
+                        } else if (!stock_loc.idle) {
+                            style = 'success'
                         }
                         let shelf = grid_shelves.find(s => s.name == name)
                         if (shelf) {
                             shelf.bound.x = Math.max(shelf.bound.x, x)
                             shelf.bound.y = Math.max(shelf.bound.y, y)
-                            shelf.grids.push({ x, y, status, style, no: stock_loc.FNumber, qty: 0 })
+                            shelf.grids.push({ x, y, status, style, no: stock_loc.FNumber, qty: 0, idle: stock_loc.idle, checked: false, plt_space: plt_space, plt_alloc: 0 })
                         } else {
                             grid_shelves.push({
                                 name: name,
                                 disabled: true,
                                 bound: { x, y },
-                                grids: [{ x, y, status, style, sp: false, no: stock_loc.FNumber, qty: 0 }]
+                                grids: [{ x, y, status, style, sp: false, no: stock_loc.FNumber, qty: 0, idle: stock_loc.idle, checked: false, plt_space: plt_space, plt_alloc: 0 }]
                             })
                         }
                     } else {
@@ -181,21 +177,10 @@
                                 status: stock_loc.FForbidStatus == 'B' ? 'forbidden' : '', 
                                 style: stock_loc.FForbidStatus == 'B' ? 'error' : 'default', 
                                 sp: true, no: stock_loc.FNumber,  qty: 0,
+                                idle: stock_loc.idle, checked: false, plt_space: plt_space, plt_alloc: 0
                             }]
                         }
                         grid_shelves.push(shelf)
-                    }
-                })
-                this.invs.forEach(inv => {
-                    let loc_no_arr = inv['FStockLocId.FNumber'].split('-')
-                    let shelf = grid_shelves.find(s => s.name == loc_no_arr.slice(0,2).join('-'))
-                    if (shelf) {
-                        shelf.disabled = false
-                        let grid = shelf.grids.find(g => g.no == inv['FStockLocId.FNumber'])
-                        if (grid.status == '') {
-                            grid.style = 'success'
-                        }
-                        grid.qty += inv.FQty
                     }
                 })
                 // 补全空缺的grid并赋予page + index
@@ -219,18 +204,8 @@
                     }
                 })
                 grid_shelves.sort((x, y) => x.name >= y.name ? 1 : -1)
-                
-                if (this.onlyInv) {
-                    return grid_shelves.filter(shelf => !shelf.disabled)
-                } else {
-                    return grid_shelves
-                }
-            }
-        },
-        methods: {    
-            is_loc_no_std_format(text) {
-                const reg = /^[A-Z0-9]{1,4}-[A-Z0-9]{1,4}-\d{3}$/
-                return !!text.match(reg)
+                this.grid_shelves = grid_shelves
+                // return grid_shelves
             },
             // 设置grid所在页码，以及在整个货架中的索引
             get_grid_page_and_index(bound={}, coord={}) {
@@ -264,41 +239,43 @@
                 let grid = shelf.grids.find(g => g.index === e.detail.index)
                 if (!grid) return
                 if (grid.style == 'none') return
-                if (grid.qty || this.forbidable){
-                    this.drawer_stock_loc = store.state.stock_locs.find(x => x.FNumber == grid.no)
-                    this.$refs.inv_drawer.open()
+                console.log('grid', grid)
+                if (grid.plt_space == 0) return
+                if (grid.checked) {
+                    // 取消勾选
+                    grid.checked = false
+                    grid.plt_alloc = 0
+                    let index = this.allocate_info.findIndex(x => x.no == grid.no)
+                    if (index >= 0) this.allocate_info.splice(index, 1)
+                } else {
+                    // 勾选
+                    let rest_plt_alloc = this.pallet_qty - this.sum_plt_alloc()
+                    if (rest_plt_alloc === 0) {
+                        uni.showToast({ icon: 'none', title: '分配库位已足够' })
+                        return
+                    }
+                    grid.checked = true
+                    if (grid.plt_space == -1) { 
+                        grid.plt_alloc = rest_plt_alloc
+                    } else {
+                        grid.plt_alloc = Math.min(grid.plt_space, rest_plt_alloc)
+                    }
+                    this.allocate_info.push({ no: grid.no, plt_qty: grid.plt_alloc })
                 }
+                this.goods_nav.options[0].info = this.allocate_info.length
             },
-            drawer_close() {
-                this.$refs.inv_drawer.close()
-            },
-            stock_loc_forbid(loc_no) {
-                uni.showLoading({ title: 'Loading' })
-                StockLoc.forbid([loc_no]).then(res => {
-                    StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
-                        uni.hideLoading()
-                        uni.showToast({ icon: 'none', title: `${loc_no} 禁用`})
-                        this.$refs.inv_drawer.close()
-                        store.commit('set_stock_locs', res.data)
-                    })
+            sum_plt_alloc() {
+                let sum = 0
+                this.allocate_info.forEach(x => {
+                    sum += x.plt_qty
                 })
-            },
-            stock_loc_enable(loc_no) {
-                uni.showLoading({ title: 'Loading' })
-                StockLoc.enable([loc_no]).then(res => {
-                    StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
-                        uni.hideLoading()
-                        uni.showToast({ icon: 'none', title: `${loc_no} 解除禁用`})
-                        this.$refs.inv_drawer.close()
-                        store.commit('set_stock_locs', res.data)
-                    })
-                })
+                return sum
             }
         }
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     .uni-collapse-item__title-text {
         font-size: $uni-font-size-lg !important;
         font-weight: bold;
@@ -309,7 +286,8 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;        
+            justify-content: space-around; 
+            align-items: center;
             // width: 100%;
             // height: 100%;
             padding: 0;
@@ -341,16 +319,17 @@
                 }
             }
             .name {
-                width: 100%;
+                position: absolute;
                 font-size: $uni-font-size-sm;
-                text-align: left;
+                top: 1px;
+                left: 2px;
             }
-            .qty {
-                width: 100%;
-                color: #fff;
+            .pallet_qty {
+                position: absolute;
                 font-size: $uni-font-size-base;
                 font-weight: bold;
-                text-align: right;
+                bottom: 2px;
+                right: 2px;
             }
         }
     }
