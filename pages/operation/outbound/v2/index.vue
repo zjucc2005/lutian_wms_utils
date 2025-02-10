@@ -3,24 +3,29 @@
         <uni-section title="进行中的出库计划" type="square"
             sub-title="单据编号"
             class="above-uni-goods-nav">
+            <view class="searchbar-container">
+                <uni-easyinput
+                    v-model="search_form.no" 
+                    placeholder="请输入单据编号"
+                    prefix-icon="scan"
+                    @icon-click="searchbar_icon_click"
+                    primary-color="rgb(238, 238, 238)"
+                    :styles="{
+                        color: '#000',
+                        backgroundColor: 'rgb(238, 238, 238)',
+                        borderColor: 'rgb(238, 238, 238)'
+                    }"
+                />
+            </view>
+            
             <uni-list>
                 <uni-list-item
-                    v-for="(group_item, index) in inv_plan_groups"
+                    v-for="(group_item, index) in inv_plan_groups_filtered()"
                     :key="index"
                     :right-text="group_item.created_at"
                     show-arrow
                     @click="operate_plan(group_item.bill_no)" clickable
                     >
-<!--                    <template v-slot:header>
-                        <view class="uni-list-item__head">
-                            <checkbox
-                                :checked="group_item.checked"
-                                :disabled="group_item.disabled"
-                                @click="checkbox_click"
-                                :data-bill_no="group_item.bill_no"
-                            />
-                        </view>
-                    </template> -->
                     <template v-slot:body>
                         <view class="uni-list-item__body">
                             <text class="title">{{ group_item.bill_no }}</text>
@@ -99,16 +104,14 @@
                 inv_plan_groups: [],
                 last_refresh_time: 0,
                 refresh_interval: 30 * 1000, // 30s
+                search_form: {
+                    no: ''
+                },
                 goods_nav: {
                     options: [
                         { icon: 'refreshempty', text: '刷新' }
                     ],
                     admin_button_group: [
-                        // {
-                        //     text: '审核确认',
-                        //     backgroundColor: store.state.goods_nav_color.red,
-                        //     color: '#fff'
-                        // },
                         {
                             text: '新增出库计划',
                             backgroundColor: store.state.goods_nav_color.blue,
@@ -152,13 +155,23 @@
             goods_nav_staff_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码
             },
+            searchbar_icon_click(e) {
+                if (e == 'prefix') this.scan_code()
+            },
             scan_code() {
                 scan_code().then(res => {
-                    this.operate_plan(res.result)
+                    this.search_form.no = res.result
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })
                 })
             },
+            // scan_code() {
+            //     scan_code().then(res => {
+            //         this.operate_plan(res.result)
+            //     }).catch(err => {
+            //         uni.showToast({ icon: 'none', title: err })
+            //     })
+            // },
             async load_inv_plans() {
                 let options = { FStockId: store.state.cur_stock.FStockId, FOpType: 'out' }
                 if (store.state.role == 'wh_admin') {       
@@ -181,32 +194,39 @@
                 await this.load_inv_plans()
                 this.last_refresh_time = Date.now()
             },
-            async submit_audit() {
-                let checked_groups = this.inv_plan_groups.filter(x => x.checked)
-                if (checked_groups.length === 0) {
-                    uni.showToast({ icon: 'none', title: '未选择任何条目' })
-                    return
-                }
-                for (let i = 0; i < checked_groups.length; i++) {
-                    let checked_inv_plans = this.inv_plans.filter(x => x.FBillNo == checked_groups[i].bill_no)
-                    uni.showLoading({ title: 'Loading' })
-                    let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
-                    if (save_ids.length) {
-                        await InvPlan.submit(save_ids) // 提交(admin补)
-                    }
-                    let ids = checked_inv_plans.map(x => x.FID)
-                    let response = await InvPlan.audit(ids) // 审核确认
-                    if (response.data.Result.ResponseStatus.IsSuccess) {
-                        for (let j = 0; j < checked_inv_plans.length; j++) {
-                            await InvPlan.execute(checked_inv_plans[j])
-                        }
-                        await this.load_inv_plans()
-                        uni.hideLoading()
-                    } else {
-                        uni.hideLoading()
-                        uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
-                    }
-                }
+            // async submit_audit() {
+            //     let checked_groups = this.inv_plan_groups.filter(x => x.checked)
+            //     if (checked_groups.length === 0) {
+            //         uni.showToast({ icon: 'none', title: '未选择任何条目' })
+            //         return
+            //     }
+            //     for (let i = 0; i < checked_groups.length; i++) {
+            //         let checked_inv_plans = this.inv_plans.filter(x => x.FBillNo == checked_groups[i].bill_no)
+            //         uni.showLoading({ title: 'Loading' })
+            //         let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
+            //         if (save_ids.length) {
+            //             await InvPlan.submit(save_ids) // 提交(admin补)
+            //         }
+            //         let ids = checked_inv_plans.map(x => x.FID)
+            //         let response = await InvPlan.audit(ids) // 审核确认
+            //         if (response.data.Result.ResponseStatus.IsSuccess) {
+            //             for (let j = 0; j < checked_inv_plans.length; j++) {
+            //                 await InvPlan.execute(checked_inv_plans[j])
+            //             }
+            //             await this.load_inv_plans()
+            //             uni.hideLoading()
+            //         } else {
+            //             uni.hideLoading()
+            //             uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
+            //         }
+            //     }
+            // },
+            inv_plan_groups_filtered() {
+                let no = this.search_form.no.trim()
+                if (!no) return this.inv_plan_groups
+                return this.inv_plan_groups.filter(inv_group => {
+                    return inv_group.bill_no.includes(no)
+                })
             },
             new_plan() {
                 play_audio_prompt('success')
