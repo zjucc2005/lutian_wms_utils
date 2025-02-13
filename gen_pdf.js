@@ -64,7 +64,7 @@ const pdf_template_inv_plans_in = (inv_plans) => {
     f.setFontSize(10)
     f.text(`入库单号：${options.bill_no}`, 10, 25)
     f.text(`入库仓库：${options.stock_name}`, 10, 30)
-    f.text(`打印日期：${formatDate(Date.now(), 'yyyy-MM-dd')}`, 164, 30)
+    f.text(`打印时间：${formatDate(Date.now(), 'yyyy-MM-dd hh:mm:ss')}`, 150, 30)
     // 表格
     let textWidth_1 = 0
     let textWidth_6 = 0
@@ -152,7 +152,7 @@ const pdf_template_inv_plans_out = (inv_plans, _options={}) => {
     f.setFontSize(10)
     f.text(`出货单号：${options.bill_no}`, 10, 25)
     f.text(`收货人：${options.receiver}`, 10, 30)
-    f.text(`打印日期：${formatDate(Date.now(), 'yyyy-MM-dd')}`, 164, 25)
+    f.text(`打印时间：${formatDate(Date.now(), 'yyyy-MM-dd hh:mm:ss')}`, 150, 25)
     f.text(`出库仓库：${options.stock_name}`, 200 - f.getTextWidth(`出库仓库：${options.stock_name}`), 30)
     // 表格
     let textWidth_1 = 0

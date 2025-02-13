@@ -531,6 +531,7 @@
                 return InvPlan.query({
                     FStockId: store.state.cur_stock.FStockId,
                     FBillNo_ne: this.outbound_task.bill_no,
+                    'FMaterialId.FNumber': material_no,
                     FOpType: 'out',
                     FDocumentStatu_in: ['A', 'B']
                 }, { order: 'FCreateTime ASC' }).then(res => {
