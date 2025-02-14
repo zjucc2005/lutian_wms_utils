@@ -49,6 +49,10 @@ class InvPlan {
      * @return {Hash} Promise
      */
     async save() {
+        if (!this.FMaterialId?.FMaterialId || !this.FOpQTY) {
+            uni.showToast({ title: '参数错误' })
+            return
+        }
         const data = {
             model: this
         }
@@ -163,6 +167,7 @@ class InvPlan {
      * @return {Hash} Promise
      */
     static async execute(inv_plan) {
+        if (!inv_plan.FMaterialId) return // 变更计划中无物料信息时（数据错误），跳过生成日志
         if (['in', 'out', 'add', 'sub'].includes(inv_plan.FOpType)) {
             let options = {
                 FOpType: inv_plan.FOpType,

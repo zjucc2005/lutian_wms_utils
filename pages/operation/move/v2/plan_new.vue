@@ -506,7 +506,17 @@
             },
             close_move_dialog() {
                 this.$refs.move_dialog.close()
-                this.move_form = { type: 'move', inv: {}, dest_loc_no: '', op_qty: 0 }
+                this.move_form = { 
+                    type: 'move', 
+                    inv: {},
+                    dest_loc_no: '', // move
+                    op_qty: 0, // move
+                    edit_qty: 0, // edit
+                    new_loc_no: '', // new
+                    new_batch_no: '', // new
+                    new_qty: 0, // new
+                    remark: ''
+                }
             },
             // 物料模糊匹配
             async search() {
