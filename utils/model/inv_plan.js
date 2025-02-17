@@ -34,6 +34,7 @@ class InvPlan {
         this.FRemark = options.FRemark || ''
         this.FOpStaffNo = options.FOpStaffNo
         this.FPalletQty = options.FPalletQty
+        this.FReceiver = options.FReceiver
     }
     
     static FOpTypeEnum = {
@@ -178,7 +179,8 @@ class InvPlan {
                 FBatchNo: inv_plan.FBatchNo,
                 FBillNo: inv_plan.FBillNo,
                 FOpStaffNo: inv_plan.FOpStaffNo,
-                FRemark: inv_plan.FRemark
+                FRemark: inv_plan.FRemark,
+                FReceiver: inv_plan.FReceiver
             }
             let inv_log = new InvLog(options)
             await inv_log.save()

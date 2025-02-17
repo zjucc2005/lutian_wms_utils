@@ -163,10 +163,20 @@
                 })
             },
             async call_test_api() {
-                InvPlan.query({ 'FMaterialId.FNumber': '3.03.02.02.01.0411' }).then(res => {
-                    res.data
+                // InvPlan.query({ 'FMaterialId.FNumber': '3.03.02.02.01.0411' }).then(res => {
+                //     res.data
+                // })
+                Inv.query({ FQty_lt: 0 }).then(res => {
+                    res.data.forEach(e => {
+                        let data = {
+                            model: {
+                                FID: e.FID,
+                                FQty: 0
+                            }
+                        }
+                        K3CloudApi.save('PAEZ_C_INV', data)
+                    })
                 })
-                
                 // let shelf = 'B20'
                 // let grids = [101,201,301]
                 // // let grids = []
@@ -193,34 +203,6 @@
                 //     }
                 // }
                 // K3CloudApi.save('PAEZ_C_INV_PLAN', data)
-                
-                
-                // let sta = {}
-                // let fields = ['FID', 'FBillNo', 'F_PAEZ_Text']
-                // for (let i = 1; i <= 1; i ++) {
-                //     const data = {
-                //         FormId: 'SAL_DELIVERYNOTICE',
-                //         FieldKeys: fields.join(','),
-                //         FilterString: `FStockID = '2048838' AND FCreateDate BETWEEN '2024-01-01' AND '2024-12-31'`,
-                //         Limit: 10000,
-                //         //FilterString: "FMaterialId.FNumber = '3.01.01.01.07.0072'"
-                //     }
-                    
-                //     let res = await K3CloudApi.bill_query(data)
-                //     let uniq_arr = []
-                //     if (res.data) {
-                        
-                //     }
-                //     for (let item of res.data) {
-                //         let receiver = item['F.PAEZ.Text'].trim().replace(/[*|发]快递/g, '')
-                //         receiver = receiver.replace(/（售后）/g, '')
-                //         if (!uniq_arr.includes(receiver)) {
-                //             uniq_arr.push(receiver)
-                //         }
-                //     }
-                //     sta[i] = uniq_arr.toSorted()
-                // }
-                // console.log("收货人列表", sta)
             },
             call_delete_api() {
                 // StockLoc.query({ FDocumentStatus: 'D' }).then(res => {
@@ -232,6 +214,9 @@
                 // })
                 // Inv.query({ FMaterialId: '' }).then(res => {
                 //     Inv.delete(res.data.map(e => e.FID))
+                // })
+                // InvLog.query({ FMaterialId: '' }).then(res => {
+                //     InvLog.delete(res.data.map(e => e.FID))
                 // })
                 // InvPlan.query({ FMaterialId: '' }).then(res => {
                 //     InvPlan.delete(res.data.map(e => e.FID))

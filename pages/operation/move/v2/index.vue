@@ -133,6 +133,9 @@
     import { InvPlan } from '@/utils/model'
     import { play_audio_prompt, link_to } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+    // #ifdef H5
+    import { pdf_template_inv_plans_mv } from '@/gen_pdf'
+    // #endif
     export default {
         data() {
             return {
@@ -142,7 +145,10 @@
                 goods_nav: {
                     options: [
                         { icon: 'refreshempty', text: '刷新' },
-                        { icon: 'checkbox', text: '全选' }
+                        { icon: 'checkbox', text: '全选' },
+                        // #ifdef H5
+                        { icon: 'map', text: 'PDF' }
+                        // #endif
                     ],
                     admin_button_group: [
                         {
@@ -193,6 +199,9 @@
             goods_nav_click(e) {
                 if (e.index === 0) this.refresh() // btn:刷新
                 if (e.index === 1) this.check_all() // btn:全选
+                // #ifdef H5
+                if (e.index === 2) this.preview_pdf()
+                // #endif
             },
             goods_nav_admin_button_click(e) {
                 if (e.index === 0) this.submit_audit() // btn:审核确认
@@ -200,7 +209,19 @@
             },
             goods_nav_staff_button_click(e) {
                 if (e.index === 0) this.submit_submit() // btn:提交
-            },        
+            },
+            // #ifdef H5
+            preview_pdf() {
+                let inv_plans = this.inv_plans.filter(x => x.checked)
+                if (inv_plans.length === 0) inv_plans = this.inv_plans 
+                if (inv_plans.length === 0) {
+                    uni.showToast({ icon: 'none', title: '未选择任何条目' })
+                    return
+                }
+                let url = pdf_template_inv_plans_mv(inv_plans)
+                uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
+            },
+            // #endif
             async load_inv_plans() {
                 let options = { FStockId: store.state.cur_stock.FStockId, FOpType_in: ['mv', 'add', 'sub'] }
                 if (store.state.role == 'wh_admin') {

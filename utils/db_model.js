@@ -449,7 +449,8 @@
             FOpStaffNo: "操作员工编号",
             FCreateTime: "数据新建时间",
             FCInvId: "关联C_INV",
-            FReferId: "自关联ID"
+            FReferId: "自关联ID",
+            FReceiver: "收货人"
         }
     },
     PAEZ_C_INV_PLAN: {
@@ -480,7 +481,8 @@
             FCreateTime: "数据新建时间",
             FCInvId: "关联C_INV",
             FReferId: "自关联ID",
-            FPalletQty: "托数"
+            FPalletQty: "托数",
+            FReceiver: "收货人"
         }
     },
     PAEZ_C_ISSUEMTR_LOG: {

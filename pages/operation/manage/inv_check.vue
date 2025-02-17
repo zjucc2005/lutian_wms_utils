@@ -55,7 +55,7 @@
     // #ifdef H5
     import { pdf_template_inv_check } from '@/gen_pdf'
     // #endif
-    import { play_audio_prompt, string_to_arraybuffer } from '@/utils'
+    import { play_audio_prompt, string_to_arraybuffer, compare_loc_no } from '@/utils'
     import { BdMaterial, Inv, InvLog } from '@/utils/model'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     export default {
@@ -156,7 +156,8 @@
             },
             check_template_pdf(mode) {
                 if (mode == 'loc_no') {
-                    this.invs.sort((x, y) => x['FStockLocId.FNumber'] > y['FStockLocId.FNumber'] ? 1 : -1 )
+                    // this.invs.sort((x, y) => x['FStockLocId.FNumber'] > y['FStockLocId.FNumber'] ? 1 : -1 )
+                    this.invs.sort((x, y) => compare_loc_no(x['FStockLocId.FNumber'], y['FStockLocId.FNumber']))
                 } else if (mode == 'material_no') {
                     this.invs.sort((x, y) => x['FMaterialId.FNumber'] > y['FMaterialId.FNumber'] ? 1 : -1 )
                 }
@@ -165,7 +166,8 @@
             },
             check_template_excel(mode) {
                 if (mode == 'loc_no') {
-                    this.invs.sort((x, y) => x['FStockLocId.FNumber'] > y['FStockLocId.FNumber'] ? 1 : -1 )
+                    // this.invs.sort((x, y) => x['FStockLocId.FNumber'] > y['FStockLocId.FNumber'] ? 1 : -1 )
+                    this.invs.sort((x, y) => compare_loc_no(x['FStockLocId.FNumber'], y['FStockLocId.FNumber']))
                 } else if (mode == 'material_no') {
                     this.invs.sort((x, y) => x['FMaterialId.FNumber'] > y['FMaterialId.FNumber'] ? 1 : -1 )
                 }

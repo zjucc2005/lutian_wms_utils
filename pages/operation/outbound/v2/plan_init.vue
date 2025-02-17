@@ -19,7 +19,7 @@
                     }"
                 />
             </view>
-            <uni-list v-if="receiver">
+            <uni-list v-if="outbound_task?.receiver">
                 <uni-list-item
                     :show-extra-icon="true"
                     :extra-icon="{ type: 'person',  color: '#007bff' }"
@@ -27,7 +27,7 @@
                     >
                     <template v-slot:footer>
                         <view class="uni-list-item__foot">
-                            <view class="text-dark text-lg text-bold">{{ receiver }}</view>
+                            <view class="text-dark text-lg text-bold">{{ outbound_task.receiver }}</view>
                         </view>
                     </template>
                 </uni-list-item>
@@ -106,7 +106,6 @@
                 search_form: {
                     bill_no: ''
                 },
-                receiver: '', // 收货人
                 is_completed: false,
                 goods_nav: {
                     options: [
@@ -158,7 +157,6 @@
             },
             async handle_search(e) {
                 this.is_completed = false
-                this.receiver = ''
                 this.outbound_task = new OutboundTask()
                 if (this.search_form.bill_no) {
                     this.search_form.bill_no = this.search_form.bill_no.trim().toUpperCase()
@@ -209,7 +207,7 @@
                     uni.showToast({ icon: 'none', title: '未找到计划信息' })
                     return
                 }
-                let url = pdf_template_inv_plans_out(this.inv_plans, { receiver: this.receiver })
+                let url = pdf_template_inv_plans_out(this.inv_plans, { receiver: this.outbound_task.receiver })
                 uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
             },
             // #endif
@@ -263,7 +261,6 @@
             _handle_fhtzd_data(response) {
                 if (response.data.Result.ResponseStatus.IsSuccess) {
                     const data = response.data.Result.Result
-                    this.receiver = data.F_PAEZ_Text
                     let outbound_list = []
                     data.SAL_DELIVERYNOTICEENTRY.forEach(obj => {
                         let outbound_obj = outbound_list.find(x => x.material_id == obj.MaterialID_Id)
@@ -286,6 +283,7 @@
                         }
                     })
                     this.outbound_task.bill_no = data.BillNo
+                    this.outbound_task.receiver = data.F_PAEZ_Text
                     this.outbound_task.stock_id = store.state.cur_stock.FStockId
                     this.outbound_task.staff_no = store.state.cur_staff.FNumber
                     this.outbound_task.outbound_list = outbound_list

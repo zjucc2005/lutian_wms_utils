@@ -3,6 +3,7 @@
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 import store from '@/store'
+import { InvPlan } from '@/utils/model'
 import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js' 
 
 const font_file_path = './static/font/SourceHanSansCN-Normal.ttf'
@@ -183,6 +184,86 @@ const pdf_template_inv_plans_out = (inv_plans, _options={}) => {
     return url
 }
 
+const pdf_template_inv_plans_mv = (inv_plans) => {
+    let options = {
+        title: '绿田机械股份有限公司',
+        subtitle: '库存调整计划',
+        bill_no: '',
+        stock_name: '',
+        table_head: ['序号', '编码', '品名', '规格', '操作', '数量', '单位', '仓位号', '备注'],
+        table_body: [['序号', '编码', '品名', '规格', '操作', '数量', '单位', '仓位号', '备注']]
+    }
+    let inv_plans_sorted = inv_plans.sort((x, y) => x['FMaterialId.FNumber'] > y['FMaterialId.FNumber'] ? 1 : -1 )
+    for (let i = 0; i < inv_plans_sorted.length; i++) {
+        let inv_plan = inv_plans_sorted[i]
+        options.bill_no ||= inv_plan.FBillNo
+        options.stock_name ||= inv_plan['FStockId.FName']
+        options.table_body.push(
+            [
+                i+1, 
+                inv_plan['FMaterialId.FNumber'],
+                inv_plan['FMaterialId.FName'], 
+                inv_plan['FMaterialId.FSpecification'],
+                InvPlan.FOpTypeEnum[inv_plan.FOpType],
+                inv_plan.FOpQTY,
+                inv_plan['FStockUnitId.FName'],
+                inv_plan['FStockLocId.FNumber'],
+                inv_plan.FRemark
+            ]
+        )
+    }
+    // 初始化jsPDF对象
+    let f = new jsPDF()
+    f.addFont(font_file_path, font_family, 'normal') // 加载字体
+    f.setFont(font_family) // 设置字体
+    let page_width = f.internal.pageSize.getWidth()
+    // 标题
+    f.setFontSize(20)
+    let title_x = (page_width - f.getTextWidth(options.title)) / 2
+    f.text(options.title, title_x, 15)
+    // 副标题
+    f.setFontSize(12)
+    let subtitle_x = (page_width - f.getTextWidth(options.subtitle)) / 2
+    f.text(options.subtitle, subtitle_x, 22)
+    // 单号标识
+    f.setFontSize(10)
+    // f.text(`入库单号：${options.bill_no}`, 10, 25)
+    f.text(`仓库：${options.stock_name}`, 10, 30)
+    f.text(`打印时间：${formatDate(Date.now(), 'yyyy-MM-dd hh:mm:ss')}`, 150, 30)
+    // 表格
+    let textWidth_1 = 0
+    let textWidth_2 = 0
+    let textWidth_7 = 0
+    for (let item of options.table_body) {
+        textWidth_1 = Math.max(textWidth_1, f.getTextWidth(item[1])) // 编码字符最小宽度
+        textWidth_2 = Math.max(textWidth_2, f.getTextWidth(item[2])) // 品名字符最小宽度
+        textWidth_7 = Math.max(textWidth_7, f.getTextWidth(item[7])) // 仓位号字符最小宽度
+    }
+    f.autoTable({
+        theme: 'grid',
+        startY: 32,
+        margin: { left: 10, right: 10, top: 10, bottom: 10 },
+        styles: { font: 'SourceHanSansCN', fontSize: 10, cellPadding: 1, minCellWidth: 9 },
+        headStyles: { fillColor: 0, halign: 'center'},
+        bodyStyles: { textColor: 0, lineColor: 120 },
+        columnStyles: {
+            0: { halign: 'center' },
+            1: { minCellWidth: textWidth_1 + 2 },
+            2: { minCellWidth: textWidth_2 + 2 },
+            3: { halign: 'center' },
+            4: { halign: 'center' },
+            5: { halign: 'center' },
+            // 6: { minCellWidth: textWidth_6 + 2 },
+            7: { minCellWidth: textWidth_7 + 2 }
+        },
+        head: [],
+        body: options.table_body
+    })
+    let blob = f.output('blob') // 生成PDF文件的Blob对象
+    let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL
+    return url
+}
+
 const pdf_template_inv_check = (invs) => {
     let options = {
         title: '绿田机械股份有限公司',
@@ -253,5 +334,6 @@ const pdf_template_inv_check = (invs) => {
 export {
     pdf_template_inv_plans_in,
     pdf_template_inv_plans_out,
+    pdf_template_inv_plans_mv,
     pdf_template_inv_check
 }

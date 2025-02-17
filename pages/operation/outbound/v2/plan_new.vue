@@ -581,7 +581,8 @@
                                 FOpQTY: inv.checked_qty,
                                 FBatchNo: inv.FBatchNo,
                                 FBillNo: this.outbound_task.bill_no,
-                                FOpStaffNo: store.state.cur_staff.FNumber
+                                FOpStaffNo: store.state.cur_staff.FNumber,
+                                FReceiver: this.outbound_task.receiver
                             })
                             await inv_plan.save()
                         }
@@ -667,7 +668,6 @@
                     }
                 })
             },
-            
             set_op_mode(mode) {
                 if (mode == 'check') {
                     this.op_mode = 'check'
