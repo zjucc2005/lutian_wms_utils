@@ -207,7 +207,7 @@ const pdf_template_inv_plans_mv = (inv_plans) => {
                 InvPlan.FOpTypeEnum[inv_plan.FOpType],
                 inv_plan.FOpQTY,
                 inv_plan['FStockUnitId.FName'],
-                inv_plan['FStockLocId.FNumber'],
+                inv_plan.FOpType == 'mv' ? `${inv_plan['FStockLocId.FNumber']}\n${inv_plan['FDestStockLocId.FNumber']}` : inv_plan['FStockLocId.FNumber'],
                 inv_plan.FRemark
             ]
         )
@@ -232,12 +232,12 @@ const pdf_template_inv_plans_mv = (inv_plans) => {
     f.text(`打印时间：${formatDate(Date.now(), 'yyyy-MM-dd hh:mm:ss')}`, 150, 30)
     // 表格
     let textWidth_1 = 0
-    let textWidth_2 = 0
-    let textWidth_7 = 0
+    // let textWidth_2 = 0
+    // let textWidth_7 = 0
     for (let item of options.table_body) {
         textWidth_1 = Math.max(textWidth_1, f.getTextWidth(item[1])) // 编码字符最小宽度
-        textWidth_2 = Math.max(textWidth_2, f.getTextWidth(item[2])) // 品名字符最小宽度
-        textWidth_7 = Math.max(textWidth_7, f.getTextWidth(item[7])) // 仓位号字符最小宽度
+        // textWidth_2 = Math.max(textWidth_2, f.getTextWidth(item[2])) // 品名字符最小宽度
+        // textWidth_7 = Math.max(textWidth_7, f.getTextWidth(item[7])) // 仓位号字符最小宽度
     }
     f.autoTable({
         theme: 'grid',
@@ -249,12 +249,12 @@ const pdf_template_inv_plans_mv = (inv_plans) => {
         columnStyles: {
             0: { halign: 'center' },
             1: { minCellWidth: textWidth_1 + 2 },
-            2: { minCellWidth: textWidth_2 + 2 },
+            // 2: { minCellWidth: textWidth_2 + 2 },
             3: { halign: 'center' },
             4: { halign: 'center' },
             5: { halign: 'center' },
             // 6: { minCellWidth: textWidth_6 + 2 },
-            7: { minCellWidth: textWidth_7 + 2 }
+            // 7: { minCellWidth: textWidth_7 + 2 }
         },
         head: [],
         body: options.table_body
@@ -331,9 +331,150 @@ const pdf_template_inv_check = (invs) => {
     return url
 }
 
+const pdf_template_invs = (inv_groups) => {
+    let options = {
+        title: '绿田机械股份有限公司',
+        subtitle: '即时库存',
+        stock_name: store.state.cur_stock.FName,
+        table_head: [],
+        table_body: [['物料编码', '物料名称', '规格型号', '单位', '数量']]
+    }
+    for (let inv of inv_groups) {
+        options.table_body.push([
+            inv.material_no, inv.material_name, inv.material_spec, inv.base_unit_name, inv.qty
+        ])
+    }
+    // 初始化jsPDF对象
+    let f = new jsPDF({ orientation: 'landscape' })
+    f.addFont(font_file_path, font_family, 'normal') // 加载字体
+    f.setFont(font_family) // 设置字体
+    let page_width = f.internal.pageSize.getWidth()
+    // 标题
+    f.setFontSize(20)
+    let title_x = (page_width - f.getTextWidth(options.title)) / 2
+    f.text(options.title, title_x, 15)
+    // 副标题
+    f.setFontSize(12)
+    let subtitle_x = (page_width - f.getTextWidth(options.subtitle)) / 2
+    f.text(options.subtitle, subtitle_x, 22)
+    // 单号标识
+    f.setFontSize(10)
+    f.text(`仓库：${options.stock_name}`, 10, 30)
+    f.text(`打印时间：${formatDate(Date.now(), 'yyyy-MM-dd hh:mm:ss')}`, 237, 30)
+    // 表格
+    let textWidth_0 = 0
+    let textWidth_1 = 0
+    for (let item of options.table_body) {
+        textWidth_0 = Math.max(textWidth_0, f.getTextWidth(item[0])) // 编码最小宽度
+        textWidth_1 = Math.max(textWidth_1, f.getTextWidth(item[1])) // 名称最小宽度
+    }
+    f.autoTable({
+        theme: 'grid',
+        startY: 32,
+        margin: { left: 10, right: 10, top: 10, bottom: 10 },
+        styles: { font: 'SourceHanSansCN', fontSize: 10, cellPadding: 1, minCellWidth: 9 },
+        headStyles: { fillColor: 0, halign: 'center'},
+        bodyStyles: { textColor: 0, lineColor: 120 },
+        columnStyles: {
+            0: { minCellWidth: textWidth_0 + 2 },
+            1: { minCellWidth: textWidth_1 + 2 },
+            4: { halign: 'center' },
+        },
+        // head: [ options.table_head ],
+        body: options.table_body
+    })
+    // 添加页码
+    let total_pages = f.getNumberOfPages()
+    for (let i = 1; i <= total_pages; i++) {
+        f.setPage(i)
+        let t = `${i} / ${total_pages}`
+        f.text(t, 287 - f.getTextWidth(t), 203)
+    }
+    let blob = f.output('blob') // 生成PDF文件的Blob对象
+    let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL
+    return url
+}
+
+// 托运到站单
+const pdf_template_tydzd = () => {
+    let options = {
+        title: '托运到站单',
+        bill_no: 'TYDZD888888',
+        sender_company: '绿田机械股份有限公司',
+        sender_phone: '0576-82645288',
+        receiver: '<收货人>',
+        receiver_addr: '<收货人地址占位字符>',
+        receiver_phone: '138 8888 8888',
+        express: '<xx物流>',
+        express_addr: '<托运站地址占位字符>',
+        express_phone: '139 9999 9999',
+        footer: '尊敬的客户：请您在收到货后，及时核对货物的件数和型号，如有不符，请及时通知我们，谢谢合作。',
+        table_body: [
+            ['发货单位及电话', ''],
+            ['收货人地址及姓名', ''],
+            ['收货人电话及号码', ''],
+            ['托运站地址及电话', ''],
+            ['货物清单', '']
+        ]
+    }
+    // 初始化jsPDF对象
+    let f = new jsPDF()
+    f.addFont(font_file_path, font_family, 'normal') // 加载字体
+    f.setFont(font_family) // 设置字体
+    let page_width = f.internal.pageSize.getWidth()
+    console.log('page_width', page_width)
+    // 标题
+    f.setFontSize(24)
+    let title_x = (page_width - f.getTextWidth(options.title)) / 2
+    f.text(options.title, title_x, 15)
+    // 单号标识
+    f.setFontSize(10)
+    f.text(`${options.bill_no}`, 10, 20)
+    f.text(`打印时间：${formatDate(Date.now(), 'yyyy-MM-dd hh:mm:ss')}`, 150, 20)
+    // footer文字
+    f.setFontSize(10)
+    f.text(`${options.footer}`, 10, 138)
+    // 表格
+    // f.autoTable({
+    //     theme: 'grid',
+    //     startY: 23,
+    //     margin: { left: 10, right: 10, top: 10, bottom: 10 },
+    //     styles: { font: 'SourceHanSansCN', fontSize: 12, cellPadding: 1, minCellWidth: 9 },
+    //     bodyStyles: { textColor: 0, lineColor: 0 },
+    //     columnStyles: {
+    //         0: { halign: 'center', cellWidth: 60 },
+    //         1: { cellWidth: 130 }
+    //     },
+    //     rowStyles: {
+    //         0: { cellPadding: 20 },
+    //         cellPadding: 15,
+    //     },
+    //     body: options.table_body
+    // })
+    
+    f.setLineWidth(0.5)
+    // 水平框线
+    f.line(10, 22, 200, 22)
+    f.line(10, 38, 200, 38)
+    f.line(10, 54, 200, 54)
+    f.line(10, 70, 200, 70)
+    f.line(10, 86, 200, 86)
+    f.line(10, 134, 200, 134)
+    // 垂直框线
+    f.line(10, 22, 10, 134)
+    f.line(60, 22, 60, 86)
+    f.line(200, 22, 200, 134)
+
+    let blob = f.output('blob') // 生成PDF文件的Blob对象
+    let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL
+    return url
+}
+
 export {
     pdf_template_inv_plans_in,
     pdf_template_inv_plans_out,
     pdf_template_inv_plans_mv,
-    pdf_template_inv_check
+    pdf_template_inv_check,
+    pdf_template_invs,
+    pdf_template_tydzd
 }

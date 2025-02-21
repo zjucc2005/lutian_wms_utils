@@ -53,7 +53,7 @@
     import store from '@/store'
     import XLSX from 'xlsx'
     // #ifdef H5
-    import { pdf_template_inv_check } from '@/gen_pdf'
+    import { pdf_template_inv_check, pdf_template_invs } from '@/gen_pdf'
     // #endif
     import { play_audio_prompt, string_to_arraybuffer, compare_loc_no } from '@/utils'
     import { BdMaterial, Inv, InvLog } from '@/utils/model'
@@ -145,12 +145,21 @@
             // 选择盘点模板
             check_template_download() {
                 uni.showActionSheet({
-                    itemList: ['盘点模板（打印用PDF，库位排序）', '盘点模板（打印用PDF，物料排序）', '盘点模板（导入用Excel，库位排序）', '盘点模板（导入用Excel，物料排序）'],
+                    itemList: [
+                        '盘点模板（打印用PDF，库位排序）',
+                        '盘点模板（打印用PDF，物料排序）',
+                        '盘点模板（导入用Excel，库位排序）',
+                        '盘点模板（导入用Excel，物料排序）',
+                        '即时库存（PDF，按物料汇总）',
+                        '即时库存（Excel，按物料汇总）'
+                    ],
                     success: (e) => {
                         if (e.tapIndex === 0) this.check_template_pdf('loc_no')
                         if (e.tapIndex === 1) this.check_template_pdf('material_no')
                         if (e.tapIndex === 2) this.check_template_excel('loc_no')
                         if (e.tapIndex === 3) this.check_template_excel('material_no')
+                        if (e.tapIndex === 4) this.export_invs_pdf()
+                        if (e.tapIndex === 5) this.export_invs_excel()
                     }
                 })
             },
@@ -191,6 +200,31 @@
                 let link = document.createElement('a')
                 link.href = URL.createObjectURL(blob)
                 link.download = `库存盘点模板_${Date.now()}.xlsx`
+                link.click()
+                URL.revokeObjectURL(link.href)
+            },
+            export_invs_pdf() {
+                let inv_groups = this.get_inv_groups()
+                let url = pdf_template_invs(inv_groups)
+                uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
+            },
+            export_invs_excel() {
+                let inv_groups = this.get_inv_groups()
+                let sheet_data = [
+                    ['物料编码', '物料名称', '规格型号', '单位', '数量']
+                ]
+                for (let inv of inv_groups) {
+                    sheet_data.push([ inv.material_no, inv.material_name, inv.material_spec, inv.base_unit_name, inv.qty ])
+                }
+                let sheet = XLSX.utils.aoa_to_sheet(sheet_data)
+                let book = XLSX.utils.book_new()
+                XLSX.utils.book_append_sheet(book, sheet, 'Sheet1')
+                var book_output = XLSX.write(book, { bookType: 'xlsx', bookSST: true, type: 'binary'})
+                const blob = new Blob([string_to_arraybuffer(book_output)], { type: "application/octet-stream" })
+                // 下载
+                let link = document.createElement('a')
+                link.href = URL.createObjectURL(blob)
+                link.download = `导出库存_${Date.now()}.xlsx`
                 link.click()
                 URL.revokeObjectURL(link.href)
             },
@@ -266,6 +300,26 @@
                 uni.hideLoading()
                 uni.showToast({ title: '更新库存成功' })
                 uni.navigateBack({ delta: 2 })
+            },
+            get_inv_groups() {
+                let inv_groups = []
+                this.invs.forEach(inv => {
+                    let group = inv_groups.find(x => x.material_id == inv.FMaterialId)
+                    if (group) {
+                        group.qty += inv.FQty
+                    } else {
+                        inv_groups.push({
+                            material_id: inv.FMaterialId,
+                            material_no: inv['FMaterialId.FNumber'],
+                            material_name: inv['FMaterialId.FName'],
+                            material_spec: inv['FMaterialId.FSpecification'],
+                            material_image: inv['FMaterialId.FImageFileServer'],
+                            qty: inv.FQty,
+                            base_unit_name: inv['FStockUnitId.FName']
+                        })
+                    }
+                })
+                return inv_groups
             },
             _init_check_invs() {
                 let check_invs = []
