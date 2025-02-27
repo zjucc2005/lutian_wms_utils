@@ -398,7 +398,7 @@ const pdf_template_invs = (inv_groups) => {
 // 托运到站单
 const pdf_template_tydzd = () => {
     let options = {
-        title: '托运到站单',
+        title: '托 运 到 站 单',
         bill_no: 'TYDZD888888',
         sender_company: '绿田机械股份有限公司',
         sender_phone: '0576-82645288',
@@ -423,6 +423,7 @@ const pdf_template_tydzd = () => {
     f.setFont(font_family) // 设置字体
     let page_width = f.internal.pageSize.getWidth()
     console.log('page_width', page_width)
+    // -- header --
     // 标题
     f.setFontSize(24)
     let title_x = (page_width - f.getTextWidth(options.title)) / 2
@@ -431,9 +432,7 @@ const pdf_template_tydzd = () => {
     f.setFontSize(10)
     f.text(`${options.bill_no}`, 10, 20)
     f.text(`打印时间：${formatDate(Date.now(), 'yyyy-MM-dd hh:mm:ss')}`, 150, 20)
-    // footer文字
-    f.setFontSize(10)
-    f.text(`${options.footer}`, 10, 138)
+    
     // 表格
     // f.autoTable({
     //     theme: 'grid',
@@ -451,7 +450,7 @@ const pdf_template_tydzd = () => {
     //     },
     //     body: options.table_body
     // })
-    
+    // -- body --
     f.setLineWidth(0.5)
     // 水平框线
     f.line(10, 22, 200, 22)
@@ -464,6 +463,22 @@ const pdf_template_tydzd = () => {
     f.line(10, 22, 10, 134)
     f.line(60, 22, 60, 86)
     f.line(200, 22, 200, 134)
+    
+    f.setFontSize(12)
+    f.text('发货单位及电话', 18, 31.6)
+    f.text('绿田机械股份有限公司', 68, 31.6)
+    f.text('0576-82645288', 138, 31.6)
+    
+    f.text('收货人地址及姓名', 18, 47.6)
+    f.text('收货人电话及号码', 18, 63.6)
+    f.text('托运站地址及电话', 18, 79.6)
+    f.text('货物清单', 18, 92)
+    
+    
+    
+    // -- footer --
+    f.setFontSize(10)
+    f.text(`${options.footer}`, 10, 138)
 
     let blob = f.output('blob') // 生成PDF文件的Blob对象
     let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL

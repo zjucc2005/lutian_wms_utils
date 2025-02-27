@@ -18,7 +18,7 @@ const validate_staff = async (staff_name, staff_no, org_id) => {
     let fields = ['FID', 'FName', 'FNumber', 'FForbidStatus', 'FBizOrgId', 'FBizOrgId.FName']
     const data = {
         FormId: "BD_WAREHOUSEWORKERS",
-        FieldKeys: fields.concat(['FOperatorGroupId', 'FOperatorGroupId.FName']).join(','),
+        FieldKeys: fields.concat(['FOperatorGroupId', 'FOperatorGroupId.FNumber', 'FOperatorGroupId.FName']).join(','),
         FilterString: K3CloudApi.query_filter({ FName: staff_name, FNumber: staff_no, FBizOrgId: org_id })
     }
     let wh_res = await K3CloudApi.bill_query(data)
@@ -27,7 +27,7 @@ const validate_staff = async (staff_name, staff_no, org_id) => {
             result[fields[i]] = wh_res.data[0][fields[i]]
         }
         for (let i in wh_res.data) {
-            result.FOperatorGroup.push(wh_res.data[i]['FOperatorGroupId.FName'])
+            result.FOperatorGroup.push(wh_res.data[i]['FOperatorGroupId.FNumber'])
         }
     }
     if (result?.FName) return result

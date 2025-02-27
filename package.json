@@ -1,7 +1,7 @@
 {
   "name": "lutian_wms_utils",
-  "version": "1.2.3",
-  "versionCode" : 123,
+  "version": "1.2.4",
+  "versionCode" : 124,
   "installPack" : {
     "h5": "https://musetransfer.com/s/v8682p1f2",
     "android": ""

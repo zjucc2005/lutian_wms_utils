@@ -48,11 +48,11 @@
             :extra-icon="{ type: 'settings', size: '24', color: '#007bff' }"
             @click="link_to('/pages/api_utils/store/store')" clickable
             show-arrow />
-<!--        <uni-list-item title="调试"
+       <uni-list-item title="调试"
             :show-extra-icon="true"
             :extra-icon="{ type: 'settings', size: '24', color: '#007bff' }"
             @click="debug" clickable
-            show-arrow /> -->  
+            show-arrow />  
     </uni-list>
     <uni-list>
         <uni-list-item title="退出"

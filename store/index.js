@@ -62,8 +62,9 @@ const store = createStore({
             uni.setStorageSync('cur_staff', params.staff)
             state.role = permission.get_system_role(params.staff.FOperatorGroup) // 设定角色
             // 初始化时, 自动生成序列号
-            // 设备id采用登录员工的员工编号，编号一般有5位数字，最大支持到1048576；
-            state.snowflake = new Snowflake(params.staff.FNumber)
+            // 设备id采用登录员工的员工编号，编号一般有5位数字，最大支持到1048576；只支持数字字符；
+            let device_id = params.staff.FNumber.match(/(\d+)/)[0]
+            state.snowflake = new Snowflake(device_id)
         },
         staff_logout(state) {
             if (state.role == 'guest') {

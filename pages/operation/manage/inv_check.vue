@@ -10,10 +10,10 @@
         >
         <uni-table ref="table" class="table-sm" border stripe>
             <uni-tr>
-                <uni-th align="center" width="140">物料编码</uni-th>
+                <uni-th align="center" width="140" sortable>物料编码</uni-th>
                 <uni-th align="center" width="140">物料名称</uni-th>
                 <uni-th align="center">规格型号</uni-th>
-                <uni-th align="center" width="106">库位</uni-th>
+                <uni-th align="center" width="106" sortable>库位</uni-th>
                 <uni-th align="center" width="80">批次</uni-th>
                 <uni-th align="center" width="40">单位</uni-th>
                 <uni-th align="center" width="70">账面数量</uni-th>
@@ -389,7 +389,6 @@
                     this.goods_nav.button_group[0] = { text: '下载盘点模板', backgroundColor: store.state.goods_nav_color.yellow, color: '#fff' }
                     this.goods_nav.button_group[1] = { text: '导入盘点数据', backgroundColor: store.state.goods_nav_color.green, color: '#fff' }
                 }
-                
             }
         }
     }

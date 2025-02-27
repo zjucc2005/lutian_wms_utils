@@ -194,8 +194,8 @@
                 <uni-data-checkbox
                     v-model="move_form.type" 
                     :localdata="[
-                        { text: '转移库位', value: 'move', disable: edit_mode == 'new' },
                         { text: '调整数量', value: 'edit', disable: edit_mode == 'new' },
+                        { text: '转移库位', value: 'move', disable: edit_mode == 'new' },
                         { text: '新增库存', value: 'new' }
                     ]"
                     class="uni-mb-10"
@@ -377,7 +377,7 @@
                     confirm_text: '新增'
                 },
                 move_form: {
-                    type: 'move', // move: 改库位, edit: 改数量, new: 新增库位批次
+                    type: 'edit', // move: 改库位, edit: 改数量, new: 新增库位批次
                     inv: {},
                     dest_loc_no: '', // move
                     op_qty: 0, // move
@@ -507,7 +507,7 @@
             close_move_dialog() {
                 this.$refs.move_dialog.close()
                 this.move_form = { 
-                    type: 'move', 
+                    type: 'edit', 
                     inv: {},
                     dest_loc_no: '', // move
                     op_qty: 0, // move
