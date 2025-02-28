@@ -139,6 +139,7 @@ const get_latest_version = async (positive=false) => {
         url: 'https://zjucc2005.github.io/lutian_wms_utils/package.json',
         method: 'GET'
     })
+    // console.log('get_latest_version', res)
     // uni.hideLoading()
     if (res.statusCode == 200) {
         store.commit('set_latest_version', res.data.versionCode)
