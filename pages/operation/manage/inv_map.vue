@@ -6,7 +6,7 @@
             $store.state.cur_stock.FName
         ].join(' / ')"
         >
-        <uni-list>
+<!--        <uni-list>
             <uni-list-item
                 :show-extra-icon="true"
                 :extra-icon="{ type: 'right',  color: '#007bff' }"
@@ -14,7 +14,7 @@
                 :rightText="`${sum_qty}`"
                 >
             </uni-list-item>
-        </uni-list>
+        </uni-list> -->
         <cc-shelf
             :stock_locs="$store.state.stock_locs"
             :invs="invs"
@@ -36,15 +36,15 @@
                 this.invs = res.invs
             })
         },
-        computed: {
-            sum_qty() {
-                let sum = 0
-                for (let inv of this.invs) {
-                    sum += inv.FQty
-                }
-                return sum
-            }
-        },
+        // computed: {
+        //     sum_qty() {
+        //         let sum = 0
+        //         for (let inv of this.invs) {
+        //             sum += inv.FQty
+        //         }
+        //         return sum
+        //     }
+        // },
         methods: {
             
         }

@@ -1,9 +1,51 @@
 <template>
+    <uni-list v-if="invs.length">
+        <uni-list-item
+            :show-extra-icon="true"
+            :extra-icon="{ type: 'right',  color: '#007bff' }"
+            title="库存总数"
+            :rightText="`${sum_qty}`"
+            >
+        </uni-list-item>
+        <uni-list-item
+            :show-extra-icon="true"
+            :extra-icon="{ type: 'right',  color: '#007bff' }"
+            >
+            <template #body>
+                <view class="uni-list-item__body">
+                    <view class="title">库位总数（货架）</view>
+                </view>
+                <view class="uni-list-item__foot">
+                    <view>
+                        {{ loc_qty.total }} (
+                        <uni-icons type="smallcircle-filled" size="18" color="#67c23a"></uni-icons> {{ loc_qty.used }}
+                        <uni-icons type="smallcircle-filled" size="18" color="#f56c6c"></uni-icons> {{ loc_qty.disabled }}
+                        <uni-icons type="smallcircle-filled" size="18" color="#c0c0c0"></uni-icons> {{ loc_qty.idle }}
+                        )
+                    </view>
+                </view>
+            </template>
+        </uni-list-item>
+    </uni-list>
     <uni-collapse>
         <uni-collapse-item
             v-for="shelf in grid_shelves"
             :title="shelf.name" :open="open" title-border="show"
             >
+            <template #title>
+                <view class="collapse_header" style="">
+                    <view class="shelf_name" style="padding: 15px;">
+                        {{ shelf.name }}
+                    </view>
+                    <view class="shelf_tips" v-if="invs.length && !shelf.sp">
+                        库位数 {{ shelf.loc_qty.total }} （
+                        <uni-icons type="smallcircle-filled" size="18" color="#67c23a"></uni-icons> {{ shelf.loc_qty.used }}
+                        <uni-icons type="smallcircle-filled" size="18" color="#f56c6c"></uni-icons> {{ shelf.loc_qty.disabled }}
+                        <uni-icons type="smallcircle-filled" size="18" color="#c0c0c0"></uni-icons> {{ shelf.loc_qty.idle }}
+                        ）
+                    </view>
+                </view>
+            </template>
             <view class="content">
                 <swiper :indicator-dots="true" :style="{ height: `${get_swiper_height(shelf)}px` }" class="shelf_swiper">
                     <swiper-item v-for="page in get_swiper_pages(shelf)" :key="page">
@@ -146,6 +188,25 @@
                     return 10
                 }
             },
+            sum_qty() {
+                let sum = 0
+                for (let inv of this.invs) {
+                    sum += inv.FQty
+                }
+                return sum
+            },
+            loc_qty() {
+                let res = { total: 0, used: 0, idle: 0, disabled: 0 }
+                this.grid_shelves.forEach(shelf => {
+                    if (!shelf.sp) {
+                        res.total += shelf.loc_qty.total
+                        res.used += shelf.loc_qty.used
+                        res.idle += shelf.loc_qty.idle
+                        res.disabled += shelf.loc_qty.disabled
+                    }  
+                })
+                return res
+            },
             grid_shelves() {
                 let grid_shelves = []
                 this.stock_locs.forEach(stock_loc => {
@@ -170,6 +231,7 @@
                                 name: name,
                                 disabled: true,
                                 bound: { x, y },
+                                loc_qty: { total: 0, used: 0, idle: 0, disabled: 0 },
                                 grids: [{ x, y, status, style, sp: false, no: stock_loc.FNumber, qty: 0 }]
                             })
                         }
@@ -179,6 +241,8 @@
                             name: stock_loc.FNumber,
                             disabled: true,
                             bound: { x: 1, y: 1 },
+                            sp: true,
+                            loc_qty: { total: 0, used: 0, disabled: 0, idle: 0 },
                             grids:[{
                                 x: 1, y: 1, 
                                 status: stock_loc.FForbidStatus == 'B' ? 'forbidden' : '', 
@@ -201,6 +265,20 @@
                         grid.qty += inv.FQty
                     }
                 })
+                // 汇总每个货架库位数
+                grid_shelves.forEach(shelf => {
+                    shelf.grids.forEach(grid => {
+                        shelf.loc_qty.total += 1
+                        if (grid.style == 'error') {
+                            shelf.loc_qty.disabled += 1
+                        } else if (grid.style == 'success') {
+                            shelf.loc_qty.used += 1
+                        } else {
+                            shelf.loc_qty.idle += 1
+                        }
+                    })
+                })
+                
                 // 补全空缺的grid并赋予page + index
                 grid_shelves.forEach(shelf => {
                     for(let x=1;x<=Math.ceil(shelf.bound.x/this.column)*this.column;x+=1) {
@@ -316,11 +394,17 @@
 </script>
 
 <style lang="scss">
-    .uni-collapse-item__title-text {
-        font-size: $uni-font-size-lg !important;
-        font-weight: bold;
+    .collapse_header {
+        height: 48px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between;
+        .shelf_name {
+            font-size: $uni-font-size-lg !important;
+            font-weight: bold;
+        }
     }
-    
+
     .shelf_swiper {
         .grid-item-box {
             flex: 1;
