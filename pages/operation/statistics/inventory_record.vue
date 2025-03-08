@@ -11,7 +11,8 @@
     <uni-section title="设置" type="square">
         <view class="container">
             <uni-segmented-control
-                :values="['月视图','周视图', '日视图']"
+                :current="0"
+                :values="['日视图', '周视图', '月视图']"
                 @click-item="segment_click"/>
             
             <!-- <button @click="debug" class="uni-mt-6">DEBUG</button> -->
@@ -27,7 +28,7 @@
         data() {
             return {
                 raw_data: [],
-                mode: 'month', // 视图模式 month/week/day
+                mode: 'day', // 视图模式 month/week/day
                 stime: null,
                 type: 'line',
                 opts: {
@@ -36,7 +37,12 @@
                     xAxis: {
                         scrollShow: true,
                         scrollAlign: 'right',
-                        itemCount: 8
+                        // #ifdef APP-PLUS
+                        itemCount: 8,
+                        // #endif
+                        // #ifdef H5
+                        itemCount: Math.max(Math.floor(store.state.system_info.windowWidth / 60), 8),
+                        // #endif
                     },
                     extra: {
                         line: {
@@ -58,9 +64,9 @@
         },
         methods: {
             segment_click(e) {
-                if (e.currentIndex === 0) this._set_chart_data_month()
+                if (e.currentIndex === 0) this._set_chart_data_day()
                 if (e.currentIndex === 1) this._set_chart_data_week()
-                if (e.currentIndex === 2) this._set_chart_data_day()
+                if (e.currentIndex === 2) this._set_chart_data_month()
             },
             async load_raw_data() {
                 try {
@@ -73,7 +79,7 @@
                     let res = await InvLog.inventory_record(options)
                     uni.hideLoading()
                     this.raw_data = res.map(x => { x[3] = Number(new Date(x[2])); return x })
-                    this._set_chart_data_month()
+                    this._set_chart_data_day()
                 } catch (err) {}
             },
             // 月视图数据
@@ -186,6 +192,9 @@
                 let year = now.getFullYear()
                 let month = now.getMonth()
                 this.stime = new Date(year - 1, month + 1, 1) // GMT+8
+                if (this.stime < new Date('2025-02-01')) {
+                    this.stime = new Date('2025-02-01')
+                }
             },
             debug(e) {
                 // this.load_data_month(0)

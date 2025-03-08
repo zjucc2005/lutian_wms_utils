@@ -29,7 +29,8 @@ class InvLog {
         this.FBillNo = options.FBillNo || ''
         this.FRemark = options.FRemark || ''
         this.FOpStaffNo = options.FOpStaffNo
-        this.FReferId = ['in_cl', 'out_cl'].includes(options.FOpType) ? options.FReferId : ''    
+        this.FReferId = ['in_cl', 'out_cl'].includes(options.FOpType) ? options.FReferId : ''
+        this.FReceiver = options.FReceiver || ''
     }
     
     static FOpTypeEnum = {

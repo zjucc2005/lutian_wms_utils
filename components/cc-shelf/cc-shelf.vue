@@ -8,6 +8,7 @@
             >
         </uni-list-item>
         <uni-list-item
+            v-if="!onlyInv"
             :show-extra-icon="true"
             :extra-icon="{ type: 'right',  color: '#007bff' }"
             >
@@ -37,7 +38,7 @@
                     <view class="shelf_name" style="padding: 15px;">
                         {{ shelf.name }}
                     </view>
-                    <view class="shelf_tips" v-if="invs.length && !shelf.sp">
+                    <view class="shelf_tips" v-if="!onlyInv && invs.length && !shelf.sp">
                         库位数 {{ shelf.loc_qty.total }} （
                         <uni-icons type="smallcircle-filled" size="18" color="#67c23a"></uni-icons> {{ shelf.loc_qty.used }}
                         <uni-icons type="smallcircle-filled" size="18" color="#f56c6c"></uni-icons> {{ shelf.loc_qty.disabled }}

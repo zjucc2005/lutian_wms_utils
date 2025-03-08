@@ -12,6 +12,7 @@
             <uni-th align="center" width="120">库位</uni-th>
             <uni-th align="center" width="120">目标库位</uni-th>
             <uni-th align="center">单据编号</uni-th>
+            <uni-th align="center" width="80">收货人</uni-th>
             <uni-th align="center">备注</uni-th>
             <uni-th align="center" width="120">操作员工编号</uni-th>
             <uni-th align="center" width="80">状态</uni-th>
@@ -32,6 +33,7 @@
             <uni-td>{{ inv_plan['FStockLocId.FNumber'] }}</uni-td>
             <uni-td><text class="text-primary">{{ inv_plan['FDestStockLocId.FNumber'] }}</text></uni-td>
             <uni-td>{{ inv_plan.FBillNo }}</uni-td>
+            <uni-td>{{ inv_plan.FReceiver }}</uni-td>
             <uni-td>{{ inv_plan.FRemark }}</uni-td>
             <uni-td>{{ inv_plan.FOpStaffNo }}</uni-td>
             <uni-td><text class="text-primary">{{ $store.state.document_status_dict[inv_plan.FDocumentStatu] }}</text></uni-td>
@@ -45,19 +47,21 @@
             >
             <template #body>
                 <view class="uni-list-item__body">
-                    <view class="title">{{ inv_plan['FMaterialId.FNumber'] }}</view>
+                    <view class="title">{{ inv_plan['FMaterialId.FNumber'] }} / {{ inv_plan['FMaterialId.FName'] }}</view>
                     <view class="note">
-                        <view>名称：{{ inv_plan['FMaterialId.FName'] }}</view>
+                        <!-- <view>名称：{{ inv_plan['FMaterialId.FName'] }}</view> -->
                         <view>规格：{{ inv_plan['FMaterialId.FSpecification'] }}</view>
-                        <view>批次：{{ inv_plan.FBatchNo }}</view>
+                        <!-- <view>批次：{{ inv_plan.FBatchNo }}</view> -->
                         <view>
                             库位：<text class="text-default">{{ inv_plan['FStockLocId.FNumber'] }}</text>
                             <template v-if="inv_plan.FOpType == 'mv'">
                                 <uni-icons type="redo" color="#007bff"></uni-icons>
                                 <text class="text-primary uni-ml-2">{{ inv_plan['FDestStockLocId.FNumber'] }}</text>
                             </template>
+                            <text class="uni-ml-5">批次：{{ inv_plan.FBatchNo }}</text>
                         </view>
                         <view v-if="inv_plan.FBillNo?.trim()">单据：{{ inv_plan.FBillNo }}</view>
+                        <view v-if="inv_plan.FReceiver?.trim()">收货人：{{ inv_plan.FReceiver }}</view>
                         <view v-if="inv_plan.FRemark?.trim()">备注：{{ inv_plan.FRemark }}</view>
                         <view>时间：{{ formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</view>
                     </view>
@@ -98,6 +102,9 @@
                     <uni-forms-item label="结束时间">
                         <uni-datetime-picker type="date" v-model="search_form.create_time_le" />
                     </uni-forms-item>
+                    <uni-forms-item label="操作类型">
+                        <uni-data-select v-model="search_form.op_type" :localdata="op_type_options"></uni-data-select>
+                    </uni-forms-item>
                     <uni-forms-item label="物料编码">
                         <uni-easyinput v-model="search_form.material_no" />
                     </uni-forms-item>
@@ -109,6 +116,9 @@
                     </uni-forms-item>
                     <uni-forms-item label="单据编号">
                         <uni-easyinput v-model="search_form.bill_no" />
+                    </uni-forms-item>
+                    <uni-forms-item label="收货人">
+                        <uni-easyinput v-model="search_form.receiver" />
                     </uni-forms-item>
                 </uni-forms>
             </view>
@@ -164,9 +174,17 @@
         mounted() {
             this.load_inv_plans()
         },
+        computed: {
+            op_type_options() {
+                return Object.getOwnPropertyNames(this.op_type_dict).map(x => {
+                    return { value: x, text: this.op_type_dict[x] }
+                })
+            }  
+        },
         methods: {
             formatDate,
             fab_trigger(e) {
+                console.log('this.$data', this.$data)
                 if (e.index === 0) this.$refs.search_dialog.open()
                 if (e.index === 1) uni.pageScrollTo({ scrollTop: 0 })
             },
@@ -192,10 +210,12 @@
                 let options = { FStockId: store.state.cur_stock.FStockId }
                 if (this.search_form.create_time_ge) options.FCreateTime_ge = this.search_form.create_time_ge
                 if (this.search_form.create_time_le) options.FCreateTime_le = this.search_form.create_time_le
+                if (this.search_form.op_type) options.FOpType = this.search_form.op_type
                 if (this.search_form.material_no) options['FMaterialId.FNumber_lk'] = this.search_form.material_no
                 if (this.search_form.material_name) options['FMaterialName_lk'] = this.search_form.material_name
                 if (this.search_form.material_spec) options['FModel_lk'] = this.search_form.material_spec
-                if (this.search_form.bill_no) options.FBillNo = this.search_form.bill_no
+                if (this.search_form.bill_no) options.FBillNo_lk = this.search_form.bill_no
+                if (this.search_form.receiver) options.FReceiver_lk = this.search_form.receiver
                 let meta = { page: this.page, per_page: this.per_page, order: 'FID DESC' }
                 this.load_more_status = 'loading'
                 InvPlan.query(options, meta).then(res => {
