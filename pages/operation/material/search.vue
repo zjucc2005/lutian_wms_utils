@@ -55,7 +55,7 @@
                         :note="[
                             `名称：${material.FName}`, 
                             `规格：${material.FSpecification}`,
-                            `使用组织：${material['FUseOrgId.FName']}`
+                            // `使用组织：${material['FUseOrgId.FName']}`
                         ].join('\n')"
                         :thumb="_thumbnail_url(material.FImageFileServer)"
                         thumb-size="lg"

@@ -42,7 +42,7 @@
                     :right-text="[stk_inv.FBaseQty, bd_material.MaterialBase[0].BaseUnitId.Name[0].Value].join(' ')">
                     <template #body>
                         <view class="uni-list-item__body">
-                            <view class="title">库存量(基本单位)</view>
+                            <view class="title">库存量(金蝶账面)</view>
                             <view class="note">
                                 <view>组织：<text :class="stk_inv.FStockOrgId == $store.state.cur_stock.FUseOrgId ? 'text-primary' : ''">{{ stk_inv['FStockOrgId.FName'] }}</text></view> 
                                 <view>仓库：{{ stk_inv.FStockName }}</view>

@@ -5,8 +5,9 @@
                 <uni-list-item
                     v-for="(inv_plan, index) in inv_plans"
                     :key="index"
-                    @click="link_to(`/pages/operation/move/v2/plan_new?material_no=${inv_plan['FMaterialId.FNumber']}`)"
-                    clickable
+                    @click="list_item_click(inv_plan)" clickable
+                    show-arrow
+                    @longpress="list_item_click(inv_plan)"
                     >
                     <template v-slot:header>
                         <view class="uni-list-item__head">
@@ -196,6 +197,17 @@
                     inv_plan.checked = !inv_plan.checked
                 }  
             },
+            list_item_click(inv_plan) {
+                if (inv_plan.FDocumentStatu == 'A') {
+                    uni.showActionSheet({
+                        itemList: ['编辑', '删除'],
+                        success: (e) => {
+                            if (e.tapIndex === 0) this.link_to(`/pages/operation/move/v2/plan_new?material_no=${inv_plan['FMaterialId.FNumber']}`)
+                            if (e.tapIndex === 1) this.submit_delete(inv_plan) // 新建的计划可删除
+                        }
+                    })
+                }
+            },
             goods_nav_click(e) {
                 if (e.index === 0) this.refresh() // btn:刷新
                 if (e.index === 1) this.check_all() // btn:全选
@@ -296,6 +308,22 @@
                         uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
                     }
                 })
+            },
+            async submit_delete(inv_plan) {
+                if (inv_plan.FDocumentStatu == 'A') {
+                    uni.showLoading({ title: 'Loading' })
+                    return InvPlan.delete([inv_plan.FID]).then(res => {
+                        uni.hideLoading()
+                        if (res.data.Result.ResponseStatus.IsSuccess) {
+                            play_audio_prompt('delete')
+                            this.load_inv_plans()
+                        } else {
+                            uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
+                        }
+                    })
+                } else {
+                    uni.showToast({ icon: 'error', title: '只能删除新增的计划' })
+                }
             },
             new_plan() {
                 play_audio_prompt('success')

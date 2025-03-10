@@ -239,7 +239,7 @@
                 let grid = shelf.grids.find(g => g.index === e.detail.index)
                 if (!grid) return
                 if (grid.style == 'none') return
-                console.log('grid', grid)
+                // console.log('grid', grid)
                 if (grid.plt_space == 0) return
                 if (grid.checked) {
                     // 取消勾选

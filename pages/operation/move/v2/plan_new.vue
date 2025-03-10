@@ -330,7 +330,7 @@
                     
                     <uni-row>
                         <uni-forms-item label="备注" name="remark" label-width="40px" style="margin-bottom: 0;">
-                            <uni-easyinput v-model="move_form.remark" type="textarea" auto-height trim="both" />
+                            <uni-easyinput v-model="move_form.remark" type="textarea" auto-height trim="both" placeholder="请填写调整原因" />
                         </uni-forms-item>
                     </uni-row>
                 </uni-forms>
@@ -442,6 +442,11 @@
                                     if (value <= 0) return callback('新增数量必须大于0')
                                 }
                             }
+                        ]
+                    },
+                    remark: {
+                        rules: [
+                            { required: true, errorMessage: '调整原因不能为空' },
                         ]
                     }
                 },

@@ -7,6 +7,9 @@
                 <uni-list-item
                     v-for="(inv_plan, index) in inv_plans"
                     :key="index"
+                    @click="list_item_click(inv_plan)" clickable
+                    show-arrow
+                    @longpress="list_item_click(inv_plan)"
                     >
                     <template v-slot:header>
                         <view class="uni-list-item__head">
@@ -186,6 +189,16 @@
                     inv_plan.checked = !inv_plan.checked
                 }
             },
+            list_item_click(inv_plan) {
+                if (inv_plan.FDocumentStatu == 'A') {
+                    uni.showActionSheet({
+                        itemList: ['删除'],
+                        success: (e) => {
+                            if (e.tapIndex === 0) this.submit_delete(inv_plan) // 新建的计划可删除
+                        }
+                    })
+                }
+            },
             // #ifdef H5
             preview_pdf() {
                 let inv_plans = this.inv_plans.filter(x => x.checked)
@@ -264,6 +277,22 @@
                     uni.showToast({
                         icon: 'none', title: '未选择任何条目'
                     })
+                }
+            },
+            async submit_delete(inv_plan) {
+                if (inv_plan.FDocumentStatu == 'A') {
+                    uni.showLoading({ title: 'Loading' })
+                    return InvPlan.delete([inv_plan.FID]).then(res => {
+                        uni.hideLoading()
+                        if (res.data.Result.ResponseStatus.IsSuccess) {
+                            play_audio_prompt('delete')
+                            this.load_inv_plans()
+                        } else {
+                            uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
+                        }
+                    })
+                } else {
+                    uni.showToast({ icon: 'error', title: '只能删除新增的计划' })
                 }
             }
         }
