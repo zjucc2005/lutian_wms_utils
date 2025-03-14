@@ -89,7 +89,7 @@ const store = createStore({
         },
         set_system_info(state, system_info) {
             state.system_info = system_info
-            state.drawer_width = system_info.windowWidth * 0.88
+            state.drawer_width = Math.min(system_info.windowWidth * 0.88, 540)
         },
         set_bd_stocks(state, bd_stocks) {
             state.bd_stocks = bd_stocks
