@@ -532,7 +532,7 @@
                     FStockId: store.state.cur_stock.FStockId,
                     FBillNo_ne: this.outbound_task.bill_no,
                     'FMaterialId.FNumber': material_no,
-                    FOpType: 'out',
+                    FOpType_in: ['out', 'mv', 'sub'],
                     FDocumentStatu_in: ['A', 'B']
                 }, { order: 'FCreateTime ASC' }).then(res => {
                     this.$logger.info('>>> 加载其余入库计划，完毕')

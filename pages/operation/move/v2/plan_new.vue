@@ -46,7 +46,7 @@
         v-if="inv_plans.length">
         <template v-slot:right>
             <view class="uni-section__right">
-                <view >
+                <view>
                     已计划 <text class="sum_qty">{{ _sum_planned_qty() }}</text> {{ material.base_unit_name }}
                 </view>
             </view>
@@ -59,7 +59,8 @@
                 :right-options="swipe_options"
                 @click="swipe_action_click($event, inv_plan)"
                 >
-                <uni-list-item>
+                <uni-list-item
+                    :disabled="inv_plan.FOpType == 'out'">
                     <template v-slot:body>
                         <view class="uni-list-item__body">
                             <view class="title">
@@ -83,11 +84,12 @@
                                     <text v-if="inv_plan.FOpType == 'mv'" class="text-primary">移动 </text>
                                     <text v-if="inv_plan.FOpType == 'add'" class="text-error">增加 </text>
                                     <text v-if="inv_plan.FOpType == 'sub'" class="text-success">减少 </text>
+                                    <text v-if="inv_plan.FOpType == 'out'" class="text-success">出库 </text>
                                     <text>{{ inv_plan.FOpQTY }} {{ inv_plan['FStockUnitId.FName'] }}</text>
                                 </view>
                                 <text class="status">{{ inv_plan.status }}</text>
                             </view>
-                            <view v-if="$store.state.device_type == 'h5' && !inv_plan.status">
+                            <view v-if="$store.state.device_type == 'h5' && !inv_plan.status && ['mv', 'add', 'sub'].includes(inv_plan.FOpType)">
                                 <uni-icons type="trash" size="24" color="#dd524d" @click="submit_delete(inv_plan)" class="uni-ml-5" />
                             </view>
                         </view>
@@ -269,12 +271,12 @@
                         </uni-row>
                         <uni-row>
                             <uni-col :span="8" class="move-form-left">
-                                <text>{{ move_form.inv.FQty - move_form.inv.planned_qty || '-' }}</text>
-                                <text v-if="move_form.edit_qty > move_form.inv.FQty" class="moving-qty"> 
-                                + {{ move_form.edit_qty - move_form.inv.FQty }}
+                                <text>{{ move_form.inv.FQty - move_form.inv.planned_qty }}</text>
+                                <text v-if="move_form.edit_qty > move_form.inv.FQty - move_form.inv.planned_qty " class="moving-qty"> 
+                                + {{ move_form.edit_qty - move_form.inv.FQty + move_form.inv.planned_qty }}
                                 </text>
-                                <text v-if="move_form.edit_qty < move_form.inv.FQty" class="moving-qty">
-                                - {{ move_form.inv.FQty - move_form.edit_qty }}
+                                <text v-if="move_form.edit_qty < move_form.inv.FQty - move_form.inv.planned_qty" class="moving-qty">
+                                - {{ move_form.inv.FQty - move_form.inv.planned_qty - move_form.edit_qty }}
                                 </text>
                             </uni-col>
                             <uni-col :span="4" class="move-form-center">
@@ -430,7 +432,7 @@
                         rules: [
                             {
                                 validateFunction: (rule, value, data, callback) => {
-                                    if (value === this.move_form.inv.FQty) return callback('库存数量没有变化')
+                                    if (value === this.move_form.inv.FQty - this.move_form.inv.planned_qty) return callback('库存数量没有变化')
                                 }
                             }
                         ]
@@ -502,7 +504,7 @@
                 if (inv) {
                     this.edit_mode = 'edit'
                     this.move_form.inv = inv
-                    this.move_form.edit_qty = inv.FQty
+                    this.move_form.edit_qty = inv.FQty - inv.planned_qty
                 } else {
                     this.edit_mode = 'new'
                     this.move_form.type = 'new'
@@ -562,7 +564,7 @@
                             FRemark: this.move_form.remark?.trim()
                         })
                     } else if (this.move_form.type == 'edit') {
-                        let diff = this.move_form.edit_qty - this.move_form.inv.FQty
+                        let diff = this.move_form.edit_qty - this.move_form.inv.FQty + this.move_form.inv.planned_qty
                         inv_plan = new InvPlan({
                             FOpType: diff > 0 ? 'add' : 'sub',
                             FStockId: store.state.cur_stock.FStockId,
@@ -637,7 +639,7 @@
                 const options = {
                     FStockId: store.state.cur_stock.FStockId,
                     'FMaterialId.FNumber': material_no,
-                    FOpType_in: ['mv', 'add', 'sub'],
+                    FOpType_in: ['mv', 'add', 'sub', 'out'],
                     FDocumentStatu_in: ['A', 'B']
                 }
                 const meta = { order: 'FStockLocId.FNumber ASC, FBatchNo ASC' }
@@ -718,9 +720,11 @@
             },
             _update_inv_status() {
                 this.invs.forEach(inv => {
-                    inv.planned_qty = 0
+                    inv.planned_qty = 0 // 指减少锁定的数量
                     this.inv_plans.forEach(inv_plan => {
-                        if (inv_plan['FStockLocId.FNumber'] == inv['FStockLocId.FNumber'] && inv_plan.FBatchNo ==  inv.FBatchNo) {
+                        if (inv_plan['FStockLocId.FNumber'] == inv['FStockLocId.FNumber'] && 
+                        inv_plan.FBatchNo ==  inv.FBatchNo && 
+                        ['mv', 'sub', 'out'].includes(inv_plan.FOpType)) {
                             inv.planned_qty += inv_plan.FOpQTY
                         }
                     })
