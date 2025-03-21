@@ -6,7 +6,7 @@
             <view class="searchbar-container">
                 <uni-easyinput
                     v-model="search_form.no" 
-                    placeholder="请输入单据编号"
+                    placeholder="请输入单据编号或收货人"
                     prefix-icon="scan"
                     @icon-click="searchbar_icon_click"
                     primary-color="rgb(238, 238, 238)"
@@ -28,7 +28,11 @@
                     >
                     <template v-slot:body>
                         <view class="uni-list-item__body">
-                            <text class="title">{{ group_item.bill_no }}</text>
+                            <view class="title">
+                                {{ group_item.bill_no }} 
+                                <text class="note">/</text>
+                                {{ group_item.receiver }}
+                            </view>
                             <view class="note">
                                 <progress
                                     :percent="group_item.qty_b * 100 / (group_item.qty_b + group_item.qty_a)" 
@@ -36,7 +40,7 @@
                                     :active-color="group_item.qty_b / (group_item.qty_b + group_item.qty_a) == 1 ? '#4cd964' : '#f0ad4e'"
                                     :active="true"
                                 />
-                                <text class="qty">已下架： {{ group_item.qty_b }} / {{ group_item.qty_a + group_item.qty_b }}</text>
+                                <text>已下架： {{ group_item.qty_b }} / {{ group_item.qty_a + group_item.qty_b }}</text>
                             </view>
                         </view>
                     </template>
@@ -58,10 +62,24 @@
     </view>
     
     <view v-if="$store.state.role == 'wh_staff'">
-        <uni-section title="进行中的入库计划" type="square" class="above-uni-goods-nav">
+        <uni-section title="进行中的出库计划" type="square" class="above-uni-goods-nav">
+            <view class="searchbar-container">
+                <uni-easyinput
+                    v-model="search_form.no" 
+                    placeholder="请输入单据编号或收货人"
+                    prefix-icon="scan"
+                    @icon-click="searchbar_icon_click"
+                    primary-color="rgb(238, 238, 238)"
+                    :styles="{
+                        color: '#000',
+                        backgroundColor: 'rgb(238, 238, 238)',
+                        borderColor: 'rgb(238, 238, 238)'
+                    }"
+                />
+            </view>
             <uni-list>
                 <uni-list-item
-                    v-for="(group_item, index) in inv_plan_groups"
+                    v-for="(group_item, index) in inv_plan_groups_filtered()"
                     :key="index"
                     :right-text="group_item.created_at"
                     show-arrow
@@ -69,7 +87,11 @@
                     >                    
                     <template v-slot:body>
                         <view class="uni-list-item__body">
-                            <text class="title">{{ group_item.bill_no }}</text>
+                            <view class="title">
+                                {{ group_item.bill_no }} 
+                                <text class="note">/</text>
+                                {{ group_item.receiver }}
+                            </view>
                             <view class="note">
                                 <text>剩余：{{ group_item.qty_a }}</text>
                             </view>
@@ -93,7 +115,7 @@
 
 <script>
     import store from '@/store'
-    import { InvPlan } from '@/utils/model'
+    import { Inv, InvPlan } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     import scan_code from '@/utils/scan_code'
@@ -225,7 +247,7 @@
                 let no = this.search_form.no.trim()
                 if (!no) return this.inv_plan_groups
                 return this.inv_plan_groups.filter(inv_group => {
-                    return inv_group.bill_no.includes(no)
+                    return inv_group.bill_no.includes(no) || inv_group.receiver.includes(no)
                 })
             },
             new_plan() {
@@ -250,6 +272,7 @@
                     } else {
                         group_item = {
                             bill_no: inv_plan.FBillNo,
+                            receiver: inv_plan.FReceiver || '',
                             created_at: formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd'),
                             qty_a: inv_plan.FDocumentStatu == 'A' ? inv_plan.FOpQTY : 0,
                             qty_b: inv_plan.FDocumentStatu == 'B' ? inv_plan.FOpQTY : 0

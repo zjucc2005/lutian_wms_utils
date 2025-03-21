@@ -1,7 +1,7 @@
 <template>
     <view v-if="$store.state.role == 'wh_admin'">
         <uni-section title="出库计划" type="square"
-            :sub-title="bill_no"
+            :sub-title="[bill_no, inv_plans[0]?.FReceiver].join(' / ')"
             class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
@@ -203,10 +203,12 @@
             },
             // #ifdef H5
             async preview_pdf() {
-                let response = await K3CloudApi.view('SAL_DELIVERYNOTICE', { Number: this.bill_no })
-                let receiver = ''
-                if (response.data.Result.ResponseStatus.IsSuccess) {
-                    receiver = response.data.Result.Result.F_PAEZ_Text
+                let receiver = this.inv_plans[0]?.FReceiver
+                if (!receiver) {
+                    let response = await K3CloudApi.view('SAL_DELIVERYNOTICE', { Number: this.bill_no })
+                    if (response.data.Result.ResponseStatus.IsSuccess) {
+                        receiver = response.data.Result.Result.F_PAEZ_Text
+                    }
                 }
                 let inv_plans = this.inv_plans.filter(x => x.checked)
                 if (inv_plans.length === 0) inv_plans = this.inv_plans 

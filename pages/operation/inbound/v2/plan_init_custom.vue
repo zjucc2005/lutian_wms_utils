@@ -439,7 +439,12 @@
             },
             scan_code() {
                 scan_code().then(res => {
-                    this.search_form.material_no = res.result
+                    if (res.result.includes('||')) {
+                        let arr = res.result.split('||')
+                        this.search_form.material_no = arr[1]
+                    } else {
+                        this.search_form.material_no = res.result
+                    }
                     this.search()
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })

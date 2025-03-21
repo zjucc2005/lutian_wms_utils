@@ -1,5 +1,5 @@
 <template>
-    <uni-notice-bar single scrollable text="点击库存列表，可查询库存明细;长按弹出功能栏" />
+    <!-- <uni-notice-bar single scrollable text="点击库存列表，可查询库存明细;长按弹出功能栏" /> -->
     <uni-section title="当前仓库" type="square"
         :sub-title="[
             $store.state.cur_stock['FUseOrgId.FName'],

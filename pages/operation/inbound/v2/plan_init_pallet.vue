@@ -291,7 +291,7 @@
                     uni.showToast({ icon: 'error', title: '标识卡已扫描过', duration: 2000 })
                     return
                 }
-                let arr =text.split('||')
+                let arr = text.split('||')
                 this.form.raw = text
                 this.form.material_no = arr[1]
                 this.form.base_unit_qty_focus = true

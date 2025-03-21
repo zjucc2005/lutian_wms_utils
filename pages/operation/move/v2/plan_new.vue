@@ -333,6 +333,8 @@
                     <uni-row>
                         <uni-forms-item label="备注" name="remark" label-width="40px" style="margin-bottom: 0;">
                             <uni-easyinput v-model="move_form.remark" type="textarea" auto-height trim="both" placeholder="请填写调整原因" />
+                            <uni-tag text="未归位" @click="auto_input_remark('未归位')" type="primary" size="small" inverted circle class="uni-mr-2" />
+                            <uni-tag text="数量不对" @click="auto_input_remark('数量不对')" type="primary" size="small" inverted circle class="uni-mr-2" />
                         </uni-forms-item>
                     </uni-row>
                 </uni-forms>
@@ -524,6 +526,9 @@
                     new_qty: 0, // new
                     remark: ''
                 }
+            },
+            auto_input_remark(text) {
+                this.move_form.remark = text
             },
             // 物料模糊匹配
             async search() {
