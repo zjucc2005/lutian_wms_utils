@@ -121,7 +121,7 @@
                     content: [
                         `名称: ${base_info.appName}`,
                         `版本: ${base_info.appVersion}`,
-                        '作者: Cai Chang'
+                        '作者: caichang'
                     ].join('\n'),
                     showCancel: false,
                     confirmText: '关闭',

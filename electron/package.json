@@ -1,11 +1,11 @@
 {
   "name": "electron",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "lutian.wms.utils pc",
   "main": "main.js",
   "build": {
     "appId": "__UNI__EFA5C5A",
-    "productName": "绿田WMS PC测试版",
+    "productName": "绿田WMS PC安装包",
     "files": [
       "app/**/*",
       "main.js"
@@ -29,7 +29,7 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "runAfterFinish": true,
-      "shortcutName": "绿田WMS PC测试版"
+      "shortcutName": "绿田WMS客户端"
     }
   },
   "scripts": {
@@ -38,7 +38,7 @@
     "app:dir": "electron-builder --dir",
     "app:dist": "electron-builder"
   },
-  "author": "CC",
+  "author": "caichang",
   "license": "MIT",
   "devDependencies": {
     "electron": "^33.0.2",

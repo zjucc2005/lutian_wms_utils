@@ -3,6 +3,7 @@
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 import store from '@/store'
+import { compare_loc_no } from '@/utils'
 import { InvPlan } from '@/utils/model'
 import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js' 
 
@@ -337,11 +338,12 @@ const pdf_template_invs = (inv_groups) => {
         subtitle: '即时库存',
         stock_name: store.state.cur_stock.FName,
         table_head: [],
-        table_body: [['物料编码', '物料名称', '规格型号', '单位', '数量']]
+        table_body: [['物料编码', '物料名称', '规格型号', '单位', 'WMS库存', '金蝶账面', '差异', 'WMS库位']]
     }
     for (let inv of inv_groups) {
+        let loc_nos = inv.loc_nos.sort((x, y) => compare_loc_no(x, y)).map(loc_no => loc_no.match('[A-Za-z0-9]+-(.+)')[1]).join(', ')
         options.table_body.push([
-            inv.material_no, inv.material_name, inv.material_spec, inv.base_unit_name, inv.qty
+            inv.material_no, inv.material_name, inv.material_spec, inv.base_unit_name, inv.qty, inv.stk_qty, inv.qty - inv.stk_qty, loc_nos
         ])
     }
     // 初始化jsPDF对象
@@ -377,8 +379,10 @@ const pdf_template_invs = (inv_groups) => {
         bodyStyles: { textColor: 0, lineColor: 120 },
         columnStyles: {
             0: { minCellWidth: textWidth_0 + 2 },
-            1: { minCellWidth: textWidth_1 + 2 },
-            4: { halign: 'center' },
+            1: { cellWidth: 40 },
+            4: { halign: 'center', minCellWidth: 17 },
+            5: { minCellWidth: 17 },
+            7: { cellWidth: 48 }
         },
         // head: [ options.table_head ],
         body: options.table_body

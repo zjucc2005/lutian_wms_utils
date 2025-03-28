@@ -47,6 +47,46 @@
             @buttonClick="goods_nav_button_click"
         />
     </view>
+    
+    <!-- download template -->
+    <uni-drawer ref="dl_drawer" mode="left" :width="$store.state.drawer_width" >
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
+            <uni-section title="下载盘点模板" type="square">
+                <template v-slot:right>
+                    <view class="uni-section__right">
+                        <uni-icons type="closeempty" size="24" color="#333" @click="$refs.dl_drawer.close()"/>
+                    </view>
+                </template>
+                
+                <uni-list>
+                    <uni-list-item 
+                        title="盘点模板（库位排序）" note="打印用PDF" rightText=".pdf"
+                        :show-extra-icon="true" :extra-icon="{ type: 'map', size: '24', color: '#007bff' }"
+                        @click="check_template_pdf('loc_no')" clickable show-arrow />
+                    <uni-list-item
+                        title="盘点模板（物料排序）" note="打印用PDF" rightText=".pdf"
+                        :show-extra-icon="true" :extra-icon="{ type: 'map', size: '24', color: '#007bff' }"
+                        @click="check_template_pdf('material_no')" clickable show-arrow />
+                    <uni-list-item
+                        title="盘点模板（库位排序）" note="导入用Excel" rightText=".xlsx"
+                        :show-extra-icon="true" :extra-icon="{ type: 'download', size: '24', color: '#dd524d' }"
+                        @click="check_template_excel('loc_no')" clickable show-arrow />
+                    <uni-list-item
+                        title="盘点模板（物料排序）" note="导入用Excel" rightText=".xlsx"
+                        :show-extra-icon="true" :extra-icon="{ type: 'download', size: '24', color: '#dd524d' }"
+                        @click="check_template_excel('material_no')" clickable show-arrow />
+                    <uni-list-item
+                        title="即时库存对照（金蝶账面和WMS库存）" note="打印用PDF" rightText=".pdf"
+                        :show-extra-icon="true" :extra-icon="{ type: 'map', size: '24', color: '#007bff' }"
+                        @click="export_invs_pdf()" clickable show-arrow />
+                    <uni-list-item
+                        title="即时库存对照（金蝶账面和WMS库存）" note="Excel" rightText=".xlsx"
+                        :show-extra-icon="true" :extra-icon="{ type: 'download', size: '24', color: '#dd524d' }"
+                        @click="export_invs_excel()" clickable show-arrow />
+                </uni-list>
+            </uni-section>
+        </scroll-view>
+    </uni-drawer>
 </template>
 
 <script>
@@ -56,7 +96,7 @@
     import { pdf_template_inv_check, pdf_template_invs } from '@/gen_pdf'
     // #endif
     import { play_audio_prompt, string_to_arraybuffer, compare_loc_no } from '@/utils'
-    import { BdMaterial, Inv, InvLog } from '@/utils/model'
+    import { BdMaterial, Inv, InvLog, StkInventory } from '@/utils/model'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     export default {
         data() {
@@ -101,6 +141,7 @@
                         this.invs = res
                         this._init_check_invs()
                     })
+                    StkInventory.query({ FStockId: this.$store.state.cur_stock.FStockId }, { order: 'FMaterialId.FNumber ASC' })
                 }
             })
         },
@@ -144,24 +185,25 @@
             },
             // 选择盘点模板
             check_template_download() {
-                uni.showActionSheet({
-                    itemList: [
-                        '盘点模板（打印用PDF，库位排序）',
-                        '盘点模板（打印用PDF，物料排序）',
-                        '盘点模板（导入用Excel，库位排序）',
-                        '盘点模板（导入用Excel，物料排序）',
-                        '即时库存（PDF，按物料汇总）',
-                        '即时库存（Excel，按物料汇总）'
-                    ],
-                    success: (e) => {
-                        if (e.tapIndex === 0) this.check_template_pdf('loc_no')
-                        if (e.tapIndex === 1) this.check_template_pdf('material_no')
-                        if (e.tapIndex === 2) this.check_template_excel('loc_no')
-                        if (e.tapIndex === 3) this.check_template_excel('material_no')
-                        if (e.tapIndex === 4) this.export_invs_pdf()
-                        if (e.tapIndex === 5) this.export_invs_excel()
-                    }
-                })
+                this.$refs.dl_drawer.open()
+                // uni.showActionSheet({
+                //     itemList: [
+                //         '盘点模板（打印用PDF，库位排序）',
+                //         '盘点模板（打印用PDF，物料排序）',
+                //         '盘点模板（导入用Excel，库位排序）',
+                //         '盘点模板（导入用Excel，物料排序）',
+                //         '即时库存（PDF，按物料汇总）',
+                //         '即时库存（Excel，按物料汇总）'
+                //     ],
+                //     success: (e) => {
+                //         if (e.tapIndex === 0) this.check_template_pdf('loc_no')
+                //         if (e.tapIndex === 1) this.check_template_pdf('material_no')
+                //         if (e.tapIndex === 2) this.check_template_excel('loc_no')
+                //         if (e.tapIndex === 3) this.check_template_excel('material_no')
+                //         if (e.tapIndex === 4) this.export_invs_pdf()
+                //         if (e.tapIndex === 5) this.export_invs_excel()
+                //     }
+                // })
             },
             check_template_pdf(mode) {
                 if (mode == 'loc_no') {
@@ -203,18 +245,19 @@
                 link.click()
                 URL.revokeObjectURL(link.href)
             },
-            export_invs_pdf() {
-                let inv_groups = this.get_inv_groups()
+            async export_invs_pdf() {
+                let inv_groups = await this.get_inv_groups()
                 let url = pdf_template_invs(inv_groups)
                 uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
             },
-            export_invs_excel() {
-                let inv_groups = this.get_inv_groups()
+            async export_invs_excel() {
+                let inv_groups = await this.get_inv_groups()
                 let sheet_data = [
-                    ['物料编码', '物料名称', '规格型号', '单位', '数量']
+                    ['物料编码', '物料名称', '规格型号', '单位', 'WMS库存', '金蝶账面', '差异', 'WMS库位']
                 ]
                 for (let inv of inv_groups) {
-                    sheet_data.push([ inv.material_no, inv.material_name, inv.material_spec, inv.base_unit_name, inv.qty ])
+                    let loc_nos = inv.loc_nos.sort((x, y) => compare_loc_no(x, y)).map(loc_no => loc_no.match('[A-Za-z0-9]+-(.+)')[1]).join(', ')
+                    sheet_data.push([ inv.material_no, inv.material_name, inv.material_spec, inv.base_unit_name, inv.qty, inv.stk_qty, inv.qty - inv.stk_qty, loc_nos ])
                 }
                 let sheet = XLSX.utils.aoa_to_sheet(sheet_data)
                 let book = XLSX.utils.book_new()
@@ -224,7 +267,7 @@
                 // 下载
                 let link = document.createElement('a')
                 link.href = URL.createObjectURL(blob)
-                link.download = `导出库存_${Date.now()}.xlsx`
+                link.download = `即时库存对照_${Date.now()}.xlsx`
                 link.click()
                 URL.revokeObjectURL(link.href)
             },
@@ -301,24 +344,63 @@
                 uni.showToast({ title: '更新库存成功' })
                 uni.navigateBack({ delta: 2 })
             },
-            get_inv_groups() {
+            async get_inv_groups() {
+                // 加载金蝶即时库存（金蝶账面）
+                uni.showLoading({ title: 'Loading' })
+                let stk_inv_res = await StkInventory.query({ FStockId: this.$store.state.cur_stock.FStockId }, { order: 'FMaterialId.FNumber ASC' })
                 let inv_groups = []
-                this.invs.forEach(inv => {
-                    let group = inv_groups.find(x => x.material_id == inv.FMaterialId)
-                    if (group) {
-                        group.qty += inv.FQty
+                let i = 0, j = 0
+                while (i < stk_inv_res.data.length || j < this.invs.length) {
+                    let stk_inv = stk_inv_res.data[i]
+                    let inv = this.invs[j]
+                    if (stk_inv && stk_inv.FMaterialId <= inv.FMaterialId) {
+                        let inv_group = inv_groups.find(x => x.material_id == stk_inv.FMaterialId)
+                        if (inv_group) {
+                            inv_group.stk_qty += stk_inv.FBaseQty
+                        } else {
+                            inv_group = {
+                                material_id: stk_inv.FMaterialId,
+                                material_no: stk_inv['FMaterialId.FNumber'],
+                                material_name: stk_inv['FMaterialId.FName'],
+                                material_spec: stk_inv['FMaterialId.FSpecification'],
+                                stk_qty: stk_inv.FBaseQty,
+                                qty: 0,
+                                base_unit_name: stk_inv['FBaseUnitId.FName'],
+                                loc_nos: []
+                            }
+                            inv_groups.push(inv_group)
+                        }
+                        i += 1
+                        if (inv_group.material_id == inv.FMaterialId) {
+                            inv_group.qty += inv.FQty
+                            if (!inv_group.loc_nos.includes(inv['FStockLocId.FNumber'])) {
+                                inv_group.loc_nos.push(inv['FStockLocId.FNumber'])
+                            }
+                            j += 1
+                        }
                     } else {
-                        inv_groups.push({
-                            material_id: inv.FMaterialId,
-                            material_no: inv['FMaterialId.FNumber'],
-                            material_name: inv['FMaterialId.FName'],
-                            material_spec: inv['FMaterialId.FSpecification'],
-                            material_image: inv['FMaterialId.FImageFileServer'],
-                            qty: inv.FQty,
-                            base_unit_name: inv['FStockUnitId.FName']
-                        })
+                        let inv_group = inv_groups.find(x => x.material_id == inv.FMaterialId)
+                        if (inv_group) {
+                            inv_group.qty += inv.FQty
+                            if (!inv_group.loc_nos.includes(inv['FStockLocId.FNumber'])) {
+                                inv_group.loc_nos.push(inv['FStockLocId.FNumber'])
+                            }
+                        } else {
+                            inv_groups.push({
+                                material_id: inv.FMaterialId,
+                                material_no: inv['FMaterialId.FNumber'],
+                                material_name: inv['FMaterialId.FName'],
+                                material_spec: inv['FMaterialId.FSpecification'],
+                                stk_qty: 0,
+                                qty: inv.FQty,
+                                base_unit_name: inv['FStockUnitId.FName'],
+                                loc_nos: [inv['FStockLocId.FNumber']]
+                            })
+                        }
+                        j += 1
                     }
-                })
+                }
+                uni.hideLoading()
                 return inv_groups
             },
             _init_check_invs() {
@@ -355,7 +437,8 @@
                     }
                     let row = sheet_data.find(x => x[0] == inv['FMaterialId.FNumber'] && x[3] == inv['FStockLocId.FNumber'] && x[4] == inv.FBatchNo)
                     if (row) {
-                        if (row[7]) check_inv.check_qty = parseFloat(row[7])
+                        let check_qty = parseFloat(row[7])
+                        if (check_qty || check_qty == 0) check_inv.check_qty = check_qty
                         row[8] = true // 标记为已check，sheet_data遍历时跳过该行
                     }
                     check_invs.push(check_inv)
