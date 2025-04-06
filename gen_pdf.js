@@ -337,8 +337,8 @@ const pdf_template_invs = (inv_groups) => {
         title: '绿田机械股份有限公司',
         subtitle: '即时库存',
         stock_name: store.state.cur_stock.FName,
-        table_head: [],
-        table_body: [['物料编码', '物料名称', '规格型号', '单位', 'WMS库存', '金蝶账面', '差异', 'WMS库位']]
+        table_head: ['物料编码', '物料名称', '规格型号', '单位', 'WMS库存', '金蝶账面', '差异', 'WMS库位'],
+        table_body: []
     }
     for (let inv of inv_groups) {
         let loc_nos = inv.loc_nos.sort((x, y) => compare_loc_no(x, y)).map(loc_no => loc_no.match('[A-Za-z0-9]+-(.+)')[1]).join(', ')
@@ -375,7 +375,7 @@ const pdf_template_invs = (inv_groups) => {
         startY: 32,
         margin: { left: 10, right: 10, top: 10, bottom: 10 },
         styles: { font: 'SourceHanSansCN', fontSize: 10, cellPadding: 1, minCellWidth: 9 },
-        headStyles: { fillColor: 0, halign: 'center'},
+        headStyles: { fillColor: 255, textColor: 0, halign: 'center'},
         bodyStyles: { textColor: 0, lineColor: 120 },
         columnStyles: {
             0: { minCellWidth: textWidth_0 + 2 },
@@ -384,7 +384,7 @@ const pdf_template_invs = (inv_groups) => {
             5: { minCellWidth: 17 },
             7: { cellWidth: 48 }
         },
-        // head: [ options.table_head ],
+        head: [ options.table_head ],
         body: options.table_body
     })
     // 添加页码

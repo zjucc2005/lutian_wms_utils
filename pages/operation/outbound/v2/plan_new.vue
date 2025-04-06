@@ -86,7 +86,7 @@
                     :show-extra-icon="true"
                     :extra-icon="{ color: '#4cd964', size: '24', type: 'arrow-down' }"
                     :title="inv_plan['FStockLocId.FNumber']"
-                    :note="`批次：${inv_plan.FBatchNo}`"
+                    :note="`批次：${inv_plan.FBatchNo}, 计划新建时间：${formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd hh:mm:ss')}`"
                 >
                     <template v-slot:footer>
                         <view class="uni-list-item__foot" style="flex-direction: row;">
@@ -111,11 +111,11 @@
         <template v-slot:decoration>
             <view class="uni-section__decoration">
                 <uni-icons type="search" size="30" color="#007aff" @click="inv_menu" />
-            </view>                
+            </view>
         </template>
         <template v-slot:right>
             <view class="uni-section__right">
-                <view >
+                <view>
                     已选择 <text class="sum_qty">{{ _sum_checked_qty() }}</text> {{ plan_form.base_unit_name }}
                 </view>
             </view>
@@ -227,6 +227,7 @@
     import { Inv, InvLog, InvPlan, StockLoc } from '@/utils/model'
     import { play_audio_prompt, is_material_no_format, is_loc_no_std_format, is_decimal_unit, link_to } from '@/utils'
     import scan_code from '@/utils/scan_code'
+    import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     export default {
         data() {
             return {
@@ -343,6 +344,7 @@
             }
         },
         methods: {
+            formatDate,
             swipe_action_click(e, inv_plan) {
                if (e.index === 0) this.submit_delete(inv_plan) // btn:删除
             },

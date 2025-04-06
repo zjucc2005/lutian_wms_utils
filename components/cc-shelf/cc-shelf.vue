@@ -2,7 +2,7 @@
     <uni-list v-if="invs.length">
         <uni-list-item
             :show-extra-icon="true"
-            :extra-icon="{ type: 'right',  color: '#007bff' }"
+            :extra-icon="{ type: 'info',  color: '#007bff', size: 23 }"
             title="库存总数"
             :rightText="`${sum_qty}`"
             >
@@ -10,7 +10,7 @@
         <uni-list-item
             v-if="!onlyInv"
             :show-extra-icon="true"
-            :extra-icon="{ type: 'right',  color: '#007bff' }"
+            :extra-icon="{ type: 'info',  color: '#007bff', size: 23 }"
             >
             <template #body>
                 <view class="uni-list-item__body">

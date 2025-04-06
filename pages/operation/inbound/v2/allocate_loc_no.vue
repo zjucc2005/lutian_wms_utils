@@ -149,7 +149,7 @@
                             style = 'error'
                             plt_space = 0
                         } else if (plt_space == 0) {
-                            style = 'error'
+                            style = 'warn'
                         } else if (!stock_loc.idle) {
                             style = 'success'
                         }

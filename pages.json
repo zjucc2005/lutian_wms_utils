@@ -256,6 +256,10 @@
             "style": { "navigationBarTitleText": "列表 - 库存变更计划", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
         },
         {
+            "path": "pages/operation/list/inv_logs",
+            "style": { "navigationBarTitleText": "列表 - 库存变更日志", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
+        },
+        {
             "path": "pages/operation/manufacture_order/index",
             "style": { "navigationBarTitleText": "生产订单" }
         },

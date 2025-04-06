@@ -12,7 +12,7 @@
         <view class="container">
             <uni-segmented-control
                 :current="0"
-                :values="['日视图', '月视图', '季视图']"
+                :values="['日视图']"
                 @click-item="segment_click"/>
             
             <!-- <button @click="debug" class="uni-mt-6">DEBUG</button> -->
@@ -218,10 +218,13 @@
                 return sum
             },
             _get_stime() {
-                let now = new Date()
-                let year = now.getFullYear()
-                let month = now.getMonth()
-                this.stime = new Date(year - 1, month + 1, 1) // GMT+8
+                // let now = new Date()
+                let s = new Date(Date.now() - 30 * 24 * 3600 * 1000)
+                let year = s.getFullYear()
+                let month = s.getMonth()
+                let date = s.getDate()
+                // this.stime = new Date(year - 1, month + 1, 1) // GMT+8
+                this.stime = new Date(year, month, date)
                 // if (this.stime < new Date('2025-02-01')) {
                 //     this.stime = new Date('2025-02-01')
                 // }
