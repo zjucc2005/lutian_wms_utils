@@ -353,7 +353,7 @@
                 while (i < stk_inv_res.data.length || j < this.invs.length) {
                     let stk_inv = stk_inv_res.data[i]
                     let inv = this.invs[j]
-                    if (stk_inv && stk_inv.FMaterialId <= inv.FMaterialId) {
+                    if (!inv || (stk_inv && stk_inv.FMaterialId <= inv.FMaterialId)) {
                         let inv_group = inv_groups.find(x => x.material_id == stk_inv.FMaterialId)
                         if (inv_group) {
                             inv_group.stk_qty += stk_inv.FBaseQty
@@ -371,7 +371,7 @@
                             inv_groups.push(inv_group)
                         }
                         i += 1
-                        if (inv_group.material_id == inv.FMaterialId) {
+                        if (inv_group.material_id == inv?.FMaterialId) {
                             inv_group.qty += inv.FQty
                             if (!inv_group.loc_nos.includes(inv['FStockLocId.FNumber'])) {
                                 inv_group.loc_nos.push(inv['FStockLocId.FNumber'])

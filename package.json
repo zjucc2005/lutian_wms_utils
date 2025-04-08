@@ -1,9 +1,9 @@
 {
   "name": "lutian_wms_utils",
-  "version": "1.3.0",
-  "versionCode" : 130,
+  "version": "1.3.1",
+  "versionCode" : 131,
   "installPack" : {
-    "h5": "https://musetransfer.com/s/pbmuoo0jv",
+    "h5": "https://musetransfer.com/s/mw3stttjo",
     "android": ""
   },
   "description": "wms app work with Kingdee API",
