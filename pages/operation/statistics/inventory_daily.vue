@@ -12,7 +12,7 @@
         <view class="container">
             <uni-segmented-control
                 :current="0"
-                :values="['日视图', '周视图', '月视图']"
+                :values="['日视图']"
                 @click-item="segment_click"/>
             
             <!-- <button @click="debug" class="uni-mt-6">DEBUG</button> -->
@@ -22,12 +22,14 @@
 
 <script>
     import store from '@/store'
-    import { InvLog } from '@/utils/model'
+    import { Inv, InvLog } from '@/utils/model'
     import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
     export default {
         data() {
             return {
                 raw_data: [],
+                invs: [],
+                sum_inv_qty: 0,
                 mode: 'day', // 视图模式 month/week/day
                 stime: null,
                 type: 'line',
@@ -60,7 +62,7 @@
         },
         mounted() {
             this._get_stime()
-            this.load_raw_data()
+            this.load_data()
         },
         methods: {
             segment_click(e) {
@@ -68,14 +70,29 @@
                 if (e.currentIndex === 1) this._set_chart_data_week()
                 if (e.currentIndex === 2) this._set_chart_data_month()
             },
-            async load_raw_data() {
+            async load_invs() {
+                const options = {
+                    FStockId: store.state.cur_stock.FStockId
+                }
+                return Inv.get_all(options).then(res => {
+                    uni.hideLoading()
+                    this.invs = res
+                    let sum_inv_qty = 0
+                    res.forEach(x => {
+                        sum_inv_qty += x.FQty
+                    })
+                    this.sum_inv_qty = sum_inv_qty
+                })
+            },
+            async load_data() {
                 try {
                     let options = {
-                        FOpType_in: ['in', 'in_cl', 'out', 'out_cl'],
+                        FOpType_in: ['in', 'in_cl', 'out', 'out_cl', 'add', 'sub'],
                         FStockId: store.state.cur_stock.FStockId,
                         FCreateTime_ge: formatDate(this.stime, 'yyyy-MM-dd')
                     }
                     uni.showLoading({ title: 'Loading' })
+                    await this.load_invs()
                     let res = await InvLog.inventory_record(options)
                     uni.hideLoading()
                     this.raw_data = res.map(x => { x[4] = Number(new Date(x[3])); return x })
@@ -86,10 +103,10 @@
             _set_chart_data_month() {
                 this.mode = 'month'
                 let categories = []
-                let inbound_data = []
-                let outbound_data = []
+                let delta_data = []
                 let syear = this.stime.getFullYear()
                 let smonth = this.stime.getMonth()
+                let cur_inv_qty = this.sum_inv_qty
                 for (let i = 0; i < 12; i++) {
                     let cur_year = syear
                     let cur_month = smonth + i
@@ -106,14 +123,14 @@
                     }
                     let next_time = new Date(next_year, next_month, 1)
                     categories.push(formatDate(cur_time, 'yy.MM'))
-                    inbound_data.push(this._sum_inbound(cur_time, next_time)) 
-                    outbound_data.push(this._sum_outbound(cur_time, next_time))
+                    delta_data.push(cur_inv_qty)
+                    cur_inv_qty -= this._sum_delta(cur_time, next_time)
+                    // delta_data.push(this._sum_delta(cur_time, next_time))
                 }
                 this.chart_data = {
                     categories,
                     series: [
-                        { name: "入库", data: inbound_data },
-                        { name: "出库", data: outbound_data }
+                        { name: "库存量", data: delta_data }
                     ]
                 }
             },
@@ -121,68 +138,76 @@
             _set_chart_data_week() {
                 this.mode = 'week'
                 let categories = []
-                let inbound_data = []
-                let outbound_data = []
-                let cur_time = this.stime
+                let delta_data = []
+                let stime = this.stime
+                let cur_time = this._get_today()
+                let cur_inv_qty = this.sum_inv_qty
                 let wday = cur_time.getDay()
                 if (wday === 1) {
                     cur_time = Number(cur_time)
                 } else {
                     cur_time = Number(cur_time) + (8 - wday) * 24 * 3600 * 1000 // 不满一周的数据舍去
                 }
-                while(cur_time < Date.now()) {
-                    let next_time = cur_time + 604800000 // +7day
+                while(cur_time >= stime) {
+                    let prev_time = cur_time - 604800000 // 7day
                     categories.push(formatDate(cur_time, 'MM.dd'))
-                    inbound_data.push(this._sum_inbound(cur_time, next_time))
-                    outbound_data.push(this._sum_outbound(cur_time, next_time))
-                    cur_time = next_time
+                    delta_data.push(cur_inv_qty)
+                    cur_inv_qty -= this._sum_delta(prev_time, cur_time)
+                    cur_time = prev_time
                 }
+                categories.reverse()
+                delta_data.reverse()
+                // while(cur_time < Date.now()) {
+                //     let next_time = cur_time + 604800000 // +7day
+                //     categories.push(formatDate(cur_time, 'MM.dd'))
+                //     delta_data.push(this._sum_delta(cur_time, next_time))
+                //     cur_time = next_time
+                // }
                 this.chart_data = {
                     categories,
                     series: [
-                        { name: "入库", data: inbound_data },
-                        { name: "出库", data: outbound_data }
+                        { name: "库存量", data: delta_data }
                     ]
                 }
             },
             // 日视图数据
             _set_chart_data_day() {
                 this.mode = 'day'
+                let one_day = 86400000
                 let categories = []
+                let delta_data = []
                 let inbound_data = []
                 let outbound_data = []
-                let cur_time = Number(this.stime)
-                while(cur_time < Date.now()) {
-                    let next_time = cur_time + 86400000 // +1day
+                let stime = Number(this.stime)
+                let cur_time = this._get_today() * 1
+                let cur_inv_qty = this.sum_inv_qty
+                // 从今天往前推
+                while (cur_time >= stime) {
                     categories.push(formatDate(cur_time, 'MM.dd'))
-                    inbound_data.push(this._sum_inbound(cur_time, next_time))
-                    outbound_data.push(this._sum_outbound(cur_time, next_time))
-                    cur_time = next_time
+                    delta_data.push(cur_inv_qty)
+                    cur_inv_qty -= this._sum_delta(cur_time, cur_time + one_day)
+                    cur_time -= one_day
                 }
+                categories.reverse()
+                delta_data.reverse()
                 this.chart_data = {
                     categories,
                     series: [
-                        { name: "入库", data: inbound_data },
-                        { name: "出库", data: outbound_data }
+                        { name: "库存量", data: delta_data }
                     ]
                 }
+                // console.log('data', this.$data)
             },
-            // 入库计数
-            _sum_inbound(stime, etime) {
+            // 库存变量
+            _sum_delta(stime, etime) {
                 let sum = 0
                 this.raw_data.forEach(x => {
-                    if (['in', 'in_cl'].includes(x[0]) && x[4] >= stime && x[4] < etime) {
-                        sum += x[1]
-                    }
-                })
-                return sum
-            },
-            // 出库计数
-            _sum_outbound(stime, etime) {
-                let sum = 0
-                this.raw_data.forEach(x => {
-                    if (['out', 'out_cl'].includes(x[0]) && x[4] >= stime && x[4] < etime) {
-                        sum -= x[1]
+                    if(x[4] >= stime && x[4] < etime) {
+                        if (x[2] < 0) {
+                            sum += (x[1] - x[2]) // 考虑库存扣至负数的情况
+                        } else {
+                            sum += x[1]
+                        }
                     }
                 })
                 return sum
@@ -196,6 +221,13 @@
                     this.stime = new Date('2025-02-01')
                 }
             },
+            _get_today() {
+                let now = new Date()
+                let year = now.getFullYear()
+                let month = now.getMonth()
+                let date = now.getDate()
+                return new Date(year, month, date)
+            },
             debug(e) {
                 // this.load_data_month(0)
                 this.$logger.info('debug', this.$data)
@@ -207,3 +239,4 @@
 <style>
 
 </style>
+

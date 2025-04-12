@@ -81,7 +81,7 @@
                     let res = await InvLog.inventory_record(options)
                     // console.log('res', res)
                     uni.hideLoading()
-                    this.raw_data = res.map(x => { x[3] = Number(new Date(x[2])); return x })
+                    this.raw_data = res.map(x => { x[4] = Number(new Date(x[3])); return x })
                     this._set_chart_data_day()
                 } catch (err) {}
             },
@@ -210,9 +210,9 @@
                 let sum = 0
                 this.raw_data.forEach(x => {
                     if (op_type == 'sum') {
-                        if (x[3] >= stime && x[3] < etime) sum += 1
+                        if (x[4] >= stime && x[4] < etime) sum += 1
                     } else {
-                        if (x[0] == op_type && x[3] >= stime && x[3] < etime) sum += 1
+                        if (x[0] == op_type && x[4] >= stime && x[4] < etime) sum += 1
                     }
                 })
                 return sum

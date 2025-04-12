@@ -2,56 +2,57 @@
     <uni-section title="分配托盘库位" type="square"
         sub-title="点击选择可以分配的托盘库位"
         sub-title-color="#007aff"
+        class="above-uni-goods-nav"
         >
-    </uni-section>
-    <uni-list>
-        <uni-list-item
-            :show-extra-icon="true"
-            :extra-icon="{ type: 'right',  color: '#007bff' }"
-            title="已分配托盘数"
-            :rightText="`${sum_plt_alloc()} / ${pallet_qty}`"
-            >
-        </uni-list-item>
-    </uni-list>
-    <uni-collapse>
-        <uni-collapse-item
-            v-for="shelf in grid_shelves"
-            :title="shelf.name" open title-border="show"
-            >
-            <view class="content">
-                <swiper :indicator-dots="true" :style="{ height: `${get_swiper_height(shelf)}px` }" class="shelf_swiper">
-                    <swiper-item v-for="page in get_swiper_pages(shelf)" :key="page">
-                        <uni-grid 
-                            :column="column" 
-                            :show-border="false" 
-                            @change="grid_click($event, shelf)"
-                            :style="{
-                                width: grid_group_width + 'px'
-                            }"
-                            >
-                            <uni-grid-item
-                                v-for="grid in filter_swiper_grids(shelf, page)"
-                                :key="grid.index"
-                                :index="grid.index"
+        <uni-list>
+            <uni-list-item
+                :show-extra-icon="true"
+                :extra-icon="{ type: 'right',  color: '#007bff' }"
+                title="已分配托盘数"
+                :rightText="`${sum_plt_alloc()} / ${pallet_qty}`"
+                >
+            </uni-list-item>
+        </uni-list>
+        <uni-collapse>
+            <uni-collapse-item
+                v-for="shelf in grid_shelves"
+                :title="shelf.name" open title-border="show"
+                >
+                <view class="content">
+                    <swiper :indicator-dots="true" :style="{ height: `${get_swiper_height(shelf)}px` }" class="shelf_swiper">
+                        <swiper-item v-for="page in get_swiper_pages(shelf)" :key="page">
+                            <uni-grid 
+                                :column="column" 
+                                :show-border="false" 
+                                @change="grid_click($event, shelf)"
                                 :style="{
-                                    width: grid_width + 'px',
-                                    height: grid_width + 'px'
+                                    width: grid_group_width + 'px'
                                 }"
                                 >
-                                <view :class="['grid-item-box', grid.style]">
-                                    <view class="name">{{ grid.name }}</view>
-                                    <view v-if="grid.checked">
-                                        <uni-icons type="checkmarkempty" :size="grid_width * 0.5"></uni-icons>
-                                        <view class="pallet_qty">{{ grid.plt_alloc }}</view>
+                                <uni-grid-item
+                                    v-for="grid in filter_swiper_grids(shelf, page)"
+                                    :key="grid.index"
+                                    :index="grid.index"
+                                    :style="{
+                                        width: grid_width + 'px',
+                                        height: grid_width + 'px'
+                                    }"
+                                    >
+                                    <view :class="['grid-item-box', grid.style]">
+                                        <view class="name">{{ grid.name }}</view>
+                                        <view v-if="grid.checked">
+                                            <uni-icons type="checkmarkempty" :size="grid_width * 0.5"></uni-icons>
+                                            <view class="pallet_qty">{{ grid.plt_alloc }}</view>
+                                        </view>
                                     </view>
-                                </view>
-                            </uni-grid-item>
-                        </uni-grid>
-                    </swiper-item>
-                </swiper>
-            </view>
-        </uni-collapse-item>
-    </uni-collapse>
+                                </uni-grid-item>
+                            </uni-grid>
+                        </swiper-item>
+                    </swiper>
+                </view>
+            </uni-collapse-item>
+        </uni-collapse>
+    </uni-section>
 
     <view class="uni-goods-nav-wrapper">
         <uni-goods-nav 
@@ -88,7 +89,7 @@
                 allocate_info: [], // 分配的库位和对应托盘位数量， { no: '', plt_space: 2 }
                 goods_nav: {
                     options: [
-                        { icon: 'map-filled', text: '库位', info: 0 }
+                        { icon: 'map-filled', text: '已分配', info: 0 }
                     ],
                     button_group: [
                         {
@@ -136,7 +137,7 @@
                 let grid_shelves = []
                 this.stock_locs.forEach(stock_loc => {
                     let plt_space = stock_loc.FPalletSpace
-                    if (!stock_loc.idle && plt_space > 0 ) plt_space -= 1
+                    // if (!stock_loc.idle && plt_space > 0 ) plt_space -= 1
                     if (is_loc_no_std_format(stock_loc.FNumber)) {
                         let loc_no_arr = stock_loc.FNumber.split('-')
                         let name = loc_no_arr.slice(0,2).join('-')
@@ -242,11 +243,19 @@
                 // console.log('grid', grid)
                 if (grid.plt_space == 0) return
                 if (grid.checked) {
-                    // 取消勾选
-                    grid.checked = false
-                    grid.plt_alloc = 0
-                    let index = this.allocate_info.findIndex(x => x.no == grid.no)
-                    if (index >= 0) this.allocate_info.splice(index, 1)
+                    let rest_plt_alloc = this.pallet_qty - this.sum_plt_alloc()
+                    if (grid.plt_alloc === grid.plt_space || rest_plt_alloc === 0) {
+                        // 取消勾选
+                        grid.checked = false
+                        grid.plt_alloc = 0
+                        let index = this.allocate_info.findIndex(x => x.no == grid.no)
+                        if (index >= 0) this.allocate_info.splice(index, 1)
+                    } else if (grid.plt_alloc < grid.plt_space) {
+                        // 数量+1
+                        grid.plt_alloc += 1
+                        let info = this.allocate_info.find(x => x.no == grid.no)
+                        info.plt_qty += 1
+                    }
                 } else {
                     // 勾选
                     let rest_plt_alloc = this.pallet_qty - this.sum_plt_alloc()
@@ -258,11 +267,12 @@
                     if (grid.plt_space == -1) { 
                         grid.plt_alloc = rest_plt_alloc
                     } else {
-                        grid.plt_alloc = Math.min(grid.plt_space, rest_plt_alloc)
+                        grid.plt_alloc = 1
+                        // grid.plt_alloc = Math.min(grid.plt_space, rest_plt_alloc)
                     }
                     this.allocate_info.push({ no: grid.no, plt_qty: grid.plt_alloc })
                 }
-                this.goods_nav.options[0].info = this.allocate_info.length
+                this.goods_nav.options[0].info = this.sum_plt_alloc()
             },
             sum_plt_alloc() {
                 let sum = 0

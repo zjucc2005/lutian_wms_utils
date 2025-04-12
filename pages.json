@@ -248,6 +248,10 @@
             "style": { "navigationBarTitleText": "库存调整统计" }
         },
         {
+            "path": "pages/operation/statistics/inventory_daily",
+            "style": { "navigationBarTitleText": "库存量统计" }
+        },
+        {
             "path": "pages/operation/list/index",
             "style":  { "navigationBarTitleText": "列表" }
         },

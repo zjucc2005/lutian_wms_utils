@@ -128,7 +128,7 @@ class InvLog {
     static async _inventory_record_recurse(options={}, meta={}, sum_data=[]) {
         const data = {
             FormId: "PAEZ_C_INV_LOG",
-            FieldKeys: ['FOpType', 'FInvIncre', 'FCreateTime'].join(','),
+            FieldKeys: ['FOpType', 'FInvIncre', 'FInvQty', 'FCreateTime'].join(','),
             FilterString: K3CloudApi.query_filter(options)
         }
         if (meta.per_page) {

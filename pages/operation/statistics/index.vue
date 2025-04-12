@@ -4,12 +4,17 @@
             <uni-list-item title="出入库数量统计"
                 :show-extra-icon="true" 
                 :extra-icon="{ type: 'tune', size: '24', color: '#007bff' }"
-                @click="goTo('inventory_record')" clickable
+                @click="link_to('/pages/operation/statistics/inventory_record')" clickable
                 showArrow />
             <uni-list-item title="库存调整统计"
                 :show-extra-icon="true" 
                 :extra-icon="{ type: 'redo', size: '24', color: '#007bff' }"
-                @click="goTo('move_plan_record')" clickable
+                @click="link_to('/pages/operation/statistics/move_plan_record')" clickable
+                showArrow />
+            <uni-list-item title="库存量统计"
+                :show-extra-icon="true" 
+                :extra-icon="{ type: 'calendar', size: '24', color: '#007bff' }"
+                @click="link_to('/pages/operation/statistics/inventory_daily')" clickable
                 showArrow />
 <!--            <uni-list-item title="库存周期统计"
                 :show-extra-icon="true"
@@ -24,7 +29,7 @@
 </template>
 
 <script>
-    import { play_audio_prompt } from '@/utils'
+    import { play_audio_prompt, link_to } from '@/utils'
     export default {
         data() {
             return {
@@ -32,10 +37,7 @@
             }
         },
         methods: {
-            goTo(path) {
-                play_audio_prompt('success')
-                uni.navigateTo({ url: `/pages/operation/statistics/${path}` })
-            }
+            link_to
         }
     }
 </script>
