@@ -49,6 +49,7 @@
                 category: 'wlzlk', // 模板类型
                 op_type: 'export', // export,print
                 bd_material: {},
+                image_urls: [],
                 // card > row > col
                 card_template: {
                     id: '',
@@ -73,6 +74,7 @@
             eventChannel.on('sendMaterial', res => {
                 this.$logger.info('eventChannel.on sendMaterial', res)
                 this.bd_material = res.bd_material
+                this.image_urls = res.image_urls
                 this.set_wlzlk_template(this.bd_material)
             })
         },
@@ -180,7 +182,8 @@
                         {   
                             span: 12, style: { height: this.window_width * 0.25 + 'px' },
                             image: {
-                                url: await K3CloudApi.download_url(bd_material.ImageFileServer),
+                                // url: await K3CloudApi.download_url(bd_material.ImageFileServer),
+                                url: this.image_urls[0]?.original,
                                 style: { width: this.window_width * 0.5 + 'px', height: this.window_width * 0.25 + 'px' }
                             }
                         },

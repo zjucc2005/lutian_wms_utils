@@ -596,13 +596,6 @@
                     this.form.material_image = ''
                 }
             },
-            // _thumbnail_url(file_id) {
-            //     if(file_id.trim()) {
-            //         return K3CloudApi.download_url_sync(file_id, 1, true)
-            //     } else {
-            //         return '/static/default_40x40.png'
-            //     }
-            // },
             thumbnail_url(file_id) {
                 return K3CloudApi.thumbnail_url(file_id)
             }

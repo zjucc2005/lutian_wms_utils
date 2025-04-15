@@ -55,8 +55,8 @@
         
         <!-- 图片展示，缩略图占位，等待原图加载完毕 -->
         <view v-for="(image_url, index) in image_urls" :key="index" class="image-card">
-            <uni-icons v-if="image_url.loading" type="spinner-cycle" size="24" color="#eee" class="image-loading"></uni-icons>
-            <image v-if="image_url.loading" :src="image_url.thumbnail" mode="widthFix" style="width: 100%;" />
+            <!-- <uni-icons v-if="image_url.loading" type="spinner-cycle" size="24" color="#eee" class="image-loading"></uni-icons> -->
+            <!-- <image v-if="image_url.loading" :src="image_url.thumbnail" mode="widthFix" style="width: 100%;" /> -->
             <image
                 :src="image_url.original" 
                 mode="widthFix"
@@ -65,7 +65,6 @@
                     height: image_url.loading ? 0 : ''
                 }"
                 @click="image_preview(index)"
-                @load="image_url.loading = false"
                 />
         </view>       
     </uni-section>
@@ -79,7 +78,7 @@
             @buttonClick="goods_nav_button_click"
         />
     </view>
-    
+    <!-- 上传图片 -->
     <uni-popup ref="image_popup" type="share" safe-area>
         <uni-section title="上传图片" type="square"
             :style="{ borderRadius: '10px 10px 0 0' }"
@@ -93,7 +92,7 @@
                 <uni-list-item v-for="(field, index) in image_fields" 
                     :key="index"
                     :title="`图片 ${index + 1}`"
-                    :thumb="_thumbnail_url(bd_material[field])"
+                    :thumb="thumbnail_url(bd_material[field])"
                     thumb-size="lg"
                     >
                     <template #footer>
@@ -218,6 +217,7 @@
                 // if (e.index === 0) uni.navigateBack()
                 if (e.index === 0) this.$refs.image_popup.open()
                 if (e.index === 1) this.search_bom()
+                console.log('this.$data', this.$data)
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.select_material_card() // btn:物料资料卡模板
@@ -263,7 +263,7 @@
                                 url: '/pages/operation/material/card',
                                 success: (res) => {
                                     play_audio_prompt('success')
-                                    res.eventChannel.emit('sendMaterial', { bd_material: this.bd_material })
+                                    res.eventChannel.emit('sendMaterial', { bd_material: this.bd_material, image_urls: this.image_urls })
                                 }
                             })
                         }
@@ -317,10 +317,11 @@
                     for (let field of this.image_fields) {
                         if (raw_data[field]?.trim()) {
                             this.image_urls.push({
+                                field: field,
                                 id: raw_data[field],
-                                original: await K3CloudApi.download_url(raw_data[field]),
-                                thumbnail: await K3CloudApi.download_url(raw_data[field], 1),
-                                loading: true
+                                original: await K3CloudApi.download_image_base64(raw_data[field])
+                                // thumbnail: await K3CloudApi.download_file(raw_data[field], 1),
+                                // loading: true
                             })
                         } else {
                             this.blank_image_fields.push(field)
@@ -366,12 +367,9 @@
                 this.flash('success', '修改成功')
                 play_audio_prompt('success')
             },
-            _thumbnail_url(file_id) {
-                if(file_id.trim()) {
-                    return K3CloudApi.download_url_sync(file_id, 1, true)
-                } else {
-                    return '/static/default_40x40.png'
-                }
+            thumbnail_url(file_id) {
+                let image_url = this.image_urls.find(x => x.id == file_id.trim())
+                return image_url?.original || '/static/default_40x40.png'
             },
             test() {
                 console.log('编辑模式')

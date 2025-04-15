@@ -562,6 +562,57 @@ const upload_file = async (data) => {
  * @param file_id:String
  * @return { String } Promise
  */
+const download_file = async (file_id) => {
+    return conn().then(_ => {
+        return new Promise((resolve, reject) => {
+            let t1 = Date.now()
+            logger.info("K3CloudApi.download_file req:", { file_id: file_id })
+            uni.request({
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.AttachmentDownLoad.common.kdsvc'),
+                method: 'POST',
+                header: set_header(),
+                data: { data: { FileId: file_id } },
+                success: (res) => {
+                    logger.info("K3CloudApi.download_file res:", res)
+                    logger.info('K3CloudApi.download_file cost', Date.now() - t1, 'ms')
+                    resolve(res)
+                },
+                fail: (err) => {
+                    logger.info("K3CloudApi.download_file fail:", err)
+                    reject(err)
+                }
+            })
+            
+            // uni.downloadFile({
+            //     url: full_url('FileUpLoadServices/Download.aspx'),
+            //     method: 'GET',
+            //     data: { file_id: file_id, token: store.state.conn_info?.Context?.UserToken },
+            //     success: (res) => {
+            //         logger.info("K3CloudApi.download_file res:", res)
+            //         logger.info('K3CloudApi.download_file cost', Date.now() - t1, 'ms')
+            //         resolve(res.tempFilePath)
+            //     },
+            //     fail: (err) => {
+            //         logger.info("K3CloudApi.download_file fail:", err)
+            //         reject(err)
+            //     }
+            // })
+        })    
+    })
+}
+
+const download_image_base64 = async (file_id) => {
+    return download_file(file_id).then(res => {
+        if (res.statusCode === 200) {
+            // let filename = res.data.Result.FileName
+            let pref = 'data:image/jpg;base64,'
+            return pref + res.data.Result.FilePart
+        } else {
+            return ''
+        }
+    })
+}
+
 const download_url = (file_id, nail=0) => {
     return conn().then(_ => {
         let token = store.state.conn_info?.Context?.UserToken
@@ -573,7 +624,8 @@ const download_url_sync = (file_id, nail=0) => {
     return full_url(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}&nail=${nail}`)
 }
 const thumbnail_url = (file_id, default_url='/static/default_40x40.png') => {
-    return file_id?.trim() ? download_url_sync(file_id, 1, true) : default_url
+    // return file_id?.trim() ? download_url_sync(file_id, 1) : default_url
+    return default_url // 缩略图目前无标准接口可获取，URL传token获取防火墙会报警, 目前暂时屏蔽
 }
 
 
@@ -648,7 +700,9 @@ const K3CloudApi = {
     execute_bill_query,
     bill_query,
     upload_file,
+    download_file,
     download_url,
+    download_image_base64,
     download_url_sync,
     thumbnail_url,
     query_filter
