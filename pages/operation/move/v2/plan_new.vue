@@ -72,6 +72,7 @@
                             </view>
                             <view class="note">
                                 <view>批次：{{ inv_plan.FBatchNo }}</view>
+                                <view v-if="inv_plan.FBillNo?.trim()">单据：{{ inv_plan.FBillNo }}</view>
                                 <view v-if="inv_plan.FRemark?.trim()">备注：{{ inv_plan.FRemark }}</view>
                             </view>
                         </view>
@@ -336,6 +337,9 @@
                             <uni-tag text="未归位" @click="auto_input_remark('未归位')" type="primary" size="small" inverted circle class="uni-mr-2" />
                             <uni-tag text="数量不对" @click="auto_input_remark('数量不对')" type="primary" size="small" inverted circle class="uni-mr-2" />
                         </uni-forms-item>
+                        <uni-forms-item label="单据" name="bill_no" label-width="40px" style="margin-bottom: 0;">
+                            <uni-easyinput v-model="move_form.bill_no" placeholder="单据编号" />
+                        </uni-forms-item>
                     </uni-row>
                 </uni-forms>
             </view>
@@ -389,7 +393,8 @@
                     new_loc_no: '', // new
                     new_batch_no: '', // new
                     new_qty: 0, // new
-                    remark: ''
+                    remark: '',
+                    bill_no: ''
                 },
                 move_form_rules: {
                     dest_loc_no: {
@@ -566,7 +571,8 @@
                             FOpQTY: this.move_form.op_qty,
                             FBatchNo: this.move_form.inv.FBatchNo,
                             FOpStaffNo: store.state.cur_staff.FNumber,
-                            FRemark: this.move_form.remark?.trim()
+                            FRemark: this.move_form.remark?.trim(),
+                            FBillNo: this.move_form.bill_no
                         })
                     } else if (this.move_form.type == 'edit') {
                         let diff = this.move_form.edit_qty - this.move_form.inv.FQty + this.move_form.inv.planned_qty
@@ -578,7 +584,8 @@
                             FOpQTY: Math.abs(diff),
                             FBatchNo: this.move_form.inv.FBatchNo,
                             FOpStaffNo: store.state.cur_staff.FNumber,
-                            FRemark: this.move_form.remark?.trim()
+                            FRemark: this.move_form.remark?.trim(),
+                            FBillNo: this.move_form.bill_no
                         })
                     } else if (this.move_form.type == 'new') {
                         inv_plan = new InvPlan({
@@ -589,7 +596,8 @@
                             FOpQTY: this.move_form.new_qty,
                             FBatchNo: this.move_form.new_batch_no.replace(/-/g, ''),
                             FOpStaffNo: store.state.cur_staff.FNumber,
-                            FRemark: this.move_form.remark?.trim()
+                            FRemark: this.move_form.remark?.trim(),
+                            FBillNo: this.move_form.bill_no
                         })
                     }
                     uni.showLoading({ title: 'Loading' })

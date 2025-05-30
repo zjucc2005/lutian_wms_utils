@@ -5,9 +5,9 @@ const createWindow = () => {
     const win = new BrowserWindow({
         width: 1080,
         height: 1000,
-        minWidth: 450,
-        minHeight: 900,
-        resizable: false,
+        minWidth: 480,
+        minHeight: 960,
+        // resizable: false,
         // maximizable: false,
         autoHideMenuBar: true,
         webPreferences: {

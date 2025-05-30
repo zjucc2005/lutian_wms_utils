@@ -294,7 +294,7 @@
         // k3cloud
         {
             "path": "pages/k3cloud/index",
-            "style": { "navigationBarTitleText": "K3Cloud" }
+            "style": { "navigationBarTitleText": "金蝶云" }
         },
         {
             "path": "pages/k3cloud/eng_bom/index",
@@ -303,6 +303,18 @@
         {
             "path": "pages/k3cloud/eng_bom/tree",
             "style": { "navigationBarTitleText": "物料清单" }
+        },
+        {
+            "path": "pages/k3cloud/caigouguanli/index",
+            "style": { "navigationBarTitleText": "采购管理" }
+        },
+        {
+            "path": "pages/k3cloud/caigouguanli/caigoudingdan/index",
+            "style": { "navigationBarTitleText": "采购管理 / 采购订单" }
+        },
+        {
+            "path": "pages/k3cloud/caigouguanli/shouliaotongzhidan/index",
+            "style": { "navigationBarTitleText": "采购管理 / 收料通知单" }
         }
     ],
     "globalStyle": {
@@ -342,17 +354,12 @@
                     "selectedColor": "#007aff"
                 }
             },
-            // {
-            //     "pagePath": "pages/k3cloud/index",
-            //     "text": "K3Cloud",
-            //     "iconfont": {
-            //         "text": "\ue682",
-            //         "color": "#7A7E83",
-            //         "selectedText": "\ue682",
-            //         "fontSize": "24px",
-            //         "selectedColor": "#007aff"
-            //     }
-            // },
+            {
+                "pagePath": "pages/k3cloud/index",
+                "text": "金蝶云",
+                "iconPath": "/static/icon/tab_k3cloud.png",
+                "selectedIconPath": "/static/icon/tab_k3cloud_active.png"
+            },
             {
                 "pagePath": "pages/my/index",
                 "text": "我",

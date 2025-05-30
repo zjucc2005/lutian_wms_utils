@@ -7,6 +7,14 @@ const to_raw = (reactive_obj) => {
     return JSON.parse(JSON.stringify(reactive_obj));
 }
 
+const truncate = (t, len=10) => {
+    if (t.length <= len) {
+        return t
+    } else {
+        return t.slice(0, len) + '...'
+    }
+}
+
 /**
  * 四舍五入，不影响整数
  */
@@ -171,6 +179,7 @@ const get_latest_version = async (positive=false) => {
 
 export {
     to_raw,
+    truncate,
     math_round,
     play_audio_prompt,
     link_to,

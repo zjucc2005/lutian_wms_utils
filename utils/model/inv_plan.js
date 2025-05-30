@@ -180,7 +180,8 @@ class InvPlan {
                 FBillNo: inv_plan.FBillNo,
                 FOpStaffNo: inv_plan.FOpStaffNo,
                 FRemark: inv_plan.FRemark,
-                FReceiver: inv_plan.FReceiver
+                FReceiver: inv_plan.FReceiver,
+                FBillNo: inv_plan.FBillNo
             }
             let inv_log = new InvLog(options)
             await inv_log.save()
@@ -195,7 +196,8 @@ class InvPlan {
                 FBatchNo: inv_plan.FBatchNo,
                 FBillNo: inv_plan.FBillNo,
                 FOpStaffNo: inv_plan.FOpStaffNo,
-                FRemark: inv_plan.FRemark
+                FRemark: inv_plan.FRemark,
+                FBillNo: inv_plan.FBillNo
             }
             let src_inv_log = new InvLog(src_options)
             await src_inv_log.save()
@@ -208,7 +210,8 @@ class InvPlan {
                 FBatchNo: inv_plan.FBatchNo,
                 FBillNo: inv_plan.FBillNo,
                 FOpStaffNo: inv_plan.FOpStaffNo,
-                FRemark: inv_plan.FRemark
+                FRemark: inv_plan.FRemark,
+                FBillNo: inv_plan.FBillNo
             }
             let dest_inv_log = new InvLog(dest_options)
             await dest_inv_log.save()

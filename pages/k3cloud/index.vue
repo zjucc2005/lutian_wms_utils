@@ -1,34 +1,67 @@
 <template>
-    <uni-list class="uni-mb-5">
-        <uni-list-item title="物料清单"
-            :show-extra-icon="true"
-            :extra-icon="{ type: 'list', size: '24', color: '#007bff' }"
-            @click="link_to('./eng_bom/index')" clickable
-            show-arrow />
-    </uni-list>
+    <!-- 自制组件，自适应窗口变化 -->
+    <cc-grid>
+        <template v-for="(nav, index) in navs" :key="index">
+            <cc-grid-item v-if="nav.permission.includes($store.state.role) || nav.permission.includes('all')" @click="nav.action">
+                <view class="grid-item-box">
+                    <image :src="nav.icon_path" mode="widthFix" class="grid-item-icon"></image>
+                    <text class="grid-item-text">{{ nav.name }}</text>
+                </view>
+            </cc-grid-item>
+        </template>
+    </cc-grid>
 </template>
 
 <script>
+    import store from '@/store'
     import { link_to } from '@/utils'
+    import ccGrid from '@/components/cc-grid/cc-grid.vue'
+    import ccGridItem from '@/components/cc-grid/cc-grid-item.vue'
     export default {
+        components: {
+            ccGrid, ccGridItem
+        },
         data() {
             return {
-                nav_list: [
-                    { name: '生产制造', children: [
-                        { name: '工程数据管理', children: [
-                            { name: '物料清单', url: './eng_bom' }
-                        ] }
-                    ] }
+                navs: [
+                    {
+                        name: '采购管理', permission: ['all'], icon_path: '/static/icon/nav_list_cart.png',
+                        action: () => { link_to('/pages/k3cloud/caigouguanli/index') }
+                    }
                 ]
             }
         },
         methods: {
-            link_to,
             
         }
     }
 </script>
 
 <style lang="scss" scoped>
-
+    .grid-item-box {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        
+        // #ifdef H5
+        &:hover {
+            background-color: #f1f1f1;
+            border-radius: 5px;
+        }
+        // #endif
+        
+        .grid-item-text {
+            font-size: 14px;
+            color: #666;
+            font-weight: bold;
+            line-height: 24px;
+            margin-top: 10px;
+            margin-bottom: -20px;
+        }
+        .grid-item-icon {
+            width: 64px;
+        }
+    }
 </style>

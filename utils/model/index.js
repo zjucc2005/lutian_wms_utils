@@ -14,6 +14,8 @@ import InvLog from './inv_log'
 import InvPlan from './inv_plan'
 import IssuemtrLog from './issuemtr_log'
 import PrdMo from './prd_mo'
+import PurPurchaseOrder from './pur_purchase_order'
+import PurReceiveBill from './pur_receive_bill'
 import StkInventory from './stk_inventory'
 import StockLoc from './stock_loc'
 export {
@@ -29,6 +31,8 @@ export {
     InvPlan,
     IssuemtrLog,
     PrdMo,
+    PurPurchaseOrder,
+    PurReceiveBill,
     StkInventory,
     StockLoc
 }

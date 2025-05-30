@@ -42,6 +42,11 @@
         <uni-list-item
             v-for="(inv_log, index) in inv_logs"
             :key="index"
+            :show-extra-icon="!inv_log.FCInvId"
+            :extra-icon="{ type: 'loop', size: '24', color: '#dd524d' }"
+            @click="inv_log_menu(inv_log)"
+            :clickable="!inv_log.FCInvId"
+            :show-arrow="!inv_log.FCInvId"
             >
             <template #body>
                 <view class="uni-list-item__body">
@@ -62,6 +67,7 @@
                         <view v-if="inv_log.FReceiver?.trim()">收货人：{{ inv_log.FReceiver }}</view>
                         <view v-if="inv_log.FRemark?.trim()">备注：{{ inv_log.FRemark }}</view>
                         <view>时间：{{ formatDate(inv_log.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</view>
+                        <view v-if="!inv_log.FCInvId" class="text-error">库存未更新，请点击重试</view>
                     </view>
                 </view>
             </template>
@@ -118,6 +124,9 @@
                     <uni-forms-item label="收货人">
                         <uni-easyinput v-model="search_form.receiver" />
                     </uni-forms-item>
+                    <uni-forms-item label="状态">
+                        <uni-data-select v-model="search_form.status" :localdata="[{ value: 'failed', text: '失败' }]"></uni-data-select>
+                    </uni-forms-item>
                 </uni-forms>
             </view>
         </uni-popup-dialog>
@@ -147,7 +156,8 @@
                     material_name: '',
                     material_spec: '',
                     bill_no: '',
-                    receiver: ''
+                    receiver: '',
+                    status: ''
                 },
                 page: 1,
                 per_page: 25,
@@ -170,6 +180,12 @@
                         iconPath: '/static/icon/cc_outbound.png',
                         selectedIconPath: '/static/icon/cc_outbound_active.png',
                         text: '出库',
+                        active: false
+                    },
+                    {
+                        iconPath: '/static/icon/cc_warn.png',
+                        selectedIconPath: '/static/icon/cc_warn_active.png',
+                        text: '失败',
                         active: false
                     },
                     {
@@ -215,19 +231,34 @@
                 }
             },
             fab_trigger(e) {
-                console.log('this.$data', this.$data)
+                // console.log('this.$data', this.$data)
                 if (e.index === 0) this.$refs.search_dialog.open()
                 if (e.index === 1) {
-                    this.search_form.op_type = 'in'
+                    this.search_form = { op_type: 'in' }
                     this.reload_inv_logs()
                     this.fab_icon_active(1)
                 }
                 if (e.index === 2) {
-                    this.search_form.op_type = 'out'
+                    this.search_form = { op_type: 'out' }
                     this.reload_inv_logs()
                     this.fab_icon_active(2)
                 }
-                if (e.index === 3) uni.pageScrollTo({ scrollTop: 0 })
+                if (e.index === 3) {
+                    this.search_form = { status: 'failed' }
+                    this.reload_inv_logs()
+                    this.fab_icon_active(3)
+                }
+                if (e.index === 4) uni.pageScrollTo({ scrollTop: 0 })
+            },
+            inv_log_menu(inv_log) {
+                if (!inv_log.FCInvId) {
+                    uni.showActionSheet({
+                        itemList: ['全部重试'],
+                        success: (e) => {
+                            if (e.tapIndex === 0) this.retry_all()
+                        }
+                    })
+                }
             },
             load_more() {
                 if (this.load_more_status == 'nomore') return
@@ -254,12 +285,14 @@
                 if (this.search_form.op_type) options.FOpType = this.search_form.op_type
                 if (this.search_form.op_type == 'in') { this.fab_icon_active(1) }
                 else if (this.search_form.op_type == 'out') { this.fab_icon_active(2) }
+                else if (this.search_form.status == 'failed') { this.fab_icon_active(3) }
                 else { this.fab_icon_active(-1) }
                 if (this.search_form.material_no) options['FMaterialId.FNumber_lk'] = this.search_form.material_no
                 if (this.search_form.material_name) options['FMaterialName_lk'] = this.search_form.material_name
                 if (this.search_form.material_spec) options['FModel_lk'] = this.search_form.material_spec
                 if (this.search_form.bill_no) options.FBillNo_lk = this.search_form.bill_no
                 if (this.search_form.receiver) options.FReceiver_lk = this.search_form.receiver
+                if (this.search_form.status == 'failed') options.FCInvId = ''
                 let meta = { page: this.page, per_page: this.per_page, order: 'FID DESC' }
                 this.load_more_status = 'loading'
                 InvLog.query(options, meta).then(res => {
@@ -267,6 +300,25 @@
                     res.data.forEach(item => this.inv_logs.push(item) )
                 })
             },
+            // 重试全部失败的日志，金蝶插件脚本有时会不执行，此处为人工触发重试
+            async retry_all() {
+                let options = { 
+                    FStockId: store.state.cur_stock.FStockId,
+                    FCInvId: ''
+                }
+                let meta = { order: 'FID ASC' }
+                uni.showLoading({ title: '重试中' })
+                let res = await InvLog.query(options, meta)
+                for (let inv_log of res.data) {
+                    await InvLog.retry(inv_log)
+                }
+                uni.hideLoading()
+                this.inv_logs = []
+                this.search_form.status = 'failed'
+                this.load_more_status = 'more'
+                this.page = 1
+                this.load_inv_logs()
+            }
         }
     }
 </script>

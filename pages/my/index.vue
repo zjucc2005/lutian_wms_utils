@@ -38,11 +38,6 @@
             :extra-icon="{ type: 'gear', size: '24', color: '#007bff' }"
             @click="link_to('/pages/my/settings')" clickable
             show-arrow />
-        <uni-list-item v-if="door.open" title="K3Cloud"
-            :show-extra-icon="true"
-            :extra-icon="{ type: 'pyq', size: '24', color: '#007bff' }"
-            @click="link_to('/pages/k3cloud/index')" clickable
-            show-arrow />
         <uni-list-item v-if="door.open" title="全局状态"
             :show-extra-icon="true"
             :extra-icon="{ type: 'settings', size: '24', color: '#007bff' }"

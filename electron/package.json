@@ -1,6 +1,6 @@
 {
   "name": "electron",
-  "version": "1.3.3",
+  "version": "1.3.5",
   "description": "lutian.wms.utils pc",
   "main": "main.js",
   "build": {

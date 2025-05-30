@@ -163,20 +163,37 @@
                 })
             },
             async call_test_api() {
+                // this.retry_inv_plan_sn('181318856583740204')
+                // this.retry_inv_plan('FHTZD091834')
+                // BdMaterial.query({ FNumber: '0.0.0.0003' })
+                // const data = {
+                //     model: {
+                //         FNumber: '0.0.0.0003',
+                //         FName: 'PLM测试0430',
+                //         FSpecification: 'AfterSave回调测试 - 复制参考物料指定字段 - 2'
+                //     }
+                // }
+                // const data = {
+                //     model: {
+                //         FMaterialId: 3127533
+                //     }
+                // }
+                // K3CloudApi.save('BD_MATERIAL', data)
+                // K3CloudApi.audit('BD_MATERIAL', { Ids: "3127600"})
                 // InvPlan.query({ 'FMaterialId.FNumber': '3.03.02.02.01.0411' }).then(res => {
                 //     res.data
                 // })
-                Inv.query({ FQty_lt: 0 }).then(res => {
-                    res.data.forEach(e => {
-                        let data = {
-                            model: {
-                                FID: e.FID,
-                                FQty: 0
-                            }
-                        }
-                        K3CloudApi.save('PAEZ_C_INV', data)
-                    })
-                })
+                // Inv.query({ FQty_lt: 0 }).then(res => {
+                //     res.data.forEach(e => {
+                //         let data = {
+                //             model: {
+                //                 FID: e.FID,
+                //                 FQty: 0
+                //             }
+                //         }
+                //         K3CloudApi.save('PAEZ_C_INV', data)
+                //     })
+                // })
                 // let shelf = 'B20'
                 // let grids = [101,201,301]
                 // // let grids = []
@@ -205,22 +222,45 @@
                 // K3CloudApi.save('PAEZ_C_INV_PLAN', data)
             },
             call_delete_api() {
-                // StockLoc.query({ FDocumentStatus: 'D' }).then(res => {
-                //     let form_id = 'PAEZ_C_STOCK_LOC'
-                //     let data = {
-                //         Numbers: res.data.map(e => e.FNumber)
-                //     }
-                //     K3CloudApi.delete(form_id, data)
-                // })
                 // Inv.query({ FMaterialId: '' }).then(res => {
                 //     Inv.delete(res.data.map(e => e.FID))
                 // })
-                // InvLog.query({ FMaterialId: '' }).then(res => {
+                // InvLog.query({ FCInvId: '' }).then(res => {
                 //     InvLog.delete(res.data.map(e => e.FID))
                 // })
                 // InvPlan.query({ FMaterialId: '' }).then(res => {
                 //     InvPlan.delete(res.data.map(e => e.FID))
                 // })
+            },
+            async retry_inv_plan(bill_no) {
+                InvLog.query({ FBillNo: bill_no }).then(res => {
+                    InvLog.delete(res.data.map(e => e.FID))
+                })
+                InvPlan.query({ FBillNo: bill_no }).then(res => {
+                    for (let inv_plan of res.data) {
+                        let options = {
+                            FOpType: inv_plan.FOpType,
+                            FStockId: inv_plan.FStockId,
+                            FStockLocNo: inv_plan['FStockLocId.FNumber'],
+                            FMaterialId: inv_plan.FMaterialId,
+                            FOpQTY: inv_plan.FOpQTY,
+                            FBatchNo: inv_plan.FBatchNo,
+                            FBillNo: inv_plan.FBillNo,
+                            FOpStaffNo: inv_plan.FOpStaffNo,
+                            FRemark: inv_plan.FRemark,
+                            FReceiver: inv_plan.FReceiver
+                        }
+                        let inv_log = new InvLog(options)
+                        inv_log.save()
+                    }
+                })
+            },
+            // 库存调整用
+            async retry_inv_plan_sn(sn) {
+                let res = await InvPlan.query({ FOpSN: sn })
+                for (let inv_plan of res.data) {
+                    await InvPlan.execute(inv_plan)
+                }
             }
         }
     }

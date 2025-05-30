@@ -3,10 +3,13 @@
 import clr
 
 clr.AddReference('System')
+clr.AddReference('Kingdee.BOS')
+clr.AddReference('Kingdee.BOS.App')
 clr.AddReference('Kingdee.BOS.Core')
 
 from System import *
 from Kingdee.BOS import *
+from Kingdee.BOS.App.Data import *    # App.Data.DBUtils
 from Kingdee.BOS.Core import *
 
 # 事件绑定
@@ -32,7 +35,7 @@ def get_inv_qty(inv_log):
     f_stock_loc_id=inv_log['StockLocId_Id'],
     f_material_id=inv_log['MaterialId_Id'],
     f_batch_no=inv_log['BatchNo'])
-    inv_qty = App.Data.DBUtils.ExecuteScalar(this.Context, sql, None)
+    inv_qty = DBUtils.ExecuteScalar(this.Context, sql, None)
     return inv_qty or 0
 
 # 回写库存流水和关联C_INV
@@ -45,7 +48,7 @@ def update_inv_log(inv_log, inv_id):
     f_inv_qty=inv_log['InvQty'],
     inv_id=inv_id,
     fid=inv_log['Id'])
-    App.Data.DBUtils.Execute(this.Context, update_sql)   
+    DBUtils.Execute(this.Context, update_sql)   
 
 # 查询库存分表
 def query_inv(inv_log):
@@ -61,7 +64,7 @@ def query_inv(inv_log):
     f_stock_loc_id=inv_log['StockLocId_Id'],
     f_material_id=inv_log['MaterialId_Id'],
     f_batch_no=inv_log['BatchNo'])
-    query = App.Data.DBUtils.ExecuteDynamicObject(this.Context, sql)
+    query = DBUtils.ExecuteDynamicObject(this.Context, sql)
     return query
  
 def create_inv(inv_log):
@@ -82,7 +85,7 @@ def create_inv(inv_log):
     f_batch_no=inv_log['BatchNo'],
     f_last_inbound_date=inv_log['CreateTime'],
     f_create_time=inv_log['CreateTime'])
-    App.Data.DBUtils.Execute(this.Context, sql)
+    DBUtils.Execute(this.Context, sql)
     update_inv_log(inv_log, inv_fid)
     
 def update_inv(inv, inv_log):
@@ -103,5 +106,5 @@ def update_inv(inv, inv_log):
         """.format(
         f_qty=inv_log['InvQty'],
         fid=inv['FID'])
-    App.Data.DBUtils.Execute(this.Context, sql)
+    DBUtils.Execute(this.Context, sql)
     update_inv_log(inv_log, inv['FID'])

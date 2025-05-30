@@ -33,9 +33,7 @@
                                         <text class="dest_loc_no uni-ml-2">{{ inv_plan['FDestStockLocId.FNumber'] }}</text>
                                     </template>
                                 </view>
-                            </view>
-                            
-                            <view class="note">
+                                <view v-if="inv_plan.FBillNo?.trim()">单据：{{ inv_plan.FBillNo }}</view>
                                 <view v-if="inv_plan.FRemark?.trim()">备注：{{ inv_plan.FRemark }}</view>
                             </view>
                         </view>

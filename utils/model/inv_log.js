@@ -145,6 +145,35 @@ class InvLog {
             return sum_data 
         }
     }
+    
+    /**
+     * 重试 - 库存日志触发回调脚本失败，未更新库存时
+     * @param inv_log:Hash 接口获取的数据库实例
+     * @return {Hash} Promise
+     */
+    static async retry(inv_log) {
+        // 若已关联c_inv_id，则表示回调成功，无需重试
+        if (inv_log.FCInvId) return
+        // 初始化新日志
+        let options = {
+            FOpType: inv_log.FOpType,
+            FStockId: inv_log.FStockId,
+            FStockLocNo: inv_log['FStockLocId.FNumber'],
+            FMaterialId: inv_log.FMaterialId,
+            FOpQTY: inv_log.FOpQTY,
+            FBatchNo: inv_log.FBatchNo,
+            FBillNo: inv_log.FBillNo,
+            FOpStaffNo: inv_log.FOpStaffNo,
+            FRemark: inv_log.FRemark,
+            FReceiver: inv_log.FReceiver,
+            FBillNo: inv_log.FBillNo
+        }
+        // 删除旧日志
+        await InvLog.delete([inv_log.FID])
+        // 创建新日志
+        let new_inv_log = new InvLog(options)
+        await new_inv_log.save()
+    }
 }
 
 export default InvLog

@@ -4,6 +4,7 @@ import K3CloudApi from '@/utils/k3cloudapi'
  * 前端库存模型
  */
 class BdMaterial {
+    static form_id = 'BD_MATERIAL'
     constructor() {
 
     }
@@ -15,7 +16,7 @@ class BdMaterial {
                 ...options
             }
         }
-        return K3CloudApi.save('BD_MATERIAL', data)
+        return K3CloudApi.save(this.form_id, data)
     }
     
     /** 
@@ -32,7 +33,7 @@ class BdMaterial {
                       "FBaseUnitId", "FBaseUnitId.FNumber", "FBaseUnitId.FName", "FMaterialGroup.FName", "FUseOrgId", 
                       "FUseOrgId.FName", "FImageFileServer"]
         const data = {
-            FormId: 'BD_MATERIAL',
+            FormId: this.form_id,
             FieldKeys: fields.join(','),
             FilterString: K3CloudApi.query_filter(options)
         }
@@ -73,7 +74,7 @@ class BdMaterial {
     }
     
     static async view(id) {
-        return K3CloudApi.view('BD_MATERIAL', { Id: id })
+        return K3CloudApi.view(this.form_id, { Id: id })
     }
 }
 
