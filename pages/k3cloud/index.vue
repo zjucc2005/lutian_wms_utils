@@ -2,7 +2,7 @@
     <!-- 自制组件，自适应窗口变化 -->
     <cc-grid>
         <template v-for="(nav, index) in navs" :key="index">
-            <cc-grid-item v-if="nav.permission.includes($store.state.role) || nav.permission.includes('all')" @click="nav.action">
+            <cc-grid-item v-if="nav.permission.includes($store.state.role) || (nav.permission.includes('all') && $store.state.role != 'guest')" @click="nav.action">
                 <view class="grid-item-box">
                     <image :src="nav.icon_path" mode="widthFix" class="grid-item-icon"></image>
                     <text class="grid-item-text">{{ nav.name }}</text>

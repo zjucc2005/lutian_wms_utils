@@ -1,5 +1,5 @@
 <template>
-    <uni-table ref="table" border stripe>
+    <uni-table v-if="$store.state.system_info.windowWidth >= 1200" ref="table" border stripe>
         <uni-tr>
             <uni-th align="center" width="120">单据编号</uni-th>
             <uni-th align="center" width="120">创建日期</uni-th>
@@ -27,6 +27,32 @@
         </uni-tr>
     </uni-table>
     
+    <uni-list v-else>
+        <uni-list-item
+            v-for="(rb, index) in receive_bills"
+            :key="index"
+            >
+            <template #body>
+                <view class="uni-list-item__body">
+                    <view class="title">{{ rb.FBillNo }} / {{ rb.F_PAEZ_Text }}</view>
+                    <view class="note">
+                        <view>供应商：{{ rb['FSupplierId.FName'] }}</view>
+                        <view>编码：{{ rb['FMaterialId.FNumber'] }}</view>
+                        <view>名称：{{ rb['FMaterialId.FName'] }}</view>
+                        <view>规格：{{ rb['FMaterialId.FSpecification'] }}</view>
+                        <view>创建日期：{{ formatDate(rb.FCreateDate, 'yyyy-MM-dd') }}</view>
+                        <view>采购员：{{ rb['FPurchaserId.FName'] }}</view>
+                    </view>
+                </view>
+            </template>
+            <template #footer>
+                <view class="uni-list-item__foot">
+                    <view>{{ rb.FActReceiveQty }} {{ rb['FUnitId.FName'] }}</view>
+                </view>
+            </template>
+        </uni-list-item>
+    </uni-list>
+    
     <uni-fab ref="fab" :content="fab_content" @trigger="fab_trigger" show />
     
     <uni-popup ref="search_dialog" type="dialog">
@@ -37,7 +63,7 @@
             @close="search_dialog_close"
             @confirm="search_dialog_confirm"
             :before-close="true"
-            :style="{ width: $store.state.system_info.windowWidth + 'px', minWidth: '480px', maxWidth: '1200px' }"
+            :style="{ width: $store.state.system_info.windowWidth + 'px', minWidth: '360px', maxWidth: '1200px' }"
             >
             <view class="search-form">
                 <uni-forms ref="search_form" :model="search_form" :label-width="100">
@@ -136,8 +162,8 @@
                 if (this.search_form.demander) options['FDemanderId.FName_lk'] = this.search_form.demander
                 if (this.search_form.supplier) options['FSupplierId.FName_lk'] = this.search_form.supplier
                 if (this.search_form.material_no) options['FMaterialId.FNumber_lk'] = this.search_form.material_no
-                if (this.search_form.material_name) options['FMaterialName_lk'] = this.search_form.material_name
-                if (this.search_form.material_spec) options['FModel_lk'] = this.search_form.material_spec
+                if (this.search_form.material_name) options['FMaterialId.FName_lk'] = this.search_form.material_name
+                if (this.search_form.material_spec) options['FMaterialId.FSpecification_lk'] = this.search_form.material_spec
                 this.load_more_status = 'loading'
                 PurReceiveBill.query(options, meta).then(res => {
                     this.load_more_status = res.data.length < this.per_page ? 'nomore' : 'more'

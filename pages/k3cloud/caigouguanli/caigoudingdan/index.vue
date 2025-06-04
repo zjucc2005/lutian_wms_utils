@@ -1,5 +1,5 @@
 <template>
-    <uni-table ref="table" border stripe>
+    <uni-table v-if="$store.state.system_info.windowWidth >= 1200"  ref="table" border stripe>
         <uni-tr>
             <uni-th align="center" width="120">单据编号</uni-th>
             <uni-th align="center" width="150">供应商</uni-th>
@@ -30,6 +30,41 @@
         </uni-tr>
     </uni-table>
     
+    <uni-list v-else>
+        <uni-list-item
+            v-for="(po, index) in purchase_orders"
+            :key="index"
+            >
+            <template #body>
+                <view class="uni-list-item__body">
+                    <view class="title">{{ po.FBillNo }} / {{ po.FDemandBillNo }}</view>
+                    <view class="note">
+                        <view>供应商：{{ po['FSupplierId.FName'] }}</view>
+                        <view>编码：{{ po['FMaterialId.FNumber'] }}</view>
+                        <view>名称：{{ po['FMaterialId.FName'] }}</view>
+                        <view>规格：{{ po['FMaterialId.FSpecification'] }}</view>
+                        <view>采购日期：{{ formatDate(po.FDate, 'yyyy-MM-dd') }}</view>
+                        <view>交货日期：{{ formatDate(po.FDeliveryDate, 'yyyy-MM-dd') }}</view>
+                        <view>采购员：{{ po['FPurchaserId.FName'] }}</view>
+                        <view v-if="po.FRemainReceiveQty > 0">剩余收料数量：<text class="text-primary">{{ po.FRemainReceiveQty }}</text></view>
+                    </view>
+                </view>
+            </template>
+            <template #footer>
+                <view class="uni-list-item__foot">
+                    <view>{{ po.FQty }}</view>
+                    <progress
+                        :percent="_calc_percentage(po)" 
+                        stroke-width="2"
+                        :active-color="_calc_percentage(po) >= 100 ? '#4cd964' : '#f0ad4e'"
+                    />
+                </view>
+            </template>
+        </uni-list-item>
+    </uni-list>
+    
+    <uni-load-more :status="load_more_status" @clickLoadMore="load_more" />
+    
     <uni-fab ref="fab" :content="fab_content" @trigger="fab_trigger" show />
     
     <uni-popup ref="search_dialog" type="dialog">
@@ -40,7 +75,7 @@
             @close="search_dialog_close"
             @confirm="search_dialog_confirm"
             :before-close="true"
-            :style="{ width: $store.state.system_info.windowWidth + 'px', minWidth: '480px', maxWidth: '1200px' }"
+            :style="{ width: $store.state.system_info.windowWidth + 'px', minWidth: '360px', maxWidth: '1200px' }"
             >
             <view class="search-form">
                 <uni-forms ref="search_form" :model="search_form" :label-width="100">
@@ -139,8 +174,8 @@
                 if (this.search_form.demander) options['FRequireStaffId.FName_lk'] = this.search_form.demander
                 if (this.search_form.supplier) options['FSupplierId.FName_lk'] = this.search_form.supplier
                 if (this.search_form.material_no) options['FMaterialId.FNumber_lk'] = this.search_form.material_no
-                if (this.search_form.material_name) options['FMaterialName_lk'] = this.search_form.material_name
-                if (this.search_form.material_spec) options['FModel_lk'] = this.search_form.material_spec
+                if (this.search_form.material_name) options['FMaterialId.FName_lk'] = this.search_form.material_name
+                if (this.search_form.material_spec) options['FMaterialId.FSpecification_lk'] = this.search_form.material_spec
                 this.load_more_status = 'loading'
                 PurPurchaseOrder.query(options, meta).then(res => {
                     this.load_more_status = res.data.length < this.per_page ? 'nomore' : 'more'
@@ -170,6 +205,9 @@
                 this.reload_purchase_orders()
                 this.search_dialog_close()
             },
+            _calc_percentage(po) {
+                return (po.FQty - po.FRemainReceiveQty) * 100 / po.FQty
+            }
         }
     }
 </script>
