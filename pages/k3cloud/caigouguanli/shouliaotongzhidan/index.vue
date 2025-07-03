@@ -63,7 +63,7 @@
             @close="search_dialog_close"
             @confirm="search_dialog_confirm"
             :before-close="true"
-            :style="{ width: $store.state.system_info.windowWidth + 'px', minWidth: '360px', maxWidth: '1200px' }"
+            :style="{ width: $store.state.system_info.windowWidth - 20 + 'px', minWidth: '360px', maxWidth: '1200px' }"
             >
             <view class="search-form">
                 <uni-forms ref="search_form" :model="search_form" :label-width="100">
@@ -199,6 +199,6 @@
 
 <style lang="scss">
     .search-form {
-        // flex: 1;
+        flex: 1;
     }
 </style>

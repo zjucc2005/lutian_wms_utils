@@ -1,5 +1,5 @@
 <template>
-    <uni-notice-bar single scrollable text="查询物料获取库存信息，然后点击库存明细新增计划" />
+    <!-- <uni-notice-bar single scrollable text="查询物料获取库存信息，然后点击库存明细新增计划" /> -->
     <uni-section title="查询物料" type="square">
         <view class="container">
             <uni-forms ref="form" :model="search_form" labelWidth="70px">
@@ -420,6 +420,15 @@
                     new_batch_no: {
                         rules: [
                             { required: true, errorMessage: '批次号不能为空' },
+                            {
+                                validateFunction: (rule, value, data, callback) => {
+                                    // 相同库位相同批次不能重复
+                                    let existed_inv = this.invs.find(inv => inv['FStockLocId.FNumber'] == this.move_form.new_loc_no && inv['FBatchNo'] == this.move_form.new_batch_no.replace(/-/g, ''))
+                                    if (existed_inv) {
+                                        return callback('相同库位相同批次库存已存在')
+                                    }
+                                }
+                            }
                         ]
                     },
                     op_qty: {

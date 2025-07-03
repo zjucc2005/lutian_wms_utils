@@ -1,4 +1,5 @@
 import store from '@/store'
+import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
 
 /**
  * 转换响应式数据到普通js对象
@@ -189,5 +190,6 @@ export {
     compare_loc_no,
     describe_inv_log,
     string_to_arraybuffer,
-    get_latest_version
+    get_latest_version,
+    formatDate
 }

@@ -1,7 +1,7 @@
 import K3CloudApi from '@/utils/k3cloudapi'
 
-class PurPurchaseOrder {
-    static form_id = 'PUR_PurchaseOrder'
+class SalDeliveryNotice {
+    static form_id = 'SAL_DELIVERYNOTICE'
     constructor() {
         
     }
@@ -25,10 +25,7 @@ class PurPurchaseOrder {
      * @return {Hash} Promise
      */
     static async query (options={}, meta={}) {
-        let fields = ['FID', 'FBillNo', 'FSupplierId', 'FSupplierId.FName', 'FDemandBillNo', 
-                      'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
-                      'FQty','FRemainReceiveQty', 'FUnitId', 'FUnitId.FName', 
-                      'FDate', 'FDeliveryDate', 'FPurchaserId', 'FPurchaserId.FName']
+        let fields = ['FID', 'FDate', 'FBillNo', 'FCloseStatus', 'F_PAEZ_Text', 'FDeliveryOrgId', 'FDeliveryOrgId.FName']
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),
@@ -51,4 +48,4 @@ class PurPurchaseOrder {
     }
 }
 
-export default PurPurchaseOrder
+export default SalDeliveryNotice

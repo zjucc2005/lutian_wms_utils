@@ -37,6 +37,7 @@ const store = createStore({
         stock_locs: [],            // 基础数据，库位，登录时获取，在库位管理处可重新获取（刷新）
         stock_loc_opts: [],        // 基础数据，库位，uni-data-picker 用格式
         document_status_dict: { A: '已创建', B: '已提交', C: '已审核' },
+        close_status_dict: { A: '未关闭', B: '关闭' },
         goods_nav_fill: true,
         goods_nav_color: {
             blue: 'linear-gradient(90deg, #1E83FF, #0053B8)',

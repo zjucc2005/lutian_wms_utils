@@ -310,11 +310,23 @@
         },
         {
             "path": "pages/k3cloud/caigouguanli/caigoudingdan/index",
-            "style": { "navigationBarTitleText": "采购管理 / 采购订单" }
+            "style": { "navigationBarTitleText": "采购管理 / 采购订单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
         },
         {
             "path": "pages/k3cloud/caigouguanli/shouliaotongzhidan/index",
-            "style": { "navigationBarTitleText": "采购管理 / 收料通知单" }
+            "style": { "navigationBarTitleText": "采购管理 / 收料通知单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
+        },
+        {
+            "path": "pages/k3cloud/xiaoshouguanli/index",
+            "style": { "navigationBarTitleText": "销售管理" }
+        },
+        {
+            "path": "pages/k3cloud/xiaoshouguanli/fahuotongzhidan/index",
+            "style": { "navigationBarTitleText": "销售管理 / 发货通知单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
+        },
+        {
+            "path": "pages/k3cloud/xiaoshouguanli/fahuotongzhidan/show",
+            "style": { "navigationBarTitleText": "销售管理 / 发货通知单" }
         }
     ],
     "globalStyle": {

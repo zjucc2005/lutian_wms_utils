@@ -1,6 +1,6 @@
 <template>
-    <uni-table v-if="$store.state.system_info.windowWidth >= 1200"  ref="table" border stripe>
-        <uni-tr>
+    <uni-table v-if="$store.state.system_info.windowWidth >= 12000" ref="table" border stripe>
+        <!-- <uni-tr>
             <uni-th align="center" width="120">单据编号</uni-th>
             <uni-th align="center" width="150">供应商</uni-th>
             <uni-th align="center" width="120">需求单据编号</uni-th>
@@ -27,37 +27,29 @@
             <uni-td>{{ formatDate(po.FDate, 'yyyy-MM-dd') }}</uni-td>
             <uni-td>{{ formatDate(po.FDeliveryDate, 'yyyy-MM-dd') }}</uni-td>
             <uni-td>{{ po['FPurchaserId.FName'] }}</uni-td>
-        </uni-tr>
+        </uni-tr> -->
     </uni-table>
     
     <uni-list v-else>
         <uni-list-item
-            v-for="(po, index) in purchase_orders"
+            v-for="(dn, index) in delivery_notices"
             :key="index"
+            @click="show_delivery_notice(dn.FID)" clickable
+            show-arrow
             >
             <template #body>
                 <view class="uni-list-item__body">
-                    <view class="title">{{ po.FBillNo }} / {{ po.FDemandBillNo }}</view>
+                    <view class="title">{{ dn.FBillNo }}</view>
                     <view class="note">
-                        <view>供应商：{{ po['FSupplierId.FName'] }}</view>
-                        <view>编码：{{ po['FMaterialId.FNumber'] }}</view>
-                        <view>名称：{{ po['FMaterialId.FName'] }}</view>
-                        <view>规格：{{ po['FMaterialId.FSpecification'] }}</view>
-                        <view>采购日期：{{ formatDate(po.FDate, 'yyyy-MM-dd') }}</view>
-                        <view>交货日期：{{ formatDate(po.FDeliveryDate, 'yyyy-MM-dd') }}</view>
-                        <view>采购员：{{ po['FPurchaserId.FName'] }}</view>
-                        <view v-if="po.FRemainReceiveQty > 0">剩余收料数量：<text class="text-primary">{{ po.FRemainReceiveQty }}</text></view>
+                        <view>发货组织：{{ dn['FDeliveryOrgId.FName'] }}</view>
+                        <view>收货人：{{ dn.F_PAEZ_Text }}</view>
                     </view>
                 </view>
             </template>
             <template #footer>
                 <view class="uni-list-item__foot">
-                    <view>{{ po.FQty }}</view>
-                    <progress
-                        :percent="_calc_percentage(po)" 
-                        stroke-width="2"
-                        :active-color="_calc_percentage(po) >= 100 ? '#4cd964' : '#f0ad4e'"
-                    />
+                    <view>{{ formatDate(dn.FDate, 'yyyy-MM-dd') }}</view>
+                    <view :class="dn.FCloseStatus == 'A' ? 'text-primary' : ''">{{ $store.state.close_status_dict[dn.FCloseStatus] }}</view>
                 </view>
             </template>
         </uni-list-item>
@@ -81,33 +73,19 @@
                 <uni-forms ref="search_form" :model="search_form" :label-width="100">
                     <uni-row :gutter="15">
                         <uni-col :md="8" :sm="12" :xs="24">
-                            <uni-forms-item label="需求单据编号">
-                                <uni-easyinput v-model="search_form.demand_bill_no" />
+                            <uni-forms-item label="单据编号">
+                                <uni-easyinput v-model="search_form.bill_no" />
                             </uni-forms-item>
                         </uni-col>
                         <uni-col :md="8" :sm="12" :xs="24">
-                            <uni-forms-item label="需求人">
-                                <uni-easyinput v-model="search_form.demander" />
+                            <uni-forms-item label="收货人">
+                                <uni-easyinput v-model="search_form.receiver" />
                             </uni-forms-item>
                         </uni-col>
                         <uni-col :md="8" :sm="12" :xs="24">
-                            <uni-forms-item label="供应商">
-                                <uni-easyinput v-model="search_form.supplier" />
-                            </uni-forms-item>
-                        </uni-col>
-                        <uni-col :md="8" :sm="12" :xs="24">
-                            <uni-forms-item label="物料编码">
-                                <uni-easyinput v-model="search_form.material_no" />
-                            </uni-forms-item>
-                        </uni-col>
-                        <uni-col :md="8" :sm="12" :xs="24">
-                            <uni-forms-item label="物料名称">
-                                <uni-easyinput v-model="search_form.material_name" />
-                            </uni-forms-item>
-                        </uni-col>
-                        <uni-col :md="8" :sm="12" :xs="24">
-                            <uni-forms-item label="规格型号">
-                                <uni-easyinput v-model="search_form.material_spec" />
+                            <uni-forms-item label="关闭状态">
+                                <uni-data-select v-model="search_form.close_status" 
+                                    :localdata="[{ value: 'A', text: '未关闭' }, { value: 'B', text: '关闭' }]"></uni-data-select>
                             </uni-forms-item>
                         </uni-col>
                     </uni-row>
@@ -119,21 +97,17 @@
 
 <script>
     import store from '@/store'
-    import { PurPurchaseOrder } from '@/utils/model'
-    import { truncate } from '@/utils'
-    import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+    import { SalDeliveryNotice } from '@/utils/model'
+    import { link_to, truncate, formatDate } from '@/utils'
     
     export default {
         data() {
             return {
-                purchase_orders: [],
+                delivery_notices: [],
                 search_form: {
-                    demand_bill_no: '',
-                    demander: '', // require_staff_id
-                    supplier: '',
-                    material_no: '',
-                    material_name: '',
-                    material_spec: ''
+                    bill_no: '',
+                    receiver: '',
+                    close_status: ''
                 },
                 page: 1,
                 per_page: 100,
@@ -155,38 +129,35 @@
             }
         },
         onPullDownRefresh() {
-            this.reload_purchase_orders()
+            this.reload_delivery_notices()
             uni.stopPullDownRefresh()
         },
         onReachBottom() {
             this.load_more()
         },
         mounted() {
-            this.load_purchase_orders()
+            this.load_delivery_notices()
         },
         methods: {
             truncate,
             formatDate,
-            async load_purchase_orders() {
-                let options = { }
+            async load_delivery_notices() {
+                let options = { FDocumentStatus: 'C', FDeliveryOrgId: store.state.cur_stock.FUseOrgId }
                 let meta = { page: this.page, per_page: this.per_page, order: 'FID DESC' }
-                if (this.search_form.demand_bill_no) options.FDemandBillNo_lk = this.search_form.demand_bill_no
-                if (this.search_form.demander) options['FRequireStaffId.FName_lk'] = this.search_form.demander
-                if (this.search_form.supplier) options['FSupplierId.FName_lk'] = this.search_form.supplier
-                if (this.search_form.material_no) options['FMaterialId.FNumber_lk'] = this.search_form.material_no
-                if (this.search_form.material_name) options['FMaterialId.FName_lk'] = this.search_form.material_name
-                if (this.search_form.material_spec) options['FMaterialId.FSpecification_lk'] = this.search_form.material_spec
+                if (this.search_form.bill_no) options.FBillNo_lk = this.search_form.bill_no
+                if (this.search_form.receiver) options.F_PAEZ_Text_lk = this.search_form.receiver
+                if (this.search_form.close_status) options.FCloseStatus = this.search_form.close_status
                 this.load_more_status = 'loading'
-                PurPurchaseOrder.query(options, meta).then(res => {
+                SalDeliveryNotice.query(options, meta).then(res => {
                     this.load_more_status = res.data.length < this.per_page ? 'nomore' : 'more'
-                    res.data.forEach(item => this.purchase_orders.push(item) )
+                    res.data.forEach(item => this.delivery_notices.push(item) )
                 })
             },
-            reload_purchase_orders() {
-                this.purchase_orders = []
+            reload_delivery_notices() {
+                this.delivery_notices = []
                 this.load_more_status = 'more'
                 this.page = 1
-                this.load_purchase_orders()
+                this.load_delivery_notices()
             },
             fab_trigger(e) {
                 // console.log('this.$data', this.$data)
@@ -196,17 +167,18 @@
             load_more() {
                 if (this.load_more_status == 'nomore') return
                 this.page += 1
-                this.load_purchase_orders()
+                this.load_delivery_notices()
             },
             search_dialog_close() {
                 this.$refs.search_dialog.close()
             },
             search_dialog_confirm() {
-                this.reload_purchase_orders()
+                this.reload_delivery_notices()
                 this.search_dialog_close()
             },
-            _calc_percentage(po) {
-                return (po.FQty - po.FRemainReceiveQty) * 100 / po.FQty
+            show_delivery_notice(id) {
+                link_to('/pages/k3cloud/xiaoshouguanli/fahuotongzhidan/show?id=' + id)
+                // console.log('show_delivery_notice', id)
             }
         }
     }

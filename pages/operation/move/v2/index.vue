@@ -278,6 +278,7 @@
                 let response = await InvPlan.audit(ids)
                 if (response.data.Result.ResponseStatus.IsSuccess) {
                     for (let i = 0; i < checked_inv_plans.length; i++) {
+                        uni.showLoading({ title: `Loading:${i}/${checked_inv_plans.length}` })
                         await InvPlan.execute(checked_inv_plans[i]) // 审核确认
                     }
                     await this.load_inv_plans()

@@ -36,7 +36,7 @@ const validate_staff = async (staff_name, staff_no, org_id) => {
     const emp_data = {
         FormId: "BD_EMPINFO",
         FieldKeys: emp_fields.join(','),
-        FilterString: K3CloudApi.query_filter({ FName: staff_name, FNumber: staff_no, FUseOrgId: org_id })
+        FilterString: K3CloudApi.query_filter({ FName: staff_name, FNumber: staff_no })
     }
     let emp_res = await K3CloudApi.bill_query(emp_data)
     if (emp_res.data.length > 0) {
@@ -48,22 +48,7 @@ const validate_staff = async (staff_name, staff_no, org_id) => {
         result.FBizOrgId = d.FUseOrgId
         result['FBizOrgId.FName'] = d['FUseOrgId.FName']
     }
-    return result 
-    // return K3CloudApi.bill_query(data).then(res => {
-    //     if (res.data.length === 0) {
-    //         return Promise.resolve(null)
-    //     } else {
-    //         let result = { FOperatorGroup: [] }
-    //         for (let i in fields) {
-    //             result[fields[i]] = res.data[0][fields[i]]
-    //         }
-    //         for (let i in res.data) {
-    //             result.FOperatorGroup.push(res.data[i]['FOperatorGroupId.FName'])
-    //         }
-    //         return Promise.resolve(result)
-    //     }
-    // })
-    
+    return result
 }
 
 /** 

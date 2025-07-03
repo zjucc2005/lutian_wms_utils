@@ -12,6 +12,13 @@
             <uni-list-item title="名称" :right-text="bd_material.Name[0]?.Value" />
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
             <uni-list-item title="存货类别" :right-text="bd_material.MaterialBase[0].CategoryID.Name[0].Value" />
+            <uni-list-item 
+                title="销售简称" 
+                :right-text="bd_material.F_RGEN_xsjc_83g"
+                @click="edit_field('F_RGEN_xsjc_83g')"
+                :clickable="is_admin"
+                :show-arrow="is_admin"
+                />
             <uni-list-item
                 title="单箱标准数量"
                 :right-text="bd_material.MaterialStock[0].BoxStandardQty.toString()"
@@ -188,8 +195,16 @@
                 if (!this.can_edit) {
                     this.flash('warn', '创建组织下才可修改')
                     return
-                }   
-                if (field == 'FBoxStandardQty') {
+                }
+                if (field == 'F_RGEN_xsjc_83g') {
+                    this.edit_form = {
+                        field,
+                        type: 'text',
+                        name: '销售简称',
+                        value: this.bd_material.F_RGEN_xsjc_83g,
+                        value_was: this.bd_material.F_RGEN_xsjc_83g
+                    }
+                } else if (field == 'FBoxStandardQty') {
                     this.edit_form = {
                         field,
                         type: 'number',

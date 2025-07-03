@@ -40,7 +40,10 @@
             },
             keydownEscape(e) {
                 // console.log('keydown Escape', e)
-                if (e.code == 'Escape') uni.navigateBack()
+                if (e.code == 'Escape') {
+                    uni.hideLoading()  // 返回后关闭加载提示
+                    uni.navigateBack() // 返回上一页，路径栈
+                }
             }
         }
     }

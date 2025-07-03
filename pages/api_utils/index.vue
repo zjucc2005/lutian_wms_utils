@@ -180,46 +180,13 @@
                 // }
                 // K3CloudApi.save('BD_MATERIAL', data)
                 // K3CloudApi.audit('BD_MATERIAL', { Ids: "3127600"})
-                // InvPlan.query({ 'FMaterialId.FNumber': '3.03.02.02.01.0411' }).then(res => {
-                //     res.data
-                // })
-                // Inv.query({ FQty_lt: 0 }).then(res => {
-                //     res.data.forEach(e => {
-                //         let data = {
-                //             model: {
-                //                 FID: e.FID,
-                //                 FQty: 0
-                //             }
-                //         }
-                //         K3CloudApi.save('PAEZ_C_INV', data)
-                //     })
-                // })
-                // let shelf = 'B20'
-                // let grids = [101,201,301]
-                // // let grids = []
-                // // for (let i = 1; i < 24; i ++) { grids.push(300+i) }
-                // let numbers = grids.map(e => {
-                //     return `NX3-${shelf}-${e}`
-                // })
-                // StockLoc.query({FNumber_in: numbers}).then(res => {
-                //     console.log('res', res)
-                //     res.data.forEach(e => {
-                //         let data = {
-                //             model: {
-                //                 FID: e.FID,
-                //                 FPalletSpace: 1
-                //             }
-                //         }
-                //         K3CloudApi.save('PAEZ_C_STOCK_LOC', data)
-                //     })
-                // })
-                // let data = {
-                //     model: {
-                //         FID: 100521,
-                //         FOpQTY: 96
+                // for (let i = 0; i < nos.length; i++) {
+                //     let res = await BdMaterial.query({ FUseOrgId: store.state.cur_stock.FUseOrgId, FNumber: nos[i].trim() }, {})
+                //     if (res.data && res.data[0]) {
+                //         let d = res.data[0]
+                //         await BdMaterial.update(res.data[0].FMaterialId, { F_RGEN_xsjc_83g: scs[i].trim() })
                 //     }
                 // }
-                // K3CloudApi.save('PAEZ_C_INV_PLAN', data)
             },
             call_delete_api() {
                 // Inv.query({ FMaterialId: '' }).then(res => {

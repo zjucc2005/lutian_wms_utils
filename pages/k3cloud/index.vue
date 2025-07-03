@@ -27,6 +27,10 @@
                     {
                         name: '采购管理', permission: ['all'], icon_path: '/static/icon/nav_list_cart.png',
                         action: () => { link_to('/pages/k3cloud/caigouguanli/index') }
+                    },
+                    {
+                        name: '销售管理', permission: ['wh_admin'], icon_path: '/static/icon/nav_list_money.png',
+                        action: () => { link_to('/pages/k3cloud/xiaoshouguanli/index') }
                     }
                 ]
             }

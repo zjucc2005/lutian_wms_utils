@@ -1,6 +1,18 @@
 # WMS APP using Kingdee API
 ## 
 ### 
+ 发布注意事项
+ 1.config.js
+   - config.log 设置为 false;
+ 2.保持各处版本信息一致;
+   - manifest.json
+   - package.json
+   - electron/package.json
+ 3.Android (*.apk) 发布
+   - 运行 lutian_wms_admin，上传apk文件，填写版本和更新说明
+ 4.H5 (electron/*.exe) 发布
+   - 上传文件到 https://musetransfer.com/
+   - 修改 package.json 中 installPack.h5 下载地址
 #### 
 ###### Author: Cai Chang
 

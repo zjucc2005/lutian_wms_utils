@@ -16,6 +16,7 @@ import IssuemtrLog from './issuemtr_log'
 import PrdMo from './prd_mo'
 import PurPurchaseOrder from './pur_purchase_order'
 import PurReceiveBill from './pur_receive_bill'
+import SalDeliveryNotice from './sal_delivery_notice'
 import StkInventory from './stk_inventory'
 import StockLoc from './stock_loc'
 export {
@@ -33,6 +34,7 @@ export {
     PrdMo,
     PurPurchaseOrder,
     PurReceiveBill,
+    SalDeliveryNotice,
     StkInventory,
     StockLoc
 }
