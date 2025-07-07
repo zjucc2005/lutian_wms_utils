@@ -73,6 +73,14 @@
                 <uni-forms ref="search_form" :model="search_form" :label-width="100">
                     <uni-row :gutter="15">
                         <uni-col :md="8" :sm="12" :xs="24">
+                            <uni-forms-item label="日期">
+                                <uni-datetime-picker v-model="search_form.date" type="daterange"
+                                    start-placeholder="开始" end-placeholder="结束"
+                                    />
+                                <!-- <uni-easyinput v-model="search_form.bill_no" /> -->
+                            </uni-forms-item>
+                        </uni-col>
+                        <uni-col :md="8" :sm="12" :xs="24">
                             <uni-forms-item label="单据编号">
                                 <uni-easyinput v-model="search_form.bill_no" />
                             </uni-forms-item>
@@ -105,6 +113,7 @@
             return {
                 delivery_notices: [],
                 search_form: {
+                    date: '', // date range
                     bill_no: '',
                     receiver: '',
                     close_status: ''
@@ -144,6 +153,10 @@
             async load_delivery_notices() {
                 let options = { FDocumentStatus: 'C', FDeliveryOrgId: store.state.cur_stock.FUseOrgId }
                 let meta = { page: this.page, per_page: this.per_page, order: 'FID DESC' }
+                if (this.search_form.date) {
+                    options.FDate_ge = this.search_form.date[0]
+                    options.FDate_le = this.search_form.date[1]
+                }
                 if (this.search_form.bill_no) options.FBillNo_lk = this.search_form.bill_no
                 if (this.search_form.receiver) options.F_PAEZ_Text_lk = this.search_form.receiver
                 if (this.search_form.close_status) options.FCloseStatus = this.search_form.close_status
@@ -170,6 +183,7 @@
                 this.load_delivery_notices()
             },
             search_dialog_close() {
+                console.log('this.$data', this.$data)
                 this.$refs.search_dialog.close()
             },
             search_dialog_confirm() {

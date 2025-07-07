@@ -334,8 +334,9 @@
                     <uni-row>
                         <uni-forms-item label="备注" name="remark" label-width="40px" style="margin-bottom: 0;">
                             <uni-easyinput v-model="move_form.remark" type="textarea" auto-height trim="both" placeholder="请填写调整原因" />
-                            <uni-tag text="未归位" @click="auto_input_remark('未归位')" type="primary" size="small" inverted circle class="uni-mr-2" />
-                            <uni-tag text="数量不对" @click="auto_input_remark('数量不对')" type="primary" size="small" inverted circle class="uni-mr-2" />
+                            <uni-tag v-for="(rp, index) in remark_presets" :key="index"
+                                :text="rp" @click="auto_input_remark(rp)" 
+                                type="primary" size="small" inverted circle class="uni-mr-2" />
                         </uni-forms-item>
                         <uni-forms-item label="单据" name="bill_no" label-width="40px" style="margin-bottom: 0;">
                             <uni-easyinput v-model="move_form.bill_no" placeholder="单据编号" />
@@ -381,6 +382,7 @@
                     material_category_id: '',
                     candidates: []
                 },
+                remark_presets: ['未归位', '数量不对', '退库'], // 预设的备注描述
                 move_dialog: {
                     confirm_text: '新增'
                 },
