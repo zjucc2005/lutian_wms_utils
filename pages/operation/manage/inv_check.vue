@@ -256,8 +256,13 @@
                     ['物料编码', '物料名称', '规格型号', '单位', 'WMS库存', '金蝶账面', '差异', 'WMS库位']
                 ]
                 for (let inv of inv_groups) {
-                    let loc_nos = inv.loc_nos.sort((x, y) => compare_loc_no(x, y)).map(loc_no => loc_no.match('[A-Za-z0-9]+-(.+)')[1]).join(', ')
-                    sheet_data.push([ inv.material_no, inv.material_name, inv.material_spec, inv.base_unit_name, inv.qty, inv.stk_qty, inv.qty - inv.stk_qty, loc_nos ])
+                    let loc_nos = []
+                    for (let k of Object.keys(inv.loc_nos)) {
+                        loc_nos.push(`${k.match('[A-Za-z0-9]+-(.+)')[1]}:${inv.loc_nos[k]}`)
+                    }
+                    loc_nos.sort()
+                    // let loc_nos = inv.loc_nos.sort((x, y) => compare_loc_no(x, y)).map(loc_no => loc_no.match('[A-Za-z0-9]+-(.+)')[1]).join(', ')
+                    sheet_data.push([ inv.material_no, inv.material_name, inv.material_spec, inv.base_unit_name, inv.qty, inv.stk_qty, inv.qty - inv.stk_qty, loc_nos.join(', ') ])
                 }
                 let sheet = XLSX.utils.aoa_to_sheet(sheet_data)
                 let book = XLSX.utils.book_new()
@@ -366,26 +371,40 @@
                                 stk_qty: stk_inv.FBaseQty,
                                 qty: 0,
                                 base_unit_name: stk_inv['FBaseUnitId.FName'],
-                                loc_nos: []
+                                loc_nos: {}
                             }
                             inv_groups.push(inv_group)
                         }
                         i += 1
                         if (inv_group.material_id == inv?.FMaterialId) {
                             inv_group.qty += inv.FQty
-                            if (!inv_group.loc_nos.includes(inv['FStockLocId.FNumber'])) {
-                                inv_group.loc_nos.push(inv['FStockLocId.FNumber'])
+                            if (inv_group.loc_nos[inv['FStockLocId.FNumber']]) {
+                                inv_group.loc_nos[inv['FStockLocId.FNumber']] += inv.FQty
+                            } else {
+                                inv_group.loc_nos[inv['FStockLocId.FNumber']] = inv.FQty
                             }
+                            
+                            // if (!inv_group.loc_nos.includes(inv['FStockLocId.FNumber'])) {
+                            //     inv_group.loc_nos.push(inv['FStockLocId.FNumber'])
+                            // }
                             j += 1
                         }
                     } else {
                         let inv_group = inv_groups.find(x => x.material_id == inv.FMaterialId)
                         if (inv_group) {
                             inv_group.qty += inv.FQty
-                            if (!inv_group.loc_nos.includes(inv['FStockLocId.FNumber'])) {
-                                inv_group.loc_nos.push(inv['FStockLocId.FNumber'])
+                            if (inv_group.loc_nos[inv['FStockLocId.FNumber']]) {
+                                inv_group.loc_nos[inv['FStockLocId.FNumber']] += inv.FQty
+                            } else {
+                                inv_group.loc_nos[inv['FStockLocId.FNumber']] = inv.FQty
                             }
+                            
+                            // if (!inv_group.loc_nos.includes(inv['FStockLocId.FNumber'])) {
+                            //     inv_group.loc_nos.push(inv['FStockLocId.FNumber'])
+                            // }
                         } else {
+                            let loc_nos = {}
+                            loc_nos[inv['FStockLocId.FNumber']] = inv.FQty
                             inv_groups.push({
                                 material_id: inv.FMaterialId,
                                 material_no: inv['FMaterialId.FNumber'],
@@ -394,13 +413,14 @@
                                 stk_qty: 0,
                                 qty: inv.FQty,
                                 base_unit_name: inv['FStockUnitId.FName'],
-                                loc_nos: [inv['FStockLocId.FNumber']]
+                                loc_nos: loc_nos
                             })
                         }
                         j += 1
                     }
                 }
                 uni.hideLoading()
+                console.log('inv_groups:', inv_groups)
                 return inv_groups
             },
             _init_check_invs() {

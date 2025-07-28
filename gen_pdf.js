@@ -341,9 +341,14 @@ const pdf_template_invs = (inv_groups) => {
         table_body: []
     }
     for (let inv of inv_groups) {
-        let loc_nos = inv.loc_nos.sort((x, y) => compare_loc_no(x, y)).map(loc_no => loc_no.match('[A-Za-z0-9]+-(.+)')[1]).join(', ')
+        let loc_nos = []
+        for (let k of Object.keys(inv.loc_nos)) {
+            loc_nos.push(`${k.match('[A-Za-z0-9]+-(.+)')[1]}:${inv.loc_nos[k]}`)
+        }
+        loc_nos.sort()
+        // let loc_nos = inv.loc_nos.sort((x, y) => compare_loc_no(x, y)).map(loc_no => loc_no.match('[A-Za-z0-9]+-(.+)')[1]).join(', ')
         options.table_body.push([
-            inv.material_no, inv.material_name, inv.material_spec, inv.base_unit_name, inv.qty, inv.stk_qty, inv.qty - inv.stk_qty, loc_nos
+            inv.material_no, inv.material_name, inv.material_spec, inv.base_unit_name, inv.qty, inv.stk_qty, inv.qty - inv.stk_qty, loc_nos.join(', ')
         ])
     }
     // 初始化jsPDF对象
@@ -381,7 +386,8 @@ const pdf_template_invs = (inv_groups) => {
             0: { minCellWidth: textWidth_0 + 2 },
             1: { cellWidth: 40 },
             4: { halign: 'center', minCellWidth: 17 },
-            5: { minCellWidth: 17 },
+            5: { halign: 'center', minCellWidth: 17 },
+            6: { halign: 'center' },
             7: { cellWidth: 48 }
         },
         head: [ options.table_head ],

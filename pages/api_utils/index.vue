@@ -15,6 +15,13 @@
                     title="删除接口调用(代码测试)"
                     clickable @click="call_delete_api()">
                 </uni-list-item>
+                
+                <uni-list-item
+                    :show-extra-icon="true"
+                    :extra-icon="{ color: '#dd524d', size: '24', type: 'link' }"
+                    title="物料分组-参考物料"
+                    clickable @click="export_refer_mno()">
+                </uni-list-item>
             </uni-list>
             
             <uni-collapse accordion>
@@ -47,9 +54,11 @@
 
 <script>
     import store from '@/store'
+    import XLSX from 'xlsx'
     import K3CloudApi from '@/utils/k3cloudapi'
     import { get_bd_material } from '@/utils/api'
     import { Inv, InvPlan, InvLog, BdMaterial, StockLoc } from '@/utils/model'
+    import { string_to_arraybuffer } from '@/utils'
     export default {
         data() {
             return {
@@ -163,6 +172,7 @@
                 })
             },
             async call_test_api() {
+                
                 // this.retry_inv_plan_sn('181318856583740204')
                 // this.retry_inv_plan('FHTZD091834')
                 // BdMaterial.query({ FNumber: '0.0.0.0003' })
@@ -198,6 +208,55 @@
                 // InvPlan.query({ FMaterialId: '' }).then(res => {
                 //     InvPlan.delete(res.data.map(e => e.FID))
                 // })
+            },
+            async export_refer_mno() {
+                let page = 1
+                let per_page = 5000 // 每次获取数据量
+                let options = {
+                    FDocumentStatus: 'C', 
+                    FForbidStatus: 'A', 
+                    FUseOrgId: 1,
+                    'FMaterialGroup.FNumber_ge': '3.07.02.35'
+                }
+                let meta = {
+                    per_page: per_page, order: 'FMaterialGroup.FNumber ASC'
+                }
+                let mapping = {}
+                let cnt = 0
+                while (1) {
+                    let res = await BdMaterial.query(options, { page: page, per_page: per_page, order: 'FMaterialGroup.FNumber ASC' })
+                    for (let obj of res.data) {
+                        // if (!obj.FNumber) continue
+                        if (mapping[obj['FMaterialGroup.FNumber']]) {
+                            if (obj.FNumber < mapping[obj['FMaterialGroup.FNumber']][0]) mapping[obj['FMaterialGroup.FNumber']][0] = obj.FNumber
+                            if (obj.FNumber > mapping[obj['FMaterialGroup.FNumber']][1]) mapping[obj['FMaterialGroup.FNumber']][1] = obj.FNumber
+                        } else {
+                            mapping[obj['FMaterialGroup.FNumber']] = [obj.FNumber, obj.FNumber]
+                        }
+                        console.log('.')
+                    }
+                    page++;
+                    cnt++;
+                    console.log(`>>> CNT: ${cnt}, t: ${new Date}`)
+                    if (res.data.length < per_page) break;
+                }
+                let sheet_data = [
+                    ['物料分组', '参考物料编码(最小)', '参考物料编码(最大)']
+                ]
+                for (let k in mapping) {
+                    sheet_data.push([k, mapping[k][0], mapping[k][1]])
+                }
+                let sheet = XLSX.utils.aoa_to_sheet(sheet_data)
+                let book = XLSX.utils.book_new()
+                XLSX.utils.book_append_sheet(book, sheet, 'Sheet1')
+                var book_output = XLSX.write(book, { bookType: 'xlsx', bookSST: true, type: 'binary'})
+                const blob = new Blob([string_to_arraybuffer(book_output)], { type: "application/octet-stream" })
+                // 下载
+                let link = document.createElement('a')
+                link.href = URL.createObjectURL(blob)
+                link.download = `参考物料模板_${Date.now()}.xlsx`
+                link.click()
+                URL.revokeObjectURL(link.href)
             },
             async retry_inv_plan(bill_no) {
                 InvLog.query({ FBillNo: bill_no }).then(res => {
