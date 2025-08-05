@@ -41,17 +41,6 @@
     <uni-section title="2. 提交物料数量" type="square"
         v-if="inbound_task.status == 'init'"
         >
-        <!-- <template v-slot:right>
-            <view class="uni-section__right">
-                <uni-data-checkbox multiple
-                    v-model="ex_cond"
-                    :localdata="[{ text: '只查询成品', value: '3.' }]"
-                    @change="ex_cond_change"
-                    style="margin-right: -20px;"
-                    >
-                </uni-data-checkbox>
-            </view>
-        </template> -->
         <uni-list v-if="form.material_id">
             <uni-list-item
                 :title="form.material_no"
@@ -254,7 +243,6 @@
         data() {
             return {
                 bd_materials: [],
-                ex_cond: uni.getStorageSync('mv_ex_cond') || [], // get
                 inbound_task: {},
                 inv_plans: [],
                 material_categories: [],
@@ -374,12 +362,6 @@
                 this.inbound_task = inbound_task.del_inbound_list(id)
                 play_audio_prompt('delete')
             },
-            // ex_cond_change(e) {
-            //     uni.setStorageSync('mv_ex_cond', e.detail.value) // set
-            // },
-            // form_icon_click(name) {
-            //     if (name == 'scan') this.scan_code()
-            // },
             goods_nav_click(e) {
                 if (e.index === 0) {
                     this.$refs.detail_drawer.open()
@@ -505,26 +487,6 @@
                     if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
                 })
             },
-            // 物料模糊匹配
-            // async search() {
-            //     this._init_form()
-            //     this.form.no = this.form.no.trim()
-            //     if (!this.form.no) return
-            //     let options = { 
-            //         no: this.form.no, 
-            //         FUseOrgId: store.state.cur_stock.FUseOrgId,
-            //     }
-            //     if (this.ex_cond.includes('3.')) options.FNumber_pre = '3.'
-            //     let meta = { per_page: 20, order: 'FMaterialId DESC' }
-            //     uni.showLoading({ title: 'Loading' })
-            //     search_bd_materials(options, meta).then(res => {
-            //         uni.hideLoading()
-            //         this.bd_materials = res.data
-            //         if (res.data.length > 1) this.$refs.search_drawer.open()
-            //         if (res.data.length === 1) this._set_form(res.data[0])
-            //         if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
-            //     })
-            // },
             _calc_percentage(obj) {
                 let planned_qty = 0
                 this.inv_plans.forEach(inv_plan => {

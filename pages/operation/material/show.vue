@@ -25,20 +25,36 @@
                 @click="edit_field('FBoxStandardQty')"
                 :clickable="is_admin"
                 :show-arrow="is_admin"
-                >
-            </uni-list-item>
+                />
             <uni-list-item
                 title="单托标准数量"
                 :right-text="bd_material.F_RGEN_Text_qtr"
                 @click="edit_field('F_RGEN_Text_qtr')"
                 :clickable="is_admin"
                 :show-arrow="is_admin"
-                >
-            </uni-list-item>
+                />
             <uni-list-item title="使用组织" :right-text="bd_material.UseOrgId.Name[0]?.Value" />
-            <uni-list-item title="仓库" :right-text="bd_material.MaterialStock[0].StockId?.Name[0].Value" />
-            <uni-list-item title="仓管员" :right-text="bd_material.F_PAEZ_Base1 ? bd_material.F_PAEZ_Base1.Name[0].Value : '' " />
-            <uni-list-item title="库位" :right-text="bd_material.F_PAEZ_Text_qtr2" />
+            <uni-list-item
+                title="仓库"
+                :right-text="bd_material.MaterialStock[0].StockId?.Name[0].Value"
+                @click="edit_field('StockId')"
+                :clickable="is_admin"
+                :show-arrow="is_admin"
+                />
+            <uni-list-item 
+                title="仓管员"
+                :right-text="bd_material.F_PAEZ_Base1 ? [bd_material.F_PAEZ_Base1.Name[0].Value, bd_material.F_PAEZ_Base1.FStaffNumber].join(' / ') : ''"
+                @click="edit_field('CangGuanYuan')"
+                :clickable="is_admin"
+                :show-arrow="is_admin"
+                />
+            <uni-list-item
+                title="库位"
+                :right-text="bd_material.F_PAEZ_Text_qtr2"
+                @click="edit_field('F_PAEZ_Text_qtr2')"
+                :clickable="is_admin"
+                :show-arrow="is_admin"
+                />
             <template v-for="(stk_inv, index) in stk_inventories" :key="index">
                 <uni-list-item
                     title="库存量(基本单位)"
@@ -131,9 +147,28 @@
             @close="$refs.edit_popup.close()"
             @confirm="submit_edit_field"
             :before-close="true"
+            :style="{ width: $store.state.system_info.windowWidth - 20 + 'px', minWidth: '360px', maxWidth: '1200px' }"
             >
             <view class="edit-form">
-                <uni-easyinput v-model="edit_form.value" :type="edit_form.type" trim="both" />
+                <uni-data-picker v-if="edit_form.field == 'StockId'"
+                    ref="stock_id_data_picker"
+                    v-model="edit_form.value"
+                    :localdata="$store.state.bd_stock_opts"
+                    popup-title="请选择仓库"
+                    />
+                <uni-easyinput v-else-if="edit_form.field == 'CangGuanYuan'"
+                    v-model="edit_form.value"
+                    :type="edit_form.type"
+                    :placeholder="edit_form.placeholder"
+                    suffixIcon="search"
+                    trim="both"
+                    />
+                <uni-easyinput v-else 
+                    v-model="edit_form.value"
+                    :type="edit_form.type"
+                    :placeholder="edit_form.placeholder"
+                    trim="both"
+                    />
             </view>
         </uni-popup-dialog>
     </uni-popup>
@@ -219,6 +254,31 @@
                         name: '单托标准数量',
                         value: this.bd_material.F_RGEN_Text_qtr,
                         value_was: this.bd_material.F_RGEN_Text_qtr
+                    }
+                } else if (field == 'StockId') {
+                    this.edit_form = {
+                        field,
+                        type: 'text',
+                        name: '仓库',
+                        value: 0,
+                        value_was: this.bd_material.MaterialStock[0].StockId?.Name[0].Value
+                    }
+                } else if (field == 'CangGuanYuan') {
+                    this.edit_form = {
+                        field,
+                        type: 'text',
+                        name: '仓管员',
+                        value: this.bd_material.F_PAEZ_Base1?.FStaffNumber,
+                        value_was: this.bd_material.F_PAEZ_Base1?.FStaffNumber,
+                        placeholder: '请填写员工编号'
+                    }
+                } else if (field == 'F_PAEZ_Text_qtr2') {
+                    this.edit_form = {
+                        field,
+                        type: 'text',
+                        name: '库位',
+                        value: this.bd_material.F_PAEZ_Text_qtr2,
+                        value_was: this.bd_material.F_PAEZ_Text_qtr2
                     }
                 }
                 this.$refs.edit_popup.open()
@@ -367,6 +427,10 @@
                 let params = {}
                 if (this.edit_form.field == 'FBoxStandardQty') {
                     params = { SubHeadEntity1: { FBoxStandardQty: this.edit_form.value } }
+                } else if (this.edit_form.field == 'StockId') {
+                    params = { SubHeadEntity1: { FStockId: { FStockId: this.edit_form.value || 0 } } }
+                } else if (this.edit_form.field == 'CangGuanYuan') {
+                    params = { F_PAEZ_Base1: { FStaffNumber: this.edit_form.value } }
                 } else {
                     params[this.edit_form.field] = this.edit_form.value
                 }
