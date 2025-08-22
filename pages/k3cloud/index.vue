@@ -31,6 +31,10 @@
                     {
                         name: '销售管理', permission: ['wh_admin'], icon_path: '/static/icon/nav_list_money.png',
                         action: () => { link_to('/pages/k3cloud/xiaoshouguanli/index') }
+                    },
+                    {
+                        name: '生产管理', permission: ['all'], icon_path: '/static/icon/nav_list_link.png',
+                        action: () => { link_to('/pages/k3cloud/shengchanguanli/index') }
                     }
                 ]
             }

@@ -186,28 +186,9 @@
             // 选择盘点模板
             check_template_download() {
                 this.$refs.dl_drawer.open()
-                // uni.showActionSheet({
-                //     itemList: [
-                //         '盘点模板（打印用PDF，库位排序）',
-                //         '盘点模板（打印用PDF，物料排序）',
-                //         '盘点模板（导入用Excel，库位排序）',
-                //         '盘点模板（导入用Excel，物料排序）',
-                //         '即时库存（PDF，按物料汇总）',
-                //         '即时库存（Excel，按物料汇总）'
-                //     ],
-                //     success: (e) => {
-                //         if (e.tapIndex === 0) this.check_template_pdf('loc_no')
-                //         if (e.tapIndex === 1) this.check_template_pdf('material_no')
-                //         if (e.tapIndex === 2) this.check_template_excel('loc_no')
-                //         if (e.tapIndex === 3) this.check_template_excel('material_no')
-                //         if (e.tapIndex === 4) this.export_invs_pdf()
-                //         if (e.tapIndex === 5) this.export_invs_excel()
-                //     }
-                // })
             },
             check_template_pdf(mode) {
                 if (mode == 'loc_no') {
-                    // this.invs.sort((x, y) => x['FStockLocId.FNumber'] > y['FStockLocId.FNumber'] ? 1 : -1 )
                     this.invs.sort((x, y) => compare_loc_no(x['FStockLocId.FNumber'], y['FStockLocId.FNumber']))
                 } else if (mode == 'material_no') {
                     this.invs.sort((x, y) => x['FMaterialId.FNumber'] > y['FMaterialId.FNumber'] ? 1 : -1 )
@@ -217,7 +198,6 @@
             },
             check_template_excel(mode) {
                 if (mode == 'loc_no') {
-                    // this.invs.sort((x, y) => x['FStockLocId.FNumber'] > y['FStockLocId.FNumber'] ? 1 : -1 )
                     this.invs.sort((x, y) => compare_loc_no(x['FStockLocId.FNumber'], y['FStockLocId.FNumber']))
                 } else if (mode == 'material_no') {
                     this.invs.sort((x, y) => x['FMaterialId.FNumber'] > y['FMaterialId.FNumber'] ? 1 : -1 )

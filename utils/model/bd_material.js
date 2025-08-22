@@ -32,6 +32,9 @@ class BdMaterial {
         let fields = ["FMaterialId", "FName", "FNumber", "FSpecification", "FForbidStatus", "FDocumentStatus", 
                       "FBaseUnitId", "FBaseUnitId.FNumber", "FBaseUnitId.FName", "FMaterialGroup.FName", "FUseOrgId", 
                       "FUseOrgId.FName", "FImageFileServer"]
+        if (meta.fields) {
+            fields = fields.concat(meta.fields)
+        }
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),

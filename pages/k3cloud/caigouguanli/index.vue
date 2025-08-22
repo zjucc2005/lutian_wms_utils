@@ -18,7 +18,7 @@
 </template>
 
 <script>
-    import { link_to, get_latest_version } from '@/utils'
+    import { link_to } from '@/utils'
     export default {
         data() {
             return {

@@ -1,9 +1,9 @@
 <template>
     <uni-list>
-        <uni-list-item title="发货通知单"
+        <uni-list-item title="生产用料清单"
             :show-extra-icon="true"
-            :extra-icon="{ color: '#007bff', size: '24', type: 'notification' }"
-            @click="link_to('/pages/k3cloud/xiaoshouguanli/fahuotongzhidan/index')"
+            :extra-icon="{ color: '#007bff', size: '24', type: 'list' }"
+            @click="link_to('/pages/k3cloud/shengchanguanli/shengchanyongliaoqingdan/index')"
             clickable
             show-arrow
             />

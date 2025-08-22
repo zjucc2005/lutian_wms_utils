@@ -327,6 +327,14 @@
         {
             "path": "pages/k3cloud/xiaoshouguanli/fahuotongzhidan/show",
             "style": { "navigationBarTitleText": "销售管理 / 发货通知单" }
+        },
+        {
+            "path": "pages/k3cloud/shengchanguanli/index",
+            "style": { "navigationBarTitleText": "生产管理" }
+        },
+        {
+            "path": "pages/k3cloud/shengchanguanli/shengchanyongliaoqingdan/index",
+            "style": { "navigationBarTitleText": "生产管理 / 生产用料清单" }
         }
     ],
     "globalStyle": {
@@ -383,18 +391,18 @@
                     "selectedColor": "#007aff"
                 }
             }
-            // ,
-            // {
-            //     "pagePath": "pages/api_utils/index",
-            //     "text": "API调试",
-            //     "iconfont": {
-            //         "text": "\ue653",
-            //         "color": "#7A7E83",
-            //         "selectedText": "\ue653",
-            //         "fontSize": "24px",
-            //         "selectedColor": "#007aff"
-            //     }
-            // }
+            ,
+            {
+                "pagePath": "pages/api_utils/index",
+                "text": "API调试",
+                "iconfont": {
+                    "text": "\ue653",
+                    "color": "#7A7E83",
+                    "selectedText": "\ue653",
+                    "fontSize": "24px",
+                    "selectedColor": "#007aff"
+                }
+            }
         ]
     }
 }

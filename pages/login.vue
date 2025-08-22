@@ -46,7 +46,7 @@
         
         <view v-if="$store.state.config.log" class="debug-wrapper">
             <view>version: {{ $store.state.system_info.appVersion }}</view>
-            <view>log: true</view>
+            <view>debug mode</view>
         </view>
     </view>
     
