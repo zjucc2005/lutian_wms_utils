@@ -1,7 +1,8 @@
 {
   "name": "lutian_wms_utils",
   "version": "1.4.0",
-  "versionCode" : 140,
+  "versionCode": 140,
+  "versionNote": "v1.4.1更新内容\n1.增加生产用料清单页面和按单汇总统计",
   "installPack" : {
     "h5": "https://musetransfer.com/s/q3vq0fyiz",
     "android": ""

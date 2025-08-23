@@ -184,6 +184,14 @@
             "style": { "navigationBarTitleText": "设置" }
         },
         {
+            "path": "pages/my/utils/index",
+            "style": { "navigationBarTitleText": "脚本工具" }
+        },
+        {
+            "path": "pages/my/utils/bom_level_transfer",
+            "style": { "navigationBarTitleText": "script: BOM批量模版转化层级号" }
+        },
+        {
             "path": "pages/api_utils/index",
             "style": { "navigationBarTitleText": "API调试" }
         },

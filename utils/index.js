@@ -143,7 +143,7 @@ const string_to_arraybuffer = (s) => {
 
 // 检查PC端更新
 const get_latest_version = async (positive=false) => {
-    // uni.showLoading({ title: 'Loading' })
+    // uni.showLoading({ title: '检查更新' })
     let res = await uni.request({
         url: 'https://zjucc2005.github.io/lutian_wms_utils/package.json',
         method: 'GET'
@@ -152,15 +152,21 @@ const get_latest_version = async (positive=false) => {
     // uni.hideLoading()
     if (res.statusCode == 200) {
         store.commit('set_latest_version', res.data.versionCode)
-        // #ifdef H5
-        if (res.data.versionCode > store.state.system_info.appVersionCode) {
+        // ifdef H5
+        if (res.data.versionCode >= store.state.system_info.appVersionCode) {
             uni.showModal({
                 title: '发现新版本',
-                content: 'PC版本需要自行下载安装包进行更新\n是否下载新版本安装包？',
+                content: res.data.versionNote,
+                confirmText: '前往下载',
                 success: (e) => {
                     if (e.cancel) return
                     if (e.confirm) {
+                        // #ifdef H5
                         window.open(res.data.installPack.h5, '_blank') // 跳转至外部下载页面
+                        // #endif
+                        // #ifdef APP-PLUS
+                        window.open(res.data.installPack.android, '_blank')
+                        // #endif
                     }
                 }
             })
@@ -174,7 +180,7 @@ const get_latest_version = async (positive=false) => {
                 })
             }
         }
-        // #endif
+        // endif
     }
 }
 

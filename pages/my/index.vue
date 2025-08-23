@@ -44,7 +44,12 @@
             :extra-icon="{ type: 'settings', size: '24', color: '#007bff' }"
             @click="link_to('/pages/api_utils/store/store')" clickable
             show-arrow />
-       <uni-list-item title="调试"
+        <uni-list-item title="脚本工具"
+            :show-extra-icon="true"
+            :extra-icon="{ type: 'pyq', size: '24', color: '#007bff' }"
+            @click="link_to('/pages/my/utils/index')" clickable
+            show-arrow />
+        <uni-list-item title="调试"
             :show-extra-icon="true"
             :extra-icon="{ type: 'settings', size: '24', color: '#007bff' }"
             @click="debug" clickable
@@ -60,7 +65,7 @@
 </template>
 
 <script>
-    import checkUpdate from '@/uni_modules/uni-upgrade-center-app/utils/check-update'
+    // import checkUpdate from '@/uni_modules/uni-upgrade-center-app/utils/check-update'
     import store from '@/store'
     import { link_to, get_latest_version } from '@/utils'
     // #ifdef H5
@@ -103,12 +108,12 @@
             },
             async check_update() {
                 this.$logger.info('检查更新')
-                // #ifdef APP-PLUS
-                checkUpdate()
-                // #endif
-                // #ifdef H5
+                // ifdef APP-PLUS
+                // checkUpdate()
+                // endif
+                // ifdef H5
                 get_latest_version(true)
-                // #endif
+                // endif
             },
             about() {
                 const base_info = uni.getAppBaseInfo()
