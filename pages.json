@@ -21,329 +21,94 @@
             }
         },
         // 仓库流程 VERSION 1
-        {
-            "path": "pages/operation/index_v1",
-            "style":  { "navigationBarTitleText": "仓库作业" }
-        },
-        {
-            "path": "pages/operation/inbound/v1/index",
-            "style":  { "navigationBarTitleText": "入库" }
-        },
-        {
-            "path": "pages/operation/inbound/v1/task",
-            "style": { "navigationBarTitleText": "入库 - 详情" }
-        },
-        {
-            "path": "pages/operation/inbound/v1/mount",
-            "style":  { "navigationBarTitleText": "入库 - 扫描上架" }
-        },
-        {
-            "path": "pages/operation/inbound/v1/logs",
-            "style": { "navigationBarTitleText": "入库 - 操作日志" }
-        },
-        {
-            "path": "pages/operation/outbound/v1/index",
-            "style": { "navigationBarTitleText": "出库"}
-        },
-        {
-            "path": "pages/operation/outbound/v1/task",
-            "style": { "navigationBarTitleText": "出库 - 详情" }
-        },
-        {
-            "path": "pages/operation/outbound/v1/allocate",
-            "style": { "navigationBarTitleText": "出库 - 分配预览" }
-        },
-        {
-            "path": "pages/operation/outbound/v1/unmount",
-            "style": { "navigationBarTitleText": "出库 - 扫描下架" }
-        },
-        {
-            "path": "pages/operation/outbound/v1/logs",
-            "style": { "navigationBarTitleText": "出库 - 操作日志" }
-        },
-        {
-            "path": "pages/operation/move/v1/index",
-            "style": { "navigationBarTitleText": "库存调整" }
-        },
-        {
-            "path": "pages/operation/move/v1/move_cart",
-            "style": { "navigationBarTitleText": "库存调整 - 计划" }
-        },
+        { "path": "pages/operation/index_v1",             "style": { "navigationBarTitleText": "仓库作业" } },
+        { "path": "pages/operation/inbound/v1/index",     "style": { "navigationBarTitleText": "入库" } },
+        { "path": "pages/operation/inbound/v1/task",      "style": { "navigationBarTitleText": "入库 - 详情" } },
+        { "path": "pages/operation/inbound/v1/mount",     "style": { "navigationBarTitleText": "入库 - 扫描上架" } },
+        { "path": "pages/operation/inbound/v1/logs",      "style": { "navigationBarTitleText": "入库 - 操作日志" } },
+        { "path": "pages/operation/outbound/v1/index",    "style": { "navigationBarTitleText": "出库" } },
+        { "path": "pages/operation/outbound/v1/task",     "style": { "navigationBarTitleText": "出库 - 详情" } },
+        { "path": "pages/operation/outbound/v1/allocate", "style": { "navigationBarTitleText": "出库 - 分配预览" } },
+        { "path": "pages/operation/outbound/v1/unmount",  "style": { "navigationBarTitleText": "出库 - 扫描下架" } },
+        { "path": "pages/operation/outbound/v1/logs",     "style": { "navigationBarTitleText": "出库 - 操作日志" } },
+        { "path": "pages/operation/move/v1/index",        "style": { "navigationBarTitleText": "库存调整" } },
+        { "path": "pages/operation/move/v1/move_cart",    "style": { "navigationBarTitleText": "库存调整 - 计划" } },
         // 仓库流程 VERSION 2
-        {
-            "path": "pages/operation/index_v2",
-            "style": { "navigationBarTitleText": "" }
-        },
-        {
-            "path": "pages/operation/inbound/v2/index",
-            "style": { "navigationBarTitleText": "入库", "enablePullDownRefresh": true }
-        },
-        {
-            "path": "pages/operation/inbound/v2/plan_init",
-            "style": { "navigationBarTitleText": "入库 - 计划初始化（直接调拨单）" }
-        },
-        {
-            "path": "pages/operation/inbound/v2/plan_init_custom",
-            "style": { "navigationBarTitleText": "入库 - 计划初始化（手工录入）" }
-        },
-        {
-            "path": "pages/operation/inbound/v2/plan_init_pallet",
-            "style": { "navigationBarTitleText": "入库 - 计划初始化（物料标识卡）" }
-        },
-        {
-            "path": "pages/operation/inbound/v2/plan_new_entry",
-            "style":  { "navigationBarTitleText": "入库 - 新增计划" }
-        },
-        {
-            "path": "pages/operation/inbound/v2/plan_new_pallet_old",
-            "style": { "navigationBarTitleText": "入库 - 新增计划（托盘）OLD" }
-        },
-        {
-            "path" : "pages/operation/inbound/v2/plan_new_pallet",
-            "style":  { "navigationBarTitleText": "入库 - 新增计划（托盘）"}
-        },
-        {
-            "path": "pages/operation/inbound/v2/allocate_loc_no",
-            "style":  { "navigationBarTitleText": "分配库位（托盘）" }
-        },
-        {
-            "path": "pages/operation/inbound/v2/plan_show",
-            "style": { "navigationBarTitleText": "入库 - 计划" }
-        },
-        {
-            "path": "pages/operation/outbound/v2/index",
-            "style": { "navigationBarTitleText": "出库", "enablePullDownRefresh": true }
-        },
-        {
-            "path": "pages/operation/outbound/v2/plan_init",
-            "style": { "navigationBarTitleText": "出库 - 计划初始化" }
-        },
-        {
-            "path": "pages/operation/outbound/v2/plan_new",
-            "style": { "navigationBarTitleText": "出库 - 新增计划" }
-        },
-        {
-            "path": "pages/operation/outbound/v2/plan_show",
-            "style": { "navigationBarTitleText": "出库 - 计划" }
-        },
-        {
-            "path": "pages/operation/outbound/v2/search",
-            "style": { "navigationBarTitleText": "出库查询" }
-        },
-        {
-            "path": "pages/operation/move/v2/index",
-            "style": { "navigationBarTitleText": "库存调整 - 计划", "enablePullDownRefresh": true }
-        },
-        {
-            "path": "pages/operation/move/v2/plan_new",
-            "style": { "navigationBarTitleText": "库存调整 - 新增计划" }
-        },
+        { "path": "pages/operation/index_v2", "style": { "navigationBarTitleText": "" } },
+        { "path": "pages/operation/inbound/v2/index", "style": { "navigationBarTitleText": "入库", "enablePullDownRefresh": true } },
+        { "path": "pages/operation/inbound/v2/plan_init", "style": { "navigationBarTitleText": "入库 - 计划初始化（直接调拨单）" } },
+        { "path": "pages/operation/inbound/v2/plan_init_custom", "style": { "navigationBarTitleText": "入库 - 计划初始化（手工录入）" } },
+        { "path": "pages/operation/inbound/v2/plan_init_pallet", "style": { "navigationBarTitleText": "入库 - 计划初始化（物料标识卡）" } },
+        { "path": "pages/operation/inbound/v2/plan_new_entry", "style":  { "navigationBarTitleText": "入库 - 新增计划" } },
+        { "path": "pages/operation/inbound/v2/plan_new_pallet_old", "style": { "navigationBarTitleText": "入库 - 新增计划（托盘）OLD" } },
+        { "path": "pages/operation/inbound/v2/plan_new_pallet", "style":  { "navigationBarTitleText": "入库 - 新增计划（托盘）"} },
+        { "path": "pages/operation/inbound/v2/allocate_loc_no", "style":  { "navigationBarTitleText": "分配库位（托盘）" } },
+        { "path": "pages/operation/inbound/v2/plan_show", "style": { "navigationBarTitleText": "入库 - 计划" } },
+        { "path": "pages/operation/outbound/v2/index", "style": { "navigationBarTitleText": "出库", "enablePullDownRefresh": true } },
+        { "path": "pages/operation/outbound/v2/plan_init", "style": { "navigationBarTitleText": "出库 - 计划初始化" } },
+        { "path": "pages/operation/outbound/v2/plan_new", "style": { "navigationBarTitleText": "出库 - 新增计划" } },
+        { "path": "pages/operation/outbound/v2/plan_show", "style": { "navigationBarTitleText": "出库 - 计划" } },
+        { "path": "pages/operation/outbound/v2/search", "style": { "navigationBarTitleText": "出库查询" } },
+        { "path": "pages/operation/move/v2/index", "style": { "navigationBarTitleText": "库存调整 - 计划", "enablePullDownRefresh": true } },
+        { "path": "pages/operation/move/v2/plan_new", "style": { "navigationBarTitleText": "库存调整 - 新增计划" } },
         // 管理
-        {
-            "path": "pages/operation/manage/index",
-            "style": { "navigationBarTitleText": "其他功能" }
-        },
-        {
-            "path": "pages/operation/manage/invs",
-            "style": { "navigationBarTitleText": "库存", "enablePullDownRefresh": true }
-        },
-        {
-            "path": "pages/operation/manage/inv_search",
-            "style": { "navigationBarTitleText": "库存查询" }
-        },
-        {
-            "path": "pages/operation/manage/inv_map",
-            "style": { "navigationBarTitleText": "库存地图" }
-        },
-        {
-            "path": "pages/operation/manage/inv_check",
-            "style": { "navigationBarTitleText": "库存盘点" }
-        },
-        {
-            "path": "pages/operation/manage/inv_init",
-            "style": { "navigationBarTitleText": "期初库存录入" }
-        },
-        {
-            "path": "pages/operation/manage/locs",
-            "style": { "navigationBarTitleText": "库位", "enablePullDownRefresh": true }
-        },
-        {
-            "path": "pages/operation/manage/loc_new",
-            "style": { "navigationBarTitleText": "库位 - 新增库位" }
-        },
-        {
-            "path": "pages/my/index",
-            "style": { "navigationBarTitleText": "我"}
-        },
-        {
-            "path": "pages/my/preview_pdf",
-            "style": { "navigationBarTitleText": "预览PDF" }
-        },
-        {
-            "path": "pages/my/settings",
-            "style": { "navigationBarTitleText": "设置" }
-        },
-        {
-            "path": "pages/my/utils/index",
-            "style": { "navigationBarTitleText": "脚本工具" }
-        },
-        {
-            "path": "pages/my/utils/bom_level_transfer",
-            "style": { "navigationBarTitleText": "script: BOM批量模版转化层级号" }
-        },
-        {
-            "path": "pages/api_utils/index",
-            "style": { "navigationBarTitleText": "API调试" }
-        },
-        {
-            "path" : "pages/api_utils/login/validateUser",
-            "style" : { "navigationBarTitleText": "用户名/密码" }
-        },
-        {
-            "path": "pages/api_utils/gongyinglian/bd_stock",
-            "style": { "navigationBarTitleText": "API-供应链-仓库" }
-        },
-        {
-            "path": "pages/api_utils/gongyinglian/stk_inventory",
-            "style": { "navigationBarTitleText": "API-供应链-即时库存" }
-        },
-        {
-            "path": "pages/api_utils/gongyinglian/stk_transferdirect",
-            "style": { "navigationBarTitleText": "API-供应链-直接调拨单" }
-        },
-        {
-            "path": "pages/api_utils/jichuguanli/bd_customer",
-            "style":  { "navigationBarTitleText": "API-基础管理-客户" }
-        },
-        {
-            "path": "pages/api_utils/jichuguanli/bd_empinfo",
-            "style": { "navigationBarTitleText": "API-基础管理-员工" }
-        },
-        {
-            "path": "pages/api_utils/jichuguanli/bd_material",
-            "style":  { "navigationBarTitleText": "API-基础管理-物料" }
-        },
-        {
-            "path": "pages/api_utils/jichuguanli/bd_unit",
-            "style":  { "navigationBarTitleText": "API-基础管理-计量单位" }
-        },
-        {
-            "path": "pages/api_utils/jichuguanli/bd_warehouseworkers",
-            "style":  { "navigationBarTitleText": "API-基础管理-仓管员" }
-        },
-        {
-            "path": "pages/api_utils/store/store",
-            "style": { "navigationBarTitleText": "全局状态" }
-        },
-        {
-            "path": "pages/api_utils/store/get_system_info",
-            "style":  { "navigationBarTitleText": "getSystemInfo"}
-        },
-        {
-            "path": "pages/api_utils/store/chart",
-            "style": { "navigationBarTitleText": "Chart" }
-        },
-        {
-            "path": "pages/operation/statistics/index",
-            "style": { "navigationBarTitleText": "统计" }
-        },
-        {
-            "path": "pages/operation/statistics/inventory_record",
-            "style": { "navigationBarTitleText": "出入库数量统计" }
-        },
-        {
-            "path": "pages/operation/statistics/move_plan_record",
-            "style": { "navigationBarTitleText": "库存调整统计" }
-        },
-        {
-            "path": "pages/operation/statistics/inventory_daily",
-            "style": { "navigationBarTitleText": "库存量统计" }
-        },
-        {
-            "path": "pages/operation/list/index",
-            "style":  { "navigationBarTitleText": "列表" }
-        },
-        {
-            "path": "pages/operation/list/inv_plans",
-            "style": { "navigationBarTitleText": "列表 - 库存变更计划", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
-        },
-        {
-            "path": "pages/operation/list/inv_logs",
-            "style": { "navigationBarTitleText": "列表 - 库存变更日志", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
-        },
-        {
-            "path": "pages/operation/manufacture_order/index",
-            "style": { "navigationBarTitleText": "生产订单" }
-        },
-        {
-            "path": "pages/operation/manufacture_order/send_material",
-            "style": { "navigationBarTitleText": "生产订单 - 发料", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
-        },
-        {
-            "path": "pages/operation/manufacture_order/issuemtr_logs",
-            "style": { "navigationBarTitleText": "发料用料日志", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
-        },
-        {
-            "path": "pages/operation/material/search",
-            "style": { "navigationBarTitleText": "物料查询" }
-        },
-        {
-            "path": "pages/operation/material/show",
-            "style": { "navigationBarTitleText": "物料详情" }
-        },
-        {
-            "path": "pages/operation/material/card",
-            "style": { "navigationBarTitleText": "物料资料卡模板" }
-        },
-        {
-            "path": "pages/operation/material/search_parts",
-            "style": { "navigationBarTitleText": "配件查询" }
-        },
+        { "path": "pages/operation/manage/index", "style": { "navigationBarTitleText": "其他功能" } },
+        { "path": "pages/operation/manage/invs", "style": { "navigationBarTitleText": "库存", "enablePullDownRefresh": true } },
+        { "path": "pages/operation/manage/inv_search", "style": { "navigationBarTitleText": "库存查询" } },
+        { "path": "pages/operation/manage/inv_map", "style": { "navigationBarTitleText": "库存地图" } },
+        { "path": "pages/operation/manage/inv_check", "style": { "navigationBarTitleText": "库存盘点" } },
+        { "path": "pages/operation/manage/inv_init", "style": { "navigationBarTitleText": "期初库存录入" } },
+        { "path": "pages/operation/manage/locs", "style": { "navigationBarTitleText": "库位", "enablePullDownRefresh": true } },
+        { "path": "pages/operation/manage/loc_new", "style": { "navigationBarTitleText": "库位 - 新增库位" } },
+        // 我的
+        { "path": "pages/my/index",       "style": { "navigationBarTitleText": "我"} },
+        { "path": "pages/my/open_url",    "style": { "navigationBarTitleText": "外链URL" } },
+        { "path": "pages/my/preview_pdf", "style": { "navigationBarTitleText": "预览PDF" } },
+        { "path": "pages/my/settings",    "style": { "navigationBarTitleText": "设置" } },
+        { "path": "pages/my/utils/index", "style": { "navigationBarTitleText": "脚本工具" } },
+        // 脚本
+        { "path": "pages/my/utils/bom_level_transfer", "style": { "navigationBarTitleText": "script: BOM批量模版转化层级号" } },
+        { "path": "pages/api_utils/index", "style": { "navigationBarTitleText": "API调试" } },
+        { "path": "pages/api_utils/login/validateUser", "style" : { "navigationBarTitleText": "用户名/密码" } },
+        { "path": "pages/api_utils/gongyinglian/bd_stock", "style": { "navigationBarTitleText": "API-供应链-仓库" } },
+        { "path": "pages/api_utils/gongyinglian/stk_inventory", "style": { "navigationBarTitleText": "API-供应链-即时库存" } },
+        { "path": "pages/api_utils/gongyinglian/stk_transferdirect", "style": { "navigationBarTitleText": "API-供应链-直接调拨单" } },
+        { "path": "pages/api_utils/jichuguanli/bd_customer", "style": { "navigationBarTitleText": "API-基础管理-客户" } },
+        { "path": "pages/api_utils/jichuguanli/bd_empinfo", "style": { "navigationBarTitleText": "API-基础管理-员工" } },
+        { "path": "pages/api_utils/jichuguanli/bd_material", "style":  { "navigationBarTitleText": "API-基础管理-物料" } },
+        { "path": "pages/api_utils/jichuguanli/bd_unit", "style":  { "navigationBarTitleText": "API-基础管理-计量单位" } },
+        { "path": "pages/api_utils/jichuguanli/bd_warehouseworkers", "style":  { "navigationBarTitleText": "API-基础管理-仓管员" } },
+        { "path": "pages/api_utils/store/store", "style": { "navigationBarTitleText": "全局状态" } },
+        { "path": "pages/api_utils/store/get_system_info", "style":  { "navigationBarTitleText": "getSystemInfo"} },
+        { "path": "pages/api_utils/store/chart", "style": { "navigationBarTitleText": "Chart" } },
+        // 统计
+        { "path": "pages/operation/statistics/index",            "style": { "navigationBarTitleText": "统计" } },
+        { "path": "pages/operation/statistics/inventory_record", "style": { "navigationBarTitleText": "出入库数量统计" } },
+        { "path": "pages/operation/statistics/move_plan_record", "style": { "navigationBarTitleText": "库存调整统计" } },
+        { "path": "pages/operation/statistics/inventory_daily",  "style": { "navigationBarTitleText": "库存量统计" } },
+        // 列表管理
+        { "path": "pages/operation/list/index",     "style":  { "navigationBarTitleText": "列表" } },
+        { "path": "pages/operation/list/inv_plans", "style": { "navigationBarTitleText": "列表 - 库存变更计划", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
+        { "path": "pages/operation/list/inv_logs",  "style": { "navigationBarTitleText": "列表 - 库存变更日志", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
+        { "path": "pages/operation/manufacture_order/index",         "style": { "navigationBarTitleText": "生产订单" } },
+        { "path": "pages/operation/manufacture_order/send_material", "style": { "navigationBarTitleText": "生产订单 - 发料", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
+        { "path": "pages/operation/manufacture_order/issuemtr_logs", "style": { "navigationBarTitleText": "发料用料日志", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
+        { "path": "pages/operation/material/search",       "style": { "navigationBarTitleText": "物料查询" } },
+        { "path": "pages/operation/material/show",         "style": { "navigationBarTitleText": "物料详情" } },
+        { "path": "pages/operation/material/card",         "style": { "navigationBarTitleText": "物料资料卡模板" } },
+        { "path": "pages/operation/material/search_parts", "style": { "navigationBarTitleText": "配件查询" } },
         // k3cloud
-        {
-            "path": "pages/k3cloud/index",
-            "style": { "navigationBarTitleText": "金蝶云" }
-        },
-        {
-            "path": "pages/k3cloud/eng_bom/index",
-            "style": { "navigationBarTitleText": "物料清单" }
-        },
-        {
-            "path": "pages/k3cloud/eng_bom/tree",
-            "style": { "navigationBarTitleText": "物料清单" }
-        },
-        {
-            "path": "pages/k3cloud/caigouguanli/index",
-            "style": { "navigationBarTitleText": "采购管理" }
-        },
-        {
-            "path": "pages/k3cloud/caigouguanli/caigoudingdan/index",
-            "style": { "navigationBarTitleText": "采购管理 / 采购订单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
-        },
-        {
-            "path": "pages/k3cloud/caigouguanli/shouliaotongzhidan/index",
-            "style": { "navigationBarTitleText": "采购管理 / 收料通知单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
-        },
-        {
-            "path": "pages/k3cloud/xiaoshouguanli/index",
-            "style": { "navigationBarTitleText": "销售管理" }
-        },
-        {
-            "path": "pages/k3cloud/xiaoshouguanli/fahuotongzhidan/index",
-            "style": { "navigationBarTitleText": "销售管理 / 发货通知单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 }
-        },
-        {
-            "path": "pages/k3cloud/xiaoshouguanli/fahuotongzhidan/show",
-            "style": { "navigationBarTitleText": "销售管理 / 发货通知单" }
-        },
-        {
-            "path": "pages/k3cloud/shengchanguanli/index",
-            "style": { "navigationBarTitleText": "生产管理" }
-        },
-        {
-            "path": "pages/k3cloud/shengchanguanli/shengchanyongliaoqingdan/index",
-            "style": { "navigationBarTitleText": "生产管理 / 生产用料清单" }
-        }
+        { "path": "pages/k3cloud/index", "style": { "navigationBarTitleText": "金蝶云" } },
+        { "path": "pages/k3cloud/eng_bom/index", "style": { "navigationBarTitleText": "物料清单" } },
+        { "path": "pages/k3cloud/eng_bom/tree", "style": { "navigationBarTitleText": "物料清单" } },
+        { "path": "pages/k3cloud/caigouguanli/index", "style": { "navigationBarTitleText": "采购管理" } },
+        { "path": "pages/k3cloud/caigouguanli/caigoudingdan/index", "style": { "navigationBarTitleText": "采购管理 / 采购订单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
+        { "path": "pages/k3cloud/caigouguanli/shouliaotongzhidan/index", "style": { "navigationBarTitleText": "采购管理 / 收料通知单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
+        { "path": "pages/k3cloud/xiaoshouguanli/index", "style": { "navigationBarTitleText": "销售管理" } },
+        { "path": "pages/k3cloud/xiaoshouguanli/fahuotongzhidan/index", "style": { "navigationBarTitleText": "销售管理 / 发货通知单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
+        { "path": "pages/k3cloud/xiaoshouguanli/fahuotongzhidan/show",  "style": { "navigationBarTitleText": "销售管理 / 发货通知单" } },
+        { "path": "pages/k3cloud/shengchanguanli/index", "style": { "navigationBarTitleText": "生产管理" } },
+        { "path": "pages/k3cloud/shengchanguanli/shengchanyongliaoqingdan/index", "style": { "navigationBarTitleText": "生产管理 / 生产用料清单" } }
     ],
     "globalStyle": {
         "navigationBarTextStyle": "#fff",
@@ -399,18 +164,18 @@
                     "selectedColor": "#007aff"
                 }
             }
-            ,
-            {
-                "pagePath": "pages/api_utils/index",
-                "text": "API调试",
-                "iconfont": {
-                    "text": "\ue653",
-                    "color": "#7A7E83",
-                    "selectedText": "\ue653",
-                    "fontSize": "24px",
-                    "selectedColor": "#007aff"
-                }
-            }
+            // ,
+            // {
+            //     "pagePath": "pages/api_utils/index",
+            //     "text": "API调试",
+            //     "iconfont": {
+            //         "text": "\ue653",
+            //         "color": "#7A7E83",
+            //         "selectedText": "\ue653",
+            //         "fontSize": "24px",
+            //         "selectedColor": "#007aff"
+            //     }
+            // }
         ]
     }
 }

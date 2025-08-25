@@ -17,7 +17,7 @@
         <uni-list-item title="检查更新"
             :show-extra-icon="true"
             :extra-icon="{ type: 'loop', size: '24', color: '#007bff' }"
-            rightText="如果无法在线更新，请联系开发者获取最新安装包"
+            rightText="如无法在线更新，请联系开发者"
             @click="check_update" clickable
             show-arrow>
             <template #body>
@@ -158,7 +158,7 @@
         height: 64px;
         margin-right: 18px;
         background-color: #007bff;
-        border-radius: 5px;
+        border-radius: 10px;
         color: #fff;
         font-size: 24px;
         display: flex;

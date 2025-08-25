@@ -153,7 +153,7 @@ const get_latest_version = async (positive=false) => {
     if (res.statusCode == 200) {
         store.commit('set_latest_version', res.data.versionCode)
         // ifdef H5
-        if (res.data.versionCode >= store.state.system_info.appVersionCode) {
+        if (res.data.versionCode > store.state.system_info.appVersionCode) {
             uni.showModal({
                 title: '发现新版本',
                 content: res.data.versionNote,
@@ -165,7 +165,9 @@ const get_latest_version = async (positive=false) => {
                         window.open(res.data.installPack.h5, '_blank') // 跳转至外部下载页面
                         // #endif
                         // #ifdef APP-PLUS
-                        window.open(res.data.installPack.android, '_blank')
+                        uni.navigateTo({
+                            url: `/pages/my/open_url?url=${res.data.installPack.android}`
+                        })
                         // #endif
                     }
                 }
