@@ -16,7 +16,6 @@
                     "popGesture": "none",
                     "animationType": "fade-in",
                     "animationDuration": 200
-
                 }
             }
         },
@@ -64,6 +63,7 @@
         { "path": "pages/my/index",       "style": { "navigationBarTitleText": "我"} },
         { "path": "pages/my/open_url",    "style": { "navigationBarTitleText": "外链URL" } },
         { "path": "pages/my/preview_pdf", "style": { "navigationBarTitleText": "预览PDF" } },
+        { "path": "pages/my/release_note", "style": { "navigationBarTitleText": "历次更新说明" } },
         { "path": "pages/my/settings",    "style": { "navigationBarTitleText": "设置" } },
         { "path": "pages/my/utils/index", "style": { "navigationBarTitleText": "脚本工具" } },
         // 脚本
@@ -108,7 +108,7 @@
         { "path": "pages/k3cloud/xiaoshouguanli/fahuotongzhidan/index", "style": { "navigationBarTitleText": "销售管理 / 发货通知单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
         { "path": "pages/k3cloud/xiaoshouguanli/fahuotongzhidan/show",  "style": { "navigationBarTitleText": "销售管理 / 发货通知单" } },
         { "path": "pages/k3cloud/shengchanguanli/index", "style": { "navigationBarTitleText": "生产管理" } },
-        { "path": "pages/k3cloud/shengchanguanli/shengchanyongliaoqingdan/index", "style": { "navigationBarTitleText": "生产管理 / 生产用料清单" } }
+        { "path": "pages/k3cloud/shengchanguanli/shengchanyongliaoqingdan/index", "style": { "navigationBarTitleText": "生产管理 / 生产用料清单" } }      
     ],
     "globalStyle": {
         "navigationBarTextStyle": "#fff",

@@ -279,7 +279,7 @@
                 this.load_ppboms()
             },
             fab_trigger(e) {
-                // console.log('this.$data', this.$data)
+                console.log('this.$data', this.$data)
                 if (e.index === 0) this.$refs.search_dialog.open()
                 if (e.index === 1) { 
                     // #ifdef H5
@@ -321,7 +321,7 @@
                         let materials = [] // 汇总物料信息
                         let bills = [] // 可用MO编号和对应需求单据编号
                         let sheet_header1 = ['', '', '', '', '', '', '']
-                        let sheet_header2 = ['仓库名称', '物料编码', '物料名称', '规格型号', '单位', '可用量', '仓管员']
+                        let sheet_header2 = ['物料编码', '物料名称', '规格型号', '单位', '可用量', '仓管员', '分子']
                         // 1. 遍历mo_bill_nos获取表格所需数据
                         uni.showLoading({ title: 'Loading' })
                         for(let mo_bill_no of _mo_bill_nos) {
@@ -348,6 +348,7 @@
                                             inv_qty: inv_res.data[0]?.FBaseQty || 0,
                                             unit_name: ppbom['FUnitId2.FName'],
                                             storekeeper: mat_res.data[0]?.['F_PAEZ_Base1.FName'] || '',
+                                            numerator: ppbom.FNumerator,
                                             mos: [{ mo_bill_no, qty: ppbom.FMustQty }]
                                         })
                                     }
@@ -367,7 +368,7 @@
                             sheet_header2
                         ]
                         for(let material of materials.sort((x, y) => x.no > y.no ? 1 : -1)) {
-                            let row = [stock.FName, material.no, material.name, material.spec, material.unit_name, material.inv_qty, material.storekeeper]
+                            let row = [material.no, material.name, material.spec, material.unit_name, material.inv_qty, material.storekeeper, material.numerator]
                             let sum_qty = 0
                             for(let bill of bills) {
                                 let qty = material.mos.find(m => m.mo_bill_no == bill.mo_bill_no)?.qty || 0

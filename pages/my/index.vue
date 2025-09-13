@@ -29,6 +29,11 @@
                 </view>
             </template>
         </uni-list-item>
+        <uni-list-item title="历次更新说明"
+            :show-extra-icon="true"
+            :extra-icon="{ type: 'list', size: '24', color: '#007bff' }"
+            @click="link_to('/pages/my/release_note')" clickable
+            show-arrow />
         <uni-list-item title="关于"
             :show-extra-icon="true"
             :extra-icon="{ type: 'info', size: '24', color: '#007bff' }"

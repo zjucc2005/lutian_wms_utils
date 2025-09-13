@@ -1,11 +1,11 @@
 {
   "name": "lutian_wms_utils",
-  "version": "1.4.1",
-  "versionCode": 141,
-  "versionNote": "v1.4.1更新内容\n1.增加生产用料清单页面和按单汇总统计;\n2.弃用uni-upgrade-center，在线更新采用网盘下载安装包",
+  "version": "1.4.2",
+  "versionCode": 142,
+  "versionNote": "v1.4.2更新内容\n1.生产用料清单页面-按单汇总统计（更新统计字段）;",
   "installPack" : {
-    "h5": "https://musetransfer.com/s/jeunxlnhm",
-    "android": "https://musetransfer.com/s/pjuu5dcsr"
+    "h5": "https://musetransfer.com/s/or0l9uleu",
+    "android": "https://musetransfer.com/s/o45ttjktl"
   },
   "description": "wms app work with Kingdee API",
   "main": "main.js",

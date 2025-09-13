@@ -4,10 +4,21 @@ import K3CloudApi from '@/utils/k3cloudapi'
  * 物料清单
  */
 class EngBom {
+    static form_id = 'ENG_BOM'
     constructor() {
 
     }
 
+    static async update(id, options={}) {
+        const data = {
+            // IsDeleteEntry: false,
+            model: {
+                FID: id,
+                ...options
+            }
+        }
+        return K3CloudApi.save(this.form_id, data)
+    }
     /** 
      * 搜索
      * @param options:Hash 参数集
@@ -24,7 +35,7 @@ class EngBom {
                       'FMaterialIdChild', 'FMaterialIdChild.FNumber', 'FMaterialIdChild.FName', 'FMaterialIdChild.FImageFileServer', 'FChildItemModel', 'FChildUnitId', 'FChildUnitId.FName', 'FChildItemProperty'
                       ]
         const data = {
-            FormId: 'ENG_BOM',
+            FormId: this.form_id,
             FieldKeys: fields.join(','),
             FilterString: K3CloudApi.query_filter(options)
         }
@@ -41,7 +52,7 @@ class EngBom {
     }
     
     static async view(id) {
-        return K3CloudApi.view('ENG_BOM', { Id: id })
+        return K3CloudApi.view(this.form_id, { Id: id })
     }
 }
 

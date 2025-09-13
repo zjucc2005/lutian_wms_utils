@@ -57,7 +57,7 @@
     import XLSX from 'xlsx'
     import K3CloudApi from '@/utils/k3cloudapi'
     import { get_bd_material } from '@/utils/api'
-    import { Inv, InvPlan, InvLog, BdMaterial, StockLoc } from '@/utils/model'
+    import { Inv, InvPlan, InvLog, BdMaterial, StockLoc, EngBom } from '@/utils/model'
     import { string_to_arraybuffer } from '@/utils'
     export default {
         data() {
@@ -172,10 +172,20 @@
                 })
             },
             async call_test_api() {
-                
                 // this.retry_inv_plan_sn('181318856583740204')
                 // this.retry_inv_plan('FHTZD091834')
-                // BdMaterial.query({ FNumber: '0.0.0.0003' })
+                // let mat_nos = ['8.100.00003.00']
+                // for (let mat_no of mat_nos) {
+                //     let mat_res = await BdMaterial.query({ FNumber: mat_no })
+                //     for (let mat of mat_res.data) {
+                //         let id = mat.FMaterialId
+                //         let name = mat.FName
+                //         let spec = mat.FSpecification
+                //         await BdMaterial.update(id, { FName: spec, FSpecification: name })
+                //     }
+                // }
+                // BdMaterial.update(3221209, { FSpecification: 'RC1206FR-071RL' })
+                // BdMaterial.query({ FNumber: '8.341.00002.00' })
                 // const data = {
                 //     model: {
                 //         FNumber: '0.0.0.0003',
