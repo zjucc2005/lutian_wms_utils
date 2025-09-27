@@ -320,8 +320,8 @@
                         // init
                         let materials = [] // 汇总物料信息
                         let bills = [] // 可用MO编号和对应需求单据编号
-                        let sheet_header1 = ['', '', '', '', '', '', '']
-                        let sheet_header2 = ['物料编码', '物料名称', '规格型号', '单位', '可用量', '仓管员', '分子']
+                        let sheet_header1 = new Array(8).fill('')
+                        let sheet_header2 = ['物料编码', '物料名称', '规格型号', '单位', '可用量', '仓管员', '分子', '工序']
                         // 1. 遍历mo_bill_nos获取表格所需数据
                         uni.showLoading({ title: 'Loading' })
                         for(let mo_bill_no of _mo_bill_nos) {
@@ -339,7 +339,7 @@
                                         // 查询即时库存
                                         let inv_res = await StkInventory.query({ 'FMaterialId.FNumber': ppbom['FMaterialId2.FNumber'], FStockId: stock.FStockId })
                                         // 查询物料基础资料，获取仓管员
-                                        let mat_res = await BdMaterial.query({ FNumber: ppbom['FMaterialId2.FNumber'], FUseOrgId: 1 }, { fields: ['F_PAEZ_Base1.FName'] })
+                                        let mat_res = await BdMaterial.query({ FNumber: ppbom['FMaterialId2.FNumber'], FUseOrgId: 1 }, { fields: ['F_PAEZ_Base1.FName', 'F_RGEN_Text_bzgx'] })
                                         materials.push({
                                             no: ppbom['FMaterialId2.FNumber'],
                                             name: ppbom['FMaterialId2.FName'],
@@ -349,6 +349,7 @@
                                             unit_name: ppbom['FUnitId2.FName'],
                                             storekeeper: mat_res.data[0]?.['F_PAEZ_Base1.FName'] || '',
                                             numerator: ppbom.FNumerator,
+                                            process: mat_res.data[0]?.F_RGEN_Text_bzgx,
                                             mos: [{ mo_bill_no, qty: ppbom.FMustQty }]
                                         })
                                     }
@@ -368,7 +369,7 @@
                             sheet_header2
                         ]
                         for(let material of materials.sort((x, y) => x.no > y.no ? 1 : -1)) {
-                            let row = [material.no, material.name, material.spec, material.unit_name, material.inv_qty, material.storekeeper, material.numerator]
+                            let row = [material.no, material.name, material.spec, material.unit_name, material.inv_qty, material.storekeeper, material.numerator, material.process]
                             let sum_qty = 0
                             for(let bill of bills) {
                                 let qty = material.mos.find(m => m.mo_bill_no == bill.mo_bill_no)?.qty || 0

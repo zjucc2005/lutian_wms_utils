@@ -213,13 +213,18 @@
                 return sum
             },
             _get_stime() {
-                let now = new Date()
-                let year = now.getFullYear()
-                let month = now.getMonth()
-                this.stime = new Date(year - 1, month + 1, 1) // GMT+8
-                if (this.stime < new Date('2025-02-01')) {
-                    this.stime = new Date('2025-02-01')
-                }
+                let s = new Date(Date.now() - 90 * 24 * 3600 * 1000) // 90天
+                let year = s.getFullYear()
+                let month = s.getMonth()
+                let date = s.getDate()
+                this.stime = new Date(year, month, date)
+                // let now = new Date()
+                // let year = now.getFullYear()
+                // let month = now.getMonth()
+                // this.stime = new Date(year - 1, month + 1, 1) // GMT+8
+                // if (this.stime < new Date('2025-02-01')) {
+                //     this.stime = new Date('2025-02-01')
+                // }
             },
             _get_today() {
                 let now = new Date()

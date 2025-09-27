@@ -172,6 +172,62 @@
                 })
             },
             async call_test_api() {
+                let data = {
+                    "NeedUpDateFields": [
+                    ],
+                    "NeedReturnFields": [
+                            "FCreateOrgId",
+                            "FUseOrgId",
+                            "FID",
+                            "FDOCUMENTSTATUS",
+                            "FNUMBER",
+                            "FNAME",
+                            "FMATERIALID",
+                            "FTreeEntity.FENTRYID",
+                            "FTREEENTITY.FREPLACEGROUP",
+                            "FTREEENTITY.FMATERIALIDCHILD"
+                    ],
+                    "IsDeleteEntry": "true",
+                    "SubSystemId": "",
+                    "IsVerifyBaseDataField": "true",
+                    "IsEntryBatchFill": "true",
+                    "ValidateFlag": "true",
+                    "NumberSearch": "true",
+                    "IsAutoAdjustField": "false",
+                    "InterationFlags": "",
+                    "IgnoreInterationFlag": "",
+                    "IsControlPrecision": "false",
+                    "ValidateRepeatJson": "false",
+                    "IsAutoSubmitAndAudit": "false",
+                    "Model": {
+                        "FID": 3121857,
+                        "FCreateOrgId": {
+                            "FNumber": "101"
+                        },
+                        "FUseOrgId": {
+                            "FNumber": "101"
+                        },
+                        "FGroup": {
+                                "FNumber": ""
+                            },
+                        "FNumber": "",
+                        "FBILLTYPE": {
+                            "FNUMBER": "WLQD01_SYS"
+                        },
+                        "FBOMCATEGORY": "1",
+                        "FBOMUSE": "99",
+                        "FMATERIALID": {
+                            "FNumber": "2.03.21.52.0018"
+                        },
+                        "FTreeEntity": [
+                            {"FReplaceGroup":1,"FPOSITIONNO":"","FMATERIALIDCHILD":{"FNumber":"20250827001"},"FMATERIALTYPE":"","FDOSAGETYPE":"2","FNUMERATOR":7.770000,"FDENOMINATOR":1,"FEFFECTDATE":"2000-12-31 00:00:00","FEXPIREDATE":"9999-12-31 00:00:00","FISKEYCOMPONENT":"","FISSKIP":"","FMEMO":""},
+                            {"FReplaceGroup":2,"FPOSITIONNO":"","FMATERIALIDCHILD":{"FNumber":"1.09.02.01.0023"},"FMATERIALTYPE":"","FDOSAGETYPE":"2","FNUMERATOR":428.1500000000,"FDENOMINATOR":1,"FEFFECTDATE":"2000-12-31 00:00:00","FEXPIREDATE":"9999-12-31 00:00:00","FISKEYCOMPONENT":"","FISSKIP":"","FMEMO":""},
+                            {"FReplaceGroup":3,"FPOSITIONNO":"","FMATERIALIDCHILD":{"FNumber":"1.09.02.02.0002"},"FMATERIALTYPE":"","FDOSAGETYPE":"2","FNUMERATOR":428.1500000000,"FDENOMINATOR":1,"FEFFECTDATE":"2000-12-31 00:00:00","FEXPIREDATE":"9999-12-31 00:00:00","FISKEYCOMPONENT":"","FISSKIP":"","FMEMO":""},
+                            {"FReplaceGroup":4,"FPOSITIONNO":"","FMATERIALIDCHILD":{"FNumber":"1.09.02.04.0008"},"FMATERIALTYPE":"","FDOSAGETYPE":"2","FNUMERATOR":17.1260000000,"FDENOMINATOR":1,"FEFFECTDATE":"2000-12-31 00:00:00","FEXPIREDATE":"9999-12-31 00:00:00","FISKEYCOMPONENT":"","FISSKIP":"","FMEMO":""}]
+                
+                                }
+                      }
+                K3CloudApi.save('ENG_BOM', data)
                 // this.retry_inv_plan_sn('181318856583740204')
                 // this.retry_inv_plan('FHTZD091834')
                 // let mat_nos = ['8.100.00003.00']

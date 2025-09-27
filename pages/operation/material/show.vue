@@ -12,6 +12,7 @@
             <uni-list-item title="名称" :right-text="bd_material.Name[0]?.Value" />
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
             <uni-list-item title="存货类别" :right-text="bd_material.MaterialBase[0].CategoryID.Name[0].Value" />
+            <uni-list-item title="使用组织" :right-text="bd_material.UseOrgId.Name[0]?.Value" />
             <uni-list-item 
                 title="销售简称" 
                 :right-text="bd_material.F_RGEN_xsjc_83g"
@@ -33,7 +34,6 @@
                 :clickable="is_admin"
                 :show-arrow="is_admin"
                 />
-            <uni-list-item title="使用组织" :right-text="bd_material.UseOrgId.Name[0]?.Value" />
             <uni-list-item
                 title="仓库"
                 :right-text="bd_material.MaterialStock[0].StockId?.Name[0].Value"
@@ -52,6 +52,13 @@
                 title="库位"
                 :right-text="bd_material.F_PAEZ_Text_qtr2"
                 @click="edit_field('F_PAEZ_Text_qtr2')"
+                :clickable="is_admin"
+                :show-arrow="is_admin"
+                />
+            <uni-list-item
+                title="部装工序"
+                :right-text="bd_material.F_RGEN_Text_bzgx"
+                @click="edit_field('F_RGEN_Text_bzgx')"
                 :clickable="is_admin"
                 :show-arrow="is_admin"
                 />
@@ -280,6 +287,14 @@
                         value: this.bd_material.F_PAEZ_Text_qtr2,
                         value_was: this.bd_material.F_PAEZ_Text_qtr2
                     }
+                } else if (field == 'F_RGEN_Text_bzgx') {
+                    this.edit_form = {
+                        field,
+                        type: 'text',
+                        name: '部装工序',
+                        value: this.bd_material.F_RGEN_Text_bzgx,
+                        value_was: this.bd_material.F_RGEN_Text_bzgx
+                    }
                 }
                 this.$refs.edit_popup.open()
             },
@@ -289,10 +304,9 @@
                 this.$refs.flash.open()
             },
             goods_nav_click(e) {
-                // if (e.index === 0) uni.navigateBack()
                 if (e.index === 0) this.$refs.image_popup.open()
                 if (e.index === 1) this.search_bom()
-                console.log('this.$data', this.$data)
+                // console.log('this.$data', this.$data)
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.select_material_card() // btn:物料资料卡模板
