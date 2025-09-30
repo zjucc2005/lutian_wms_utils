@@ -202,6 +202,13 @@
                     success: (e) => {
                         if (e.tapIndex === 0) {
                             this.loc_nos = []
+                            // for(let i=1;i<=1;i++) {
+                            //     if (i < 10) {
+                            //         this.loc_nos.push({ value: `WL02-F0${i}`, status: '' })
+                            //     } else {
+                            //         this.loc_nos.push({ value: `WL02-F${i}`, status: ''})
+                            //     }
+                            // }
                         }
                     }
                 })
@@ -266,7 +273,8 @@
                         const stock_locs = this.loc_nos.map(loc_no => {
                             return new StockLoc({
                                 FStockId: store.state.cur_stock.FStockId,
-                                FNumber: loc_no.value
+                                FNumber: loc_no.value,
+                                FPalletSpace: 1
                             })
                         })
                         uni.showLoading({ title: 'Loading' })

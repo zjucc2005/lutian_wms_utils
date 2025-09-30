@@ -10,11 +10,13 @@ import { response_with_existence } from '../api/helper'
  */
 class StockLoc {
     constructor(options={}) {
+        if (options.FID) this.FID = options.FID
         this.FStockId = {
             FStockId: options.FStockId
         }
         this.FNumber = options.FNumber
         this.FName = options.FNumber
+        if (options.FPalletSpace) this.FPalletSpace = options.FPalletSpace 
     }
     
     /**
@@ -122,18 +124,6 @@ class StockLoc {
             FilterString: K3CloudApi.query_filter(options),
             Limit: 10000
         }
-        // if (options.FStockId) {
-        //     data.FilterString.push({ Left: "", FieldName: "FStockId", Compare: "67", Value: options.FStockId, Right: "", Logic: 0 })
-        // }
-        // if (options.FNumber) {
-        //     data.FilterString.push({ Left: "", FieldName: "FNumber", Compare: "67", Value: options.FNumber, Right: "", Logic: 0 })
-        // }
-        // if (options.FNumber_in) {
-        //     data.FilterString.push({ Left: "", FieldName: "FNumber", Compare: "338", Value: options.FNumber_in.join(','), Right: "", Logic: 0 })
-        // }
-        // if (options.FForbidStatus) {
-        //     data.FilterString.push({ Left: "", FieldName: "FForbidStatus", Compare: "105", Value: options.FForbidStatus, Right: "", Logic: 0 })
-        // }
         if (meta.per_page) {
             data.Limit = meta.per_page
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page

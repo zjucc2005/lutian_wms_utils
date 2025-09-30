@@ -67,7 +67,7 @@
 
 <script>
     import store from '@/store'
-    import { is_loc_no_std_format } from '@/utils'
+    import { is_loc_no_std_format, is_loc_no_std_sp_format } from '@/utils'
     export default {
         onLoad(options) {
             const eventChannel = this.getOpenerEventChannel()
@@ -108,11 +108,10 @@
         },
         computed: {
             column() {
-                if (store.state.system_info.windowWidth > 1000) {
-                    return 30
-                } else {
-                    return 10
-                }
+                let res = Math.floor(store.state.system_info.windowWidth / 48)
+                if (res < 10) res = 10
+                if (res > 36) res = 36
+                return res
             }
         },
         methods: {
@@ -158,13 +157,44 @@
                         if (shelf) {
                             shelf.bound.x = Math.max(shelf.bound.x, x)
                             shelf.bound.y = Math.max(shelf.bound.y, y)
-                            shelf.grids.push({ x, y, status, style, no: stock_loc.FNumber, qty: 0, idle: stock_loc.idle, checked: false, plt_space: plt_space, plt_alloc: 0 })
+                            shelf.grids.push({ x, y, status, style, no: stock_loc.FNumber, name: loc_no_arr[2], qty: 0, idle: stock_loc.idle, checked: false, plt_space: plt_space, plt_alloc: 0 })
                         } else {
                             grid_shelves.push({
                                 name: name,
                                 disabled: true,
                                 bound: { x, y },
-                                grids: [{ x, y, status, style, sp: false, no: stock_loc.FNumber, qty: 0, idle: stock_loc.idle, checked: false, plt_space: plt_space, plt_alloc: 0 }]
+                                grids: [{ x, y, status, style, no: stock_loc.FNumber, name: loc_no_arr[2], qty: 0, idle: stock_loc.idle, checked: false, plt_space: plt_space, plt_alloc: 0 }]
+                            })
+                        }
+                    } else if (is_loc_no_std_sp_format(stock_loc.FNumber)) {
+                        // 特殊库位，库区地面连续编号
+                        let loc_no_arr = stock_loc.FNumber.split('-')
+                        let name = [loc_no_arr[0], loc_no_arr[1][0]].join('-')
+                        let x = loc_no_arr[1].slice(1,3) * 1
+                        let y = 1
+                        let status = ''
+                        let style = 'default'
+                        if (stock_loc.FForbidStatus == 'B') {
+                            status = 'forbidden'
+                            style = 'error'
+                            plt_space = 0
+                        } else if (plt_space == 0) {
+                            style = 'warn'
+                        } else if (!stock_loc.idle) {
+                            style = 'success'
+                        }
+                        let shelf = grid_shelves.find(s => s.name == name)
+                        if (shelf) {
+                            shelf.bound.x = Math.max(shelf.bound.x, x)
+                            shelf.bound.y = Math.max(shelf.bound.y, y)
+                            shelf.grids.push({ x, y, status, style, sp: true, no: stock_loc.FNumber, name: loc_no_arr[1], qty: 0, idle: stock_loc.idle, checked: false, plt_space: plt_space, plt_alloc: 0 })
+                        } else {
+                            grid_shelves.push({
+                                name: name,
+                                disabled: true,
+                                bound: { x, y },
+                                sp: true,
+                                grids: [{ x, y, status, style, sp: true, no: stock_loc.FNumber, name: loc_no_arr[1], qty: 0, idle: stock_loc.idle, checked: false, plt_space: plt_space, plt_alloc: 0 }]
                             })
                         }
                     } else {
@@ -195,7 +225,7 @@
                             if (grid) {
                                 grid.page = page
                                 grid.index = index
-                                grid.name = grid.sp ? '' : name
+                                // grid.name = grid.sp ? '' : name
                                 grid.no = grid.no || no
                             } else {
                                 grid = { x, y, page, index, name, no, qty: 0, status: '', style: x > shelf.bound.x ? 'none' : 'default' }
@@ -240,6 +270,7 @@
                 let grid = shelf.grids.find(g => g.index === e.detail.index)
                 if (!grid) return
                 if (grid.style == 'none') return
+                if (grid.status == 'forbidden') return
                 // console.log('grid', grid)
                 if (grid.plt_space == 0) return
                 if (grid.checked) {

@@ -1,11 +1,11 @@
 <template>
-    <uni-notice-bar
+    <!-- <uni-notice-bar
         v-if="_forbid_loc_nos().length"
         :text="`${ _forbid_loc_nos().length } 个库位报警 ${_forbid_loc_nos().join(', ')}，请尽快处理。`"
         color="#f55858"
         background-color="#f5dcdc"
         show-icon single scrollable
-    />
+    /> -->
     <uni-section title="当前仓库" type="square"
         :sub-title="[
             $store.state.cur_stock['FUseOrgId.FName'],

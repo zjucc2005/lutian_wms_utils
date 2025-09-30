@@ -77,6 +77,11 @@ const is_loc_no_std_format = (text) => {
     return !!text.match(reg)
 }
 
+const is_loc_no_std_sp_format = (text) => {
+    const reg = /^[A-Z0-9]{1,4}-[A-Z][0-9]{1,3}$/
+    return !!text.match(reg)
+}
+
 // 解析库存号
 // @return { depot: 'NX3', shelf: 'A01', col: 1, row: 1 }
 const parse_loc_no = (loc_no) => {
@@ -194,6 +199,7 @@ export {
     link_to,
     is_material_no_format,
     is_loc_no_std_format,
+    is_loc_no_std_sp_format,
     is_decimal_unit,
     compare_loc_no,
     describe_inv_log,
