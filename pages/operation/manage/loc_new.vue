@@ -202,13 +202,13 @@
                     success: (e) => {
                         if (e.tapIndex === 0) {
                             this.loc_nos = []
-                            // for(let i=1;i<=1;i++) {
-                            //     if (i < 10) {
-                            //         this.loc_nos.push({ value: `WL02-F0${i}`, status: '' })
-                            //     } else {
-                            //         this.loc_nos.push({ value: `WL02-F${i}`, status: ''})
-                            //     }
-                            // }
+                            for(let i=10;i<=26;i++) {
+                                if (i < 10) {
+                                    this.loc_nos.push({ value: `WL05-F0${i}`, status: '' })
+                                } else {
+                                    this.loc_nos.push({ value: `WL05-F${i}`, status: ''})
+                                }
+                            }
                         }
                     }
                 })

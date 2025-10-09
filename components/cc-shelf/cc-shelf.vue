@@ -22,16 +22,16 @@
                         <uni-icons type="smallcircle-filled" size="18" color="#67c23a"></uni-icons> {{ loc_qty.used }}
                         <uni-icons type="smallcircle-filled" size="18" color="#f56c6c"></uni-icons> {{ loc_qty.disabled }}
                         <uni-icons type="smallcircle-filled" size="18" color="#c0c0c0"></uni-icons> {{ loc_qty.idle }}
-                        )
+                        ) 
                     </view>
                 </view>
             </template>
         </uni-list-item>
     </uni-list>
-    <uni-collapse>
+    <uni-collapse :accordion="accordion">
         <uni-collapse-item
-            v-for="shelf in grid_shelves"
-            :title="shelf.name" :open="open" title-border="show"
+            v-for="(shelf, index) in grid_shelves"
+            :title="shelf.name" :open="accordion ? index === 0 : open" :key="index" title-border="show"
             >
             <template #title>
                 <view class="collapse_header" style="">
@@ -69,7 +69,7 @@
                                 >
                                 <view :class="['grid-item-box', grid.style]">
                                     <view class="name">{{ grid.name }}</view>
-                                    <view v-if="grid.qty" class="qty">{{ grid.qty > 9999 ? '9999+' : grid.qty }}</view>
+                                    <view v-if="grid.qty" class="qty">{{ grid.qty > 99999 ? '99999+' : grid.qty }}</view>
                                 </view>
                             </uni-grid-item>
                         </uni-grid>
@@ -171,22 +171,27 @@
         data() {
             return {
                 grid_group_width: 0, // 设定 grid wrapper 宽度，在界面缩放后能保持原布局不乱
-                grid_width: 0,       // 设定 grid 宽度，uni-grid组件里计算宽度有兼容性问题
-                drawer_loc_no: ''
+                // grid_width: 0,       // 设定 grid 宽度，改为动态计算computed
+                drawer_loc_no: '',
+                accordion: uni.getStorageSync('shelf_accordion') === 'y'
             }
         },
         mounted() {
-            this.$nextTick(()=>{
-            	this.get_grid_width()
-            })
+            // this.$nextTick(()=>{
+            // 	this.get_grid_width()
+            // })
         },
         computed: {
             column () {
-                // [10, 40]
                 let res = Math.floor(store.state.system_info.windowWidth / 48)
                 if (res < 10) res = 10
-                if (res > 36) res = 36
+                // if (res > 36) res = 36
                 return res
+            },
+            grid_width() {
+                let screen_width = store.state.system_info.windowWidth
+                this.grid_group_width = screen_width
+                return (screen_width - 1) / this.column
             },
             sum_qty() {
                 let sum = 0
@@ -203,7 +208,7 @@
                         res.used += shelf.loc_qty.used
                         res.idle += shelf.loc_qty.idle
                         res.disabled += shelf.loc_qty.disabled
-                    }  
+                    }
                 })
                 return res
             },
@@ -361,11 +366,11 @@
             get_grid_name(coord={}) {
                 return coord.y * 100 + coord.x
             },
-            get_grid_width() {
-                let screen_width = store.state.system_info.windowWidth
-                this.grid_group_width = screen_width
-                this.grid_width = (screen_width - 1) / this.column
-            },
+            // get_grid_width() {
+            //     let screen_width = store.state.system_info.windowWidth
+            //     this.grid_group_width = screen_width
+            //     this.grid_width = (screen_width - 1) / this.column
+            // },
             // 过滤swiper单页中的grids对象
             filter_swiper_grids(shelf, page) {
                 return shelf.grids.filter(g => g.page == page).sort((a,b) => a.index - b.index)
@@ -376,8 +381,8 @@
             },
             // 获取屏幕宽度
             get_swiper_height(shelf) {
-                let window_width = store.state.system_info.windowWidth
-                return Math.ceil(window_width / this.column * (shelf.bound.y + 0.7)) // swiper高度不会被内容撑开，需指定swiper高度
+                // let window_width = store.state.system_info.windowWidth
+                return Math.ceil(this.grid_width * (shelf.bound.y + 0.6)) // swiper高度不会被内容撑开，需指定swiper高度
             },
             grid_click(e, shelf) {
                 let grid = shelf.grids.find(g => g.index === e.detail.index)
@@ -484,6 +489,7 @@
                 width: 100%;
                 font-size: $uni-font-size-sm;
                 text-align: left;
+                padding-left: 2px;
             }
             .qty {
                 width: 100%;

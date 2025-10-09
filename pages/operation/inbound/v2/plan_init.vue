@@ -6,6 +6,7 @@
             <uni-easyinput
                 v-model="search_form.bill_no" 
                 placeholder="请输入单据编号"
+                focus
                 prefix-icon="scan"
                 @confirm="handle_search"
                 @clear="handle_search"

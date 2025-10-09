@@ -8,7 +8,7 @@
                 <uni-forms-item label="编码" name="material_no">
                     <uni-easyinput
                         v-model="search_form.material_no"
-                        trim="both"
+                        trim="both" focus
                         prefix-icon="scan"
                         @icon-click="searchbar_icon_click"
                     />
@@ -330,6 +330,13 @@
             if (this.inbound_task.status == 'ongoing') {
                 this.load_inv_plans()
             }
+            // #ifdef H5
+            window.addEventListener('keydown', (e) => {
+                if (e.code == 'Enter') {
+                    this.search()
+                }
+            });
+            // #endif
         },
         mounted() {
             this.load_bd_materialcategories()  

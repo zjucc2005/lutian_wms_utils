@@ -10,7 +10,7 @@
                 <uni-forms-item label="物料编号" name="material_no">
                     <uni-easyinput
                         v-model="form.material_no"
-                        trim="both"
+                        trim="both" focus
                         prefix-icon="scan"
                         @icon-click="form_icon_click('scan')"
                         @change="material_no_change"

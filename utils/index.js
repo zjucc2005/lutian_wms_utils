@@ -34,8 +34,8 @@ const play_audio = (src) => {
 }
 
 const play_audio_prompt = (type) => {
-    let prompt_audio = uni.getStorageSync('prompt_audio') || 'on'
-    if (prompt_audio == 'off') return
+    let prompt_audio = uni.getStorageSync('prompt_audio') || 'y'
+    if (prompt_audio === 'n') return
     const src = {
         success: '/static/audio/success.mp3',
         warn: '/static/audio/warn.mp3',

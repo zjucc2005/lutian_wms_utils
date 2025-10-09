@@ -7,6 +7,7 @@
                 <uni-easyinput
                     v-model="search_form.no" 
                     placeholder="请输入单据编号或收货人"
+                    focus
                     prefix-icon="scan"
                     @icon-click="searchbar_icon_click"
                     primary-color="rgb(238, 238, 238)"
