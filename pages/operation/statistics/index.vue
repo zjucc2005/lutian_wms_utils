@@ -16,6 +16,12 @@
                 :extra-icon="{ type: 'calendar', size: '24', color: '#007bff' }"
                 @click="link_to('/pages/operation/statistics/inventory_daily')" clickable
                 showArrow />
+            <uni-list-item title="库存看板"
+                :show-extra-icon="true"
+                :extra-icon="{ type: 'pyq', size: '24', color: '#007bff' }"
+                @click="link_to('/pages/operation/statistics/dashboard')" clickable
+                showArrow>
+            </uni-list-item>
 <!--            <uni-list-item title="库存周期统计"
                 :show-extra-icon="true"
                 :extra-icon="{ type: 'navigate', size: '24', color: '#4cd964' }"
@@ -29,7 +35,7 @@
 </template>
 
 <script>
-    import { play_audio_prompt, link_to } from '@/utils'
+    import { link_to } from '@/utils'
     export default {
         data() {
             return {

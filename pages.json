@@ -1,24 +1,21 @@
 {
     "pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-        {
-            "path": "pages/login",
-            "style":  { "navigationBarTitleText": "登录", "navigationStyle": "custom" }
-        },
-        {
-            "path": "uni_modules/uni-upgrade-center-app/pages/upgrade-popup",
-            "style": {
-                "disableScroll": true,
-                "app-plus": {
-                    "backgroundColorTop": "transparent",
-                    "background": "transparent",
-                    "titleNView": false,
-                    "scrollIndicator": false,
-                    "popGesture": "none",
-                    "animationType": "fade-in",
-                    "animationDuration": 200
-                }
-            }
-        },
+        { "path": "pages/login", "style":  { "navigationBarTitleText": "登录", "navigationStyle": "custom" } },
+        // {
+        //     "path": "uni_modules/uni-upgrade-center-app/pages/upgrade-popup",
+        //     "style": {
+        //         "disableScroll": true,
+        //         "app-plus": {
+        //             "backgroundColorTop": "transparent",
+        //             "background": "transparent",
+        //             "titleNView": false,
+        //             "scrollIndicator": false,
+        //             "popGesture": "none",
+        //             "animationType": "fade-in",
+        //             "animationDuration": 200
+        //         }
+        //     }
+        // },
         // 仓库流程 VERSION 1
         { "path": "pages/operation/index_v1",             "style": { "navigationBarTitleText": "仓库作业" } },
         { "path": "pages/operation/inbound/v1/index",     "style": { "navigationBarTitleText": "入库" } },
@@ -86,6 +83,7 @@
         { "path": "pages/operation/statistics/inventory_record", "style": { "navigationBarTitleText": "出入库数量统计" } },
         { "path": "pages/operation/statistics/move_plan_record", "style": { "navigationBarTitleText": "库存调整统计" } },
         { "path": "pages/operation/statistics/inventory_daily",  "style": { "navigationBarTitleText": "库存量统计" } },
+        { "path": "pages/operation/statistics/dashboard",        "style": { "navigationBarTitleText": "仓库看板", "navigationStyle": "custom" } },
         // 列表管理
         { "path": "pages/operation/list/index",     "style":  { "navigationBarTitleText": "列表" } },
         { "path": "pages/operation/list/inv_plans", "style": { "navigationBarTitleText": "列表 - 库存变更计划", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
@@ -97,6 +95,10 @@
         { "path": "pages/operation/material/show",         "style": { "navigationBarTitleText": "物料详情" } },
         { "path": "pages/operation/material/card",         "style": { "navigationBarTitleText": "物料资料卡模板" } },
         { "path": "pages/operation/material/search_parts", "style": { "navigationBarTitleText": "配件查询" } },
+        // 打印
+        { "path": "pages/operation/print/index", "style": { "navigationBarTitleText": "标签打印" } },
+        { "path": "pages/operation/print/demo",  "style": { "navigationBarTitleText": "标签DEMO" } },
+        { "path": "pages/operation/print/material_label_by_cgsl",  "style": { "navigationBarTitleText": "生成物料标签" } },
         // k3cloud
         { "path": "pages/k3cloud/index", "style": { "navigationBarTitleText": "金蝶云" } },
         { "path": "pages/k3cloud/eng_bom/index", "style": { "navigationBarTitleText": "物料清单" } },
@@ -108,7 +110,7 @@
         { "path": "pages/k3cloud/xiaoshouguanli/fahuotongzhidan/index", "style": { "navigationBarTitleText": "销售管理 / 发货通知单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
         { "path": "pages/k3cloud/xiaoshouguanli/fahuotongzhidan/show",  "style": { "navigationBarTitleText": "销售管理 / 发货通知单" } },
         { "path": "pages/k3cloud/shengchanguanli/index", "style": { "navigationBarTitleText": "生产管理" } },
-        { "path": "pages/k3cloud/shengchanguanli/shengchanyongliaoqingdan/index", "style": { "navigationBarTitleText": "生产管理 / 生产用料清单" } }      
+        { "path": "pages/k3cloud/shengchanguanli/shengchanyongliaoqingdan/index", "style": { "navigationBarTitleText": "生产管理 / 生产用料清单" } }
     ],
     "globalStyle": {
         "navigationBarTextStyle": "#fff",

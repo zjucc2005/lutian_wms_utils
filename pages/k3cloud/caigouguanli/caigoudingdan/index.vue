@@ -1,5 +1,5 @@
 <template>
-    <uni-table v-if="$store.state.system_info.windowWidth >= 1200"  ref="table" border stripe>
+    <uni-table v-if="$store.state.screen_type === 'h5'"  ref="table" border stripe>
         <uni-tr>
             <uni-th align="center" width="120">单据编号</uni-th>
             <uni-th align="center" width="150">供应商</uni-th>

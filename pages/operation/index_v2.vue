@@ -77,6 +77,10 @@
                     {
                         name: '生产订单', permission: ['nrj_admin', 'guest'], icon_path: '/static/icon/nav_list_move.png',
                         action: () => { link_to('/pages/operation/manufacture_order/index') }
+                    },
+                    {
+                        name: '标签打印', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_printer.png',
+                        action: () => { link_to('/pages/operation/print/index') }
                     }
                     // ,
                     // {

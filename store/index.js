@@ -18,6 +18,7 @@ const store = createStore({
         config: config,            // 运行配置
         latest_version: 0,         // 最新版本号
         system_info: null,         // 设备信息，开机获取
+        screen_type: 'app-plus',   // 显示屏幕尺寸，动态更新，响应式布局
         // #ifdef H5
         device_type: 'h5',
         // #endif
@@ -91,6 +92,8 @@ const store = createStore({
         set_system_info(state, system_info) {
             state.system_info = system_info
             state.drawer_width = Math.min(system_info.windowWidth * 0.88, 540)
+            if (system_info.windowWidth >= 1200) { state.screen_type = 'h5' }
+            else { state.screen_type = 'app-plus' }
         },
         set_bd_stocks(state, bd_stocks) {
             state.bd_stocks = bd_stocks
