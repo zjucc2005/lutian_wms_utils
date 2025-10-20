@@ -3,9 +3,8 @@
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 import store from '@/store'
-import { compare_loc_no } from '@/utils'
+import { compare_loc_no, formatDate } from '@/utils'
 import { InvPlan } from '@/utils/model'
-import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js' 
 
 const font_file_path = './static/font/SourceHanSansCN-Normal.ttf'
 const font_family = 'SourceHanSansCN'

@@ -7,6 +7,7 @@
             $store.state.cur_stock.FName
         ].join(' / ')"
         class="above-uni-goods-nav"
+        @click="debug"
         >
         <uni-swipe-action ref="loc_no_swipe">
             <uni-swipe-action-item
@@ -16,7 +17,7 @@
                 :right-options="swipe_action_options"
                 @click="swipe_action_click($event, index)"
                 >
-                <uni-list-item :title="loc_no.value">
+                <uni-list-item :title="loc_no.no">
                     <template v-slot:footer>
                         <view class="uni-list-item__foot">
                             <text class="status disabled">{{ loc_no.status }}</text>
@@ -65,12 +66,12 @@
                     </uni-forms-item>
                     <template v-if="new_form.type != 'special'">
                         <uni-forms-item label="总行数" name="row">
-                            <uni-number-box v-model="new_form.row" :min="1" :max="9" />
-                        </uni-forms-item>
-                        <uni-forms-item label="总列数" name="column">
-                            <uni-number-box v-model="new_form.column" :min="1" :max="99" />
+                            <uni-number-box v-model="new_form.row" :min="1" :max="99" />
                         </uni-forms-item>
                     </template>
+                    <uni-forms-item label="总列数" name="column">
+                        <uni-number-box v-model="new_form.column" :min="1" :max="99" />
+                    </uni-forms-item>
                     <uni-forms-item label="示例">
                         <text class="example">{{ loc_no_example }}</text>
                     </uni-forms-item>
@@ -172,11 +173,11 @@
                     column: this.new_form.column || '*',
                     row: this.new_form.row || '*'
                 }
-                if (this.new_form.type == 'special') {
-                    return `${obj.depot.toUpperCase()}-${obj.shelf.toUpperCase()}`
-                }
                 if (this.new_form.column && this.new_form.column < 10) {
                     obj.column = `0${this.new_form.column}`
+                }
+                if (this.new_form.type == 'special') {
+                    return `${obj.depot.toUpperCase()}-${obj.shelf.toUpperCase()}01 ~ ${obj.shelf.toUpperCase()}${obj.column}`
                 }
                 return `${obj.depot.toUpperCase()}-${obj.shelf.toUpperCase()}-101 ~ ${obj.row}${obj.column}`
             }
@@ -202,13 +203,13 @@
                     success: (e) => {
                         if (e.tapIndex === 0) {
                             this.loc_nos = []
-                            for(let i=10;i<=26;i++) {
-                                if (i < 10) {
-                                    this.loc_nos.push({ value: `WL05-F0${i}`, status: '' })
-                                } else {
-                                    this.loc_nos.push({ value: `WL05-F${i}`, status: ''})
-                                }
-                            }
+                            // for(let i=10;i<=26;i++) {
+                            //     if (i < 10) {
+                            //         this.loc_nos.push({ value: `WL02-F0${i}`, status: '' })
+                            //     } else {
+                            //         this.loc_nos.push({ value: `WL02-F${i}`, status: ''})
+                            //     }
+                            // }
                         }
                     }
                 })
@@ -219,11 +220,7 @@
             },
             confirm_new_dialog() {
                 this.$refs.new_form.validate().then(_ => {
-                    this.gen_loc_nos(this.new_form.type, this.new_form.depot, this.new_form.shelf, this.new_form.column, this.new_form.row).forEach(x => {
-                        if (!this.loc_nos.find(loc_no => loc_no.value == x)) {
-                            this.loc_nos.push({ value: x, status: '' })
-                        }
-                    })
+                    this.loc_nos = this.gen_loc_nos(this.new_form.type, this.new_form.depot, this.new_form.shelf, this.new_form.column, this.new_form.row)
                     this.close_new_dialog()
                 }).catch(err => {})
             },
@@ -265,7 +262,7 @@
                         uni.showToast({ icon: 'none', title: '没有新增库位' })
                         return
                     }
-                    let loc_nos = this.loc_nos.map(x => x.value)
+                    let loc_nos = this.loc_nos.map(x => x.no)
                     uni.showLoading({ title: 'Loading' })
                     let validate_res = await StockLoc.exist_loc_nos(loc_nos)
                     uni.hideLoading()
@@ -273,7 +270,10 @@
                         const stock_locs = this.loc_nos.map(loc_no => {
                             return new StockLoc({
                                 FStockId: store.state.cur_stock.FStockId,
-                                FNumber: loc_no.value,
+                                FNumber: loc_no.no,
+                                FGroup: loc_no.shelf,
+                                FPosX: loc_no.x,
+                                FPosY: loc_no.y,
                                 FPalletSpace: 1
                             })
                         })
@@ -299,21 +299,39 @@
                 depot = depot.toUpperCase()
                 shelf = shelf.toUpperCase()
                 if (type == 'special') {
-                    loc_nos.push(`${depot}-${shelf}`)
+                    for(let j = 0; j < col; j++) {
+                        let _col = j < 9 ? `0${j+1}` : j+1
+                        loc_nos.push({
+                            no: `${depot}-${shelf}${_col}`,
+                            status: '',
+                            shelf: '',
+                            x: 1,
+                            y: j+1
+                        })
+                    }
                     return loc_nos
                 }
                 if (col < 1 || col > 99) {
                     throw new Error('列数只能在1~99')
                 }
-                if (row < 1 || row > 9) {
-                    throw new Error('行数只能在1~9')
+                if (row < 1 || row > 99) {
+                    throw new Error('行数只能在1~99')
                 }
                 for (let i = 0; i < row; i++) {
                     for (let j = 0; j < col; j++) {
-                        loc_nos.push(`${depot}-${shelf}-${(i + 1) * 100 + j + 1}`)
+                        loc_nos.push({
+                            no: `${depot}-${shelf}-${(i + 1) * 100 + j + 1}`,
+                            status: '',
+                            shelf: `${depot}-${shelf}`,
+                            x: j+1,
+                            y: i+1
+                        })
                     }
                 }
                 return loc_nos
+            },
+            debug() {
+                console.log('this.$data', this.$data)
             }
         }
     }

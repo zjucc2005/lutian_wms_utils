@@ -23,7 +23,7 @@
         v-if="materials?.length"
         class="above-uni-goods-nav"
         >
-        <uni-notice-bar single text="请在二维码生成后，再点击打印标签" />
+        <uni-notice-bar single text="请在二维码生成后，再点击生成标签" />
         <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
             <uni-tr>
                 <uni-th align="center" width="60">序号</uni-th>

@@ -58,6 +58,7 @@
     import K3CloudApi from '@/utils/k3cloudapi'
     import { get_bd_material } from '@/utils/api'
     import { Inv, InvPlan, InvLog, BdMaterial, StockLoc, EngBom } from '@/utils/model'
+    import { CcGrid } from '@/utils/model/cc_shelf'
     import { string_to_arraybuffer } from '@/utils'
     export default {
         data() {
@@ -173,9 +174,15 @@
             },
             async call_test_api() {
                 let arr = []
-                let res = await StockLoc.query({ FNumber_sw: 'WL05-M' })
+                let res = await StockLoc.query({ FNumber_sw: 'WL02' })
                 for (let loc of res.data) {
-                    // await K3CloudApi.save('PAEZ_C_STOCK_LOC', { model: { FID: loc.FID, FPalletSpace: -1 } })
+                    // 修复用
+                    // let grid = new CcGrid(loc.FNumber)
+                    // let stock_loc = new StockLoc(loc)
+                    // stock_loc.FGroup = grid.shelf
+                    // stock_loc.FPosX = grid.x
+                    // stock_loc.FPosY = grid.y
+                    // await stock_loc.save()
                 }
                 // this.retry_inv_plan_sn('181318856583740204')
                 // this.retry_inv_plan('FHTZD091834')

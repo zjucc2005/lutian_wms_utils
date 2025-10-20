@@ -16,7 +16,10 @@ class StockLoc {
         }
         this.FNumber = options.FNumber
         this.FName = options.FNumber
-        if (options.FPalletSpace) this.FPalletSpace = options.FPalletSpace 
+        this.FGroup = options.FGroup
+        this.FPosX = options.FPosX
+        this.FPosY = options.FPosY
+        if (options.FPalletSpace) this.FPalletSpace = options.FPalletSpace
     }
     
     /**
@@ -117,7 +120,7 @@ class StockLoc {
      * @return {Hash} Promise
      */    
     static async query(options={}, meta={}) {
-        let fields = ['FID', 'FNumber', 'FDocumentStatus', 'FForbidStatus', 'FStockId', 'FRemark', 'FPalletSpace']
+        let fields = ['FID', 'FNumber', 'FDocumentStatus', 'FForbidStatus', 'FStockId', 'FRemark', 'FPalletSpace', 'FGroup', 'FPosX', 'FPosY']
         const data = {
             FormId: "PAEZ_C_STOCK_LOC",
             FieldKeys: fields.join(','),
