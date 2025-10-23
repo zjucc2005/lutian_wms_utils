@@ -53,6 +53,15 @@ const link_to = (path) => {
     uni.navigateTo({ url: path })
 }
 
+const get_stock_loc_grid_name = (no, shelf) => {
+    let name = no
+    if (no.startsWith(shelf)) {
+        name = no.substring(shelf.length, no.length)
+        if (name.startsWith('-')) name = name.substring(1, name.length)
+    }
+    return name
+}
+
 /**
  * 判断物料编码格式
  * @return {Boolean}
@@ -197,6 +206,7 @@ export {
     math_round,
     play_audio_prompt,
     link_to,
+    get_stock_loc_grid_name,
     is_material_no_format,
     is_loc_no_std_format,
     is_loc_no_std_sp_format,

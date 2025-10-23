@@ -176,14 +176,9 @@
                 let arr = []
                 let res = await StockLoc.query({ FNumber_sw: 'WL02' })
                 for (let loc of res.data) {
-                    // 修复用
-                    // let grid = new CcGrid(loc.FNumber)
-                    // let stock_loc = new StockLoc(loc)
-                    // stock_loc.FGroup = grid.shelf
-                    // stock_loc.FPosX = grid.x
-                    // stock_loc.FPosY = grid.y
-                    // await stock_loc.save()
+                    // arr.push(loc.FID)
                 }
+                // StockLoc.delete(arr)
                 // this.retry_inv_plan_sn('181318856583740204')
                 // this.retry_inv_plan('FHTZD091834')
                 // let mat_nos = ['8.100.00003.00']

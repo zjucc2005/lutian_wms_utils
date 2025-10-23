@@ -52,26 +52,41 @@
                     v-model="new_form.type" 
                     :localdata="[
                         { text: '标准库位', value: 'standard' },
-                        { text: '独立库位', value: 'special' },
+                        { text: '地面库位', value: 'ground' },
+                        // { text: '独立库位', value: 'special' },
                     ]"
                     class="uni-mb-10"
                     >
                 </uni-data-checkbox>
                 <uni-forms ref="new_form" :model="new_form" :rules="new_form_rules">
-                    <uni-forms-item label="仓库编号" name="depot">
-                        <uni-easyinput v-model="new_form.depot" trim="both" />
-                    </uni-forms-item>
-                    <uni-forms-item label="货架编号" name="shelf">
-                        <uni-easyinput v-model="new_form.shelf" trim="both" />
-                    </uni-forms-item>
-                    <template v-if="new_form.type != 'special'">
+                    <template v-if="new_form.type === 'standard'">
+                        <uni-forms-item label="仓库编号" name="depot">
+                            <uni-easyinput v-model="new_form.depot" trim="both" />
+                        </uni-forms-item>
+                        <uni-forms-item label="货架编号" name="shelf">
+                            <uni-easyinput v-model="new_form.shelf" trim="both" />
+                        </uni-forms-item>
+                        <uni-forms-item label="总行数" name="row">
+                            <uni-number-box v-model="new_form.row" :min="1" :max="99" />
+                        </uni-forms-item>
+                        <uni-forms-item label="总列数" name="column">
+                            <uni-number-box v-model="new_form.column" :min="1" :max="99" />
+                        </uni-forms-item>
+                    </template>
+                    <template v-if="new_form.type === 'ground'">
+                        <uni-forms-item label="仓库编号" name="depot">
+                            <uni-easyinput v-model="new_form.depot" trim="both" />
+                        </uni-forms-item>
+                        <uni-forms-item label="库区编号" name="shelf">
+                            <uni-easyinput v-model="new_form.shelf" trim="both" />
+                        </uni-forms-item>
+                        <uni-forms-item label="总列数" name="column">
+                            <uni-number-box v-model="new_form.column" :min="1" :max="99" />
+                        </uni-forms-item>
                         <uni-forms-item label="总行数" name="row">
                             <uni-number-box v-model="new_form.row" :min="1" :max="99" />
                         </uni-forms-item>
                     </template>
-                    <uni-forms-item label="总列数" name="column">
-                        <uni-number-box v-model="new_form.column" :min="1" :max="99" />
-                    </uni-forms-item>
                     <uni-forms-item label="示例">
                         <text class="example">{{ loc_no_example }}</text>
                     </uni-forms-item>
@@ -93,7 +108,7 @@
                 loc_nos: [
                 ],
                 new_form: {
-                    type: 'standard', // standard/special
+                    type: 'standard', // standard/ground
                     depot: '',
                     shelf: '',
                     row: 1,
@@ -173,13 +188,22 @@
                     column: this.new_form.column || '*',
                     row: this.new_form.row || '*'
                 }
-                if (this.new_form.column && this.new_form.column < 10) {
-                    obj.column = `0${this.new_form.column}`
+                if (this.new_form.type === 'standard') {
+                    if (this.new_form.column && this.new_form.column < 10) {
+                        obj.column = `0${this.new_form.column}`
+                    }
+                    return `${obj.depot.toUpperCase()}-${obj.shelf.toUpperCase()}-101 ~ ${obj.row}${obj.column}`
+                } else if (this.new_form.type === 'ground') {
+                    if (this.new_form.column && this.new_form.column < 10) {
+                        obj.column = `0${this.new_form.column}`
+                    }
+                    if (this.new_form.row && this.new_form.row < 10) {
+                        obj.row = `0${this.new_form.row}`
+                    }
+                    return `${obj.depot.toUpperCase()}-${obj.shelf.toUpperCase()}01-01 ~ ${obj.column}-${obj.row}`
+                } else {
+                    return ''
                 }
-                if (this.new_form.type == 'special') {
-                    return `${obj.depot.toUpperCase()}-${obj.shelf.toUpperCase()}01 ~ ${obj.shelf.toUpperCase()}${obj.column}`
-                }
-                return `${obj.depot.toUpperCase()}-${obj.shelf.toUpperCase()}-101 ~ ${obj.row}${obj.column}`
             }
         },
         methods: {
@@ -220,6 +244,7 @@
             },
             confirm_new_dialog() {
                 this.$refs.new_form.validate().then(_ => {
+                    console.log('hook >>', this.new_form.type, this.new_form.depot, this.new_form.shelf, this.new_form.column, this.new_form.row)
                     this.loc_nos = this.gen_loc_nos(this.new_form.type, this.new_form.depot, this.new_form.shelf, this.new_form.column, this.new_form.row)
                     this.close_new_dialog()
                 }).catch(err => {})
@@ -287,7 +312,7 @@
                     } else if (validate_res.status === 1) {
                         uni.showToast({ icon: 'none', title: validate_res.msg })
                         this.loc_nos.forEach(x => {
-                            if (validate_res.data.indexOf(x.value) > -1) x.status = '已存在' // 库位号已存在，给出提示
+                            if (validate_res.data.indexOf(x.no) > -1) x.status = '已存在' // 库位号已存在，给出提示
                         })
                     } else if (validate_res.status === -1) {
                         uni.showToast({ icon: 'none', title: validate_res.msg })
@@ -295,37 +320,36 @@
                 } catch (err) { }
             },
             gen_loc_nos(type, depot, shelf, col, row) {
+                if (col < 1 || col > 99) throw new Error('列数只能在1~99')
+                if (row < 1 || row > 99) throw new Error('行数只能在1~99')
                 let loc_nos = []
                 depot = depot.toUpperCase()
                 shelf = shelf.toUpperCase()
-                if (type == 'special') {
-                    for(let j = 0; j < col; j++) {
-                        let _col = j < 9 ? `0${j+1}` : j+1
-                        loc_nos.push({
-                            no: `${depot}-${shelf}${_col}`,
-                            status: '',
-                            shelf: '',
-                            x: 1,
-                            y: j+1
-                        })
+                if (type === 'standard') {
+                    for (let i = 0; i < row; i++) {
+                        for (let j = 0; j < col; j++) {
+                            loc_nos.push({
+                                no: `${depot}-${shelf}-${(i + 1) * 100 + j + 1}`,
+                                status: '',
+                                shelf: `${depot}-${shelf}`,
+                                x: j + 1,
+                                y: i + 1
+                            })
+                        }
                     }
-                    return loc_nos
-                }
-                if (col < 1 || col > 99) {
-                    throw new Error('列数只能在1~99')
-                }
-                if (row < 1 || row > 99) {
-                    throw new Error('行数只能在1~99')
-                }
-                for (let i = 0; i < row; i++) {
+                } else if (type === 'ground') {
                     for (let j = 0; j < col; j++) {
-                        loc_nos.push({
-                            no: `${depot}-${shelf}-${(i + 1) * 100 + j + 1}`,
-                            status: '',
-                            shelf: `${depot}-${shelf}`,
-                            x: j+1,
-                            y: i+1
-                        })
+                        for (let i = 0; i < row; i++) {
+                            let _i = i < 9 ? `0${i+1}` : i+1
+                            let _j = j < 9 ? `0${j+1}` : j+1
+                            loc_nos.push({
+                                no: `${depot}-${shelf}${_j}-${_i}`,
+                                status: '',
+                                shelf: `${depot}-${shelf}`,
+                                x: j + 1,
+                                y: i + 1
+                            })
+                        }
                     }
                 }
                 return loc_nos

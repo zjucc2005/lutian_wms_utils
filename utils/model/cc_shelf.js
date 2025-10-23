@@ -1,49 +1,36 @@
-import { is_loc_no_std_format, is_loc_no_std_sp_format} from '@/utils'
+import { get_stock_loc_grid_name } from '@/utils'
 
 class CcShelf {
-    constructor(cc_grid) {
+    constructor(cc_grid, x_limit=null) {
         this.name = cc_grid.shelf
+        this.x_limit = x_limit
         this.grids = []
-        this.grids[cc_grid.y-1] ||= []
+        this.grids[cc_grid.y-1] ||= (x_limit ? new Array(x_limit) : [])
         this.grids[cc_grid.y-1][cc_grid.x-1] = cc_grid
     }    
     
     add_grid(cc_grid) {
-        this.grids[cc_grid.y-1] ||= []
+        this.grids[cc_grid.y-1] ||= (this.x_limit ? new Array(this.x_limit) : [])
         this.grids[cc_grid.y-1][cc_grid.x-1] = cc_grid
     }
 }
 
 class CcGrid {
-    constructor(no) {
-        if (is_loc_no_std_format(no)) {
-            let arr = no.split('-')
-            this.shelf = arr.slice(0,2).join('-')
-            this.name = arr[2]
-            this.x = arr[2].slice(1,3) * 1
-            this.y = arr[2][0] * 1
-        } else if (is_loc_no_std_sp_format(no)) {
-            let arr = no.split('-')
-            this.shelf = [arr[0], arr[1][0]].join('-')
-            this.name = arr[1]
-            this.x = arr[1].slice(1,3) * 1
-            this.y = 1
-        } else {
-            this.shelf = no
-            this.name = ''
-            this.x = 1
-            this.y = 1
+    constructor(stock_loc) {
+        this.no = stock_loc.FNumber   // 库位号
+        this.shelf = stock_loc.FGroup // 货架号/分组
+        this.name = get_stock_loc_grid_name(stock_loc.FNumber, stock_loc.FGroup) // grid标识
+        this.x = stock_loc.FPosX      // 横坐标
+        this.y = stock_loc.FPosY      // 纵坐标      
+        this.status = ''              // 状态
+        this.style = 'default'        // 样式
+        if (stock_loc.FForbidStatus == 'B') {
+            this.status = 'forbidden'
+            this.style = 'error'
         }
-        // this.shelf = shelf   // 货架号/分组
-        // this.name = name     // grid标识
-        // this.x = x           // 横坐标
-        // this.y = y           // 纵坐标
-        this.no = no         // 库位号
-        this.status = ''     // 状态
-        this.style = ''      // 样式
-        this.sp = false      // 是否地面库位（特殊库位），默认否
-        this.qty = 0         // 库位数
-        this.used = false    // 是否使用，默认否
+        this.sp = false               // 是否地面库位（特殊库位），默认否
+        this.qty = 0                  // 库位数
+        this.used = false             // 是否使用，默认否
     }
 }
 
