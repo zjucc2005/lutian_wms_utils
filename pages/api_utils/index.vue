@@ -2,6 +2,13 @@
     <view>		
         <uni-section title="API调试" sub-title="Kingdee系统API数据查询展示，仅用来测试API对接。" type="line">
             <uni-list>
+                <uni-list-item
+                    :show-extra-icon="true"
+                    :extra-icon="{ color: '#007aff', size: '24', type: 'right' }"
+                    title="Console"
+                    @click="link_to('/pages/api_utils/console')" clickable
+                    show-arrow>
+                </uni-list-item>
                 <uni-list-item 
                     :show-extra-icon="true"
                     :extra-icon="{ color: '#dd524d', size: '24', type: 'link' }"
@@ -16,12 +23,12 @@
                     clickable @click="call_delete_api()">
                 </uni-list-item>
                 
-                <uni-list-item
+              <!--  <uni-list-item
                     :show-extra-icon="true"
                     :extra-icon="{ color: '#dd524d', size: '24', type: 'link' }"
                     title="物料分组-参考物料"
                     clickable @click="export_refer_mno()">
-                </uni-list-item>
+                </uni-list-item> -->
             </uni-list>
             
             <uni-collapse accordion>
@@ -59,7 +66,7 @@
     import { get_bd_material } from '@/utils/api'
     import { Inv, InvPlan, InvLog, BdMaterial, StockLoc, EngBom } from '@/utils/model'
     import { CcGrid } from '@/utils/model/cc_shelf'
-    import { string_to_arraybuffer } from '@/utils'
+    import { string_to_arraybuffer, link_to } from '@/utils'
     export default {
         data() {
             return {
@@ -95,6 +102,7 @@
             }
         },
         methods: {
+            link_to,
             goDetailPage(path1, path2) {
                 const url = `/pages/api_utils/${path1}/${path2}`
                 uni.navigateTo({ url: url })
