@@ -31,6 +31,7 @@
                 <uni-th align="center">物料编码</uni-th>
                 <uni-th align="center">物料名称</uni-th>
                 <uni-th align="center">规格型号</uni-th>
+                <uni-th align="center">仓库</uni-th>
                 <uni-th align="center">供应商</uni-th>
                 <uni-th align="center" width="80">交货数量</uni-th>
                 <uni-th align="center" width="80">收料单位</uni-th>
@@ -40,14 +41,15 @@
             <uni-tr v-for="(obj, index) in materials" :key="index">
                 <uni-td align="center">{{ index + 1 }}</uni-td>
                 <uni-td align="center">
-                    <uqrcode :canvas-id="`qrcode_${index}`" :value="obj['FMaterialId.FNumber']" :size="40"></uqrcode>
+                    <uqrcode :canvas-id="`qrcode_${index}`" :value="obj.no" :size="40"></uqrcode>
                 </uni-td>
-                <uni-td>{{ obj['FMaterialId.FNumber'] }}</uni-td>
-                <uni-td>{{ obj['FMaterialId.FName'] }}</uni-td>
-                <uni-td>{{ obj['FMaterialId.FSpecification'] }}</uni-td>
-                <uni-td>{{ obj['FSupplierId.FName'] }}</uni-td>
-                <uni-td align="center">{{ obj.FActReceiveQty }}</uni-td>
-                <uni-td align="center">{{ obj['FUnitId.FName'] }}</uni-td>
+                <uni-td>{{ obj.no }}</uni-td>
+                <uni-td>{{ obj.name }}</uni-td>
+                <uni-td>{{ obj.spec }}</uni-td>
+                <uni-td>{{ obj.stock_name }}</uni-td>
+                <uni-td>{{ obj.supplier_name }}</uni-td>
+                <uni-td align="center">{{ obj.qty }}</uni-td>
+                <uni-td align="center">{{ obj.unit_name }}</uni-td>
                 <uni-td align="center">
                     <uni-tag text="生成标签" type="primary" @click="gen_label(obj, `qrcode_${index}`)"/>
                 </uni-td>
@@ -63,16 +65,17 @@
                 >
                 <template #header>
                     <view class="uni-list-item__head">
-                        <uqrcode :canvas-id="`qrcode_${index}`" :value="obj['FMaterialId.FNumber']" :size="40"></uqrcode>
+                        <uqrcode :canvas-id="`qrcode_${index}`" :value="obj.no" :size="40"></uqrcode>
                     </view>
                 </template>
                 <template #body>
                     <view class="uni-list-item__body">
-                        <text class="title">{{ obj['FMaterialId.FNumber'] }}</text>
+                        <text class="title">{{ obj.no }}</text>
                         <view class="note">
-                            <view>名称：{{ obj['FMaterialId.FName'] }}</view> 
-                            <view>规格：{{ obj['FMaterialId.FSpecification'] }}</view>
-                            <view>供应商：{{ obj['FSupplierId.FName'] }}</view>
+                            <view>名称：{{ obj.name }}</view> 
+                            <view>规格：{{ obj.spec }}</view>
+                            <view>仓库：<text class="text-primary">{{ obj.stock_name }}</text></view>
+                            <view>供应商：{{ obj.supplier_name }}</view>
                         </view>
                     </view>
                 </template>
@@ -126,18 +129,16 @@
         methods: {
             gen_label(obj, canvas_id) {
                 // #ifdef H5
-                let options = {
-                    no: obj['FMaterialId.FNumber'], 
-                    name: obj['FMaterialId.FName'], 
-                    spec: obj['FMaterialId.FSpecification'], 
-                    supplier: obj['FSupplierId.FName'], 
-                    inbound_time: formatDate(Date.now(), 'yyyy-MM-dd')
-                }
                 uni.canvasToTempFilePath({
                     canvasId: canvas_id,
                     success: function(res) { 
-                        let url = gen_pdf_label_demo({ qr: res.tempFilePath, ...options })
-                        uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
+                        let url = gen_pdf_label_demo({
+                            ...obj,
+                            qr: res.tempFilePath, 
+                            inbound_time: formatDate(Date.now(), 'yyyy-MM-dd'),
+                        })
+                        // uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
+                        window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800,height=600') // 打开小窗口
                     }
                 })
                 // #endif
@@ -159,12 +160,35 @@
                     }
                     uni.showLoading({ title: 'Loading' })
                     let res = await PurReceiveBill.query({ FBillNo: this.search_form.bill_no })
-                    this.materials = res.data
+                    this.handle_data(res)
                     uni.hideLoading()
                     if (res.data.length === 0) {
                         uni.showToast({ icon: 'none', title: '单据编号不存在' })
                     }
+                } else {
+                    this.materials = []
                 }
+            },
+            handle_data(res) {
+                let materials = []
+                for (let obj of res.data) {
+                    let material = materials.find(x => x.id == obj.FMaterialId)
+                    if (material) {
+                        material.qty += obj['FActReceiveQty']
+                    } else {
+                        materials.push({
+                            id: obj.FMaterialId,
+                            no: obj['FMaterialId.FNumber'],
+                            name: obj['FMaterialId.FName'],
+                            spec: obj['FMaterialId.FSpecification'],
+                            stock_name: obj['FStockId.FName'],
+                            supplier_name: obj['FSupplierId.FName'],
+                            qty: obj['FActReceiveQty'],
+                            unit_name: obj['FUnitId.FName']
+                        })
+                    }
+                }
+                this.materials = materials
             },
             scan_code() {
                 scan_code().then(res => {

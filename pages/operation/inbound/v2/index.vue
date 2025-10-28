@@ -90,8 +90,7 @@
 <script>
     import store from '@/store'
     import { InboundTask, InvPlan } from '@/utils/model'
-    import { play_audio_prompt } from '@/utils'
-    import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+    import { formatDate, link_to } from '@/utils'
     import scan_code from '@/utils/scan_code'
     export default {
         data() {
@@ -219,28 +218,26 @@
             init_plan() {
                 if (this.inbound_task) {
                     if (this.inbound_task.category == 'bill') {
-                        play_audio_prompt('success')
-                        uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init' })
+                        link_to('/pages/operation/inbound/v2/plan_init')
                     } else if (this.inbound_task.category == 'pallet') {
-                        play_audio_prompt('success')
-                        uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init_pallet' })
+                        link_to('/pages/operation/inbound/v2/plan_init_pallet')
                     } else if (this.inbound_task.category == 'custom') {
-                        play_audio_prompt('success')
-                        uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init_custom' })
+                        link_to('/pages/operation/inbound/v2/plan_init_custom')
+                    } else if (this.inbound_task.category == 'cgsl') {
+                        link_to('/pages/operation/inbound/v2/plan_init_cgsl')
                     }
                 } else {
                     uni.showActionSheet({
-                        itemList: ['扫《直接调拨单》', '扫《物料标识卡》', '手工录入'],
+                        itemList: ['扫《直接调拨单》', '扫《物料标识卡》', '手工录入', '扫《收料通知单》'],
                         success: (e) => {
                             if (e.tapIndex === 0) {
-                                play_audio_prompt('success')
-                                uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init' })
+                                link_to('/pages/operation/inbound/v2/plan_init')
                             } else if (e.tapIndex === 1) {
-                                play_audio_prompt('success')
-                                uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init_pallet' })
+                                link_to('/pages/operation/inbound/v2/plan_init_pallet')
                             } else if (e.tapIndex === 2) {
-                                play_audio_prompt('success')
-                                uni.navigateTo({ url: '/pages/operation/inbound/v2/plan_init_custom' })
+                                link_to('/pages/operation/inbound/v2/plan_init_custom')
+                            } else if (e.tapIndex === 3) {
+                                link_to('/pages/operation/inbound/v2/plan_init_cgsl')
                             }
                         }
                     })
@@ -251,8 +248,7 @@
                     uni.showToast({ icon: 'none', title: '未找到单据编号' })
                     return
                 }
-                play_audio_prompt('success')
-                uni.navigateTo({ url: `/pages/operation/inbound/v2/plan_show?t=${bill_no}` })
+                link_to(`/pages/operation/inbound/v2/plan_show?t=${bill_no}`)
             },
             _set_inv_plan_groups(inv_plans) {
                 let inv_plan_groups = []

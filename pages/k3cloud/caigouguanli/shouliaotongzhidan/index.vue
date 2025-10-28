@@ -10,7 +10,8 @@
             <uni-th align="center">规格型号</uni-th>
             <uni-th align="center" width="80">交货数量</uni-th>
             <uni-th align="center" width="80">收料单位</uni-th>
-            <uni-th align="center" width="120">需求单据编号</uni-th>            
+            <uni-th align="center" width="120">需求单据编号</uni-th>
+            <uni-th align="center">仓库</uni-th>
         </uni-tr>
         
         <uni-tr v-for="(rb, index) in receive_bills" :key="index">
@@ -24,6 +25,7 @@
             <uni-td>{{ rb.FActReceiveQty }}</uni-td>
             <uni-td>{{ rb['FUnitId.FName'] }}</uni-td>
             <uni-td>{{ rb.F_PAEZ_Text }}</uni-td>
+            <uni-td>{{ rb['FStockId.FName'] }}</uni-td>
         </uni-tr>
     </uni-table>
     
@@ -68,6 +70,11 @@
             <view class="search-form">
                 <uni-forms ref="search_form" :model="search_form" :label-width="100">
                     <uni-row :gutter="15">
+                        <uni-col :md="8" :sm="12" :xs="24">
+                            <uni-forms-item label="单据编号">
+                                <uni-easyinput v-model="search_form.bill_no" />
+                            </uni-forms-item>
+                        </uni-col>
                         <uni-col :md="8" :sm="12" :xs="24">
                             <uni-forms-item label="需求单据编号">
                                 <uni-easyinput v-model="search_form.demand_bill_no" />
@@ -116,6 +123,7 @@
             return {
                 receive_bills: [],
                 search_form: {
+                    bill_no: '',
                     demand_bill_no: '',
                     demander: '',
                     supplier: '',
@@ -158,6 +166,7 @@
             async load_receive_bills() {
                 let options = { }
                 let meta = { page: this.page, per_page: this.per_page, order: 'FID DESC' }
+                if (this.search_form.bill_no) options.FBillNo_lk = this.search_form.bill_no
                 if (this.search_form.demand_bill_no) options.F_PAEZ_Text_lk = this.search_form.demand_bill_no
                 if (this.search_form.demander) options['FDemanderId.FName_lk'] = this.search_form.demander
                 if (this.search_form.supplier) options['FSupplierId.FName_lk'] = this.search_form.supplier

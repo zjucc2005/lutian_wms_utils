@@ -7,7 +7,8 @@
             focus>
         </textarea>
     </view>
-    <button class="mini-btn" type="primary" size="mini" @click="jsEval">提交</button>
+    <button type="primary" size="mini" @click="jsEval">Submit</button>
+    <button size="mini" @click="input=''">Clear</button>
 </template>
 
 <script>
@@ -15,7 +16,7 @@
     import XLSX from 'xlsx'
     import { link_to } from '@/utils'
     import K3CloudApi from '@/utils/k3cloudapi'
-    import { Inv, InvPlan, InvLog, BdMaterial, StockLoc, EngBom } from '@/utils/model'
+    import * as model from '@/utils/model'
     export default {
         data() {
             return {
@@ -25,8 +26,9 @@
         methods: {
             jsEval() {
                 console.log(`%c${this.input}`, 'color: #007aff; font-weight: bold')
-                eval(this.input)
-                this.input = ''
+                console.log('>>', eval(this.input))
+                // eval(this.input)
+                // this.input = ''
             }
         }
     }

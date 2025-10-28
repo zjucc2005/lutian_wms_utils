@@ -29,6 +29,7 @@ class PurReceiveBill {
         let fields = ['FID', 'FBillNo', 'FCreateDate', 
                       'FSupplierId', 'FSupplierId.FName', 'FPurchaserId', 'FPurchaserId.FName',
                       'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
+                      'FStockId', 'FStockId.FName',
                       'FActReceiveQty', 'FUnitId', 'FUnitId.FName', 
                       'F_PAEZ_Text']
         const data = {

@@ -92,7 +92,7 @@ const store = createStore({
         set_system_info(state, system_info) {
             state.system_info = system_info
             state.drawer_width = Math.min(system_info.windowWidth * 0.88, 540)
-            if (system_info.windowWidth >= 1200) { state.screen_type = 'h5' }
+            if (system_info.windowWidth >= 960) { state.screen_type = 'h5' }
             else { state.screen_type = 'app-plus' }
         },
         set_bd_stocks(state, bd_stocks) {

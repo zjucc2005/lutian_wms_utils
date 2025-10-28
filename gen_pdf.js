@@ -526,17 +526,17 @@ const gen_pdf_label_demo = (options) => {
     // 计算各文本长度
     let std_font_size = 18 // 标准文本大小
     let meta = {
-        supplier:     { x: 20.9, y: 11.8, l: 36.7, mr: 16.9 },
-        inbound_time: { x: 25.1, y: 24.6, l: 32, mr: 21.6 },
-        no:           { x: 16.7, y: 37.4, l: 40.9, mr: 12.7 },
-        name:         { x: 16.7, y: 50.2, l: 79.3, mr: 12.7 },
-        spec:         { x: 16.7, y: 63, l: 79.3, mr: 12.7 }
+        supplier_name: { x: 20.9, y: 11.8, l: 36.7, mr: 16.9 },
+        inbound_time:  { x: 25.1, y: 24.6, l: 32, mr: 21.6 },
+        no:            { x: 16.7, y: 37.4, l: 40.9, mr: 12.7 },
+        name:          { x: 16.7, y: 50.2, l: 79.3, mr: 12.7 },
+        spec:          { x: 16.7, y: 63, l: 79.3, mr: 12.7 }
     }
     for (let k of Object.keys(meta)) {
         f.setFontSize(std_font_size)
         if (f.getTextWidth(options[k]) > meta[k].l) {
             let cur_font_size = std_font_size * meta[k].l / f.getTextWidth(options[k])
-            console.log(k, 'font size >>', cur_font_size)
+            // console.log(k, 'font size >>', cur_font_size)
             f.setFontSize(cur_font_size)
             f.text(options[k], meta[k].x, meta[k].y - (std_font_size - cur_font_size) * 0.13)
         } else {

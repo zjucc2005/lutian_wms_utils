@@ -386,7 +386,7 @@
                     return
                 }
                 uni.navigateTo({
-                    url: '/pages/operation/inbound/v2/allocate_loc_no',
+                    url: '/pages/operation/inbound/v2/allocate_loc_no_old',
                     events: {
                         allocateInfo: (data) => {
                             // console.log('allocateInfo', data)

@@ -171,7 +171,7 @@
                 if (this.search_form.bill_no) {
                     this.search_form.bill_no = this.search_form.bill_no.trim().toUpperCase()
                     if (this.search_form.bill_no.match(/^\d+$/)) {
-                        this.search_form.bill_no = 'ZJDB' + this.search_form.bill_no // 自动补充前缀
+                        this.search_form.bill_no = 'CGSL' + this.search_form.bill_no // 自动补充前缀
                     }
                     await this.load_bill()
                     await this.load_inv_plans()

@@ -1,5 +1,5 @@
 import store from '@/store';
-import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+import { formatDate } from '@/utils'
 
 /**
  * 前端入库任务模型
