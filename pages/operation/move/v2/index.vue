@@ -229,7 +229,7 @@
                     return
                 }
                 let url = pdf_template_inv_plans_mv(inv_plans)
-                uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
+                window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800') // 打开小窗口
             },
             // #endif
             async load_inv_plans() {

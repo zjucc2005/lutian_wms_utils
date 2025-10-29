@@ -60,7 +60,7 @@
                         // 在H5平台下，tempFilePath 为 base64
                         // console.log(res.tempFilePath)
                         let url = gen_pdf_label_demo({ qr: res.tempFilePath, ..._this_.form })
-                        uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
+                        window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800') // 打开小窗口
                     }
                 })
                 // #endif

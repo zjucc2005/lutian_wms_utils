@@ -3,13 +3,14 @@
         :sub-title="set_section_sub_title()"
         class="above-uni-goods-nav"
         >
-        <uni-collapse v-if="display_mode == 'grid'" :open="true">
+        <!-- <uni-collapse v-if="display_mode == 'grid'" :open="true"> -->
             <cc-shelf
+                v-if="display_mode == 'grid' && invs.length"
                 :stock_locs="$store.state.stock_locs"
                 :invs="invs"
                 only-inv
                 open />
-        </uni-collapse>
+        <!-- </uni-collapse> -->
             
         <uni-list v-if="mode == 'material_no' && display_mode == 'list'">
             <uni-list-item
@@ -65,6 +66,9 @@
         props: {
             t: {
                 type: String
+            },
+            m: {
+                type: Number
             }
         },
         components: {
@@ -73,8 +77,8 @@
         data() {
             return {
                 mode: '', // material_no/loc_no
-                display_mode: '', // grid/list
-                scan_mode: '', // material_no/loc_no，可以指定扫描的是哪种编码
+                display_mode: 'list', // grid/list
+                scan_mode: 0, // 0: material_no, 1: loc_no，可以指定扫描的是哪种编码
                 no: '',
                 material: {
                     material_no: '',
@@ -86,7 +90,7 @@
                 goods_nav: {
                     options: [
                         { icon: 'more-filled', text: '更多' },
-                        { icon: 'map', text: '网格' }
+                        { icon: 'list', text: '列表' }
                     ],
                     button_group: [
                         {
@@ -100,8 +104,15 @@
         },
         onLoad(options) {
             if (options.t) {
-                this.scan_mode = 'material_no'
-                this.handle_scan_code(options.t)
+                // this.scan_mode = 'material_no'
+                if (options.m) {
+                    this.scan_mode = options.m
+                    this.handle_scan_code(options.t)
+                } else {
+                    let res = this.parse_scan_code(options.t)
+                    this.scan_mode = res[1]
+                    this.handle_scan_code(res[0])
+                }
             }
         },
         mounted() {
@@ -164,7 +175,7 @@
                 return Inv.query(options, { order: 'FBatchNo ASC, FStockLocId.FNumber ASC' }).then(res => { 
                     this.invs = res.data
                     this.mode = 'material_no'
-                    this.set_display_mode('grid')
+                    this.set_display_mode('list')
                     this.no = material_no
                 })
             },
@@ -185,11 +196,11 @@
                 text = text.trim()
                 if (!text) return
                 uni.showLoading({ title: 'Loading' })
-                if (this.scan_mode == 'material_no') {
+                if (this.scan_mode == 0) {
                     await this.load_invs_by_material_no(text)
                     await this.load_material(text)
                     uni.hideLoading()
-                } else if (this.scan_mode == 'loc_no') {
+                } else if (this.scan_mode == 1) {
                     await this.load_invs_by_loc_no(text)
                     uni.hideLoading()
                 } else if (is_material_no_format(text)) {
@@ -206,6 +217,15 @@
                     this.no = ''
                     uni.showToast({ icon: 'none', title: '未知格式的编码' })
                 }                   
+            },
+            parse_scan_code(text) {
+                if (text.includes('||')) {
+                    return [text.split('||')[1], 0]
+                } else if (is_loc_no_std_format(text)) {
+                    return [text, 1]
+                } else {
+                    return [text, 0]
+                }
             },
             set_display_mode(display_mode) {
                 this.display_mode = display_mode

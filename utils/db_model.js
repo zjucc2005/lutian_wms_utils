@@ -405,27 +405,6 @@
             FCreateDate: "创建日期"
         }
     },
-    PAEZ_C_INV: {
-        fields: {
-            FID: "FID",
-            FStockId: "仓库ID",
-            'FStockId.FNumber': '仓库编码',
-            'FStockId.FName': "仓库名称",
-            FStockLocId: "仓位号ID",
-            'FStockLocId.FNumber': "仓位号",
-            FMaterialId: "物料ID",
-            'FMaterialId.FNumber': "物料编码",
-            'FMaterialId.FName': "物料名称",
-            'FMaterialId.FSpecification': '规格型号',
-            FQty: "数量",
-            FStockUnitId: "计量单位ID",
-            'FStockUnitId.FName': '计量单位',
-            FBatchNo: "库存批次号",
-            FProduceDate: "生产日期",
-            FLastInboundDate: "最近入库日期",
-            FCreateTime: "数据新建时间"
-        }
-    },
     PAEZ_C_INV_LOG: {
         fields: {
             FID: "FID",
@@ -445,6 +424,8 @@
             FInvQTY: "库存批次流水",
             FBatchNo: "库存批次号",
             FBillNo: "单据编号",
+            FSupplierId: '供应商ID',
+            'FSupplierId.FName': '供应商名称',
             FRemark: "操作备注",
             FOpStaffNo: "操作员工编号",
             FCreateTime: "数据新建时间",
@@ -476,6 +457,8 @@
             FInvQTY: "库存批次流水",
             FBatchNo: "库存批次号",
             FBillNo: "单据编号",
+            FSupplierId: '供应商ID',
+            'FSupplierId.FName': '供应商名称',
             FRemark: "操作备注",
             FOpStaffNo: "操作员工编号",
             FCreateTime: "数据新建时间",

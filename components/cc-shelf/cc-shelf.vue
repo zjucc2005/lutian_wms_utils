@@ -111,12 +111,24 @@
                         :note="[
                             `名称：${inv['FMaterialId.FName']}`, 
                             `规格：${inv['FMaterialId.FSpecification']}`, 
-                            `批次：${inv.FBatchNo}`
+                            `批次：${inv.FBatchNo}`,
+                            `供应商：${inv['FSupplierId.FName']}`
                         ].join('\n')"
                         :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
                         @click="inv_menu(inv)"
                         clickable
                         >
+                        <template #body>
+                            <view class="uni-list-item__body">
+                                <text class="title">{{ inv['FMaterialId.FNumber'] }}</text>
+                                <view class="note">
+                                    <view>名称：{{ inv['FMaterialId.FName'] }}</view>
+                                    <view>规格：{{ inv['FMaterialId.FSpecification'] }}</view>
+                                    <view>批次：{{ inv.FBatchNo }}</view>
+                                    <view v-if="inv['FSupplierId.FName']">供应商：{{ inv['FSupplierId.FName'] }}</view>
+                                </view>
+                            </view>
+                        </template>
                     </uni-list-item>
                 </uni-list>
             </uni-section>
@@ -177,6 +189,8 @@
             }
         },
         mounted() {
+            console.log('>>> this.stock_locs', this.stock_locs)
+            console.log('>>> this.invs', this.invs)
         },
         computed: {
             column () {

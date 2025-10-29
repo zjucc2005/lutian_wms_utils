@@ -137,7 +137,6 @@
                             qr: res.tempFilePath, 
                             inbound_time: formatDate(Date.now(), 'yyyy-MM-dd'),
                         })
-                        // uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
                         window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800,height=600') // 打开小窗口
                     }
                 })

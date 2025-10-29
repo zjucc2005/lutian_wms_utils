@@ -83,7 +83,6 @@
                             <view>规格：{{ obj.material_spec }}</view>
                             <view>仓库：<text :class="[obj.stock_id == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj.stock_name }}</text></view>
                             <view>供应商：{{ obj.supplier_name }}</view>
-                            <!-- <view>批次：{{ obj.batch_no }}</view> -->
                         </view>
                     </view>
                 </template>
@@ -156,7 +155,9 @@
             }
         },
         onShow() {
-            this.handle_search()
+            this.$nextTick(() => {
+                this.handle_search()
+            })
         },
         mounted() {
             this.inbound_task = new InboundTask()

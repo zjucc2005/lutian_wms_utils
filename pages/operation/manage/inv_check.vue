@@ -194,7 +194,7 @@
                     this.invs.sort((x, y) => x['FMaterialId.FNumber'] > y['FMaterialId.FNumber'] ? 1 : -1 )
                 }
                 let url = pdf_template_inv_check(this.invs)
-                uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
+                window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800') // 打开小窗口
             },
             check_template_excel(mode) {
                 if (mode == 'loc_no') {
@@ -228,7 +228,7 @@
             async export_invs_pdf() {
                 let inv_groups = await this.get_inv_groups()
                 let url = pdf_template_invs(inv_groups)
-                uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
+                window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800') // 打开小窗口
             },
             async export_invs_excel() {
                 let inv_groups = await this.get_inv_groups()

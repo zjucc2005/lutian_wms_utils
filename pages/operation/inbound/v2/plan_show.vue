@@ -1,50 +1,53 @@
 <template>
-    <view v-if="$store.state.role == 'wh_admin'">
+    <!-- H5 -->
+    <template v-if="$store.state.screen_type === 'h5'">
         <uni-section title="入库计划" type="square"
-            :sub-title="bill_no"
-            class="above-uni-goods-nav">
-            <uni-list>
-                <uni-list-item
-                    v-for="(inv_plan, index) in inv_plans"
-                    :key="index"
-                    @click="list_item_click(inv_plan)" clickable
-                    show-arrow
-                    @longpress="list_item_click(inv_plan)"
-                    >
-                    <template v-slot:header>
-                        <view class="uni-list-item__head">
-                            <checkbox
-                                :checked="inv_plan.checked"
-                                :disabled="inv_plan.disabled"
-                                @click="checkbox_click"
-                                :data-id="inv_plan.FID"
-                            />
-                        </view>
-                    </template>
-                    <template v-slot:body>
-                        <view class="uni-list-item__body">
-                            <view class="title">{{ inv_plan['FMaterialId.FNumber'] }}</view>
-                            <view class="note">
-                                <view>名称：{{ inv_plan['FMaterialId.FName'] }}</view> 
-                                <view>规格：{{ inv_plan['FMaterialId.FSpecification'] }}</view>
-                                <view>
-                                    库位：<text class="loc_no">{{ inv_plan['FStockLocId.FNumber'] }}</text>
-                                </view>
-                                <view>批次：{{ inv_plan['FBatchNo'] }}</view>
-                            </view>
-                        </view>
-                    </template>
-                    <template v-slot:footer>
-                        <view class="uni-list-item__foot">
-                            <view class="op_qty">
-                                <uni-icons type="arrow-up" size="18" color="#dd524d"></uni-icons>
-                                <text>{{ inv_plan['FOpQTY'] }} {{ inv_plan['FStockUnitId.FName'] }}</text>
-                            </view>
-                            <text :class="['status', inv_plan.disabled ? 'disabled' : '']">{{ inv_plan.status }}</text>
-                        </view>
-                    </template>
-                </uni-list-item>
-            </uni-list>
+            :sub-title="bill_no" class="above-uni-goods-nav">
+            <uni-table ref="table" border stripe>
+                <uni-tr>
+                    <uni-th align="center" width="30"></uni-th>
+                    <uni-th align="center" width="60">序号</uni-th>
+                    <uni-th align="center">物料编号</uni-th>
+                    <uni-th align="center">物料名称</uni-th>
+                    <uni-th align="center">规格型号</uni-th>
+                    <uni-th align="center" width="80">操作类型</uni-th>
+                    <uni-th align="center" width="60">数量</uni-th>
+                    <uni-th align="center" width="80">单位</uni-th>
+                    <uni-th align="center" width="120">库位</uni-th>
+                    <uni-th align="center" width="80">批次</uni-th>
+                    <uni-th align="center">供应商</uni-th>
+                    <uni-th align="center" width="80">状态</uni-th>
+                    <uni-th align="center" width="160">时间</uni-th>
+                    <uni-th align="center" width="80">操作</uni-th>
+                </uni-tr>
+                <uni-tr v-for="(inv_plan, index) in inv_plans" :key="index">
+                    <uni-td>
+                        <checkbox
+                            :checked="inv_plan.checked"
+                            :disabled="inv_plan.disabled"
+                            @click="checkbox_click"
+                            :data-id="inv_plan.FID"
+                        />
+                    </uni-td>
+                    <uni-td align="center">{{ index + 1 }}</uni-td>
+                    <uni-td>{{ inv_plan['FMaterialId.FNumber'] }}</uni-td>
+                    <uni-td>{{ inv_plan['FMaterialId.FName'] }}</uni-td>
+                    <uni-td>{{ inv_plan['FMaterialId.FSpecification'] }}</uni-td>
+                    <uni-td>{{ op_type_dict[inv_plan.FOpType] }}</uni-td>
+                    <uni-td>{{ inv_plan['FOpQTY'] }}</uni-td>
+                    <uni-td>{{ inv_plan['FStockUnitId.FName'] }}</uni-td>
+                    <uni-td>{{ inv_plan['FStockLocId.FNumber'] }}</uni-td>
+                    <uni-td>{{ inv_plan.FBatchNo }}</uni-td>
+                    <uni-td>{{ inv_plan['FSupplierId.FName'] }}</uni-td>
+                    <uni-td>
+                        <text :class="[inv_plan.disabled ? 'text-error' : 'text-primary']">{{ inv_plan.status }}</text>
+                    </uni-td>
+                    <uni-td>{{ formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</uni-td>
+                    <uni-td align="center">
+                        <uni-tag text="删除" type="error" @click="if_submit_delete(inv_plan)"/>
+                    </uni-td>
+                </uni-tr>
+            </uni-table>
         </uni-section>
         
         <view class="uni-goods-nav-wrapper">
@@ -56,66 +59,130 @@
                 @button-click="goods_nav_admin_button_click"
             />
         </view>
-    </view>
+    </template>
     
-    <view v-if="$store.state.role == 'wh_staff'">
-        <uni-section title="入库计划" type="square"
-            :sub-title="bill_no"
-            class="above-uni-goods-nav">
-            <uni-list>
-                <uni-list-item
-                    v-for="(inv_plan, index) in inv_plans"
-                    :key="index"
-                    >
-                    <template v-slot:header>
-                        <view class="uni-list-item__head">
-                            <checkbox 
-                                :checked="inv_plan.checked"
-                                :disabled="inv_plan.disabled"
-                                @click="checkbox_click"
-                                :data-id="inv_plan.FID"
-                            />
-                        </view>
-                    </template>
-                    <template v-slot:body>
-                        <view class="uni-list-item__body">
-                            <view class="title">{{ inv_plan['FMaterialId.FNumber'] }}</view>
-                            <view class="note">
-                                <view>名称：{{ inv_plan['FMaterialId.FName'] }}</view> 
-                                <view>规格：{{ inv_plan['FMaterialId.FSpecification'] }}</view>
-                                <view>库位：
-                                    <uni-icons type="location" color="#007bff" ></uni-icons>
-                                    <text class="loc_no">{{ inv_plan['FStockLocId.FNumber'] }}</text>
-                                </view>
-                                <view>批次：{{ inv_plan['FBatchNo'] }}</view>
+    <!-- APP-PLUS -->
+    <template v-else>
+        <view v-if="$store.state.role == 'wh_admin'">
+            <uni-section title="入库计划" type="square"
+                :sub-title="bill_no"
+                class="above-uni-goods-nav">
+                <uni-list>
+                    <uni-list-item
+                        v-for="(inv_plan, index) in inv_plans"
+                        :key="index"
+                        @click="list_item_click(inv_plan)" clickable
+                        show-arrow
+                        @longpress="list_item_click(inv_plan)"
+                        >
+                        <template v-slot:header>
+                            <view class="uni-list-item__head">
+                                <checkbox
+                                    :checked="inv_plan.checked"
+                                    :disabled="inv_plan.disabled"
+                                    @click="checkbox_click"
+                                    :data-id="inv_plan.FID"
+                                />
                             </view>
-                        </view>
-                    </template>
-                    <template v-slot:footer>
-                        <view class="uni-list-item__foot">
-                            <text>{{ inv_plan['FOpQTY'] }} {{ inv_plan['FStockUnitId.FName'] }}</text>
-                            <text :class="['status', inv_plan.disabled ? 'disabled' : '']">{{ inv_plan.status }}</text>
-                        </view>
-                    </template>
-                </uni-list-item>
-            </uni-list>
-        </uni-section>
-        
-        <view class="uni-goods-nav-wrapper">
-            <uni-goods-nav 
-                :options="goods_nav.options" 
-                :button-group="goods_nav.staff_button_group"
-                @click="goods_nav_click"
-                @button-click="goods_nav_staff_button_click"
-            />
+                        </template>
+                        <template v-slot:body>
+                            <view class="uni-list-item__body">
+                                <view class="title">{{ inv_plan['FMaterialId.FNumber'] }}</view>
+                                <view class="note">
+                                    <view>名称：{{ inv_plan['FMaterialId.FName'] }}</view> 
+                                    <view>规格：{{ inv_plan['FMaterialId.FSpecification'] }}</view>
+                                    <view>
+                                        库位：<text class="loc_no">{{ inv_plan['FStockLocId.FNumber'] }}</text>
+                                    </view>
+                                    <view>批次：{{ inv_plan['FBatchNo'] }}</view>
+                                    <view v-if="inv_plan['FSupplierId.FName']">供应商：{{ inv_plan['FSupplierId.FName'] }}</view>
+                                </view>
+                            </view>
+                        </template>
+                        <template v-slot:footer>
+                            <view class="uni-list-item__foot">
+                                <view class="op_qty">
+                                    <uni-icons type="arrow-up" size="18" color="#dd524d"></uni-icons>
+                                    <text>{{ inv_plan['FOpQTY'] }} {{ inv_plan['FStockUnitId.FName'] }}</text>
+                                </view>
+                                <text :class="[inv_plan.disabled ? 'text-error' : 'text-primary']">{{ inv_plan.status }}</text>
+                            </view>
+                        </template>
+                    </uni-list-item>
+                </uni-list>
+            </uni-section>
+            
+            <view class="uni-goods-nav-wrapper">
+                <uni-goods-nav 
+                    :options="goods_nav.options" 
+                    :button-group="goods_nav.admin_button_group"
+                    :fill="$store.state.goods_nav_fill"
+                    @click="goods_nav_click"
+                    @button-click="goods_nav_admin_button_click"
+                />
+            </view>
         </view>
-    </view>
+        
+        <view v-if="$store.state.role == 'wh_staff'">
+            <uni-section title="入库计划" type="square"
+                :sub-title="bill_no"
+                class="above-uni-goods-nav">
+                <uni-list>
+                    <uni-list-item
+                        v-for="(inv_plan, index) in inv_plans"
+                        :key="index"
+                        >
+                        <template v-slot:header>
+                            <view class="uni-list-item__head">
+                                <checkbox 
+                                    :checked="inv_plan.checked"
+                                    :disabled="inv_plan.disabled"
+                                    @click="checkbox_click"
+                                    :data-id="inv_plan.FID"
+                                />
+                            </view>
+                        </template>
+                        <template v-slot:body>
+                            <view class="uni-list-item__body">
+                                <view class="title">{{ inv_plan['FMaterialId.FNumber'] }}</view>
+                                <view class="note">
+                                    <view>名称：{{ inv_plan['FMaterialId.FName'] }}</view> 
+                                    <view>规格：{{ inv_plan['FMaterialId.FSpecification'] }}</view>
+                                    <view>库位：
+                                        <uni-icons type="location" color="#007bff" ></uni-icons>
+                                        <text class="loc_no">{{ inv_plan['FStockLocId.FNumber'] }}</text>
+                                    </view>
+                                    <view>批次：{{ inv_plan['FBatchNo'] }}</view>
+                                    <view v-if="inv_plan['FSupplierId.FName']">供应商：{{ inv_plan['FSupplierId.FName'] }}</view>
+                                </view>
+                            </view>
+                        </template>
+                        <template v-slot:footer>
+                            <view class="uni-list-item__foot">
+                                <text>{{ inv_plan['FOpQTY'] }} {{ inv_plan['FStockUnitId.FName'] }}</text>
+                                <text :class="[inv_plan.disabled ? 'text-error' : 'text-primary']">{{ inv_plan.status }}</text>
+                            </view>
+                        </template>
+                    </uni-list-item>
+                </uni-list>
+            </uni-section>
+            
+            <view class="uni-goods-nav-wrapper">
+                <uni-goods-nav 
+                    :options="goods_nav.options" 
+                    :button-group="goods_nav.staff_button_group"
+                    @click="goods_nav_click"
+                    @button-click="goods_nav_staff_button_click"
+                />
+            </view>
+        </view>
+    </template>
 </template>
 
 <script>
     import store from '@/store'
     import { InvPlan } from '@/utils/model'
-    import { play_audio_prompt } from '@/utils'
+    import { formatDate, play_audio_prompt } from '@/utils'
     // #ifdef H5
     import { pdf_template_inv_plans_in } from '@/gen_pdf'
     // #endif
@@ -130,6 +197,7 @@
             return {
                 bill_no: '',
                 inv_plans: [],
+                op_type_dict: InvPlan.FOpTypeEnum,
                 goods_nav: {
                     options: [
                         { icon: 'checkbox', text: '全选' }
@@ -167,6 +235,7 @@
         mounted() {
         },
         methods: {
+            formatDate,
             goods_nav_click(e) {
                 if (e.index === 0) this.check_all() // btn:全选
             },
@@ -204,9 +273,19 @@
                 let inv_plans = this.inv_plans.filter(x => x.checked)
                 if (inv_plans.length === 0) inv_plans = this.inv_plans 
                 let url = pdf_template_inv_plans_in(inv_plans)
-                uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
+                window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800') // 打开小窗口
             },
             // #endif
+            if_submit_delete(inv_plan) {
+                uni.showModal({
+                    title: '删除',
+                    content: '是否确定删除?',
+                    success: (res) => {
+                        if (res.confirm) this.submit_delete(inv_plan)
+                    },
+                    fail: (err) => {}
+                })
+            },
             async load_inv_plans() {
                 let options = { 
                     FStockId: store.state.cur_stock.FStockId,
@@ -231,11 +310,7 @@
                 })
             },
             async submit_audit() {
-                // if (this.inv_plans.find(x => x.FDocumentStatu == 'A')) {
-                //     uni.showToast({ icon: 'none', title: '还有未提交的条目' })
-                //     return
-                // }
-                let checked_inv_plans = this.inv_plans.filter(x => x.checked)
+                let checked_inv_plans = this.inv_plans.filter(x => x.checked && ['A', 'B'].includes(x.FDocumentStatu))
                 let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
                 if (save_ids.length) {
                     await InvPlan.submit(save_ids) // 提交(admin补)
@@ -268,8 +343,6 @@
                     InvPlan.submit(ids).then(res => {
                         if (res.data.Result.ResponseStatus.IsSuccess) {
                             this.load_inv_plans()
-                            // const eventChannel = this.getOpenerEventChannel();
-                            // eventChannel.emit('reloadInvPlans', { reload: true })
                         } else {
                             uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
                         }

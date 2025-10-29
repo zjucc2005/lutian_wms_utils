@@ -1,5 +1,6 @@
 <template>
-    <!-- <uni-notice-bar single show-icon scrollable text="请选择入库计划进行操作" /> -->
+    <!-- H5 -->    
+    <!-- APP -->
     <view v-if="$store.state.role == 'wh_admin'">
         <uni-section title="进行中的入库计划" type="square" 
             sub-title="单据编号"
@@ -12,16 +13,6 @@
                     show-arrow
                     @click="operate_plan(group_item.bill_no)" clickable
                     >
-  <!--                  <template v-slot:header>
-                        <view class="uni-list-item__head">
-                            <checkbox
-                                :checked="group_item.checked"
-                                :disabled="group_item.disabled"
-                                @click="checkbox_click"
-                                :data-bill_no="group_item.bill_no"
-                            />
-                        </view>
-                    </template> -->
                     <template v-slot:body>
                         <view class="uni-list-item__body">
                             <text class="title">{{ group_item.bill_no }}</text>
@@ -105,11 +96,6 @@
                         { icon: 'refreshempty', text: '刷新' }
                     ],
                     admin_button_group: [
-                        // {
-                        //     text: '审核确认',
-                        //     backgroundColor: store.state.goods_nav_color.red,
-                        //     color: '#fff'
-                        // },
                         {
                             text: '新增入库计划',
                             backgroundColor: store.state.goods_nav_color.blue,
@@ -142,12 +128,6 @@
             uni.stopPullDownRefresh()
         },
         methods: {
-            // checkbox_click(e) {
-            //     let group_item = this.inv_plan_groups.find(x => x.bill_no == e.target.dataset.bill_no)
-            //     if (group_item) {
-            //         group_item.checked = !group_item.checked
-            //     }
-            // },
             goods_nav_click(e) {
                 if (e.index === 0) this.refresh() // btn:刷新
             },
@@ -187,33 +167,6 @@
                 await this.load_inv_plans()
                 this.last_refresh_time = Date.now()
             },
-            // async submit_audit() {
-            //     let checked_groups = this.inv_plan_groups.filter(x => x.checked)
-            //     if (checked_groups.length === 0) {
-            //         uni.showToast({ icon: 'none', title: '未选择任何条目' })
-            //         return
-            //     }
-            //     for (let i = 0; i < checked_groups.length; i++) {
-            //         let checked_inv_plans = this.inv_plans.filter(x => x.FBillNo == checked_groups[i].bill_no)
-            //         uni.showLoading({ title: 'Loading' })
-            //         let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
-            //         if (save_ids.length) {
-            //             await InvPlan.submit(save_ids) // 提交(admin补)
-            //         }
-            //         let ids = checked_inv_plans.map(x => x.FID)
-            //         let response = await InvPlan.audit(ids) // 审核确认
-            //         if (response.data.Result.ResponseStatus.IsSuccess) {
-            //             for (let j = 0; j < checked_inv_plans.length; j++) {
-            //                 await InvPlan.execute(checked_inv_plans[j])
-            //             }
-            //             await this.load_inv_plans()
-            //             uni.hideLoading()
-            //         } else {
-            //             uni.hideLoading()
-            //             uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
-            //         }
-            //     }
-            // },
             // 如果有当前入库任务，则继续入库任务
             init_plan() {
                 if (this.inbound_task) {

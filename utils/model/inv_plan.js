@@ -13,6 +13,7 @@ import InvLog from './inv_log'
  *   FOpQTY: 1,
  *   FBatchNo: '20240101',
  *   FBillNo: 'T001',
+ *   FSupplierId: 1,
  *   FRemark: 'some remark',
  *   FOpStaffNo: '12345',
  *   FReferId: 1
@@ -30,6 +31,7 @@ class InvPlan {
         this.FOpQTY = options.FOpQTY
         this.FInvIncre = 0
         this.FBatchNo = options.FBatchNo
+        if(options.FSupplierId) this.FSupplierId = { FSupplierId: options.FSupplierId }
         this.FBillNo = options.FBillNo
         this.FRemark = options.FRemark || ''
         this.FOpStaffNo = options.FOpStaffNo
@@ -181,7 +183,7 @@ class InvPlan {
                 FOpStaffNo: inv_plan.FOpStaffNo,
                 FRemark: inv_plan.FRemark,
                 FReceiver: inv_plan.FReceiver,
-                FBillNo: inv_plan.FBillNo
+                FSupplierId: inv_plan.FSupplierId
             }
             let inv_log = new InvLog(options)
             await inv_log.save()
@@ -197,7 +199,7 @@ class InvPlan {
                 FBillNo: inv_plan.FBillNo,
                 FOpStaffNo: inv_plan.FOpStaffNo,
                 FRemark: inv_plan.FRemark,
-                FBillNo: inv_plan.FBillNo
+                FSupplierId: inv_plan.FSupplierId
             }
             let src_inv_log = new InvLog(src_options)
             await src_inv_log.save()
@@ -211,7 +213,7 @@ class InvPlan {
                 FBillNo: inv_plan.FBillNo,
                 FOpStaffNo: inv_plan.FOpStaffNo,
                 FRemark: inv_plan.FRemark,
-                FBillNo: inv_plan.FBillNo
+                FSupplierId: inv_plan.FSupplierId
             }
             let dest_inv_log = new InvLog(dest_options)
             await dest_inv_log.save()

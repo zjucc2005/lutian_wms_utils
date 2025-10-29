@@ -26,6 +26,7 @@ class InvLog {
         this.FOpQTY = options.FOpQTY
         this.FInvIncre = ['in_cl', 'out', 'mv_out', 'sub'].includes(options.FOpType) ? -options.FOpQTY : options.FOpQTY
         this.FBatchNo = options.FBatchNo
+        if(options.FSupplierId) this.FSupplierId = { FSupplierId: options.FSupplierId }
         this.FBillNo = options.FBillNo || ''
         this.FRemark = options.FRemark || ''
         this.FOpStaffNo = options.FOpStaffNo
@@ -162,11 +163,11 @@ class InvLog {
             FMaterialId: inv_log.FMaterialId,
             FOpQTY: inv_log.FOpQTY,
             FBatchNo: inv_log.FBatchNo,
+            FSupplierId: inv_log.FSupplierId,
             FBillNo: inv_log.FBillNo,
             FOpStaffNo: inv_log.FOpStaffNo,
             FRemark: inv_log.FRemark,
-            FReceiver: inv_log.FReceiver,
-            FBillNo: inv_log.FBillNo
+            FReceiver: inv_log.FReceiver
         }
         // 删除旧日志
         await InvLog.delete([inv_log.FID])

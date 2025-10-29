@@ -30,8 +30,14 @@ class Inv {
      * @return {Hash} Promise
      */
     static query(options={}, meta={}) {
+        const fields = ['FID', 'FQty','FBatchNo', 'FCreateTime',
+                        'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.FImageFileServer',
+                        'FStockLocId', 'FStockLocId.FNumber', 'FStockLocId.FGroup', 'FStockLocId.FPosX', 'FStockLocId.FPosY',
+                        'FStockUnitId', 'FStockUnitId.FName',
+                        'FSupplierId', 'FSupplierId.FName']
         const data = {
             FormId: "PAEZ_C_INV",
+            FieldKeys: fields.join(','),
             FilterString: K3CloudApi.query_filter(options)
         }
         if (meta.per_page) {
@@ -63,9 +69,11 @@ class Inv {
         return sum_data
     }
     static async _get_all_recurse(options={}, meta={}, sum_data=[]) {
-        const fields = ['FID', 'FStockLocId', 'FStockLocId.FNumber', 'FStockLocId.FGroup', 'FStockLocId.FPosX', 'FStockLocId.FPosY',
+        const fields = ['FID', 'FQty','FBatchNo', 'FCreateTime',
                         'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.FImageFileServer',
-                        'FQty', 'FStockUnitId', 'FStockUnitId.FName', 'FBatchNo', 'FCreateTime']
+                        'FStockLocId', 'FStockLocId.FNumber', 'FStockLocId.FGroup', 'FStockLocId.FPosX', 'FStockLocId.FPosY',
+                        'FStockUnitId', 'FStockUnitId.FName',
+                        'FSupplierId', 'FSupplierId.FName']
         const data = {
             FormId: "PAEZ_C_INV",
             FieldKeys: fields.join(','),

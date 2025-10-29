@@ -29,12 +29,14 @@ def get_inv_qty(inv_log):
     WHERE FSTOCKID = {f_stock_id}
     AND FSTOCKLOCID = {f_stock_loc_id}
     AND FMATERIALID = {f_material_id}
-    AND FBATCHNO = {f_batch_no};
+    AND FBATCHNO = {f_batch_no}
+    AND FSUPPLIERID = {f_supplier_id};
     """.format(
     f_stock_id=inv_log['StockId_Id'],
     f_stock_loc_id=inv_log['StockLocId_Id'],
     f_material_id=inv_log['MaterialId_Id'],
-    f_batch_no=inv_log['BatchNo'])
+    f_batch_no=inv_log['BatchNo'],
+    f_supplier_id=inv_log['SupplierId_Id'])
     inv_qty = DBUtils.ExecuteScalar(this.Context, sql, None)
     return inv_qty or 0
 
@@ -58,12 +60,14 @@ def query_inv(inv_log):
     AND FSTOCKID = {f_stock_id}
     AND FSTOCKLOCID = {f_stock_loc_id}
     AND FMATERIALID = {f_material_id}
-    AND FBATCHNO = {f_batch_no};
+    AND FBATCHNO = {f_batch_no}
+    AND FSUPPLIERID = {f_supplier_id};
     """.format(
     f_stock_id=inv_log['StockId_Id'],
     f_stock_loc_id=inv_log['StockLocId_Id'],
     f_material_id=inv_log['MaterialId_Id'],
-    f_batch_no=inv_log['BatchNo'])
+    f_batch_no=inv_log['BatchNo'],
+    f_supplier_id=inv_log['SupplierId_Id'])
     query = DBUtils.ExecuteDynamicObject(this.Context, sql)
     return query
  
@@ -71,9 +75,9 @@ def create_inv(inv_log):
     inv_fid = ServiceHelper.DBServiceHelper.GetSequenceInt64(this.Context, 'PAEZ_t_C_INV', 1)[0]
     sql = """
     INSERT INTO PAEZ_t_C_INV
-    (FID, FFormId, FSTOCKID, FSTOCKLOCID, FMATERIALID, FQTY, FSTOCKUNITID, FBATCHNO, FLASTINBOUNDDATE, FCREATETIME)
+    (FID, FFormId, FSTOCKID, FSTOCKLOCID, FMATERIALID, FQTY, FSTOCKUNITID, FBATCHNO, FSUPPLIERID, FLASTINBOUNDDATE, FCREATETIME)
     VALUES 
-    ({fid}, '{f_form_id}', {f_stock_id}, {f_stock_loc_id}, {f_material_id}, {f_qty}, {f_stock_unit_id}, '{f_batch_no}', '{f_last_inbound_date}', '{f_create_time}');
+    ({fid}, '{f_form_id}', {f_stock_id}, {f_stock_loc_id}, {f_material_id}, {f_qty}, {f_stock_unit_id}, '{f_batch_no}', {f_supplier_id}, '{f_last_inbound_date}', '{f_create_time}');
     """.format(
     fid=inv_fid, # 获取主键
     f_form_id='PAEZ_C_INV', # 必须指明FormId
@@ -83,6 +87,7 @@ def create_inv(inv_log):
     f_qty=inv_log['InvQTY'],
     f_stock_unit_id=inv_log['StockUnitId_Id'],
     f_batch_no=inv_log['BatchNo'],
+    f_supplier_id=inv_log['SupplierId_Id'],
     f_last_inbound_date=inv_log['CreateTime'],
     f_create_time=inv_log['CreateTime'])
     DBUtils.Execute(this.Context, sql)

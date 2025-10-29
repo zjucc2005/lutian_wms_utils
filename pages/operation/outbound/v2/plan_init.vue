@@ -208,7 +208,7 @@
                     return
                 }
                 let url = pdf_template_inv_plans_out(this.inv_plans, { receiver: this.outbound_task.receiver })
-                uni.navigateTo({ url: `/pages/my/preview_pdf?url=${url}` }) // 打开预览页面
+                window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800') // 打开小窗口
             },
             // #endif
             new_plan(material_no) {

@@ -116,10 +116,18 @@
             },
             scan_code() {
                 scan_code().then(res => {
-                    this.search_form.no = res.result
+                    console.log('scan code:', res.result)
+                    this.search_form.no = this.parse_scan_code(res.result)
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })
                 })
+            },
+            parse_scan_code(text) {
+                if (text.includes('||')) {
+                    return text.split('||')[1]
+                } else {
+                    return text
+                }
             },
             // show_invs(material_no) {
             //     link_to('/pages/operation/manage/inv_search?t=' + material_no)
@@ -136,7 +144,7 @@
                 uni.showActionSheet({
                     itemList: ['库存明细', '库存调整', '库存日志', '物料详情'],
                     success: (e) => {
-                        if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${inv_group.material_no}`)
+                        if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${inv_group.material_no}&m=0`)
                         if (e.tapIndex === 1) link_to(`/pages/operation/move/v2/plan_new?material_no=${inv_group.material_no}`)
                         if (e.tapIndex === 2) link_to(`/pages/operation/list/inv_logs?material_no=${inv_group.material_no}`)
                         if (e.tapIndex === 3) link_to(`/pages/operation/material/show?id=${inv_group.material_id}`)

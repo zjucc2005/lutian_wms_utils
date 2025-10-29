@@ -11,7 +11,6 @@
                             <uni-list-item
                                 :show-extra-icon="true"
                                 :extra-icon="{ type: obj.selected ? 'circle-filled' : 'circle', size: '24', color: obj.selected ? '#007bff' : '#999999' }"
-                                :right-text="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
                                 @click="select_material(obj)" clickable
                                 show-arrow
                                 >
@@ -27,7 +26,7 @@
                                 <template #footer>
                                     <view class="uni-list-item__foot">
                                         <view>{{ obj.base_unit_qty }} {{ obj.base_unit_name }}</view>
-                                        <view v-if="inv_plans.some(x => x.FMaterialId === obj.material_id)" class="text-primary">已添加计划</view>
+                                        <view v-if="inv_plans.some(x => x.FMaterialId === obj.material_id)" class="text-primary">已计划 {{ planned_qty(obj.material_id) }}</view>
                                     </view>
                                 </template>
                             </uni-list-item>
@@ -40,8 +39,9 @@
                 <uni-section title="新增计划明细" type="square" :sub-title="inbound_task.bill_no" sub-title-color="#007aff">
                     <uni-steps :options="step_options" :active="step_active" class="uni-mt-5 uni-mb-5" />
                 </uni-section>
-
-                <uni-section v-if="step_active === 1" title="填写托盘信息" type="square" sub-title="‌‌总和 = ∑ (每托数量 x 托数)">
+                
+                <!-- 填写托盘信息 H5 -->
+                <uni-section v-if="planned_qty(form.material_id) < form.base_unit_qty" title="填写托盘信息" type="square" sub-title="‌‌总和 = ∑ (每托数量 x 托数)">
                     <view class="container">
                         <uni-table ref="pallet_infos" border stripe class="pallet-infos">
                             <uni-tr>
@@ -87,41 +87,50 @@
                         </view>
                     </view>
                 </uni-section>
-
-                <uni-section v-if="step_active === 2" title="当前计划明细" type="square">
+                
+                <!-- 当前计划明细 H5 -->
+                <uni-section v-if="inv_plans.filter(x => x.FMaterialId === form.material_id).length" title="当前计划明细" type="square">
                     <view class="container">
                         <uni-table border stripe>
                             <uni-tr>
                                 <uni-th align="center" width="60">序号</uni-th>
+                                <!--
                                 <uni-th align="center">物料编号</uni-th>
                                 <uni-th align="center">物料名称</uni-th>
                                 <uni-th align="center">规格型号</uni-th>
+                                -->
                                 <uni-th align="center" width="80">操作类型</uni-th>
                                 <uni-th align="center" width="60">数量</uni-th>
                                 <uni-th align="center" width="80">单位</uni-th>
-                                <uni-th align="center" width="80">批次</uni-th>
                                 <uni-th align="center" width="120">库位</uni-th>
-                                <uni-th align="center" width="120">操作员工编号</uni-th>
+                                <uni-th align="center" width="80">批次</uni-th>
+                                <uni-th align="center">供应商</uni-th>
                                 <uni-th align="center" width="80">状态</uni-th>
                                 <uni-th align="center" width="160">时间</uni-th>
+                                <uni-th align="center" width="80">操作</uni-th>
                             </uni-tr>
                             <uni-tr v-for="(inv_plan, index) in inv_plans.filter(x => x.FMaterialId === form.material_id)" :key="index">
                                 <uni-td align="center">{{ index + 1 }}</uni-td>
+                                <!--
                                 <uni-td>{{ inv_plan['FMaterialId.FNumber'] }}</uni-td>
                                 <uni-td>{{ inv_plan['FMaterialId.FName'] }}</uni-td>
                                 <uni-td>{{ inv_plan['FMaterialId.FSpecification'] }}</uni-td>
+                                -->
                                 <uni-td>{{ op_type_dict[inv_plan.FOpType] }}</uni-td>
                                 <uni-td>{{ inv_plan['FOpQTY'] }}</uni-td>
                                 <uni-td>{{ inv_plan['FStockUnitId.FName'] }}</uni-td>
-                                <uni-td>{{ inv_plan.FBatchNo }}</uni-td>
                                 <uni-td>{{ inv_plan['FStockLocId.FNumber'] }}</uni-td>
-                                <uni-td>{{ inv_plan.FOpStaffNo }}</uni-td>
+                                <uni-td>{{ inv_plan.FBatchNo }}</uni-td>
+                                <uni-td>{{ inv_plan['FSupplierId.FName'] }}</uni-td>
                                 <uni-td><text class="text-primary">{{ $store.state.document_status_dict[inv_plan.FDocumentStatu] }}</text></uni-td>
                                 <uni-td>{{ formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</uni-td>
+                                <uni-td align="center">
+                                    <uni-tag text="删除" type="error" @click="if_submit_delete(inv_plan.FID)"/>
+                                </uni-td>
                             </uni-tr>
                         </uni-table>
                         <view class="btn-wrapper">
-                            <button type="warn" size="mini" @click="if_submit_delete()">删除计划</button>
+                            <button type="warn" size="mini" @click="if_submit_delete()">删除全部</button>
                         </view>
                     </view>
                 </uni-section>
@@ -145,7 +154,6 @@
                             <uni-list-item
                                 :show-extra-icon="true"
                                 :extra-icon="{ type: obj.selected ? 'circle-filled' : 'circle', size: '24', color: obj.selected ? '#007bff' : '#999999' }"
-                                :right-text="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
                                 @click="select_material(obj)" clickable
                                 show-arrow
                                 >
@@ -161,7 +169,7 @@
                                 <template #footer>
                                     <view class="uni-list-item__foot">
                                         <view>{{ obj.base_unit_qty }} {{ obj.base_unit_name }}</view>
-                                        <view v-if="inv_plans.some(x => x.FMaterialId === obj.material_id)" class="text-primary">已添加计划</view>
+                                        <view v-if="inv_plans.some(x => x.FMaterialId === obj.material_id)" class="text-primary">已计划 {{ planned_qty(obj.material_id) }}</view>
                                     </view>
                                 </template>
                             </uni-list-item>
@@ -180,7 +188,6 @@
                         v-if="obj.selected"
                         :show-extra-icon="true"
                         :extra-icon="{ type: obj.selected ? 'circle-filled' : 'circle', size: '24', color: obj.selected ? '#007bff' : '#999999' }"
-                        :right-text="[obj.base_unit_qty, obj.base_unit_name].join(' ')"
                         @click="$refs.material_drawer.open()" clickable
                         show-arrow
                         >
@@ -196,6 +203,7 @@
                         <template #footer>
                             <view class="uni-list-item__foot">
                                 <view>{{ obj.base_unit_qty }} {{ obj.base_unit_name }}</view>
+                                <view v-if="inv_plans.some(x => x.FMaterialId === obj.material_id)" class="text-primary">已计划 {{ planned_qty(obj.material_id) }}</view>
                             </view>
                         </template>
                     </uni-list-item>
@@ -203,6 +211,7 @@
             </uni-list>
         </uni-section>
     
+        <!-- 填写托盘信息 APP -->
         <uni-section v-if="step_active === 1" title="填写托盘信息" type="square" sub-title="‌‌总和 = ∑ (每托数量 x 托数)">
             <view class="container">
                 <uni-table ref="pallet_infos" border stripe class="pallet-infos">
@@ -246,23 +255,23 @@
             </view>
         </uni-section>
         
-        <uni-section v-if="step_active === 2" title="当前计划明细" type="square">
+        <!-- 当前计划明细 APP -->
+        <uni-section v-if="inv_plans.filter(x => x.FMaterialId === form.material_id).length" title="当前计划明细" type="square" class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
                     v-for="(inv_plan, index) in inv_plans.filter(x => x.FMaterialId === form.material_id)"
                     :key="index"
                     :show-extra-icon="true"
                     :extra-icon="{ type: 'arrow-up', size: '24', color: '#dd524d' }"
-                    :title="inv_plan['FStockLocId.FNumber']"
-                    :note="`${inv_plan.FPalletQty} 托(${inv_plan.FRemark})`"
+                    @click="if_submit_delete(inv_plan.FID)" clickable
+                    show-arrow
                     >
-                    
                     <template #body>
                         <view class="uni-list-item__body">
                             <view class="title">{{ inv_plan['FStockLocId.FNumber'] }}</view>
                             <view class="note">
                                 <view>批次：{{ inv_plan.FBatchNo }}</view> 
-                                <view>规格：{{ inv_plan['FMaterialId.FSpecification'] }}</view>
+                                <view>供应商：{{ inv_plan['FSupplierId.FName'] }}</view>
                             </view>
                         </view>
                     </template>
@@ -302,6 +311,7 @@
                 inv_plans_preview: [],
                 form: {
                     material_id: '',
+                    base_unit_qty: 0,
                     pallet_infos: []
                 },
                 op_type_dict: InvPlan.FOpTypeEnum,
@@ -379,13 +389,14 @@
                 }
                 obj.selected = true
                 this.init_form(obj)
-                this.$refs['material_drawer'].close()
+                this.$refs['material_drawer']?.close() // app-plus
             },
             // 2. 表单操作
             init_form(obj) {
                 // uni.showLoading({ title: '初始化表单' })
                 this.form.pallet_infos = [{ per_qty: '', pallet_qty: '' }]
                 this.form.material_id = obj.material_id
+                this.form.base_unit_qty = obj.base_unit_qty
                 if (this.inv_plans.some(inv_plan => inv_plan.FMaterialId === obj.material_id)) {
                     this.activate_step(2)
                 } else {
@@ -419,7 +430,7 @@
             // 3. 分配库位
             allocate_loc_no() {
                 let obj = this.inbound_task.inbound_list.find(x => x.material_id == this.form.material_id)
-                if (this.sum_qty_of_pallet_info !== obj.base_unit_qty) {
+                if (this.sum_qty_of_pallet_info !== obj.base_unit_qty - this.planned_qty(obj.material_id)) {
                     uni.showToast({ icon: 'none', title: '物料数量不一致' })
                     return
                 }
@@ -448,10 +459,9 @@
             },
             is_idle_stock_loc(loc_no) {
                 if (store.state.stock_locs.find(x => x.FNumber == loc_no && x.FForbidStatus == 'B')) return false // 禁用库位
-                // if (!is_loc_no_std_format(loc_no)) return true // 独立库位，默认闲置
                 return !this.invs.some(inv => inv['FStockLocId.FNumber'] == loc_no ) &&
-                !this.inv_plans.some(inv_plan => inv_plan['FStockLocId.FNumber'] == loc_no) &&
-                !this.inv_plans_ex.some(inv_plan => inv_plan['FStockLocId.FNumber'] == loc_no)
+                       !this.inv_plans.some(inv_plan => inv_plan['FStockLocId.FNumber'] == loc_no) &&
+                       !this.inv_plans_ex.some(inv_plan => inv_plan['FStockLocId.FNumber'] == loc_no)
             },
             // after allocate
             preview(allocate_info) {
@@ -472,13 +482,22 @@
                 }
                 this.inv_plans_preview = inv_plans_preview
             },
+            planned_qty(material_id) {
+                let res = 0
+                for (let inv_plan of this.inv_plans) {
+                    if (inv_plan.FMaterialId == material_id) {
+                        res += inv_plan.FOpQTY
+                    }
+                }
+                return res
+            },
             // 4. 删除计划（撤销）
-            if_submit_delete() {
+            if_submit_delete(inv_plan_id) {
                 uni.showModal({
-                    title: '删除计划',
-                    content: '是否确定删除当前物料的全部计划明细？',
+                    title: inv_plan_id ? '删除' : '删除全部',
+                    content: inv_plan_id ? '是否确定删除?' : '是否确定删除当前物料的全部计划明细？',
                     success: (res) => {
-                        if (res.confirm) this.submit_delete()
+                        if (res.confirm) this.submit_delete(inv_plan_id)
                     },
                     fail: (err) => {}
                 })
@@ -493,21 +512,22 @@
                 } else if (this.step_active === 1) {
                     if (e.index === 0) this.allocate_loc_no()  // btn:分配库位
                 } else if (this.step_active === 2) {
-                    if (e.index === 0) this.if_submit_delete() // btn:删除
+                    if (e.index === 0) this.activate_step(1)
+                    if (e.index === 1) this.if_submit_delete() // btn:删除
                 }
             },
             // 设定操作步骤，关联步骤条和按键的显示变更
             activate_step(step) {
                 this.step_active = step                
                 if (step === 0) {
-                    this.goods_nav.button_group[0].text = '分配库位'
-                    this.goods_nav.button_group[0].backgroundColor = store.state.goods_nav_color.grey
+                    this.goods_nav.button_group = [{ text: '分配库位', backgroundColor: store.state.goods_nav_color.grey, color: '#fff' }]
                 } else if (step === 1) {
-                    this.goods_nav.button_group[0].text = '分配库位'
-                    this.goods_nav.button_group[0].backgroundColor = store.state.goods_nav_color.blue
+                    this.goods_nav.button_group = [{ text: '分配库位', backgroundColor: store.state.goods_nav_color.blue, color: '#fff' }]
                 } else if (step === 2) {
-                    this.goods_nav.button_group[0].text = '删除计划'
-                    this.goods_nav.button_group[0].backgroundColor = store.state.goods_nav_color.red
+                    this.goods_nav.button_group = [
+                        { text: '上一步', backgroundColor: store.state.goods_nav_color.grey, color: '#fff' },
+                        { text: '删除全部计划', backgroundColor: store.state.goods_nav_color.red, color: '#fff' }
+                    ]
                 }
             },
             // * 接口调用 *
@@ -570,6 +590,7 @@
                         FMaterialId: obj.material_id, // NOTE
                         FOpQTY: item.qty * 1,
                         FBatchNo: obj.batch_no,
+                        FSupplierId: obj.supplier_id,
                         FBillNo: this.inbound_task.bill_no,
                         FOpStaffNo: store.state.cur_staff.FNumber,
                         FRemark: item.pallet_infos.join(','),
@@ -583,9 +604,14 @@
                 this.activate_step(2) // save
                 uni.pageScrollTo({ scrollTop: 0 })
             },
-            async submit_delete() {
-                if (this.step_active !== 2) return
-                let inv_plans = this.inv_plans.filter(inv_plan => inv_plan.FMaterialId === this.form.material_id)
+            async submit_delete(inv_plan_id) {
+                // if (this.step_active !== 2) return
+                let inv_plans = []
+                if (inv_plan_id) {
+                    inv_plans = this.inv_plans.filter(inv_plan => inv_plan.FID === inv_plan_id)
+                } else {
+                    inv_plans = this.inv_plans.filter(inv_plan => inv_plan.FMaterialId === this.form.material_id)
+                }
                 if (inv_plans.some(inv_plan => inv_plan.FDocumentStatu != 'A')) {
                     uni.showToast({ icon: 'none', title: '不能删除' })
                     return

@@ -62,7 +62,7 @@
         // 我的
         { "path": "pages/my/index",       "style": { "navigationBarTitleText": "我"} },
         { "path": "pages/my/open_url",    "style": { "navigationBarTitleText": "外链URL" } },
-        { "path": "pages/my/preview_pdf", "style": { "navigationBarTitleText": "预览PDF" } },
+        { "path": "pages/my/preview_pdf", "style": { "navigationBarTitleText": "预览PDF", "navigationStyle": "custom" } },
         { "path": "pages/my/release_note", "style": { "navigationBarTitleText": "历次更新说明" } },
         { "path": "pages/my/settings",    "style": { "navigationBarTitleText": "设置" } },
         { "path": "pages/my/utils/index", "style": { "navigationBarTitleText": "脚本工具" } },
