@@ -244,7 +244,7 @@
         height: 100vh;
         overflow: hidden;
         background-color: #1D2B56;
-        background: url(./static/image/dashboard-bg.jpg) no-repeat;
+        background: url('@/static/image/dashboard-bg.jpg') no-repeat;
         background-size: cover;
         .uni-table {
             background: none !important;
