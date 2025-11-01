@@ -28,6 +28,7 @@
         { "path": "pages/operation/outbound/v1/logs",     "style": { "navigationBarTitleText": "出库 - 操作日志" } },
         { "path": "pages/operation/move/v1/index",        "style": { "navigationBarTitleText": "库存调整" } },
         { "path": "pages/operation/move/v1/move_cart",    "style": { "navigationBarTitleText": "库存调整 - 计划" } },
+        { "path": "pages/operation/move/unpack",          "style": { "navigationBarTitleText": "库内调拨" } },
         // 仓库流程 VERSION 2
         { "path": "pages/operation/index_v2", "style": { "navigationBarTitleText": "" } },
         { "path": "pages/operation/inbound/v2/index", "style": { "navigationBarTitleText": "入库计划", "enablePullDownRefresh": true } },

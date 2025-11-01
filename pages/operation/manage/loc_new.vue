@@ -53,7 +53,7 @@
                     :localdata="[
                         { text: '标准库位', value: 'standard' },
                         { text: '地面库位', value: 'ground' },
-                        // { text: '独立库位', value: 'special' },
+                        { text: '独立库位', value: 'special' },
                     ]"
                     class="uni-mb-10"
                     >
@@ -85,6 +85,14 @@
                         </uni-forms-item>
                         <uni-forms-item label="总行数" name="row">
                             <uni-number-box v-model="new_form.row" :min="1" :max="99" />
+                        </uni-forms-item>
+                    </template>
+                    <template v-if="new_form.type === 'special'">
+                        <uni-forms-item label="仓库编号" name="depot">
+                            <uni-easyinput v-model="new_form.depot" trim="both" />
+                        </uni-forms-item>
+                        <uni-forms-item label="类型" name="shelf">
+                            <uni-data-select v-model="new_form.shelf" :localdata="[{ value: '拆包区', text: '拆包区' }]"></uni-data-select>
                         </uni-forms-item>
                     </template>
                     <uni-forms-item label="示例">
@@ -201,6 +209,8 @@
                         obj.row = `0${this.new_form.row}`
                     }
                     return `${obj.depot.toUpperCase()}-${obj.shelf.toUpperCase()}01-01 ~ ${obj.column}-${obj.row}`
+                } else if (this.new_form.type === 'special') {
+                    return `${obj.depot.toUpperCase()}-${obj.shelf.toUpperCase()}`
                 } else {
                     return ''
                 }
@@ -351,6 +361,14 @@
                             })
                         }
                     }
+                } else if (type === 'special') {
+                    loc_nos.push({
+                        no: `${depot}-${shelf}`,
+                        status: '',
+                        shelf: `${depot}-${shelf}`,
+                        x: 1,
+                        y: 1
+                    })
                 }
                 return loc_nos
             },
