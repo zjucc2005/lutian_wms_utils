@@ -2,7 +2,7 @@
     <!-- 自制组件，自适应窗口变化 -->
     <cc-grid>
         <template v-for="(nav, index) in navs" :key="index">
-            <cc-grid-item v-if="nav.permission.includes($store.state.role) || (nav.permission.includes('all') && $store.state.role != 'guest')" @click="nav.action">
+            <cc-grid-item v-if="$store.state.role == 'su' || nav.permission.includes($store.state.role) || (nav.permission.includes('all') && $store.state.role != 'guest')" @click="nav.action">
                 <view class="grid-item-box">
                     <image :src="nav.icon_path" mode="widthFix" class="grid-item-icon"></image>
                     <text class="grid-item-text">{{ nav.name }}</text>
@@ -14,7 +14,7 @@
 
 <script>
     import store from '@/store'
-    import { play_audio_prompt, link_to } from '@/utils'
+    import { link_to } from '@/utils'
     import scan_code from '@/utils/scan_code'
     import ccGrid from '@/components/cc-grid/cc-grid.vue'
     import ccGridItem from '@/components/cc-grid/cc-grid-item.vue'
@@ -26,12 +26,22 @@
             return {
                 // 导航界面信息
                 navs: [
+                    // ifdef APP-PLUS
+                    // {
+                    //     name: '入库扫描', permission: ['wh_admin'], icon_path: '/static/icon/nav_scan_in.png',
+                    //     action: () => { link_to('/pages/operation/inbound/v1/index') }
+                    // },
+                    // {
+                    //     name: '出库扫描', permission: ['wh_admin'], icon_path: '/static/icon/nav_scan_out.png',
+                    //     action: () => { link_to('/pages/operation/outbound/v1/index') }
+                    // },
+                    // endif
                     {
-                        name: '入库', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock_in.png',
+                        name: '入库计划', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock_in.png',
                         action: () => { link_to('/pages/operation/inbound/v2/index') }
                     },
                     {
-                        name: '出库', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock_out.png',
+                        name: '出库计划', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock_out.png',
                         action: () => { link_to('/pages/operation/outbound/v2/index') }
                     },
                     {
@@ -50,18 +60,18 @@
                         name: '库位管理', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock_loc.png',
                         action: () => { link_to('/pages/operation/manage/locs') }
                     },
-                    {
-                        name: '库位报警', permission: ['wh_staff'], icon_path: '/static/icon/nav_stock_warn.png',
-                        action: () => { link_to('/pages/operation/manage/locs') }
-                    },
+                    // {
+                    //     name: '库位报警', permission: ['wh_staff'], icon_path: '/static/icon/nav_stock_warn.png',
+                    //     action: () => { link_to('/pages/operation/manage/locs') }
+                    // },
                     {
                         name: '物料查询', permission: ['default', 'wh_admin', 'wh_staff', 'nrj_admin', 'guest'], icon_path: '/static/icon/nav_stock_search.png',
                         action: () => { link_to('/pages/operation/material/search') }
                     },
-                    {
-                        name: '配件查询', permission: ['default'], icon_path: '/static/icon/nav_node_tree.png',
-                        action: () => { link_to('/pages/operation/material/search_parts') }
-                    },
+                    // {
+                    //     name: '配件查询', permission: ['default'], icon_path: '/static/icon/nav_node_tree.png',
+                    //     action: () => { link_to('/pages/operation/material/search_parts') }
+                    // },
                     {
                         name: '出库查询', permission: ['default'], icon_path: '/static/icon/nav_truck.png',
                         action: () => { link_to('/pages/operation/outbound/v2/search') }
@@ -74,12 +84,12 @@
                         name: '统计', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_chart.png',
                         action: () => { link_to('/pages/operation/statistics/index') }
                     },
+                    // {
+                    //     name: '生产订单', permission: ['nrj_admin', 'guest'], icon_path: '/static/icon/nav_list_move.png',
+                    //     action: () => { link_to('/pages/operation/manufacture_order/index') }
+                    // },
                     {
-                        name: '生产订单', permission: ['nrj_admin', 'guest'], icon_path: '/static/icon/nav_list_move.png',
-                        action: () => { link_to('/pages/operation/manufacture_order/index') }
-                    },
-                    {
-                        name: '标签打印', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_printer.png',
+                        name: '标签打印', permission: ['nrj_admin'], icon_path: '/static/icon/nav_printer.png',
                         action: () => { link_to('/pages/operation/print/index') }
                     }
                     // ,

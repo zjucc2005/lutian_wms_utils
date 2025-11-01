@@ -44,7 +44,8 @@
                     </uni-td>
                     <uni-td>{{ formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</uni-td>
                     <uni-td align="center">
-                        <uni-tag text="删除" type="error" @click="if_submit_delete(inv_plan)"/>
+                        <uni-tag v-if="inv_plan.FDocumentStatu == 'A'"
+                            text="删除" type="error" @click="if_submit_delete(inv_plan)"/>
                     </uni-td>
                 </uni-tr>
             </uni-table>
@@ -63,7 +64,7 @@
     
     <!-- APP-PLUS -->
     <template v-else>
-        <view v-if="$store.state.role == 'wh_admin'">
+        <!-- <view v-if="$store.state.role.includes('admin')"> -->
             <uni-section title="入库计划" type="square"
                 :sub-title="bill_no"
                 class="above-uni-goods-nav">
@@ -75,7 +76,7 @@
                         show-arrow
                         @longpress="list_item_click(inv_plan)"
                         >
-                        <template v-slot:header>
+                        <template #header>
                             <view class="uni-list-item__head">
                                 <checkbox
                                     :checked="inv_plan.checked"
@@ -85,7 +86,7 @@
                                 />
                             </view>
                         </template>
-                        <template v-slot:body>
+                        <template #body>
                             <view class="uni-list-item__body">
                                 <view class="title">{{ inv_plan['FMaterialId.FNumber'] }}</view>
                                 <view class="note">
@@ -99,7 +100,7 @@
                                 </view>
                             </view>
                         </template>
-                        <template v-slot:footer>
+                        <template #footer>
                             <view class="uni-list-item__foot">
                                 <view class="op_qty">
                                     <uni-icons type="arrow-up" size="18" color="#dd524d"></uni-icons>
@@ -121,9 +122,9 @@
                     @button-click="goods_nav_admin_button_click"
                 />
             </view>
-        </view>
+        <!-- </view> -->
         
-        <view v-if="$store.state.role == 'wh_staff'">
+        <!-- <view v-if="$store.state.role.includes('staff')">
             <uni-section title="入库计划" type="square"
                 :sub-title="bill_no"
                 class="above-uni-goods-nav">
@@ -175,7 +176,7 @@
                     @button-click="goods_nav_staff_button_click"
                 />
             </view>
-        </view>
+        </view> -->
     </template>
 </template>
 
@@ -298,14 +299,14 @@
                     this.inv_plans = res.data
                     this.inv_plans.forEach(inv_plan => {
                         inv_plan.checked = false
-                        if (store.state.role == 'wh_admin') {
+                        // if (store.state.role.includes('admin')) {
                             inv_plan.disabled = !['A', 'B'].includes(inv_plan.FDocumentStatu)
                             inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
-                        }
-                        if (store.state.role == 'wh_staff') {
-                            inv_plan.disabled = inv_plan.FDocumentStatu != 'A'
-                            inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
-                        }
+                        // }
+                        // if (store.state.role.includes('staff')) {
+                        //     inv_plan.disabled = inv_plan.FDocumentStatu != 'A'
+                        //     inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
+                        // }
                     })
                 })
             },

@@ -64,7 +64,7 @@
     import XLSX from 'xlsx'
     import K3CloudApi from '@/utils/k3cloudapi'
     import { get_bd_material } from '@/utils/api'
-    import { Inv, InvPlan, InvLog, BdMaterial, StockLoc, EngBom } from '@/utils/model'
+    import { Inv, InvPlan, InvLog, BdEmpInfo, BdMaterial, StockLoc, EngBom } from '@/utils/model'
     import { CcGrid } from '@/utils/model/cc_shelf'
     import { string_to_arraybuffer, link_to } from '@/utils'
     export default {
@@ -181,47 +181,22 @@
                 })
             },
             async call_test_api() {
-                let arr = []
-                let res = await StockLoc.query({ FNumber_sw: 'WL02' })
-                for (let loc of res.data) {
-                    // arr.push(loc.FID)
-                }
-                // StockLoc.delete(arr)
-                // this.retry_inv_plan_sn('181318856583740204')
-                // this.retry_inv_plan('FHTZD091834')
-                // let mat_nos = ['8.100.00003.00']
-                // for (let mat_no of mat_nos) {
-                //     let mat_res = await BdMaterial.query({ FNumber: mat_no })
-                //     for (let mat of mat_res.data) {
-                //         let id = mat.FMaterialId
-                //         let name = mat.FName
-                //         let spec = mat.FSpecification
-                //         await BdMaterial.update(id, { FName: spec, FSpecification: name })
-                //     }
+                // let arr = []
+                // let res = await StockLoc.query({ FNumber_sw: 'WL02' })
+                // for (let loc of res.data) {
+                //     // arr.push(loc.FID)
                 // }
-                // BdMaterial.update(3221209, { FSpecification: 'RC1206FR-071RL' })
-                // BdMaterial.query({ FNumber: '8.341.00002.00' })
-                // const data = {
-                //     model: {
-                //         FNumber: '0.0.0.0003',
-                //         FName: 'PLM测试0430',
-                //         FSpecification: 'AfterSave回调测试 - 复制参考物料指定字段 - 2'
-                //     }
+                BdEmpInfo.query({  FName: '蔡畅'})
+                // BdEmpInfo.update(2980281, { FWMSPWD: '19352' })
+                // const params = {
+                //     FormId: 'BD_EMPINFO',
+                //     StartRow: 0,
+                //     Limit: 100,
+                //     FilterString: "FName = '龙求云'",
+                //     // FilterString: [{"Left":"","FieldName":"FName","Compare":"17","Value":"罗","Right":"","Logic":0}],
+                //     OrderString: "FID DESC"
                 // }
-                // const data = {
-                //     model: {
-                //         FMaterialId: 3127533
-                //     }
-                // }
-                // K3CloudApi.save('BD_MATERIAL', data)
-                // K3CloudApi.audit('BD_MATERIAL', { Ids: "3127600"})
-                // for (let i = 0; i < nos.length; i++) {
-                //     let res = await BdMaterial.query({ FUseOrgId: store.state.cur_stock.FUseOrgId, FNumber: nos[i].trim() }, {})
-                //     if (res.data && res.data[0]) {
-                //         let d = res.data[0]
-                //         await BdMaterial.update(res.data[0].FMaterialId, { F_RGEN_xsjc_83g: scs[i].trim() })
-                //     }
-                // }
+                // K3CloudApi.bill_query(params)
             },
             call_delete_api() {
                 // Inv.query({ FMaterialId: '' }).then(res => {

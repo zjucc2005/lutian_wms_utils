@@ -7,19 +7,38 @@
  * 删除 delete: delete_examples
  */
 import K3CloudApi from "@/utils/k3cloudapi";
+import { BdEmpInfo } from "@/utils/model";
 
-/** 
- * 员工登录认证
+/** 用户登录认证
+ * @params options.keys - [ org_id, staff_name, staff_no, password ]
  * @return { Hash/undefined } Promise
  */
-const validate_staff = async (staff_name, staff_no, org_id) => {
+const validate_user = async (options) => {
     let result = { FOperatorGroup: [] }
-    // validate warehouseworker
+    // 用户验证
+    let emp_fields = ['FID', 'FName', 'FNumber', 'FForbidStatus', 'FUseOrgId', 'FUseOrgId.FName', 'FWMSPWD']
+    let emp_res = await BdEmpInfo.query({ 
+        FName: options.staff_name, 
+        FNumber: options.staff_no, 
+        FWMSPWD_in: options.password.toUpperCase() === options.staff_no.toUpperCase() ? ['', options.password] : [options.password],
+    })
+    if (emp_res.data.length > 0) {
+        let d = emp_res.data[0]
+        result.FID = d.FID
+        result.FName = d.FName
+        result.FNumber = d.FNumber
+        result.FForbidStatus = d.FForbidStatus
+        result.FBizOrgId = d.FUseOrgId
+        result['FBizOrgId.FName'] = d['FUseOrgId.FName']
+    } else {
+        return result
+    }
+    // 获取权限
     let fields = ['FID', 'FName', 'FNumber', 'FForbidStatus', 'FBizOrgId', 'FBizOrgId.FName']
     const data = {
         FormId: "BD_WAREHOUSEWORKERS",
         FieldKeys: fields.concat(['FOperatorGroupId', 'FOperatorGroupId.FNumber', 'FOperatorGroupId.FName']).join(','),
-        FilterString: K3CloudApi.query_filter({ FName: staff_name, FNumber: staff_no, FBizOrgId: org_id })
+        FilterString: K3CloudApi.query_filter({ FNumber: options.staff_no, FBizOrgId: options.org_id })
     }
     let wh_res = await K3CloudApi.bill_query(data)
     if (wh_res.data.length > 0) {
@@ -30,26 +49,51 @@ const validate_staff = async (staff_name, staff_no, org_id) => {
             result.FOperatorGroup.push(wh_res.data[i]['FOperatorGroupId.FNumber'])
         }
     }
-    if (result?.FName) return result
-    // validate employee
-    let emp_fields = ['FID', 'FName', 'FNumber', 'FForbidStatus', 'FUseOrgId', 'FUseOrgId.FName']
-    const emp_data = {
-        FormId: "BD_EMPINFO",
-        FieldKeys: emp_fields.join(','),
-        FilterString: K3CloudApi.query_filter({ FName: staff_name, FNumber: staff_no })
-    }
-    let emp_res = await K3CloudApi.bill_query(emp_data)
-    if (emp_res.data.length > 0) {
-        let d = emp_res.data[0]
-        result.FID = d.FID
-        result.FName = d.FName
-        result.FNumber = d.FNumber
-        result.FForbidStatus = d.FForbidStatus
-        result.FBizOrgId = d.FUseOrgId
-        result['FBizOrgId.FName'] = d['FUseOrgId.FName']
-    }
     return result
 }
+
+/** 
+ * 员工登录认证
+ * @return { Hash/undefined } Promise
+ */
+// const validate_staff = async (staff_name, staff_no, org_id) => {
+//     let result = { FOperatorGroup: [] }
+//     // validate warehouseworker
+//     let fields = ['FID', 'FName', 'FNumber', 'FForbidStatus', 'FBizOrgId', 'FBizOrgId.FName']
+//     const data = {
+//         FormId: "BD_WAREHOUSEWORKERS",
+//         FieldKeys: fields.concat(['FOperatorGroupId', 'FOperatorGroupId.FNumber', 'FOperatorGroupId.FName']).join(','),
+//         FilterString: K3CloudApi.query_filter({ FName: staff_name, FNumber: staff_no, FBizOrgId: org_id })
+//     }
+//     let wh_res = await K3CloudApi.bill_query(data)
+//     if (wh_res.data.length > 0) {
+//         for (let i in fields) {
+//             result[fields[i]] = wh_res.data[0][fields[i]]
+//         }
+//         for (let i in wh_res.data) {
+//             result.FOperatorGroup.push(wh_res.data[i]['FOperatorGroupId.FNumber'])
+//         }
+//     }
+//     if (result?.FName) return result
+//     // validate employee
+//     let emp_fields = ['FID', 'FName', 'FNumber', 'FForbidStatus', 'FUseOrgId', 'FUseOrgId.FName']
+//     const emp_data = {
+//         FormId: "BD_EMPINFO",
+//         FieldKeys: emp_fields.join(','),
+//         FilterString: K3CloudApi.query_filter({ FName: staff_name, FNumber: staff_no })
+//     }
+//     let emp_res = await K3CloudApi.bill_query(emp_data)
+//     if (emp_res.data.length > 0) {
+//         let d = emp_res.data[0]
+//         result.FID = d.FID
+//         result.FName = d.FName
+//         result.FNumber = d.FNumber
+//         result.FForbidStatus = d.FForbidStatus
+//         result.FBizOrgId = d.FUseOrgId
+//         result['FBizOrgId.FName'] = d['FUseOrgId.FName']
+//     }
+//     return result
+// }
 
 /** 
  * 获取仓库基础数据
@@ -58,7 +102,7 @@ const validate_staff = async (staff_name, staff_no, org_id) => {
 const get_bd_stocks = async () => {
     const data = {
         FormId: 'BD_STOCK',
-        FieldKeys: "FStockId,FName,FNumber,FGroup,FGroup.FName,FUseOrgId,FUseOrgId.FName,FDocumentStatus,FForbidStatus",
+        FieldKeys: "FStockId,FName,FNumber,FGroup,FGroup.FName,FUseOrgId,FUseOrgId.FNumber,FUseOrgId.FName,FDocumentStatus,FForbidStatus",
     }
     return K3CloudApi.bill_query(data)
 }
@@ -147,7 +191,8 @@ const search_bd_materials = async (options, meta) => {
 }
 
 export {
-    validate_staff,
+    validate_user,
+    // validate_staff,
     get_bd_stocks,
     get_bd_supplier,
     get_bd_material,

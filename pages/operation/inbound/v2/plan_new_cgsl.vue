@@ -125,7 +125,8 @@
                                 <uni-td><text class="text-primary">{{ $store.state.document_status_dict[inv_plan.FDocumentStatu] }}</text></uni-td>
                                 <uni-td>{{ formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</uni-td>
                                 <uni-td align="center">
-                                    <uni-tag text="删除" type="error" @click="if_submit_delete(inv_plan.FID)"/>
+                                    <uni-tag v-if="inv_plan.FDocumentStatu == 'A'"
+                                        text="删除" type="error" @click="if_submit_delete(inv_plan.FID)"/>
                                 </uni-td>
                             </uni-tr>
                         </uni-table>
@@ -608,9 +609,9 @@
                 // if (this.step_active !== 2) return
                 let inv_plans = []
                 if (inv_plan_id) {
-                    inv_plans = this.inv_plans.filter(inv_plan => inv_plan.FID === inv_plan_id)
+                    inv_plans = this.inv_plans.filter(inv_plan => inv_plan.FID === inv_plan_id && inv_plan.FDocumentStatu == 'A')
                 } else {
-                    inv_plans = this.inv_plans.filter(inv_plan => inv_plan.FMaterialId === this.form.material_id)
+                    inv_plans = this.inv_plans.filter(inv_plan => inv_plan.FMaterialId === this.form.material_id && inv_plan.FDocumentStatu == 'A')
                 }
                 if (inv_plans.some(inv_plan => inv_plan.FDocumentStatu != 'A')) {
                     uni.showToast({ icon: 'none', title: '不能删除' })

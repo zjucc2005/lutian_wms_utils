@@ -12,7 +12,7 @@
             <uni-list-item title="名称" :right-text="bd_material.Name[0]?.Value" />
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
             <uni-list-item title="存货类别" :right-text="bd_material.MaterialBase[0].CategoryID.Name[0].Value" />
-            <uni-list-item title="使用组织" :right-text="bd_material.UseOrgId.Name[0]?.Value" />
+            <!-- <uni-list-item title="使用组织" :right-text="bd_material.UseOrgId.Name[0]?.Value" /> -->
             <uni-list-item 
                 title="销售简称" 
                 :right-text="bd_material.F_RGEN_xsjc_83g"
@@ -24,15 +24,15 @@
                 title="单箱标准数量"
                 :right-text="bd_material.MaterialStock[0].BoxStandardQty.toString()"
                 @click="edit_field('FBoxStandardQty')"
-                :clickable="is_admin"
-                :show-arrow="is_admin"
+                :clickable="can_edit"
+                :show-arrow="can_edit"
                 />
             <uni-list-item
                 title="单托标准数量"
                 :right-text="bd_material.F_RGEN_Text_qtr"
                 @click="edit_field('F_RGEN_Text_qtr')"
-                :clickable="is_admin"
-                :show-arrow="is_admin"
+                :clickable="can_edit"
+                :show-arrow="can_edit"
                 />
             <uni-list-item
                 title="仓库"
@@ -126,7 +126,7 @@
                     thumb-size="lg"
                     >
                     <template #footer>
-                        <view v-if="can_edit" class="uni-list-item__foot">
+                        <view v-if="is_admin" class="uni-list-item__foot">
                             <uni-icons v-if="bd_material[field].trim()" type="trash" size="24" color="#dd524d" @click="if_image_delete(index)" class="uni-mr-5" />
                             <button type="primary" size="mini" @click="image_upload(index)">选择上传</button>
                         </view>
@@ -206,9 +206,8 @@
                 edit_form: { name: '', type: 'text', field: '', value: '', value_was: '' },
                 goods_nav: {
                     options: [
-                        // { icon: 'left', text: '返回' },
                         { icon: 'image', text: '上传图片'},
-                        { icon: 'search', text: 'BOM' }
+                        // { icon: 'search', text: 'BOM' }
                     ],
                     button_group: [
                         { text: '打印模板', color: '#fff', backgroundColor: store.state.goods_nav_color.grey }
@@ -225,11 +224,14 @@
             // BdMaterial.update(2554297, { FImageFileServer: "9e56ca4797164f128d37fca3dbc9eaa3" })
         },
         computed: {
+            // can_edit() {
+            //     return (store.state.cur_stock.FUseOrgId && store.state.cur_stock.FUseOrgId == this.bd_material.CreateOrgId.Id && this.is_admin)
+            // },
             can_edit() {
-                return (store.state.cur_stock.FUseOrgId && store.state.cur_stock.FUseOrgId == this.bd_material.CreateOrgId.Id && this.is_admin)
+                return ['wh_admin', 'nrj_admin'].includes(store.state.role)
             },
             is_admin() {
-                return ['wh_admin', 'nrj_admin'].includes(store.state.role)
+                return (store.state.cur_stock.FUseOrgId && store.state.cur_stock.FUseOrgId === 1 && ['wh_admin', 'nrj_admin'].includes(store.state.role))
             }
         },
         methods: {

@@ -38,6 +38,9 @@
                     <uni-forms-item label="工号" name="staff_no">
                         <uni-easyinput v-model="login_form.staff_no" trim="both" />
                     </uni-forms-item>
+                    <uni-forms-item label="密码" name="password">
+                        <uni-easyinput v-model="login_form.password" type="password" trim="both" />
+                    </uni-forms-item>
                     <button type="primary" @click="submit_login">登录</button>
                     <button @click="$refs.guest_login_dialog.open()" class="uni-mt-11">访客账号登录</button>
                 </uni-forms>
@@ -82,7 +85,7 @@
     // import checkUpdate from '@/uni_modules/uni-upgrade-center-app/utils/check-update'
     import store from '@/store'
     import { play_audio_prompt, get_latest_version } from '@/utils'
-    import { validate_staff, get_bd_stocks } from '@/utils/api'
+    import { validate_user, get_bd_stocks } from '@/utils/api'
     import { BdMaterial, StockLoc } from '@/utils/model'
     export default {
         data() {
@@ -92,6 +95,7 @@
                     stock_id: store.state.cur_stock.FStockId,
                     staff_name: store.state.cur_staff.FName,
                     staff_no: store.state.cur_staff.FNumber,
+                    password: ''
                 },
                 login_form_rules: {
                     stock_id: {
@@ -107,16 +111,35 @@
                     staff_no: {
                         rules: [
                             { required: true, errorMessage: '请填写工号' },
+                            // {
+                            //     validateFunction: (rule, value, data, callback) => {
+                            //         uni.showLoading({ title: 'loading' })
+                            //         return validate_staff(this.login_form.staff_name, this.login_form.staff_no, this.login_form.org_id).then(staff => {
+                            //             uni.hideLoading()
+                            //             if (staff?.FName) {
+                            //                 if (staff.FForbidStatus != 'A') return callback("账号禁用")
+                            //                 this.staff = staff
+                            //             } else {
+                            //                 return callback('姓名或工号或分属组织错误')
+                            //             }
+                            //         })
+                            //     }
+                            // }
+                        ]
+                    },
+                    password: {
+                        rules: [
+                            { required: true, errorMessage: '请填写密码' },
                             {
                                 validateFunction: (rule, value, data, callback) => {
                                     uni.showLoading({ title: 'loading' })
-                                    return validate_staff(this.login_form.staff_name, this.login_form.staff_no, this.login_form.org_id).then(staff => {
+                                    return validate_user(this.login_form).then(staff => {
                                         uni.hideLoading()
                                         if (staff?.FName) {
                                             if (staff.FForbidStatus != 'A') return callback("账号禁用")
                                             this.staff = staff
                                         } else {
-                                            return callback('姓名或工号或分属组织错误')
+                                            return callback('认证失败')
                                         }
                                     })
                                 }

@@ -73,8 +73,8 @@ const store = createStore({
                 state.cur_stock = uni.getStorageSync('cur_stock') // 退出重载
                 state.cur_staff = uni.getStorageSync('cur_staff')
             } else {
-                state.cur_staff = { FName: state.cur_staff.FName }  // 退出保留上一次登录的员工姓名
-                uni.setStorageSync('cur_staff', { FName: state.cur_staff.FName })
+                state.cur_staff = { FName: state.cur_staff.FName, FNumber: state.cur_staff.FNumber }  // 退出保留上一次登录的姓名+工号
+                uni.setStorageSync('cur_staff', { FName: state.cur_staff.FName, FNumber: state.cur_staff.FNumber })
             }
         },
         guest_login(state, params) {

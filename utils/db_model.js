@@ -257,7 +257,8 @@
             FBranchID: "所属门店",
             FPostId: "所属岗位",
             FJoinDate: "进店日期",
-            FUniportalNo: "统一账号"
+            FUniportalNo: "统一账号",
+            FWMSPWD: '密码'
         }
     },
     BD_MATERIAL: {

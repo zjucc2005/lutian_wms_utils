@@ -1,5 +1,5 @@
 <template>
-    <uni-table v-if="$store.state.system_info.windowWidth >= 1200" ref="table" border stripe>
+    <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
         <uni-tr>
             <uni-th align="center" width="160">时间</uni-th>
             <uni-th align="center" width="80">操作类型</uni-th>

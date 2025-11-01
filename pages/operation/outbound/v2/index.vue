@@ -1,5 +1,5 @@
 <template>
-    <view v-if="$store.state.role == 'wh_admin'">
+    <!-- <view v-if="$store.state.role == 'wh_admin'"> -->
         <uni-section title="进行中的出库计划" type="square"
             sub-title="单据编号"
             class="above-uni-goods-nav">
@@ -60,9 +60,9 @@
                 @button-click="goods_nav_admin_button_click"
             />
         </view>
-    </view>
+    <!-- </view> -->
     
-    <view v-if="$store.state.role == 'wh_staff'">
+    <!-- <view v-if="$store.state.role == 'wh_staff'">
         <uni-section title="进行中的出库计划" type="square" class="above-uni-goods-nav">
             <view class="searchbar-container">
                 <uni-easyinput
@@ -111,7 +111,7 @@
                 @button-click="goods_nav_staff_button_click"
             />
         </view>
-    </view>
+    </view> -->
 </template>
 
 <script>
@@ -197,11 +197,11 @@
             // },
             async load_inv_plans() {
                 let options = { FStockId: store.state.cur_stock.FStockId, FOpType: 'out' }
-                if (store.state.role == 'wh_admin') {       
+                // if (store.state.role == 'wh_admin') {       
                     options.FDocumentStatu_in = ['A', 'B']
-                } else {
-                    options.FDocumentStatu = 'A'
-                }
+                // } else {
+                //     options.FDocumentStatu = 'A'
+                // }
                 uni.showLoading({ title: 'Loading' })
                 return InvPlan.query(options, { order: 'FCreateTime ASC' }).then(res => {
                     uni.hideLoading()

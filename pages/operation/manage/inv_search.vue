@@ -3,38 +3,54 @@
         :sub-title="set_section_sub_title()"
         class="above-uni-goods-nav"
         >
-        <!-- <uni-collapse v-if="display_mode == 'grid'" :open="true"> -->
-            <cc-shelf
-                v-if="display_mode == 'grid' && invs.length"
-                :stock_locs="$store.state.stock_locs"
-                :invs="invs"
-                only-inv
-                open />
-        <!-- </uni-collapse> -->
+        <cc-shelf
+            v-if="display_mode == 'grid' && invs.length"
+            :stock_locs="$store.state.stock_locs"
+            :invs="invs"
+            only-inv
+            open />
             
         <uni-list v-if="mode == 'material_no' && display_mode == 'list'">
-            <uni-list-item
-                v-for="(inv, index) in invs"
-                :key="index"
-                :title="inv['FStockLocId.FNumber']"
-                :note="`批次：${inv.FBatchNo}`"
-                :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
-                >
+            <uni-list-item v-for="(inv, index) in invs" :key="index">
+                <template #body>
+                    <view class="uni-list-item__body">
+                        <view class="title">{{ inv['FStockLocId.FNumber'] }}</view>
+                        <view class="note">
+                            <view>批次：{{ inv.FBatchNo }}</view>
+                            <view v-if="inv['FSupplierId.FName']">供应商：{{ inv['FSupplierId.FName'] }}</view>
+                        </view>
+                    </view>
+                </template>
+                <template v-slot:footer>
+                    <view class="uni-list-item__foot">
+                        <view class="op_qty">
+                            <text>{{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}</text>
+                        </view>
+                    </view>
+                </template>
             </uni-list-item>
         </uni-list>
         
         <uni-list v-if="mode == 'loc_no' && display_mode == 'list'">
-            <uni-list-item
-                v-for="(inv, index) in invs"
-                :key="index"
-                :title="inv['FMaterialId.FNumber']"
-                :note="[
-                    `名称：${inv['FMaterialId.FName']}`, 
-                    `规格：${inv['FMaterialId.FSpecification']}`, 
-                    `批次：${inv.FBatchNo}`
-                ].join('\n')"
-                :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
-                >
+            <uni-list-item v-for="(inv, index) in invs" :key="index">
+                <template #body>
+                    <view class="uni-list-item__body">
+                        <view class="title">{{ inv['FMaterialId.FNumber'] }}</view>
+                        <view class="note">
+                            <view>名称：{{ inv['FMaterialId.FName'] }}</view>
+                            <view>规格：{{ inv['FMaterialId.FSpecification'] }}</view>
+                            <view>批次：{{ inv.FBatchNo }}</view>
+                            <view v-if="inv['FSupplierId.FName']">供应商：{{ inv['FSupplierId.FName'] }}</view>
+                        </view>
+                    </view>
+                </template>
+                <template v-slot:footer>
+                    <view class="uni-list-item__foot">
+                        <view class="op_qty">
+                            <text>{{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}</text>
+                        </view>
+                    </view>
+                </template>
             </uni-list-item>
         </uni-list>
         
@@ -130,8 +146,8 @@
                 uni.showActionSheet({
                     itemList: ['扫码查询（物料编号）', '扫码查询（库位号）'],
                     success: (e) => {
-                        if (e.tapIndex === 0) this.scan_code('material_no')
-                        if (e.tapIndex === 1) this.scan_code('loc_no')
+                        if (e.tapIndex === 0) this.scan_code(0)
+                        if (e.tapIndex === 1) this.scan_code(1)
                     }
                 })
             },
@@ -144,7 +160,7 @@
                     }
                 })              
             },
-            scan_code(scan_mode='') {
+            scan_code(scan_mode=0) {
                 this.scan_mode = scan_mode
                 scan_code().then(res => {
                     this.handle_scan_code(res.result)
@@ -243,8 +259,7 @@
                     text_list = [ 
                         this.material.material_no, 
                         `名称：${this.material.material_name}`, 
-                        `规格：${this.material.material_spec}`,
-                        `单位：${this.material.base_unit_name}`
+                        `规格：${this.material.material_spec}`
                     ]
                 } else if (this.mode == 'loc_no') {
                     text_list = [ `库位：${this.no}` ]

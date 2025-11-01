@@ -127,7 +127,8 @@
             async search() {
                 if (!this.search_form.material_no && !this.search_form.material_name && !this.search_form.material_spec) return
                 let options = {}
-                if (store.state.cur_stock.FUseOrgId) options.FUseOrgId = store.state.cur_stock.FUseOrgId
+                // if (store.state.cur_stock.FUseOrgId) options.FUseOrgId = store.state.cur_stock.FUseOrgId
+                options.FUseOrgId = 1
                 if (this.search_form.material_no) options.FNumber_lk = this.search_form.material_no
                 if (this.search_form.material_name) options.FName_lk = this.search_form.material_name
                 if (this.search_form.material_spec) options.FSpecification_lk = this.search_form.material_spec

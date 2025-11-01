@@ -10,16 +10,16 @@
         >
         <view class="searchbar-container">
             <uni-easyinput
-                v-model="search_form.no" 
+                v-model="search_form.no"
                 placeholder="请输入搜索内容"
-                focus
                 prefix-icon="scan"
                 @icon-click="searchbar_icon_click"
                 primary-color="rgb(238, 238, 238)"
                 :styles="{
                     color: '#000',
                     backgroundColor: 'rgb(238, 238, 238)',
-                    borderColor: 'rgb(238, 238, 238)'
+                    borderColor: 'rgb(238, 238, 238)',
+                    height: '100px'
                 }"
             />
         </view>

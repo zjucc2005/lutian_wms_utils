@@ -14,6 +14,16 @@
     </uni-list>
     
     <uni-list class="uni-mb-5">
+        <uni-list-item title="重置密码"
+            :show-extra-icon="true"
+            :extra-icon="{ type: 'compose', size: '24', color: '#007bff' }"
+            @click="link_to('/pages/my/reset_password')" clickable
+            show-arrow />
+        <uni-list-item title="设置"
+            :show-extra-icon="true"
+            :extra-icon="{ type: 'gear', size: '24', color: '#007bff' }"
+            @click="link_to('/pages/my/settings')" clickable
+            show-arrow />
         <uni-list-item title="检查更新"
             :show-extra-icon="true"
             :extra-icon="{ type: 'loop', size: '24', color: '#007bff' }"
@@ -38,11 +48,6 @@
             :show-extra-icon="true"
             :extra-icon="{ type: 'info', size: '24', color: '#007bff' }"
             @click="about" clickable
-            show-arrow />
-        <uni-list-item title="设置"
-            :show-extra-icon="true"
-            :extra-icon="{ type: 'gear', size: '24', color: '#007bff' }"
-            @click="link_to('/pages/my/settings')" clickable
             show-arrow />
         <uni-list-item v-if="door.open" title="全局状态"
             :show-extra-icon="true"

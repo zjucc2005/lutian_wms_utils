@@ -4,19 +4,19 @@
  * @return { String }
  */
 const get_system_role = (operator_group=[]) => {
-    // return 'wh_admin' // 开发调试
+    // return 'nrj_admin' // 开发调试
     // == wh_admin ==
-    let wh_admin_list = ['000'] // 绿田库存管理组
+    let wh_admin_list = ['000'] // 绿田库存管理组，成品组
     for (let item of wh_admin_list) {
         if (operator_group.includes(item)) return 'wh_admin'
     }
     // == wh_staff ==
-    let wh_staff_list = ['001'] // 绿田仓管组
-    for (let item of wh_staff_list) {
-        if (operator_group.includes(item)) return 'wh_staff'
-    }
+    // let wh_staff_list = ['001'] // 绿田仓管组
+    // for (let item of wh_staff_list) {
+    //     if (operator_group.includes(item)) return 'wh_staff'
+    // }
     // == nrj_admin ==
-    let nrj_admin_list = ['112'] // 内燃机库存组
+    let nrj_admin_list = ['112'] // 内燃机库存组，原料组
     for (let item of nrj_admin_list) {
         if (operator_group.includes(item)) return 'nrj_admin'
     }
