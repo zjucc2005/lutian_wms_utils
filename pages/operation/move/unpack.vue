@@ -18,7 +18,9 @@
         </view>
     </uni-section>
     
-    <view class="uni-goods-nav-wrapper">
+    
+    
+    <view v-if="$store.state.screen_type === 'app-plus'" class="uni-goods-nav-wrapper">
         <uni-goods-nav 
             :options="goods_nav.options" 
             :button-group="goods_nav.button_group"

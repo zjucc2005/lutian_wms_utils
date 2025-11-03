@@ -17,7 +17,6 @@
                             :localdata="bd_stock_opts"
                             @change="handle_stock_change"
                             popup-title="请选择所属仓库"
-                            class="hidden-data-picker"
                             >
                             <template #default>
                                 <view class="custom-data-picker-input">

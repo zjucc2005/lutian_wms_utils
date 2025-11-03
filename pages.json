@@ -30,7 +30,12 @@
         { "path": "pages/operation/move/v1/move_cart",    "style": { "navigationBarTitleText": "库存调整 - 计划" } },
         { "path": "pages/operation/move/unpack",          "style": { "navigationBarTitleText": "库内调拨" } },
         // 仓库流程 VERSION 2
-        { "path": "pages/operation/index_v2", "style": { "navigationBarTitleText": "" } },
+        { "path": "pages/operation/index_v2", "style": { "navigationBarTitleText": "", 
+            "app-plus": {
+                "titleNView": {
+                    "buttons": [{ "type": "menu", "color": "#FFFFFF" }]
+                }
+            }}},
         { "path": "pages/operation/inbound/v2/index", "style": { "navigationBarTitleText": "入库计划", "enablePullDownRefresh": true } },
         { "path": "pages/operation/inbound/v2/plan_init", "style": { "navigationBarTitleText": "入库计划 - 初始化（直接调拨单）" } },
         { "path": "pages/operation/inbound/v2/plan_init_custom", "style": { "navigationBarTitleText": "入库计划 - 初始化（手工录入）" } },

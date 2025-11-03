@@ -10,11 +10,37 @@
             </cc-grid-item>
         </template>
     </cc-grid>
+    
+    <!-- 仓库选择组件 -->
+    <uni-popup ref="nav_dialog" type="dialog">
+        <uni-popup-dialog
+            type="error"
+            title="切换仓库"
+            cancelText="关闭"
+            @close="nav_dialog_close"
+            @confirm="nav_dialog_confirm"
+            :before-close="true"
+            :style="{ width: $store.state.system_info.windowWidth - 20 + 'px', minWidth: '360px', maxWidth: '1200px' }"
+            >
+            <uni-forms ref="nav_form" :model="nav_form" :rules="nav_form_rules" style="width: 100%;">
+                <uni-forms-item label="仓库" name="stock_id">
+                    <uni-data-picker
+                        ref="stock_id_picker"
+                        v-model="nav_form.stock_id"
+                        :localdata="nav_form.bd_stock_opts"
+                        popup-title="请选择所属仓库"
+                        />
+                </uni-forms-item>
+            </uni-forms>
+        </uni-popup-dialog>
+    </uni-popup>
+    
+    
 </template>
 
 <script>
     import store from '@/store'
-    import { link_to } from '@/utils'
+    import { link_to, play_audio_prompt } from '@/utils'
     import scan_code from '@/utils/scan_code'
     import ccGrid from '@/components/cc-grid/cc-grid.vue'
     import ccGridItem from '@/components/cc-grid/cc-grid-item.vue'
@@ -105,15 +131,40 @@
                     //     name: '其他功能', permission: ['wh_admin'], icon_path: '/static/icon/nav_others.png',
                     //     action: () => { link_to('/pages/operation/manage/index') }
                     // }
-                ]
+                ],
+                nav_form: {
+                    stock_id: store.state.cur_stock.FStockId,
+                    bd_stock_opts: store.state.bd_stock_opts
+                },
+                nav_form_rules: {
+                    stock_id: {
+                        rules: [
+                            { required: true, errorMessage: '请选择仓库'},
+                        ]
+                    }
+                }
             }
         },
         onReady() {
             setTimeout(_ => {
                 uni.setNavigationBarTitle({
-                    title: store.state.cur_stock['FUseOrgId.FName'] // topbar显示组织名
+                    title: store.state.cur_stock['FName'] // topbar显示仓库名
                 })
             }, 100)
+        },
+        onNavigationBarButtonTap(e) {
+            if (e.index === 0) {
+                console.log('this.$data', this.$data)
+                let bd_stock_opts = []
+                for (let opt of store.state.bd_stock_opts) {
+                    bd_stock_opts.push({
+                        ...opt,
+                        disable: opt.value != store.state.cur_stock.FUseOrgId
+                    })
+                }
+                this.nav_form.bd_stock_opts = bd_stock_opts
+                this.$refs.nav_dialog.open()
+            }
         },
         methods: {
             inv_search() {
@@ -122,6 +173,21 @@
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })
                 })
+            },
+            nav_dialog_close() {
+                this.$refs.nav_dialog.close()
+            },
+            nav_dialog_confirm() {
+                this.$refs.nav_form.validate().then(res => {
+                    let cur_stock = store.state.bd_stocks.find(d => d.FStockId === this.nav_form.stock_id)
+                    store.commit('set_cur_stock', cur_stock)
+                    uni.setNavigationBarTitle({
+                        title: store.state.cur_stock['FName']
+                    })
+                    uni.showToast({ title: "已切换仓库" })
+                    play_audio_prompt('success')
+                    this.$refs.nav_dialog.close()
+                }).catch(err => {})
             }
         }
     }

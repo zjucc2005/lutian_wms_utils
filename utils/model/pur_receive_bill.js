@@ -28,7 +28,7 @@ class PurReceiveBill {
     static async query (options={}, meta={}) {
         let fields = ['FID', 'FBillNo', 'FCreateDate', 
                       'FSupplierId', 'FSupplierId.FName', 'FPurchaserId', 'FPurchaserId.FName',
-                      'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
+                      'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_RGEN_Text_qtr', 'FMaterialId.FBoxStandardQty',
                       'FStockId', 'FStockId.FName',
                       'FActReceiveQty', 'FUnitId', 'FUnitId.FName', 
                       'F_PAEZ_Text']

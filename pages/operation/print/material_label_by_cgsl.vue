@@ -35,6 +35,8 @@
                 <uni-th align="center">供应商</uni-th>
                 <uni-th align="center" width="80">交货数量</uni-th>
                 <uni-th align="center" width="80">收料单位</uni-th>
+                <uni-th align="center">按托标签数</uni-th>
+                <uni-th align="center">按箱标签数</uni-th>
                 <uni-th align="center">操作</uni-th>
             </uni-tr>
             
@@ -50,6 +52,8 @@
                 <uni-td>{{ obj.supplier_name }}</uni-td>
                 <uni-td align="center">{{ obj.qty }}</uni-td>
                 <uni-td align="center">{{ obj.unit_name }}</uni-td>
+                <uni-td align="center">{{ obj.plt_print_copy }}</uni-td>
+                <uni-td align="center">{{ obj.box_print_copy }}</uni-td>
                 <uni-td align="center">
                     <uni-tag text="生成标签" type="primary" @click="gen_label(obj, `qrcode_${index}`)"/>
                 </uni-td>
@@ -183,10 +187,17 @@
                             stock_name: obj['FStockId.FName'],
                             supplier_name: obj['FSupplierId.FName'],
                             qty: obj['FActReceiveQty'],
-                            unit_name: obj['FUnitId.FName']
+                            unit_name: obj['FUnitId.FName'],
+                            plt_std_qty: obj['FMaterialId.F_RGEN_Text_qtr'] * 1,
+                            box_std_qty: obj['FMaterialId.FBoxStandardQty']
                         })
                     }
                 }
+                for (let material of materials) {
+                    material.plt_print_copy = material.plt_std_qty ? Math.ceil(material.qty / material.plt_std_qty) * 4 : 'NA'
+                    material.box_print_copy = material.box_std_qty ? Math.ceil(material.qty / material.box_std_qty) : 'NA'
+                }
+                
                 this.materials = materials
             },
             scan_code() {

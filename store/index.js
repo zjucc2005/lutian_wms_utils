@@ -86,6 +86,10 @@ const store = createStore({
         // set_env(state, env) {
         //     state.env = env
         // },
+        set_cur_stock(state, cur_stock) {
+            state.cur_stock = cur_stock
+            uni.setStorageSync('cur_stock', cur_stock)
+        },
         set_latest_version(state, version) {
             state.latest_version = version
         },
