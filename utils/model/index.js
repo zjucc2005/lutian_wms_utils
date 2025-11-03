@@ -14,6 +14,7 @@ import Inv from './inv'
 import InvLog from './inv_log'
 import InvPlan from './inv_plan'
 import IssuemtrLog from './issuemtr_log'
+import PrdIssueMtrNotice from './prd_issue_mtr_notice'
 import PrdMo from './prd_mo'
 import PrdPpbom from './prd_ppbom'
 import PurPurchaseOrder from './pur_purchase_order'
@@ -34,6 +35,7 @@ export {
     InvLog,
     InvPlan,
     IssuemtrLog,
+    PrdIssueMtrNotice,
     PrdMo,
     PrdPpbom,
     PurPurchaseOrder,

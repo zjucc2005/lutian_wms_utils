@@ -109,7 +109,7 @@
     import { PurReceiveBill } from '@/utils/model'
     import scan_code from '@/utils/scan_code'
     // #ifdef H5
-    import { gen_pdf_label_demo } from '@/gen_pdf'
+    import { gen_pdf_material_label } from '@/gen_pdf'
     // #endif
     export default {
         data() {
@@ -136,7 +136,7 @@
                 uni.canvasToTempFilePath({
                     canvasId: canvas_id,
                     success: function(res) { 
-                        let url = gen_pdf_label_demo({
+                        let url = gen_pdf_material_label({
                             ...obj,
                             qr: res.tempFilePath, 
                             inbound_time: formatDate(Date.now(), 'yyyy-MM-dd'),

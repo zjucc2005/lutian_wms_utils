@@ -497,7 +497,7 @@ const pdf_template_tydzd = () => {
 
 // 标签
 // options = { no: '1.01', name: '名称', spec: '规格', supplier: '供应商', inbound_time: '2099-01-01' }
-const gen_pdf_label_demo = (options) => {
+const gen_pdf_material_label = (options) => {
     let f = new jsPDF({ orientation: 'landscape', format: [100, 70] })
     f.addFont(font_file_path, font_family, 'normal') // 加载字体
     f.setFont(font_family) // 设置字体
@@ -557,5 +557,5 @@ export {
     pdf_template_invs,
     pdf_template_tydzd,
     
-    gen_pdf_label_demo
+    gen_pdf_material_label
 }

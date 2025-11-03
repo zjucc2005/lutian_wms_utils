@@ -34,7 +34,7 @@
 
 <script>
     // #ifdef H5
-    import { gen_pdf_label_demo } from '@/gen_pdf'
+    import { gen_pdf_material_label } from '@/gen_pdf'
     // #endif
     export default {
         data() {
@@ -59,7 +59,7 @@
                     success: function(res) {
                         // 在H5平台下，tempFilePath 为 base64
                         // console.log(res.tempFilePath)
-                        let url = gen_pdf_label_demo({ qr: res.tempFilePath, ..._this_.form })
+                        let url = gen_pdf_material_label({ qr: res.tempFilePath, ..._this_.form })
                         window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800') // 打开小窗口
                     }
                 })
