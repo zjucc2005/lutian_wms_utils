@@ -52,16 +52,16 @@
             return {
                 // 导航界面信息
                 navs: [
-                    // ifdef APP-PLUS
-                    // {
-                    //     name: '入库扫描', permission: ['wh_admin'], icon_path: '/static/icon/nav_scan_in.png',
-                    //     action: () => { link_to('/pages/operation/inbound/v1/index') }
-                    // },
+                    // #ifdef APP-PLUS || H5
+                    {
+                        name: '入库扫码', permission: ['nrj_admin'], icon_path: '/static/icon/nav_scan_in_warn.png',
+                        action: () => { link_to('/pages/operation/inbound/v1/easy') }
+                    },
                     // {
                     //     name: '出库扫描', permission: ['wh_admin'], icon_path: '/static/icon/nav_scan_out.png',
                     //     action: () => { link_to('/pages/operation/outbound/v1/index') }
                     // },
-                    // endif
+                    // #endif
                     {
                         name: '入库计划', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock_in.png',
                         action: () => { link_to('/pages/operation/inbound/v2/index') }

@@ -1,8 +1,8 @@
 {
   "name": "lutian_wms_utils",
-  "version": "1.4.5",
-  "versionCode": 145,
-  "versionNote": "v1.4.5更新内容\n1.根据收料通知单打印物料标签，增加建议打印张数；",
+  "version": "1.4.6",
+  "versionCode": 146,
+  "versionNote": "v1.4.6更新内容\n1.APP版本增加简易扫码入库；",
   "installPack" : {
     "h5": "https://musetransfer.com/s/or0l9uleu",
     "android": "https://musetransfer.com/s/o45ttjktl"

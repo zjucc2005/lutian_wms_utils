@@ -21,6 +21,7 @@
         { "path": "pages/operation/inbound/v1/task",      "style": { "navigationBarTitleText": "入库 - 详情" } },
         { "path": "pages/operation/inbound/v1/mount",     "style": { "navigationBarTitleText": "入库 - 扫描上架" } },
         { "path": "pages/operation/inbound/v1/logs",      "style": { "navigationBarTitleText": "入库 - 操作日志" } },
+        { "path": "pages/operation/inbound/v1/easy",      "style": { "navigationBarTitleText": "入库扫码 - 简易" } },
         { "path": "pages/operation/outbound/v1/index",    "style": { "navigationBarTitleText": "出库" } },
         { "path": "pages/operation/outbound/v1/task",     "style": { "navigationBarTitleText": "出库 - 详情" } },
         { "path": "pages/operation/outbound/v1/allocate", "style": { "navigationBarTitleText": "出库 - 分配预览" } },
@@ -76,7 +77,7 @@
         // 脚本
         { "path": "pages/my/utils/bom_level_transfer", "style": { "navigationBarTitleText": "script: BOM批量模版转化层级号" } },
         { "path": "pages/api_utils/index", "style": { "navigationBarTitleText": "API调试" } },
-        { "path": "pages/api_utils/console", "style": { "navigationBarTitleText": "Console" } },
+        // { "path": "pages/api_utils/console", "style": { "navigationBarTitleText": "Console" } },
         { "path": "pages/api_utils/login/validateUser", "style" : { "navigationBarTitleText": "用户名/密码" } },
         { "path": "pages/api_utils/gongyinglian/bd_stock", "style": { "navigationBarTitleText": "API-供应链-仓库" } },
         { "path": "pages/api_utils/gongyinglian/stk_inventory", "style": { "navigationBarTitleText": "API-供应链-即时库存" } },

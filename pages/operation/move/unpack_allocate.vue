@@ -22,7 +22,7 @@
         </uni-list>
     </uni-section>
     
-    <uni-section v-if="invs.length" title="库存信息" type="square">
+    <uni-section title="库存信息" type="square">
         <template #right>
             <view>已选择：<text class="text-primary">{{ sum_checked_qty }}</text></view>
         </template>
@@ -54,6 +54,7 @@
                 </view>
             </template>
         </uni-list-item>
+        <uni-load-more v-if="invs.length === 0" status="nomore" />
     </uni-section>
 </template>
 
