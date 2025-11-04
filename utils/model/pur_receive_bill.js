@@ -27,10 +27,10 @@ class PurReceiveBill {
      */
     static async query (options={}, meta={}) {
         let fields = ['FID', 'FBillNo', 'FCreateDate', 
-                      'FSupplierId', 'FSupplierId.FName', 'FPurchaserId', 'FPurchaserId.FName',
+                      'FSupplierId', 'FSupplierId.FNumber', 'FSupplierId.FName', 'FPurchaserId', 'FPurchaserId.FNumber', 'FPurchaserId.FName',
                       'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_RGEN_Text_qtr', 'FMaterialId.FBoxStandardQty',
-                      'FStockId', 'FStockId.FName',
-                      'FActReceiveQty', 'FUnitId', 'FUnitId.FName', 
+                      'FStockId', 'FStockId.FNumber', 'FStockId.FName',
+                      'FActReceiveQty', 'FUnitId', 'FUnitId.FNumber', 'FUnitId.FName', 
                       'F_PAEZ_Text']
         const data = {
             FormId: this.form_id,

@@ -395,7 +395,8 @@
             // 2. 表单操作
             init_form(obj) {
                 // uni.showLoading({ title: '初始化表单' })
-                this.form.pallet_infos = [{ per_qty: '', pallet_qty: '' }]
+                // this.form.pallet_infos = [{ per_qty: '', pallet_qty: '' }]
+                this.init_pallet_infos(obj) // 初始化托盘信息
                 this.form.material_id = obj.material_id
                 this.form.base_unit_qty = obj.base_unit_qty
                 if (this.inv_plans.some(inv_plan => inv_plan.FMaterialId === obj.material_id)) {
@@ -404,6 +405,24 @@
                     this.activate_step(1)
                 }
                 // uni.hideLoading()
+            },
+            init_pallet_infos(obj) {
+                let planned_qty = this.planned_qty(obj.material_id)
+                let qty = obj.base_unit_qty - planned_qty
+                if (qty && obj.plt_std_qty) {
+                    let pallet_infos = []
+                    let mod = Math.floor(qty / obj.plt_std_qty)
+                    let rem = qty - obj.plt_std_qty * mod
+                    if (mod > 0) {
+                        pallet_infos.push({ per_qty: obj.plt_std_qty, pallet_qty: mod })
+                    }
+                    if (rem > 0) {
+                        pallet_infos.push({ per_qty: rem, pallet_qty: 1 })
+                    }
+                    this.form.pallet_infos = pallet_infos
+                } else {
+                    this.form.pallet_infos = [{ per_qty: '', pallet_qty: '' }]
+                }
             },
             add_pallet_info() {
                 if (this.form.pallet_infos.length >= 5) {

@@ -39,9 +39,11 @@
                 <uni-th align="center">规格型号</uni-th>
                 <uni-th align="center">仓库</uni-th>
                 <uni-th align="center">供应商</uni-th>
-                <uni-th align="center" width="80">交货数量</uni-th>
                 <uni-th align="center" width="80">收料单位</uni-th>
+                <uni-th align="center" width="80">交货数量</uni-th>
                 <uni-th align="center" width="100">已计划数量</uni-th>
+                <uni-th align="center" width="100">按托标签数</uni-th>
+                <uni-th align="center" width="100">按箱标签数</uni-th>
                 <uni-th align="center">操作</uni-th>
             </uni-tr>
             
@@ -55,9 +57,11 @@
                 <uni-td>{{ obj.material_spec }}</uni-td>
                 <uni-td><text :class="[obj.stock_id == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj.stock_name }}</text></uni-td>
                 <uni-td>{{ obj.supplier_name }}</uni-td>
-                <uni-td align="center">{{ obj.base_unit_qty }}</uni-td>
                 <uni-td align="center">{{ obj.base_unit_name }}</uni-td>
+                <uni-td align="center">{{ obj.base_unit_qty }}</uni-td>
                 <uni-td align="center">{{ obj.planned_qty }}</uni-td>
+                <uni-td align="center">{{ obj.plt_std_qty ? Math.ceil(obj.base_unit_qty / obj.plt_std_qty) * 4 : 'NA' }}</uni-td>
+                <uni-td align="center">{{ obj.box_std_qty ? Math.ceil(obj.base_unit_qty / obj.box_std_qty) : 'NA' }}</uni-td>
                 <uni-td align="center">
                     <uni-tag text="生成标签" type="primary" @click="gen_label(obj, `qrcode_${index}`)"/>
                 </uni-td>
@@ -250,7 +254,8 @@
                 let bill_no = this.search_form.bill_no
                 if (bill_no.startsWith('CGSL')) { // 直接调拨单
                     uni.showLoading({ title: 'Loading' })
-                    let res = await PurReceiveBill.view(bill_no)
+                    let res = await PurReceiveBill.query({ FBillNo: this.search_form.bill_no })
+                    // let res = await PurReceiveBill.view(bill_no)
                     uni.hideLoading()
                     this.after_load_bill(res)
                 } else {
@@ -274,43 +279,80 @@
                 }
             },
             after_load_bill(response) {
-                if (response.data.Result.ResponseStatus.IsSuccess) {
-                    let data = response.data.Result.Result
+                if (response.data.length) {
                     let inbound_list = []
-                    for (let obj of data.PUR_ReceiveEntry) {
-                        let inbound_obj = inbound_list.find(x => x.material_id == obj.MaterialID_Id)
+                    for (let obj of response.data) {
+                        let inbound_obj = inbound_list.find(x => x.material_id == obj.FMaterialId)
                         if (inbound_obj) {
-                            inbound_obj.base_unit_qty += obj.ActReceiveQty // 合并相同物料ID
+                            inbound_obj.base_unit_qty += obj.FActReceiveQty // 合并相同物料ID
                         } else {
                             inbound_list.push({
-                                material_id: obj.MaterialID_Id, // 物料编码，采用调入仓库对应的ID
-                                material_no: obj.MaterialID.Number,
-                                material_name: obj.MaterialID.Name[0]?.Value,
-                                material_spec: obj.MaterialID.Specification[0]?.Value,
-                                base_unit_qty: obj.ActReceiveQty,
-                                base_unit_name: obj.UnitId.Name[0]?.Value,
-                                base_unit_no: obj.UnitId.Number,
-                                supplier_id: obj.OwnerId_Id,
-                                supplier_no: obj.OwnerId.Number,
-                                supplier_name: obj.OwnerId.Name[0]?.Value,
-                                stock_id: obj.StockID_Id,
-                                stock_no: obj.StockID.Number,
-                                stock_name: obj.StockID.Name[0]?.Value,
+                                material_id: obj.FMaterialId, // 物料编码，采用调入仓库对应的ID
+                                material_no: obj['FMaterialId.FNumber'],
+                                material_name: obj['FMaterialId.FName'],
+                                material_spec: obj['FMaterialId.FSpecification'],
+                                base_unit_qty: obj.FActReceiveQty,
+                                base_unit_no: obj['FUnitId.FNumber'],
+                                base_unit_name: obj['FUnitId.FName'],
+                                supplier_id: obj.FSupplierId,
+                                supplier_no: obj['FSupplierId.FNumber'],
+                                supplier_name: obj['FSupplierId.FName'],
+                                stock_id: obj.FStockId,
+                                stock_no: obj['FStockId.FNumber'],
+                                stock_name: obj['FStockId.FName'],
                                 batch_no: formatDate(Date.now(), 'yyyyMMdd'), // 入库时间作为批次号
+                                plt_std_qty: obj['FMaterialId.F_RGEN_Text_qtr'] * 1,
+                                box_std_qty: obj['FMaterialId.FBoxStandardQty'],
                                 planned_qty: 0
                             })
                         }
                     }
                     this.inbound_task.category = 'cgsl'
-                    this.inbound_task.bill_no = data.BillNo
+                    this.inbound_task.bill_no = this.search_form.bill_no
                     this.inbound_task.stock_id = store.state.cur_stock.FStockId
                     this.inbound_task.stock_name = store.state.cur_stock.FName
                     this.inbound_task.staff_no = store.state.cur_staff.FNumber
                     this.inbound_task.inbound_list = inbound_list
                 } else {
                     this.inbound_task = new InboundTask()
-                    uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
                 }
+                // if (response.data.Result.ResponseStatus.IsSuccess) {
+                //     let data = response.data.Result.Result
+                //     let inbound_list = []
+                //     for (let obj of data.PUR_ReceiveEntry) {
+                //         let inbound_obj = inbound_list.find(x => x.material_id == obj.MaterialID_Id)
+                //         if (inbound_obj) {
+                //             inbound_obj.base_unit_qty += obj.ActReceiveQty // 合并相同物料ID
+                //         } else {
+                //             inbound_list.push({
+                //                 material_id: obj.MaterialID_Id, // 物料编码，采用调入仓库对应的ID
+                //                 material_no: obj.MaterialID.Number,
+                //                 material_name: obj.MaterialID.Name[0]?.Value,
+                //                 material_spec: obj.MaterialID.Specification[0]?.Value,
+                //                 base_unit_qty: obj.ActReceiveQty,
+                //                 base_unit_name: obj.UnitId.Name[0]?.Value,
+                //                 base_unit_no: obj.UnitId.Number,
+                //                 supplier_id: obj.OwnerId_Id,
+                //                 supplier_no: obj.OwnerId.Number,
+                //                 supplier_name: obj.OwnerId.Name[0]?.Value,
+                //                 stock_id: obj.StockID_Id,
+                //                 stock_no: obj.StockID.Number,
+                //                 stock_name: obj.StockID.Name[0]?.Value,
+                //                 batch_no: formatDate(Date.now(), 'yyyyMMdd'), // 入库时间作为批次号
+                //                 planned_qty: 0
+                //             })
+                //         }
+                //     }
+                //     this.inbound_task.category = 'cgsl'
+                //     this.inbound_task.bill_no = data.BillNo
+                //     this.inbound_task.stock_id = store.state.cur_stock.FStockId
+                //     this.inbound_task.stock_name = store.state.cur_stock.FName
+                //     this.inbound_task.staff_no = store.state.cur_staff.FNumber
+                //     this.inbound_task.inbound_list = inbound_list
+                // } else {
+                //     this.inbound_task = new InboundTask()
+                //     uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
+                // }
             },
             after_load_inv_plans(inv_plans=[]) {
                 if (this.inbound_task.inbound_list.length == 0) {

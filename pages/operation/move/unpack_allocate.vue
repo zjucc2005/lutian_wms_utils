@@ -56,6 +56,8 @@
         </uni-list-item>
         <uni-load-more v-if="invs.length === 0" status="nomore" />
     </uni-section>
+    
+    
 </template>
 
 <script>

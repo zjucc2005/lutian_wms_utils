@@ -1,8 +1,8 @@
 {
   "name": "lutian_wms_utils",
-  "version": "1.4.6",
-  "versionCode": 146,
-  "versionNote": "v1.4.6更新内容\n1.APP版本增加简易扫码入库；",
+  "version": "1.4.7",
+  "versionCode": 147,
+  "versionNote": "v1.4.7更新内容\n1.库存调整权限调整；",
   "installPack" : {
     "h5": "https://musetransfer.com/s/or0l9uleu",
     "android": "https://musetransfer.com/s/o45ttjktl"

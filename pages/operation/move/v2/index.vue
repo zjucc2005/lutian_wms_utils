@@ -1,5 +1,5 @@
 <template>
-    <view v-if="$store.state.role == 'wh_admin'">
+    <!-- <view v-if="$store.state.role == 'wh_admin'"> -->
         <uni-section title="进行中的库存调整计划" type="square" class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
@@ -64,9 +64,9 @@
                 @button-click="goods_nav_admin_button_click"
             />
         </view>
-    </view>
+    <!-- </view> -->
     
-    <view v-if="$store.state.role == 'wh_staff'">
+    <!-- <view v-if="$store.state.role == 'wh_staff'">
         <uni-section title="进行中的库存调整计划" type="square" class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
@@ -124,7 +124,7 @@
                 @button-click="goods_nav_staff_button_click"
             />
         </view>
-    </view>
+    </view> -->
 </template>
 
 <script>

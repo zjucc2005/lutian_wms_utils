@@ -41,6 +41,7 @@
 <script>
     import store from '@/store'
     import { link_to, play_audio_prompt } from '@/utils'
+    import { StockLoc } from '@/utils/model'
     import scan_code from '@/utils/scan_code'
     import ccGrid from '@/components/cc-grid/cc-grid.vue'
     import ccGridItem from '@/components/cc-grid/cc-grid-item.vue'
@@ -184,8 +185,14 @@
                     uni.setNavigationBarTitle({
                         title: store.state.cur_stock['FName']
                     })
-                    uni.showToast({ title: "已切换仓库" })
-                    play_audio_prompt('success')
+                    // 重新加载库位数据
+                    StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
+                        store.commit('set_stock_locs', res.data)
+                        uni.showToast({ title: "已切换仓库" })
+                        play_audio_prompt('success')
+                    })
+                    // 清空出入库计划
+                    
                     this.$refs.nav_dialog.close()
                 }).catch(err => {})
             }
