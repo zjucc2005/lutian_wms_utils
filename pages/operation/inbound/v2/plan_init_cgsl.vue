@@ -43,7 +43,7 @@
                 <uni-th align="center" width="100">已计划数量</uni-th>
                 <uni-th align="center" width="100">按托标签数</uni-th>
                 <uni-th align="center" width="100">按箱标签数</uni-th>
-                <uni-th align="center">操作</uni-th>
+                <uni-th align="center" width="100">操作</uni-th>
             </uni-tr>
             
             <uni-tr v-for="(obj, index) in inbound_task.inbound_list" :key="index">
