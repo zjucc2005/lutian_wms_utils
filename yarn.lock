@@ -73,6 +73,11 @@ html2canvas@^1.0.0-rc.5, html2canvas@^1.4.1:
     css-line-break "^2.1.0"
     text-segmentation "^1.0.3"
 
+image-tools@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/image-tools/-/image-tools-1.4.0.tgz#66aacbafad677af7f3fd7f32f8fa1e0881b83783"
+  integrity sha512-TKtvJ6iUwM0mfaD4keMnk1ENHFC470QEjBfA3IlvKdEOufzvWbjbaoNcoyYq6HlViF8+d5tOS1ooE6j7CHf1lQ==
+
 jspdf-autotable@^3.8.4:
   version "3.8.4"
   resolved "https://registry.yarnpkg.com/jspdf-autotable/-/jspdf-autotable-3.8.4.tgz#f7f05d45532ca94424a59cfa613309fff7c380a5"

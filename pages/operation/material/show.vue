@@ -322,9 +322,11 @@
                 })
             },
             image_preview(current) {
+                console.log('image_preview', current, this.image_urls.map(x => x.original))
+                let _this_ = this
                 uni.previewImage({
                     current: current,
-                    urls: this.image_urls.map(x => x.original)
+                    urls: _this_.image_urls.map(x => x.original)
                 });
             },
             search_bom() {
@@ -410,7 +412,7 @@
                             this.image_urls.push({
                                 field: field,
                                 id: raw_data[field],
-                                original: await K3CloudApi.download_image_base64(raw_data[field])
+                                original: await K3CloudApi.download_image_cache(raw_data[field])
                                 // thumbnail: await K3CloudApi.download_file(raw_data[field], 1),
                                 // loading: true
                             })

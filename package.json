@@ -1,9 +1,9 @@
 {
   "name": "lutian_wms_utils",
-  "version": "1.4.7",
-  "versionCode": 147,
-  "versionNote": "v1.4.7更新内容\n1.库存调整权限调整；",
-  "installPack" : {
+  "version": "1.4.8",
+  "versionCode": 148,
+  "versionNote": "v1.4.8更新内容\n1.[原料仓]入库计划增加收料通知单；\n2.[原料仓]出库流程：库内调拨+出库；\n3.登录后可以在同组织下的仓库之间切换；\n4.修复APP端物料详情页图片不能放大浏览的问题；",
+  "installPack": {
     "h5": "https://musetransfer.com/s/or0l9uleu",
     "android": "https://musetransfer.com/s/o45ttjktl"
   },
@@ -14,6 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "html2canvas": "^1.4.1",
+    "image-tools": "^1.4.0",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"

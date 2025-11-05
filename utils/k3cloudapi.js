@@ -6,6 +6,8 @@ import store from '@/store'
 import db_model from '@/utils/db_model'
 import logger from '@/utils/logger'
 
+import { base64ToPath } from 'image-tools'
+
 let api_config = config.kd_api[config.env]
 
 const set_header = () => {
@@ -601,6 +603,16 @@ const download_file = async (file_id) => {
     })
 }
 
+const download_image_cache = async (file_id) => {
+    let res = await download_file(file_id)
+    if (res.statusCode === 200) {
+        let path = await base64ToPath('data:image/jpg;base64,' + res.data.Result.FilePart)
+        return path
+    } else {
+        return ''
+    }
+}
+
 const download_image_base64 = async (file_id) => {
     return download_file(file_id).then(res => {
         if (res.statusCode === 200) {
@@ -612,7 +624,7 @@ const download_image_base64 = async (file_id) => {
         }
     })
 }
-
+// >>> DEPRECATED
 const download_url = (file_id, nail=0) => {
     return conn().then(_ => {
         let token = store.state.conn_info?.Context?.UserToken
@@ -627,6 +639,7 @@ const thumbnail_url = (file_id, default_url='/static/default_40x40.png') => {
     // return file_id?.trim() ? download_url_sync(file_id, 1) : default_url
     return default_url // 缩略图目前无标准接口可获取，URL传token获取防火墙会报警, 目前暂时屏蔽
 }
+// >>> END
 
 
 /**
@@ -702,6 +715,7 @@ const K3CloudApi = {
     upload_file,
     download_file,
     download_url,
+    download_image_cache,
     download_image_base64,
     download_url_sync,
     thumbnail_url,
