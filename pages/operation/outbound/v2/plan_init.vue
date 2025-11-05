@@ -84,7 +84,7 @@
         <cover-image
             v-if="is_completed" 
             src="/static/icon/yiwancheng_stamp.png"
-            class="cover-image">
+            class="yiwancheng-stamp">
         </cover-image>
     </view>
 </template>
@@ -297,11 +297,5 @@
 </script>
 
 <style lang="scss">
-    .cover-image {
-        position: absolute;
-        top: 80px;
-        right: 50px;
-        width: 128px;
-        height: 128px;
-    }
+
 </style>

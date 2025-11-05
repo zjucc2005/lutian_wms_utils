@@ -20,11 +20,11 @@
                     </template>
                 </uni-table>
             </uni-col> -->
-            <uni-col :span="21" class="scroll-list" :style="{ animationDuration: 120 / scroll_speed + 's' }">
+            <uni-col v-if="table_shelves.length" :span="21" class="scroll-list" :style="{ animationDuration: 120 / scroll_speed + 's' }">
                 <template v-for="dup in 2" :key="dup">
                     <uni-card v-for="(shelf, si) in table_shelves" :key="si" margin="5px" padding="10px 0">
                         <view class="shelf-name">{{ shelf.name }}</view>
-                        <view v-for="seq in Math.ceil(shelf.grids[0].length/grid_span)" :key="seq" class="shelf-grids">
+                        <view v-for="seq in Math.ceil((shelf.grids[0]?.length || 0)/grid_span)" :key="seq" class="shelf-grids">
                             <view class="shelf-grids-row" v-for="i in shelf.grids.length" :key="i">
                                 <view v-for="j in grid_span"
                                     :class="['shelf-grid', shelf.grids[shelf.grids.length-i][(seq-1)*grid_span+j-1]?.style || 'none']"

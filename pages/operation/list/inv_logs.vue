@@ -21,7 +21,8 @@
             <uni-td>
                 <view v-if="['in', 'add'].includes(inv_log.FOpType)" class="text-error">{{ op_type_dict[inv_log.FOpType] }}</view>
                 <view v-if="['out', 'sub'].includes(inv_log.FOpType)" class="text-primary">{{ op_type_dict[inv_log.FOpType] }}</view>
-                <view v-if="['mv'].includes(inv_log.FOpType)">{{ op_type_dict[inv_log.FOpType] }}</view>
+                <view v-if="['mv_in', 'mv_out'].includes(inv_log.FOpType)">{{ op_type_dict[inv_log.FOpType] }}</view>
+                
             </uni-td>
             <uni-td>{{ inv_log['FOpQTY'] }}</uni-td>
             <uni-td>{{ inv_log['FStockUnitId.FName'] }}</uni-td>

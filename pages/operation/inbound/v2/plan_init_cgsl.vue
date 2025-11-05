@@ -1,5 +1,5 @@
 <template>
-    <uni-notice-bar single scrollable text="扫码单据获取物料明细后，下一步新增计划明细" />
+    <!-- <uni-notice-bar single scrollable text="扫码单据获取物料明细后，下一步新增计划明细" /> -->
     
     <uni-section title="查询单据编号" type="square"
         :sub-title="[
@@ -11,7 +11,6 @@
             <uni-easyinput
                 v-model="search_form.bill_no" 
                 placeholder="请输入单据编号"
-                focus
                 prefix-icon="scan"
                 @confirm="handle_search"
                 @clear="handle_search"

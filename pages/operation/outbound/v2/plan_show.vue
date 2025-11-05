@@ -286,6 +286,16 @@
                 window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800') // 打开小窗口
             },
             // #endif
+            if_submit_delete(inv_plan) {
+                uni.showModal({
+                    title: '删除',
+                    content: '是否确定删除?',
+                    success: (res) => {
+                        if (res.confirm) this.submit_delete(inv_plan)
+                    },
+                    fail: (err) => {}
+                })
+            },
             async load_inv_plans() {
                 let options = { 
                     FStockId: store.state.cur_stock.FStockId,

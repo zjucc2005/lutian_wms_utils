@@ -148,8 +148,16 @@ class InvPlan {
      * @return {Hash} Promise
      */
     static async query(options={}, meta={}) {
+        const fields = ['FID', 'FDocumentStatu', 'FOpSN', 'FOpType', 'FOpQTY', 'FCreateTime',
+                        'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1',
+                        'FStockId', 'FStockId.FName',
+                        'FStockLocId', 'FStockLocId.FNumber', 'FDestStockLocId', 'FDestStockLocId.FNumber',
+                        'FStockUnitId', 'FStockUnitId.FName',
+                        'FInvIncre', 'FInvQTY', 'FBatchNo', 'FBillNo', 'FSupplierId', 'FSupplierId.FName',
+                        'FRemark', 'FOpStaffNo', 'FCInvId', 'FReferId', 'FPalletQty', 'FReceiver']
         const data = {
             FormId: "PAEZ_C_INV_PLAN",
+            FieldKeys: fields.join(','),
             FilterString: K3CloudApi.query_filter(options)
         }
         if (meta.per_page) {

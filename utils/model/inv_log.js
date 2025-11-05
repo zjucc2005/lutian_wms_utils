@@ -91,8 +91,16 @@ class InvLog {
      * @return {Hash} Promise
      */
     static query(options={}, meta={}) {
+        const fields = ['FID', 'FOpSN', 'FOpType', 'FOpQTY', 'FCreateTime',
+                        'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
+                        'FStockId', 'FStockId.FName',
+                        'FStockLocId', 'FStockLocId.FNumber',
+                        'FStockUnitId', 'FStockUnitId.FName',
+                        'FInvIncre', 'FInvQTY', 'FBatchNo', 'FBillNo', 'FSupplierId', 'FSupplierId.FName',
+                        'FRemark', 'FOpStaffNo', 'FCInvId', 'FReferId', 'FReceiver']
         const data = {
             FormId: "PAEZ_C_INV_LOG",
+            FieldKeys: fields.join(','),
             FilterString: K3CloudApi.query_filter(options)
         }   
         if (meta.per_page) {

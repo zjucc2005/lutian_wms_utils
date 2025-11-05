@@ -18,6 +18,7 @@
             />
         </view>
     </uni-section>
+    
     <!-- 分配库位 -->
     <uni-section v-if="scfl.length" title="子项明细" type="square"
         :sub-title="`产线：${scfl[0]?.prd_line}`" sub-title-color="#007aff" class="above-uni-goods-nav">
@@ -29,10 +30,9 @@
                 <uni-th align="center">规格型号</uni-th>
                 <uni-th align="center">单位</uni-th>
                 <uni-th align="center">应发数量</uni-th>
-                <uni-th align="center">已调拨数量</uni-th>
+                <uni-th align="center">可发数量</uni-th>
                 <uni-th align="center">仓库</uni-th>
                 <uni-th align="center">仓管员</uni-th>
-                <uni-th align="center">操作</uni-th>
             </uni-tr>
             
             <uni-tr v-for="(obj, index) in scfl" :key="index">
@@ -42,34 +42,44 @@
                 <uni-td>{{ obj.material_spec }}</uni-td>
                 <uni-td align="center">{{ obj.unit_name }}</uni-td>
                 <uni-td align="center">{{ obj.must_qty }}</uni-td>
-                <uni-td align="center">{{ inv_plans_map[obj.material_id] }}</uni-td>
+                <uni-td align="center">{{  }}</uni-td>
                 <uni-td><text :class="[obj.stock_id == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj.stock_name }}</text></uni-td>
                 <uni-td>{{ obj.storekeeper }}</uni-td>
-                <uni-td align="center">
-                    <uni-tag text="分配库位" type="primary" @click="allocate_loc_no(obj)"/>
-                </uni-td>
             </uni-tr>
         </uni-table>
         
         <uni-list v-else>
-            <uni-list-item v-for="(obj, index) in scfl" :key="index"
-                @click="allocate_loc_no(obj)" clickable
-                show-arrow>
+            <uni-list-item v-for="(obj, index) in scfl" :key="index">
+                <template #header>
+                    <view class="uni-list-item__head">
+                        <uni-icons v-if="inv_logs_map[obj.material_id]" type="checkbox" size="30" color="#007aff"></uni-icons>
+                        <checkbox
+                            v-else-if="invs_map[obj.material_id] && invs_map[obj.material_id] >= obj.must_qty"
+                            :checked="obj.checked"
+                            @click="checkbox_click"
+                            :data-id="obj.material_id"
+                        />
+                        <checkbox v-else disabled></checkbox>
+                    </view>
+                </template>
                 <template #body>
                     <view class="uni-list-item__body">
                         <text class="title">{{ obj.material_no }}</text>
                         <view class="note">
                             <view>名称：{{ obj.material_name }}</view> 
                             <view>规格：{{ obj.material_spec }}</view>
-                            <view>仓库：<text :class="[obj.stock_id == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj.stock_name }}</text></view>
-                            <view>仓管员：{{ obj.storekeeper }}</view>
+                            <view>单位：{{ obj.unit_name }}</view>
                         </view>
                     </view>
                 </template>
                 <template #footer>
                     <view class="uni-list-item__foot">
-                        <view>{{ obj.must_qty }} {{ obj.unit_name }}</view>
-                        <view v-if="inv_plans_map[obj.material_id]">已调拨：<text class="text-primary">{{ inv_plans_map[obj.material_id] }}</text></view>
+                        <view>应发：<text class="text-lg">{{ obj.must_qty }}</text></view>
+                        <view v-if="inv_logs_map[obj.material_id]">实发：<text class="text-primary text-lg">{{ inv_logs_map[obj.material_id] || 0 }}</text></view>
+                        <template v-else>
+                            <view>拆包区：<text class="text-lg">{{ invs_map[obj.material_id] || 0 }}</text></view>
+                            <view v-if="!invs_map[obj.material_id] || invs_map[obj.material_id] < obj.must_qty" class="text-error">库存不足</view>
+                        </template>
                     </view>
                 </template>
             </uni-list-item>
@@ -93,35 +103,35 @@
     import store from '@/store'
     import { play_audio_prompt } from '@/utils'
     import scan_code from '@/utils/scan_code'
-    import { PrdIssueMtrNotice, InvPlan } from '@/utils/model'
+    import { PrdIssueMtrNotice, InvLog, Inv } from '@/utils/model'
     export default {
         data() {
             return {
-                scfl: [], // 发料物料
-                inv_plans: [], // 已计划
-                inv_plans_map: {}, // 优化计划查询性能
+                scfl: [],          // 应发物料
+                invs: [],          // 拆包区库存
+                invs_map: {},      // 优化库存查询性能
+                inv_logs: [],      // 实发物料
+                inv_logs_map: {},  // 优化实发查询性能
                 search_form: {
                     bill_no: ''
                 },
                 goods_nav: {
                     options: [
-                        // { icon: 'cart', text: '计划', info: '' }
+                        { icon: 'checkbox', text: '全选' }
                     ],
                     button_group: [
-                        { text: '扫码查询单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' }
+                        { text: '扫码查询单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' },
+                        { text: '确认出库', backgroundColor: store.state.goods_nav_color.blue, color: '#fff' }
                     ]
                 }
             }
-        },
-        onShow() {
-            this.load_inv_plans()
         },
         computed: {
             is_completed() {
                 let res = true
                 if (this.scfl.length) {
                     for (let m of this.scfl) {
-                        if (!this.inv_plans_map[m.material_id] || this.inv_plans_map[m.material_id] < m.must_qty) {
+                        if (!this.inv_logs_map[m.material_id]) {
                             res = false
                             break
                         }
@@ -134,11 +144,25 @@
         },
         methods: {
             // 页面动作
+            check_all() {
+                let checked_all = !this.scfl.find(m => !m.checked && !m.sent_qty)
+                for (let m of this.scfl) {
+                    if (!m.is_sent) m.checked = !checked_all
+                }
+            },
+            checkbox_click(e) {
+                // console.log('checkbox_click e', e)
+                let material = this.scfl.find(m => m.material_id === e.target.dataset.id)
+                if (material) {
+                    material.checked = !material.checked
+                } 
+            },
             goods_nav_click(e) {
-                if (e.index === 0) this.$logger.info('this.$data', this.$data)
+                if (e.index === 0) this.check_all()
             },
             goods_nav_button_click(e) {
-                if (e.index === 0) this.scan_code() // btn:扫码查询单据
+                if (e.index === 0) this.scan_code()       // btn:扫码查询单据
+                if (e.index === 1) this.submit_outbound() // btn:提交出库
             },
             searchbar_icon_click(e) {
                 if (e == 'prefix') this.scan_code()
@@ -159,26 +183,13 @@
                         this.search_form.bill_no = 'SCFLTZD' + this.search_form.bill_no // 自动补充前缀
                     }
                     await this.load_scfltzd()
+                    await this.load_invs()
+                    await this.load_inv_logs()
                 } else {
                     this.scfl = []
-                    this.inv_plans = []
+                    this.invs = []
+                    this.inv_logs = []
                 }
-            },
-            // 选择库位
-            allocate_loc_no(obj) {
-                uni.navigateTo({
-                    url: '/pages/operation/move/unpack_allocate',
-                    events: {
-                        eventOutput: (data) => {
-                            // this.preview(data.allocate_info)
-                            // this.submit_save()
-                        }
-                    },
-                    success: (res) => {
-                        play_audio_prompt('success')
-                        res.eventChannel.emit('eventInput', { bill_no: this.search_form.bill_no, material: obj }) // 候选的库位列表
-                    }
-                })
             },
             // ** 加载数据 **
             async load_scfltzd() {
@@ -216,18 +227,55 @@
                         }
                     }
                     this.scfl = materials
-                    await this.load_inv_plans()
                 } catch (err) { }
             },
-            async load_inv_plans() {
-                let res = await InvPlan.query({ FBillNo: this.search_form.bill_no, FDocumentStatu: 'C', FOpType: 'mv' })
-                this.inv_plans = res.data
-                let inv_plans_map = {}
-                for (let inv_plan of this.inv_plans) {
-                    inv_plans_map[inv_plan.FMaterialId] ||= 0
-                    inv_plans_map[inv_plan.FMaterialId] += inv_plan.FOpQTY
+            async load_invs() {
+                let res = await Inv.get_all({ 'FStockLocId.FName_lk': '拆包区' }, { order: 'FBatchNo ASC' })
+                this.invs = res
+                let invs_map = {}
+                for (let inv of this.invs) {
+                    invs_map[inv.FMaterialId] ||= 0
+                    invs_map[inv.FMaterialId] += inv.FQty
                 }
-                this.inv_plans_map = inv_plans_map
+                this.invs_map = invs_map
+            },
+            async load_inv_logs() {
+                let res = await InvLog.query({ FBillNo: this.search_form.bill_no, FOpType: 'out' })
+                this.inv_logs = res.data
+                let inv_logs_map = {}
+                for (let inv_log of this.inv_logs) {
+                    inv_logs_map[inv_log.FMaterialId] ||= 0
+                    inv_logs_map[inv_log.FMaterialId] += inv_log.FOpQTY
+                }
+                this.inv_logs_map = inv_logs_map
+            },
+            async submit_outbound() {
+                uni.showLoading({ title: 'Loading' })
+                let checked_materials = this.scfl.filter(m => m.checked)
+                for (let m of checked_materials) {
+                    let invs = this.invs.filter(inv => inv.FMaterialId === m.material_id)
+                    let rest_must_qty = m.must_qty // 剩余应发数量
+                    for (let inv of invs) {
+                        if (rest_must_qty === 0) break; // 分配完毕，跳出循环
+                        let op_qty = inv.FQty >= rest_must_qty ? rest_must_qty : inv.FQty
+                        let inv_log = new InvLog({
+                            FOpType: 'out',
+                            FStockId: store.state.cur_stock.FStockId,
+                            FStockLocNo: inv['FStockLocId.FNumber'],
+                            FMaterialId: inv.FMaterialId,
+                            FOpQTY: op_qty,
+                            FBatchNo: inv.FBatchNo,
+                            FSupplierId: inv.FSupplierId,
+                            FBillNo: this.search_form.bill_no,
+                            FOpStaffNo: store.state.cur_staff.FNumber
+                        })
+                        await inv_log.save()
+                        rest_must_qty -= op_qty
+                    }
+                }
+                await this.load_invs()
+                await this.load_inv_logs()
+                uni.hideLoading()
             }
         }
     }

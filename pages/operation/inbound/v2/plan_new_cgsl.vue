@@ -220,7 +220,7 @@
                         <uni-th align="center" width="100">每托数量</uni-th>
                         <uni-th align="center" width="80">托数</uni-th>
                         <uni-th align="center" width="80">小计</uni-th>
-                        <uni-th align="center" width="60">操作</uni-th>
+                        <uni-th align="center" width="80">操作</uni-th>
                     </uni-tr>
                     <uni-tr v-for="(info, index) in form.pallet_infos" :key="index">
                         <uni-td align="center">

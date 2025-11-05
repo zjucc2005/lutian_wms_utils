@@ -41,7 +41,7 @@
                                     :active-color="group_item.qty_b / (group_item.qty_b + group_item.qty_a) == 1 ? '#4cd964' : '#f0ad4e'"
                                     :active="true"
                                 />
-                                <text>已下架： {{ group_item.qty_b }} / {{ group_item.qty_a + group_item.qty_b }}</text>
+                                <text>计划出库数：{{ group_item.qty_a + group_item.qty_b }}</text>
                             </view>
                         </view>
                     </template>

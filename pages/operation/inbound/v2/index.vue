@@ -2,9 +2,7 @@
     <!-- H5 -->    
     <!-- APP -->
     <!-- <view v-if="$store.state.role.includes('admin')"> -->
-        <uni-section title="进行中的入库计划" type="square" 
-            sub-title="单据编号"
-            class="above-uni-goods-nav">
+        <uni-section title="进行中的入库计划" type="square" sub-title="单据编号" class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
                     v-for="(group_item, index) in inv_plan_groups"
@@ -23,7 +21,7 @@
                                     :active-color="group_item.qty_b / (group_item.qty_b + group_item.qty_a) == 1 ? '#4cd964' : '#f0ad4e'"
                                     :active="true"
                                 />
-                                <text class="qty">已上架： {{ group_item.qty_b }} / {{ group_item.qty_a + group_item.qty_b }}</text>
+                                <text class="qty">计划入库数：{{ group_item.qty_a + group_item.qty_b }}</text>
                             </view>
                         </view>
                     </template>
@@ -146,12 +144,15 @@
                 })
             },          
             async load_inv_plans() {
-                let options = { FStockId: store.state.cur_stock.FStockId, FOpType: 'in' }
-                // if (store.state.role == 'wh_admin') {       
-                    options.FDocumentStatu_in = ['A', 'B']
-                // } else {
-                //     options.FDocumentStatu = 'A'
-                // }
+                let options = { 
+                    FStockId: store.state.cur_stock.FStockId, 
+                    FOpType: 'in',
+                    FDocumentStatu_in: ['A', 'B']
+                }
+                if (store.state.role == 'nrj_admin') {
+                    // 仓管员只可见自己的计划
+                    options['FMaterialId.F_PAEZ_Base1'] = store.state.cur_staff.FName
+                }
                 uni.showLoading({ title: 'Loading' })
                 return InvPlan.query(options, { order: 'FCreateTime ASC' }).then(res => {
                     uni.hideLoading()

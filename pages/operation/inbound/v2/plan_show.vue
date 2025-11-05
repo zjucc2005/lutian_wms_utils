@@ -293,6 +293,10 @@
                     FBillNo: this.bill_no,
                     FOpType: 'in'
                 }
+                if (store.state.role == 'nrj_admin') {
+                    // 仓管员只可见自己的计划
+                    options['FMaterialId.F_PAEZ_Base1'] = store.state.cur_staff.FName
+                }
                 uni.showLoading({ title: 'Loading' })
                 InvPlan.query(options, {}).then(res => {
                     uni.hideLoading()

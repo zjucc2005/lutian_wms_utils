@@ -1,6 +1,77 @@
 <template>
+    <!-- H5 -->
+    <template v-if="$store.state.screen_type === 'h5'">
+        <uni-section title="库存调整计划" type="square" class="above-uni-goods-nav" @click="console.log('>>> this.$data', this.$data)">
+            <uni-table ref="table" border stripe>
+                <uni-tr>
+                    <uni-th align="center" width="30"></uni-th>
+                    <uni-th align="center" width="60">序号</uni-th>
+                    <uni-th align="center">物料编号</uni-th>
+                    <uni-th align="center">物料名称</uni-th>
+                    <uni-th align="center">规格型号</uni-th>
+                    <uni-th align="center" width="80">操作类型</uni-th>
+                    <uni-th align="center" width="60">数量</uni-th>
+                    <uni-th align="center" width="80">单位</uni-th>
+                    <uni-th align="center" width="120">库位</uni-th>
+                    <uni-th align="center" width="80">批次</uni-th>
+                    <uni-th align="center">供应商</uni-th>
+                    <uni-th align="center" width="80">状态</uni-th>
+                    <uni-th align="center" width="160">时间</uni-th>
+                    <uni-th align="center" width="120">操作</uni-th>
+                </uni-tr>
+                <uni-tr v-for="(inv_plan, index) in inv_plans" :key="index">
+                    <uni-td>
+                        <checkbox
+                            :checked="inv_plan.checked"
+                            :disabled="inv_plan.disabled"
+                            @click="checkbox_click"
+                            :data-id="inv_plan.FID"
+                        />
+                    </uni-td>
+                    <uni-td align="center">{{ index + 1 }}</uni-td>
+                    <uni-td>{{ inv_plan['FMaterialId.FNumber'] }}</uni-td>
+                    <uni-td>{{ inv_plan['FMaterialId.FName'] }}</uni-td>
+                    <uni-td>{{ inv_plan['FMaterialId.FSpecification'] }}</uni-td>
+                    <uni-td>{{ op_type_dict[inv_plan.FOpType] }}</uni-td>
+                    <uni-td>{{ inv_plan['FOpQTY'] }}</uni-td>
+                    <uni-td>{{ inv_plan['FStockUnitId.FName'] }}</uni-td>
+                    <uni-td align="center">
+                        <view>{{ inv_plan['FStockLocId.FNumber'] }}</view>
+                        <template v-if="inv_plan.FOpType == 'mv'">
+                            <uni-icons type="arrow-down" size="20" color="#007bff"></uni-icons>
+                            <view>{{ inv_plan['FDestStockLocId.FNumber'] }}</view>
+                        </template>
+                    </uni-td>
+                    <uni-td>{{ inv_plan.FBatchNo }}</uni-td>
+                    <uni-td>{{ inv_plan['FSupplierId.FName'] }}</uni-td>
+                    <uni-td>
+                        <text :class="[inv_plan.disabled ? 'text-error' : 'text-primary']">{{ inv_plan.status }}</text>
+                    </uni-td>
+                    <uni-td>{{ formatDate(inv_plan.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</uni-td>
+                    <uni-td align="center">
+                        <view v-if="inv_plan.FDocumentStatu == 'A'">
+                            <uni-tag text="编辑" type="primary" @click="link_to(`/pages/operation/move/v2/plan_new?material_no=${inv_plan['FMaterialId.FNumber']}`)"/>
+                            <uni-tag text="删除" type="error" class="uni-ml-2" @click="if_submit_delete(inv_plan)"/>
+                        </view>
+                    </uni-td>
+                </uni-tr>
+            </uni-table>
+        </uni-section>
+        
+        <view class="uni-goods-nav-wrapper">
+            <uni-goods-nav 
+                :options="goods_nav.options" 
+                :button-group="goods_nav.admin_button_group"
+                :fill="$store.state.goods_nav_fill"
+                @click="goods_nav_click"
+                @button-click="goods_nav_admin_button_click"
+            />
+        </view>
+    </template>
+    
+    <template v-else>
     <!-- <view v-if="$store.state.role == 'wh_admin'"> -->
-        <uni-section title="进行中的库存调整计划" type="square" class="above-uni-goods-nav">
+        <uni-section title="库存调整计划" type="square" class="above-uni-goods-nav">
             <uni-list>
                 <uni-list-item
                     v-for="(inv_plan, index) in inv_plans"
@@ -125,13 +196,13 @@
             />
         </view>
     </view> -->
+    </template>
 </template>
 
 <script>
     import store from '@/store'
     import { InvPlan } from '@/utils/model'
-    import { play_audio_prompt, link_to } from '@/utils'
-    import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+    import { formatDate, play_audio_prompt, link_to } from '@/utils'
     // #ifdef H5
     import { pdf_template_inv_plans_mv } from '@/gen_pdf'
     // #endif
@@ -139,6 +210,7 @@
         data() {
             return {
                 inv_plans: [],
+                op_type_dict: InvPlan.FOpTypeEnum,
                 last_refresh_time: 0,
                 refresh_interval: 30 * 1000, // 30s
                 goods_nav: {
@@ -183,6 +255,7 @@
         },
         methods: {
             link_to,
+            formatDate,
             check_all() {
                 let checked_all = !this.inv_plans.find(inv_plan => !inv_plan.disabled && !inv_plan.checked)
                 this.inv_plans.forEach(inv_plan => {
@@ -232,6 +305,16 @@
                 window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800') // 打开小窗口
             },
             // #endif
+            if_submit_delete(inv_plan) {
+                uni.showModal({
+                    title: '删除',
+                    content: '是否确定删除?',
+                    success: (res) => {
+                        if (res.confirm) this.submit_delete(inv_plan)
+                    },
+                    fail: (err) => {}
+                })
+            },
             async load_inv_plans() {
                 let options = { FStockId: store.state.cur_stock.FStockId, FOpType_in: ['mv', 'add', 'sub'] }
                 if (store.state.role == 'wh_admin') {
@@ -245,13 +328,13 @@
                     this.inv_plans = res.data
                     this.inv_plans.forEach(inv_plan => {
                         inv_plan.checked = false
-                        if (store.state.role == 'wh_admin') {
+                        // if (store.state.role == 'wh_admin') {
                             inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
-                        }
-                        if (store.state.role == 'wh_staff') {
-                            inv_plan.disabled = inv_plan.FDocumentStatu != 'A'
-                            inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
-                        }
+                        // }
+                        // if (store.state.role == 'wh_staff') {
+                        //     inv_plan.disabled = inv_plan.FDocumentStatu != 'A'
+                        //     inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
+                        // }
                     })
                 })
             },

@@ -41,7 +41,7 @@
                         <uni-easyinput v-model="login_form.password" type="password" trim="both" />
                     </uni-forms-item>
                     <button type="primary" @click="submit_login">登录</button>
-                    <button @click="$refs.guest_login_dialog.open()" class="uni-mt-11">访客账号登录</button>
+                    <!-- <button @click="$refs.guest_login_dialog.open()" class="uni-mt-11">访客账号登录</button> -->
                 </uni-forms>
             </view>
         </view>
@@ -53,6 +53,7 @@
         </view>
     </view>
     
+    <!--
     <uni-popup ref="guest_login_dialog" type="dialog">
         <uni-popup-dialog
             type="warn"
@@ -78,6 +79,7 @@
             </view>
         </uni-popup-dialog>
     </uni-popup>
+    -->
 </template>
 
 <script>

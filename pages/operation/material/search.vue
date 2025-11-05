@@ -115,6 +115,9 @@
             scan_code() {
                 scan_code().then(res => {
                     this.search_form.material_no = res.result
+                    if (res.result.includes('||')) {
+                        this.search_form.material_no = res.result.split('||')[1]
+                    }
                     this.search()
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })
