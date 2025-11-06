@@ -1,8 +1,8 @@
 {
   "name": "lutian_wms_utils",
-  "version": "1.4.8",
-  "versionCode": 148,
-  "versionNote": "v1.4.8更新内容\n1.[原料仓]入库计划增加收料通知单；\n2.[原料仓]出库流程：库内调拨+出库；\n3.登录后可以在同组织下的仓库之间切换；\n4.修复APP端物料详情页图片不能放大浏览的问题；",
+  "version": "1.4.9",
+  "versionCode": 149,
+  "versionNote": "v1.4.9更新内容\n1.库存调整bug修复；\n出库不再根据仓管员筛选数据；",
   "installPack": {
     "h5": "https://musetransfer.com/s/or0l9uleu",
     "android": "https://musetransfer.com/s/o45ttjktl"

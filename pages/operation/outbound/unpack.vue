@@ -195,7 +195,7 @@
             async load_scfltzd() {
                 try {
                     uni.showLoading({ title: 'Loading' })
-                    let res = await PrdIssueMtrNotice.query({ FBillNo: this.search_form.bill_no, F_PAEZ_BaseProperty1: store.state.cur_staff.FName })
+                    let res = await PrdIssueMtrNotice.query({ FBillNo: this.search_form.bill_no })
                     uni.hideLoading()
                     if (res.data.length == 0) {
                         uni.showToast({ icon: 'none' ,title: '没有相关数据' })

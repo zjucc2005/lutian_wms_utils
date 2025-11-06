@@ -100,7 +100,8 @@
                 loc_qty: { total: 0, disabled: 0, used: 0, idle: 0 }, // 库位数统计
                 stock_locs_used: {}, // 记录库位是否被占用，刷新库存时，先对比此数据，再更新table_shelves，减少渲染请求
                 timer: null,
-                scroll_speed: 1
+                scroll_speed: 1,
+                chart_data: {}
             }
         },
         onUnload() {
@@ -151,15 +152,16 @@
                     }
                 }
             },
-            chart_data () {
-                return { series: [{
-                    data: [
-                        { name: "已使用", value: this.loc_qty.used },
-                        { name: "未使用", value: this.loc_qty.idle },
-                        { name: "被禁用", value: this.loc_qty.disabled }
-                    ]
-                }]}
-            }
+            // chart_data() {
+            //     let res = { series: [{
+            //         data: [
+            //             { name: "已使用", value: this.loc_qty.used * 1 },
+            //             { name: "未使用", value: this.loc_qty.idle * 1 },
+            //             { name: "被禁用", value: this.loc_qty.disabled * 1 }
+            //         ]
+            //     }]}
+            //     return res
+            // }
         },
         methods: {
             // 初始化表格库位形式table_shelves
@@ -213,6 +215,16 @@
                     }
                 }
                 this.loc_qty.idle = this.loc_qty.total - this.loc_qty.used - this.loc_qty.disabled
+                this.update_chart_data()
+            },
+            update_chart_data() {
+                this.chart_data = { series: [{
+                    data: [
+                        { name: "已使用", value: this.loc_qty.used },
+                        { name: "未使用", value: this.loc_qty.idle },
+                        { name: "被禁用", value: this.loc_qty.disabled }
+                    ]
+                }]}
             },
             grid_activate (group, x, y) {
                 let shelf = this.table_shelves.find(s => s.name == group)

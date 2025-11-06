@@ -72,6 +72,7 @@
                             </view>
                             <view class="note">
                                 <view>批次：{{ inv_plan.FBatchNo }}</view>
+                                <view>供应商： {{ inv_plan['FSupplierId.FName'] }}</view>
                                 <view v-if="inv_plan.FBillNo?.trim()">单据：{{ inv_plan.FBillNo }}</view>
                                 <view v-if="inv_plan.FRemark?.trim()">备注：{{ inv_plan.FRemark }}</view>
                             </view>
@@ -115,15 +116,20 @@
         <uni-list v-if="invs.length">
             <template v-for="(inv, index) in invs" :key="index">
                 <uni-list-item
-                    :title="inv['FStockLocId.FNumber']"
-                    :note="`批次：${inv['FBatchNo']}`"
-                    :rightText="[inv['FQty'], inv['FStockUnitId.FName']].join(' ')"
+                    :extra-icon="{ type: 'location', size: '24' }" show-extra-icon
                     @click="open_move_dialog(inv)" clickable
-                    showArrow
-                    :show-extra-icon="true"
-                    :extra-icon="{ type: 'location', size: '24' }">
+                    showArrow>
+                    <template #body>
+                        <view class="uni-list-item__body">
+                            <view class="title">{{ inv['FStockLocId.FNumber'] }}</view>
+                            <view class="note">
+                                <view>批次：{{ inv['FBatchNo'] }}</view>
+                                <view>供应商：{{ inv['FSupplierId.FName'] }}</view>
+                            </view>
+                        </view>
+                    </template>
                     
-                    <template v-slot:footer>
+                    <template #footer>
                         <view class="uni-list-item__foot">
                             <text class="op_qty">
                                 <template v-if="inv.planned_qty">({{ inv.FQty - inv.planned_qty }})</template>
@@ -583,7 +589,8 @@
                             FBatchNo: this.move_form.inv.FBatchNo,
                             FOpStaffNo: store.state.cur_staff.FNumber,
                             FRemark: this.move_form.remark?.trim(),
-                            FBillNo: this.move_form.bill_no
+                            FBillNo: this.move_form.bill_no,
+                            FSupplierId: this.move_form.inv.FSupplierId
                         })
                     } else if (this.move_form.type == 'edit') {
                         let diff = this.move_form.edit_qty - this.move_form.inv.FQty + this.move_form.inv.planned_qty
@@ -596,7 +603,8 @@
                             FBatchNo: this.move_form.inv.FBatchNo,
                             FOpStaffNo: store.state.cur_staff.FNumber,
                             FRemark: this.move_form.remark?.trim(),
-                            FBillNo: this.move_form.bill_no
+                            FBillNo: this.move_form.bill_no,
+                            FSupplierId: this.move_form.inv.FSupplierId
                         })
                     } else if (this.move_form.type == 'new') {
                         inv_plan = new InvPlan({
@@ -608,9 +616,12 @@
                             FBatchNo: this.move_form.new_batch_no.replace(/-/g, ''),
                             FOpStaffNo: store.state.cur_staff.FNumber,
                             FRemark: this.move_form.remark?.trim(),
-                            FBillNo: this.move_form.bill_no
+                            FBillNo: this.move_form.bill_no,
+                            FSupplierId: this.move_form.inv.FSupplierId
                         })
                     }
+                    this.$logger.info('>>> this.$data', this.$data)
+                    return
                     uni.showLoading({ title: 'Loading' })
                     let res = await inv_plan.save()
                     uni.hideLoading()

@@ -184,6 +184,7 @@
             async load_scfltzd() {
                 try {
                     uni.showLoading({ title: 'Loading' })
+                    // 区分仓管员
                     let res = await PrdIssueMtrNotice.query({ FBillNo: this.search_form.bill_no, F_PAEZ_BaseProperty1: store.state.cur_staff.FName })
                     uni.hideLoading()
                     if (res.data.length == 0) {

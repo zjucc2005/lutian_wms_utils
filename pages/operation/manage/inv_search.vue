@@ -17,7 +17,7 @@
                         <view class="title">{{ inv['FStockLocId.FNumber'] }}</view>
                         <view class="note">
                             <view>批次：{{ inv.FBatchNo }}</view>
-                            <view v-if="inv['FSupplierId.FName']">供应商：{{ inv['FSupplierId.FName'] }}</view>
+                            <view>供应商：{{ inv['FSupplierId.FName'] }}</view>
                         </view>
                     </view>
                 </template>
@@ -40,7 +40,7 @@
                             <view>名称：{{ inv['FMaterialId.FName'] }}</view>
                             <view>规格：{{ inv['FMaterialId.FSpecification'] }}</view>
                             <view>批次：{{ inv.FBatchNo }}</view>
-                            <view v-if="inv['FSupplierId.FName']">供应商：{{ inv['FSupplierId.FName'] }}</view>
+                            <view>供应商：{{ inv['FSupplierId.FName'] }}</view>
                         </view>
                     </view>
                 </template>

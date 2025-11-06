@@ -30,9 +30,8 @@
     </uni-list>
     <uni-collapse :accordion="accordion">
         <uni-collapse-item
-            v-for="(shelf, index) in grid_shelves"
-            :title="shelf.name" :open="accordion ? index === 0 : open" :key="index" title-border="show"
-            >
+            v-for="(shelf, index) in grid_shelves" :key="index"
+            :title="shelf.name" :open="accordion ? index === 0 : open" title-border="show">
             <template #title>
                 <view class="collapse_header" style="">
                     <view class="shelf_name" style="padding: 15px;">
@@ -105,19 +104,8 @@
                 
                 <uni-list>
                     <uni-list-item
-                        v-for="(inv, index) in invs.filter(x => x['FStockLocId.FNumber'] == drawer_stock_loc.FNumber)"
-                        :key="index"
-                        :title="inv['FMaterialId.FNumber']"
-                        :note="[
-                            `名称：${inv['FMaterialId.FName']}`, 
-                            `规格：${inv['FMaterialId.FSpecification']}`, 
-                            `批次：${inv.FBatchNo}`,
-                            `供应商：${inv['FSupplierId.FName']}`
-                        ].join('\n')"
-                        :rightText="[inv.FQty, inv['FStockUnitId.FName']].join(' ')"
-                        @click="inv_menu(inv)"
-                        clickable
-                        >
+                        v-for="(inv, index) in invs.filter(x => x['FStockLocId.FNumber'] == drawer_stock_loc.FNumber)" :key="index"
+                        @click="inv_menu(inv)" clickable>
                         <template #body>
                             <view class="uni-list-item__body">
                                 <text class="title">{{ inv['FMaterialId.FNumber'] }}</text>
@@ -125,8 +113,13 @@
                                     <view>名称：{{ inv['FMaterialId.FName'] }}</view>
                                     <view>规格：{{ inv['FMaterialId.FSpecification'] }}</view>
                                     <view>批次：{{ inv.FBatchNo }}</view>
-                                    <view v-if="inv['FSupplierId.FName']">供应商：{{ inv['FSupplierId.FName'] }}</view>
+                                    <view>供应商：{{ inv['FSupplierId.FName'] }}</view>
                                 </view>
+                            </view>
+                        </template>
+                        <template #footer>
+                            <view class="uni-list-item__foot">
+                                <view>{{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}</view>
                             </view>
                         </template>
                     </uni-list-item>
@@ -189,8 +182,6 @@
             }
         },
         mounted() {
-            console.log('>>> this.stock_locs', this.stock_locs)
-            console.log('>>> this.invs', this.invs)
         },
         computed: {
             column () {
@@ -477,7 +468,6 @@
             },
             grid_click(e, shelf) {
                 let grid = shelf.grids.find(g => g.index === e.detail.index)
-                // console.log('grid', grid)
                 if (!grid) return
                 if (grid.style == 'none') return
                 if (this.forbidable || grid.status != 'forbidden'){
