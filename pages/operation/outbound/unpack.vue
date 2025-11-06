@@ -1,6 +1,12 @@
 <template>
     <!-- 搜素 -->
-    <uni-section title="查询单据编号" type="square" sub-title="生产发料通知单" sub-title-color="#007aff" @click="console.log('this.$data', this.$data)">
+    <uni-section title="查询单据编号" type="square"
+        :sub-title="[
+            $store.state.cur_stock['FUseOrgId.FName'],
+            $store.state.cur_stock['FGroup.FName'] || '未分组',
+            $store.state.cur_stock.FName
+        ].join(' / ')"
+        sub-title-color="#007aff" @click="$logger.info('>>>', $data)">
         <view class="searchbar-container">
             <uni-easyinput
                 v-model="search_form.bill_no" 
@@ -24,25 +30,38 @@
         :sub-title="`产线：${scfl[0]?.prd_line}`" sub-title-color="#007aff" class="above-uni-goods-nav">
         <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
             <uni-tr>
+                <uni-th align="center" width="30"></uni-th>
                 <uni-th align="center" width="60">序号</uni-th>
                 <uni-th align="center">物料编码</uni-th>
                 <uni-th align="center">物料名称</uni-th>
                 <uni-th align="center">规格型号</uni-th>
                 <uni-th align="center">单位</uni-th>
                 <uni-th align="center">应发数量</uni-th>
-                <uni-th align="center">可发数量</uni-th>
+                <uni-th align="center">拆包区数量</uni-th>
+                <uni-th align="center">实发数量</uni-th>
                 <uni-th align="center">仓库</uni-th>
                 <uni-th align="center">仓管员</uni-th>
             </uni-tr>
             
             <uni-tr v-for="(obj, index) in scfl" :key="index">
+                <uni-td>
+                    <uni-icons v-if="inv_logs_map[obj.material_id]" type="checkbox" size="30" color="#007aff"></uni-icons>
+                    <checkbox
+                        v-else-if="invs_map[obj.material_id] && invs_map[obj.material_id] >= obj.must_qty"
+                        :checked="obj.checked"
+                        @click="checkbox_click"
+                        :data-id="obj.material_id"
+                    />
+                    <checkbox v-else disabled></checkbox>
+                </uni-td>
                 <uni-td align="center">{{ index + 1 }}</uni-td>
                 <uni-td>{{ obj.material_no }}</uni-td>
                 <uni-td>{{ obj.material_name }}</uni-td>
                 <uni-td>{{ obj.material_spec }}</uni-td>
                 <uni-td align="center">{{ obj.unit_name }}</uni-td>
                 <uni-td align="center">{{ obj.must_qty }}</uni-td>
-                <uni-td align="center">{{  }}</uni-td>
+                <uni-td align="center">{{ invs_map[obj.material_id] || 0 }}</uni-td>
+                <uni-td align="center">{{ inv_logs_map[obj.material_id] }}</uni-td>
                 <uni-td><text :class="[obj.stock_id == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj.stock_name }}</text></uni-td>
                 <uni-td>{{ obj.storekeeper }}</uni-td>
             </uni-tr>
@@ -86,7 +105,7 @@
         </uni-list>
     </uni-section>
     
-    <view v-if="$store.state.screen_type === 'app-plus'" class="uni-goods-nav-wrapper">
+    <view class="uni-goods-nav-wrapper">
         <uni-goods-nav 
             :options="goods_nav.options" 
             :button-group="goods_nav.button_group"
@@ -103,7 +122,7 @@
     import store from '@/store'
     import { play_audio_prompt } from '@/utils'
     import scan_code from '@/utils/scan_code'
-    import { PrdIssueMtrNotice, InvLog, Inv } from '@/utils/model'
+    import { PrdIssueMtrNotice, SpPickMtrl, InvLog, Inv } from '@/utils/model'
     export default {
         data() {
             return {
@@ -182,7 +201,11 @@
                     if (this.search_form.bill_no.match(/^\d+$/)) {
                         this.search_form.bill_no = 'SCFLTZD' + this.search_form.bill_no // 自动补充前缀
                     }
-                    await this.load_scfltzd()
+                    if (this.search_form.bill_no.startsWith('SCFLTZD')) {
+                        await this.load_scfltzd()
+                    } else if (this.search_form.bill_no.startsWith('JSCLL')) {
+                        await this.load_jscll()
+                    }
                     await this.load_invs()
                     await this.load_inv_logs()
                 } else {
@@ -192,6 +215,7 @@
                 }
             },
             // ** 加载数据 **
+            // 生产发料通知单
             async load_scfltzd() {
                 try {
                     uni.showLoading({ title: 'Loading' })
@@ -229,8 +253,48 @@
                     this.scfl = materials
                 } catch (err) { }
             },
+            // 简易生产领料单
+            async load_jscll() {
+                try {
+                    uni.showLoading({ title: 'Loading' })
+                    // 区分仓管员
+                    let res = await SpPickMtrl.query({ FBillNo: this.search_form.bill_no })
+                    uni.hideLoading()
+                    if (res.data.length == 0) {
+                        uni.showToast({ icon: 'none' ,title: '没有相关数据' })
+                        return
+                    }
+                    let materials = []
+                    for (let d of res.data) {
+                        let material = materials.find(m => m.material_id === d.FMaterialId)
+                        if (material) {
+                            material.must_qty += d.FActualQty
+                            material.base_must_qty += d.FBaseActualQty
+                        } else {
+                            materials.push({
+                                material_id: d.FMaterialId,
+                                material_no: d['FMaterialId.FNumber'],
+                                material_name: d['FMaterialId.FName'],
+                                material_spec: d['FMaterialId.FSpecification'],
+                                storekeeper: d['FMaterialId.F_PAEZ_Base1'],
+                                stock_id: d.FStockId,
+                                stock_name: d['FStockId.FName'],
+                                prd_line: d['FWorkShopId.FName'],
+                                must_qty: d.FActualQty,
+                                unit_id: d.FUnitId,
+                                unit_name: d['FUnitId.FName'],
+                                base_must_qty: d.FBaseActualQty,
+                                base_unit_id: d.FBaseUnitId,
+                                base_unit_name: d['FBaseUnitId.FName']
+                            })
+                        }
+                    }
+                    this.scfl = materials
+                    await this.load_inv_plans()
+                } catch (err) { }
+            },
             async load_invs() {
-                let res = await Inv.get_all({ 'FStockLocId.FName_lk': '拆包区' }, { order: 'FBatchNo ASC' })
+                let res = await Inv.get_all({ FStockId: store.state.cur_stock.FStockId, 'FStockLocId.FName_lk': '拆包区' }, { order: 'FBatchNo ASC' })
                 this.invs = res
                 let invs_map = {}
                 for (let inv of this.invs) {
@@ -240,7 +304,7 @@
                 this.invs_map = invs_map
             },
             async load_inv_logs() {
-                let res = await InvLog.query({ FBillNo: this.search_form.bill_no, FOpType: 'out' })
+                let res = await InvLog.query({ FBillNo: this.search_form.bill_no, FStockId: store.state.cur_stock.FStockId, FOpType: 'out' })
                 this.inv_logs = res.data
                 let inv_logs_map = {}
                 for (let inv_log of this.inv_logs) {
@@ -252,9 +316,13 @@
             async submit_outbound() {
                 uni.showLoading({ title: 'Loading' })
                 let checked_materials = this.scfl.filter(m => m.checked)
+                if (checked_materials.length === 0) {
+                    uni.showToast({ icon: 'none', title: '未勾选出库信息' })
+                    return
+                }
                 for (let m of checked_materials) {
                     let invs = this.invs.filter(inv => inv.FMaterialId === m.material_id)
-                    let rest_must_qty = m.must_qty // 剩余应发数量
+                    let rest_must_qty = m.must_qty * 1 // 剩余应发数量
                     for (let inv of invs) {
                         if (rest_must_qty === 0) break; // 分配完毕，跳出循环
                         let op_qty = inv.FQty >= rest_must_qty ? rest_must_qty : inv.FQty
@@ -272,10 +340,12 @@
                         await inv_log.save()
                         rest_must_qty -= op_qty
                     }
+                    m.checked = false
                 }
                 await this.load_invs()
                 await this.load_inv_logs()
                 uni.hideLoading()
+                uni.showToast({ title: '出库成功' })
             }
         }
     }

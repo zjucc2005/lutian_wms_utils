@@ -40,7 +40,7 @@
             
             <uni-col :span="3">
                 <uni-row>
-                    <uni-card margin="10px" spacing="0" padding="5px"  @click="debug">
+                    <uni-card margin="10px" spacing="0" padding="5px" @click="$logger.info('>>>', $data)">
                         <view class="stock-name">
                             {{ $store.state.cur_stock['FName'] }}
                         </view>
@@ -63,18 +63,25 @@
                     </uni-card>
                 </uni-row>
                 <uni-row>
-                    <uni-card margin="10px" spacing="0" padding="0 10px">
-                        <view class="cc-shelf-grid-sample">
-                            <view class="cc-shelf-grid-sample-item success"></view>
-                            <view>库位已使用</view>
+                    <uni-card margin="10px" spacing="0" padding="0">
+                        <view class="title">库位总数</view>
+                        <view class="striking-number">
+                            {{ loc_qty.total }}
                         </view>
                         <view class="cc-shelf-grid-sample">
-                            <view class="cc-shelf-grid-sample-item default"></view>
-                            <view>库位未使用</view>
+                            <view class="head success"></view>
+                            <view class="body">库位已使用</view>
+                            <view class="foot">{{ loc_qty.used }}</view>
                         </view>
                         <view class="cc-shelf-grid-sample">
-                            <view class="cc-shelf-grid-sample-item error"></view>
-                            <view>库位被禁用</view>
+                            <view class="head default"></view>
+                            <view class="body">库位未使用</view>
+                            <view class="foot">{{ loc_qty.idle }}</view>
+                        </view>
+                        <view class="cc-shelf-grid-sample">
+                            <view class="head error"></view>
+                            <view class="body">库位被禁用</view>
+                            <view class="foot">{{ loc_qty.disabled }}</view>
                         </view>
                         <qiun-data-charts type="ring" :opts="chart_opts" :chart-data="chart_data" />
                     </uni-card>
@@ -106,7 +113,7 @@
         },
         onUnload() {
             if (this.timer) {
-                clearInterval(this.timer) // 清除计时器
+                clearInterval(this.timer) // 回收计时器
             }
         },
         mounted() {
@@ -188,7 +195,6 @@
             },
             // 加载库存数据
             load_invs(){
-                // console.log('load_invs')
                 Inv.get_all({ FStockId: store.state.cur_stock.FStockId }).then(res => {
                     this.update_data(res)
                 })
@@ -242,9 +248,6 @@
             },
             slider_change(e) {
                 this.scroll_speed = e.detail.value
-            },
-            debug() {
-                console.log('data', this.$data)
             }
         }
     }
@@ -303,8 +306,9 @@
         justify-content: space-between;
         color: #fff;
         font-size: 16px;
+        padding: 0 10px;
         
-        .cc-shelf-grid-sample-item {
+        .head {
             width: 24px;
             height: 24px;
             // border: 1px #EBEEF5 solid;
@@ -317,6 +321,14 @@
             &.error {
                 background-color: #f56c6c;
             }
+        }
+        .body {
+            margin-left: 10px;
+        }
+        .foot {
+            flex: 1;
+            text-align: right;
+            color: #fff32b;
         }
     }
     .stock-name {

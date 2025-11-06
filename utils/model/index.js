@@ -20,6 +20,7 @@ import PrdPpbom from './prd_ppbom'
 import PurPurchaseOrder from './pur_purchase_order'
 import PurReceiveBill from './pur_receive_bill'
 import SalDeliveryNotice from './sal_delivery_notice'
+import SpPickMtrl from './sp_pick_mtrl'
 import StkInventory from './stk_inventory'
 import StockLoc from './stock_loc'
 export {
@@ -41,6 +42,7 @@ export {
     PurPurchaseOrder,
     PurReceiveBill,
     SalDeliveryNotice,
+    SpPickMtrl,
     StkInventory,
     StockLoc
 }

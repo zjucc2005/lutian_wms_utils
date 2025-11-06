@@ -1,8 +1,8 @@
 {
   "name": "lutian_wms_utils",
-  "version": "1.4.9",
-  "versionCode": 149,
-  "versionNote": "v1.4.9更新内容\n1.库存调整bug修复；\n出库不再根据仓管员筛选数据；",
+  "version": "1.5.0",
+  "versionCode": 150,
+  "versionNote": "v1.5.0更新内容\n1.[原料仓]出库流程适配简易生产领料单；\n2.[原料仓]修复出库时可以连点导致重复出库的问题；\n3.库存看板调整；",
   "installPack": {
     "h5": "https://musetransfer.com/s/or0l9uleu",
     "android": "https://musetransfer.com/s/o45ttjktl"

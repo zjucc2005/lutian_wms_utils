@@ -1,7 +1,7 @@
 import K3CloudApi from '@/utils/k3cloudapi'
 
-class PrdIssueMtrNotice {
-    static form_id = 'PRD_ISSUEMTRNOTICE'
+class SpPickMtrl {
+    static form_id = 'SP_PickMtrl'
     constructor() {
         
     }
@@ -15,10 +15,10 @@ class PrdIssueMtrNotice {
      * @return {Hash} Promise
      */
     static async query (options={}, meta={}) {
-        let fields = ['FID', 'FBillNo', 'F_PAEZ_Base', 'F_PAEZ_Base.FName',
-                      'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'F_PAEZ_BaseProperty1',
+        let fields = ['FID', 'FBillNo', 'FWorkShopId', 'FWorkShopId.FName',
+                      'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1',
                       'FStockId', 'FStockId.FName',
-                      'FMustQty', 'FUnitId1', 'FUnitId1.FName', 'FBaseMustQty', 'FBaseUnitId1', 'FBaseUnitId1.FName'
+                      'FActualQty', 'FUnitId', 'FUnitId.FName', 'FBaseActualQty', 'FBaseUnitId', 'FBaseUnitId.FName'
                       ]
         const data = {
             FormId: this.form_id,
@@ -46,4 +46,4 @@ class PrdIssueMtrNotice {
     }
 }
 
-export default PrdIssueMtrNotice
+export default SpPickMtrl

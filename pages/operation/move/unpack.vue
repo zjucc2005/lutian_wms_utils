@@ -1,6 +1,12 @@
 <template>
     <!-- 搜素 -->
-    <uni-section title="查询单据编号" type="square" sub-title="生产发料通知单" sub-title-color="#007aff" @click="console.log('this.$data', this.$data)">
+    <uni-section title="查询单据编号" type="square" 
+        :sub-title="[
+            $store.state.cur_stock['FUseOrgId.FName'],
+            $store.state.cur_stock['FGroup.FName'] || '未分组',
+            $store.state.cur_stock.FName
+        ].join(' / ')"
+        sub-title-color="#007aff" @click="$logger('>>>', $data)">
         <view class="searchbar-container">
             <uni-easyinput
                 v-model="search_form.bill_no" 
@@ -93,7 +99,7 @@
     import store from '@/store'
     import { play_audio_prompt } from '@/utils'
     import scan_code from '@/utils/scan_code'
-    import { PrdIssueMtrNotice, InvPlan } from '@/utils/model'
+    import { PrdIssueMtrNotice, SpPickMtrl, InvPlan } from '@/utils/model'
     export default {
         data() {
             return {
@@ -114,7 +120,7 @@
             }
         },
         onShow() {
-            this.load_inv_plans()
+            if (this.search_form.bill_no) this.load_inv_plans()
         },
         computed: {
             is_completed() {
@@ -158,7 +164,11 @@
                     if (this.search_form.bill_no.match(/^\d+$/)) {
                         this.search_form.bill_no = 'SCFLTZD' + this.search_form.bill_no // 自动补充前缀
                     }
-                    await this.load_scfltzd()
+                    if (this.search_form.bill_no.startsWith('SCFLTZD')) {
+                        await this.load_scfltzd()
+                    } else if (this.search_form.bill_no.startsWith('JSCLL')) {
+                        await this.load_jscll()
+                    }
                 } else {
                     this.scfl = []
                     this.inv_plans = []
@@ -170,8 +180,7 @@
                     url: '/pages/operation/move/unpack_allocate',
                     events: {
                         eventOutput: (data) => {
-                            // this.preview(data.allocate_info)
-                            // this.submit_save()
+                            // callback
                         }
                     },
                     success: (res) => {
@@ -181,6 +190,7 @@
                 })
             },
             // ** 加载数据 **
+            // 生产发料通知单
             async load_scfltzd() {
                 try {
                     uni.showLoading({ title: 'Loading' })
@@ -220,8 +230,49 @@
                     await this.load_inv_plans()
                 } catch (err) { }
             },
+            // 简易生产领料单
+            async load_jscll() {
+                try {
+                    uni.showLoading({ title: 'Loading' })
+                    // 区分仓管员
+                    let res = await SpPickMtrl.query({ FBillNo: this.search_form.bill_no, 'FMaterialId.F_PAEZ_Base1': store.state.cur_staff.FName })
+                    uni.hideLoading()
+                    if (res.data.length == 0) {
+                        uni.showToast({ icon: 'none' ,title: '没有相关数据' })
+                        return
+                    }
+                    let materials = []
+                    for (let d of res.data) {
+                        let material = materials.find(m => m.material_id === d.FMaterialId)
+                        if (material) {
+                            material.must_qty += d.FActualQty
+                            material.base_must_qty += d.FBaseActualQty
+                        } else {
+                            materials.push({
+                                material_id: d.FMaterialId,
+                                material_no: d['FMaterialId.FNumber'],
+                                material_name: d['FMaterialId.FName'],
+                                material_spec: d['FMaterialId.FSpecification'],
+                                storekeeper: d['FMaterialId.F_PAEZ_Base1'],
+                                stock_id: d.FStockId,
+                                stock_name: d['FStockId.FName'],
+                                prd_line: d['FWorkShopId.FName'],
+                                must_qty: d.FActualQty,
+                                unit_id: d.FUnitId,
+                                unit_name: d['FUnitId.FName'],
+                                base_must_qty: d.FBaseActualQty,
+                                base_unit_id: d.FBaseUnitId,
+                                base_unit_name: d['FBaseUnitId.FName']
+                            })
+                        }
+                    }
+                    this.scfl = materials
+                    await this.load_inv_plans()
+                } catch (err) { }
+            },
             async load_inv_plans() {
-                let res = await InvPlan.query({ FBillNo: this.search_form.bill_no, FDocumentStatu: 'C', FOpType: 'mv' })
+                let res = await InvPlan.query({ FBillNo: this.search_form.bill_no, FStockId: store.state.cur_stock.FStockId, 
+                                                FDocumentStatu: 'C', FOpType: 'mv' })
                 this.inv_plans = res.data
                 let inv_plans_map = {}
                 for (let inv_plan of this.inv_plans) {

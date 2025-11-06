@@ -6,7 +6,8 @@
             $store.state.cur_stock['FUseOrgId.FName'],
             $store.state.cur_stock['FGroup.FName'] || '未分组',
             $store.state.cur_stock.FName
-        ].join(' / ')">
+        ].join(' / ')"
+        sub-title-color="#007aff">
         <view class="searchbar-container">
             <uni-easyinput
                 v-model="search_form.bill_no" 
