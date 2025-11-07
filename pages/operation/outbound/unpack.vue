@@ -45,9 +45,9 @@
             
             <uni-tr v-for="(obj, index) in scfl" :key="index">
                 <uni-td>
-                    <uni-icons v-if="inv_logs_map[obj.material_id]" type="checkbox" size="30" color="#007aff"></uni-icons>
+                    <uni-icons v-if="inv_logs_map[obj.material_id] >= obj.must_qty" type="paperplane" size="30" color="#007aff"></uni-icons>
                     <checkbox
-                        v-else-if="invs_map[obj.material_id] && invs_map[obj.material_id] >= obj.must_qty"
+                        v-else-if="invs_map[obj.material_id] && invs_map[obj.material_id] > 0"
                         :checked="obj.checked"
                         @click="checkbox_click"
                         :data-id="obj.material_id"
@@ -71,9 +71,9 @@
             <uni-list-item v-for="(obj, index) in scfl" :key="index">
                 <template #header>
                     <view class="uni-list-item__head">
-                        <uni-icons v-if="inv_logs_map[obj.material_id]" type="checkbox" size="30" color="#007aff"></uni-icons>
+                        <uni-icons v-if="inv_logs_map[obj.material_id] >= obj.must_qty" type="paperplane" size="30" color="#007aff"></uni-icons>                       
                         <checkbox
-                            v-else-if="invs_map[obj.material_id] && invs_map[obj.material_id] >= obj.must_qty"
+                            v-else-if="invs_map[obj.material_id] && invs_map[obj.material_id] > 0"
                             :checked="obj.checked"
                             @click="checkbox_click"
                             :data-id="obj.material_id"
@@ -93,12 +93,15 @@
                 </template>
                 <template #footer>
                     <view class="uni-list-item__foot">
-                        <view>应发：<text class="text-lg">{{ obj.must_qty }}</text></view>
-                        <view v-if="inv_logs_map[obj.material_id]">实发：<text class="text-primary text-lg">{{ inv_logs_map[obj.material_id] || 0 }}</text></view>
-                        <template v-else>
-                            <view>拆包区：<text class="text-lg">{{ invs_map[obj.material_id] || 0 }}</text></view>
-                            <view v-if="!invs_map[obj.material_id] || invs_map[obj.material_id] < obj.must_qty" class="text-error">库存不足</view>
-                        </template>
+                        <view>
+                            应发：<text class="text-lg">{{ obj.must_qty }}</text>
+                        </view>
+                        <view v-if="inv_logs_map[obj.material_id]">
+                            实发：<text class="text-primary text-lg">{{ inv_logs_map[obj.material_id] || 0 }}</text>
+                        </view>
+                        <view v-if="(inv_logs_map[obj.material_id] || 0) < obj.must_qty">
+                            拆包区：<text class="text-lg">{{ invs_map[obj.material_id] || 0 }}</text>
+                        </view>
                     </view>
                 </template>
             </uni-list-item>
@@ -314,15 +317,17 @@
                 this.inv_logs_map = inv_logs_map
             },
             async submit_outbound() {
-                uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading', mask: true }) 
                 let checked_materials = this.scfl.filter(m => m.checked)
                 if (checked_materials.length === 0) {
-                    uni.showToast({ icon: 'none', title: '未勾选出库信息' })
+                    uni.showToast({ icon: 'none', title: '未勾选出库信息', mask: true })
                     return
                 }
-                for (let m of checked_materials) {
+                for (let i=0;i<checked_materials.length;i++) {
+                    uni.showLoading({ title: `${i+1}/${checked_materials.length}`, mask: true })
+                    let m = checked_materials[i]
                     let invs = this.invs.filter(inv => inv.FMaterialId === m.material_id)
-                    let rest_must_qty = m.must_qty * 1 // 剩余应发数量
+                    let rest_must_qty = m.must_qty - (this.inv_logs_map[m.material_id] || 0) // 剩余应发数量
                     for (let inv of invs) {
                         if (rest_must_qty === 0) break; // 分配完毕，跳出循环
                         let op_qty = inv.FQty >= rest_must_qty ? rest_must_qty : inv.FQty
@@ -342,10 +347,32 @@
                     }
                     m.checked = false
                 }
+                // for (let m of checked_materials) {
+                //     let invs = this.invs.filter(inv => inv.FMaterialId === m.material_id)
+                //     let rest_must_qty = m.must_qty * 1 // 剩余应发数量
+                //     for (let inv of invs) {
+                //         if (rest_must_qty === 0) break; // 分配完毕，跳出循环
+                //         let op_qty = inv.FQty >= rest_must_qty ? rest_must_qty : inv.FQty
+                //         let inv_log = new InvLog({
+                //             FOpType: 'out',
+                //             FStockId: store.state.cur_stock.FStockId,
+                //             FStockLocNo: inv['FStockLocId.FNumber'],
+                //             FMaterialId: inv.FMaterialId,
+                //             FOpQTY: op_qty,
+                //             FBatchNo: inv.FBatchNo,
+                //             FSupplierId: inv.FSupplierId,
+                //             FBillNo: this.search_form.bill_no,
+                //             FOpStaffNo: store.state.cur_staff.FNumber
+                //         })
+                //         await inv_log.save()
+                //         rest_must_qty -= op_qty
+                //     }
+                //     m.checked = false
+                // }
                 await this.load_invs()
                 await this.load_inv_logs()
                 uni.hideLoading()
-                uni.showToast({ title: '出库成功' })
+                uni.showToast({ title: '出库成功', mask: true })
             }
         }
     }

@@ -2,6 +2,11 @@ import store from '@/store'
 import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
 
 /**
+ * 模拟sleep函数, 使用方式 Promise + async await
+ */
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+/**
  * 转换响应式数据到普通js对象
  */
 const to_raw = (reactive_obj) => {
@@ -201,6 +206,7 @@ const get_latest_version = async (positive=false) => {
 }
 
 export {
+    sleep,
     to_raw,
     truncate,
     math_round,

@@ -6,7 +6,7 @@
             $store.state.cur_stock['FGroup.FName'] || '未分组',
             $store.state.cur_stock.FName
         ].join(' / ')"
-        sub-title-color="#007aff" @click="$logger('>>>', $data)">
+        sub-title-color="#007aff" @click="$logger.info('>>>', $data)">
         <view class="searchbar-container">
             <uni-easyinput
                 v-model="search_form.bill_no" 
