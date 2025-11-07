@@ -189,7 +189,7 @@
                         uni.showToast({ icon: 'error', title: '重复入库' })
                         return
                     }
-                    uni.showLoading({ title: 'Loading' })
+                    uni.showLoading({ title: 'Loading', mask: true })
                     let inv_log = new InvLog({
                         FOpType: 'in',
                         FStockId: store.state.cur_stock.FStockId,
@@ -199,7 +199,7 @@
                         FBatchNo: batch_no,
                         FOpStaffNo: store.state.cur_staff.FNumber,
                     })
-                    console.log('inv_log', inv_log)
+                    // console.log('inv_log', inv_log)
                     let res = await inv_log.save()
                     play_audio_prompt('success')
                     this.after_save(res)

@@ -352,7 +352,7 @@
                 }
                 uni.showLoading({ title: 'Loading', mask: true }) 
                 for (let i=0;i<checked_materials.length;i++) {
-                    uni.showLoading({ title: `${i+1}/${checked_materials.length}`, mask: true })
+                    uni.showLoading({ title: `${i}/${checked_materials.length}`, mask: true })
                     let m = checked_materials[i]
                     let invs = this.invs.filter(inv => inv.FMaterialId === m.material_id)
                     let rest_must_qty = m.must_qty - (this.inv_logs_map[m.material_id] || 0) // 剩余应发数量

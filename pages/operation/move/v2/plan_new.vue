@@ -565,7 +565,7 @@
                 if (this.search_form.material_spec) options.FSpecification_lk = this.search_form.material_spec
                 if (this.search_form.material_category_id) options.FCategoryId = this.search_form.material_category_id
                 let meta = { per_page: 50, order: 'FNumber ASC' }
-                uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading', mask: true })
                 BdMaterial.query(options, meta).then(res => {
                     uni.hideLoading()
                     this.search_form.candidates = res.data
@@ -621,7 +621,7 @@
                         })
                     }
                     // this.$logger.info('>>> this.$data', this.$data)
-                    uni.showLoading({ title: 'Loading' })
+                    uni.showLoading({ title: 'Loading', mask: true })
                     let res = await inv_plan.save()
                     uni.hideLoading()
                     play_audio_prompt('success')
@@ -645,7 +645,7 @@
                     return
                 }
                 this.$refs.search_drawer.close()
-                uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading', mask: true })
                 let bd_material = await this.load_material(material_no)
                 this._set_material(bd_material)
                 if (bd_material) {
@@ -677,7 +677,7 @@
                     FDocumentStatu_in: ['A', 'B']
                 }
                 const meta = { order: 'FStockLocId.FNumber ASC, FBatchNo ASC' }
-                uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading', mask: true })
                 return InvPlan.query(options, meta).then(res => {
                     uni.hideLoading()
                     this.inv_plans = res.data
@@ -699,7 +699,7 @@
             },
             async load_bd_materialcategories() {
                 if (!store.state.bd_materialcategories?.length) {
-                    uni.showLoading({ title: 'Loading' })
+                    uni.showLoading({ title: 'Loading', mask: true })
                     await BdMaterial.categories().then(res => {
                         uni.hideLoading()
                         store.commit('set_bd_materialcategories', res.data)
@@ -709,7 +709,7 @@
             },
             async submit_delete(inv_plan) {
                 if (inv_plan.FDocumentStatu == 'A') {
-                    uni.showLoading({ title: 'Loading' })
+                    uni.showLoading({ title: 'Loading', mask: true })
                     let res = await InvPlan.delete([inv_plan.FID])
                     uni.hideLoading()
                     if (res.data.Result.ResponseStatus.IsSuccess) {

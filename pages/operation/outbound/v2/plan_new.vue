@@ -433,7 +433,7 @@
                 // 2. 如果已有部分计划，则只生成剩余部分？
                 // 3. 如果某物料库存不足，则暂时忽略，待其余处理完毕，切换至该物料的页面，并提示
                 this.$logger.info('>>> 一键分配开始')
-                uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading', mask: true })
                 let lack_material = ''
                 let outbound_list = this.outbound_task.outbound_list.filter(x => x.stock_id == store.state.cur_stock.FStockId)
                 for (let i = 0; i < outbound_list.length; i++) { 
@@ -571,7 +571,7 @@
                         uni.showToast({ icon: 'none', title: '未勾选库存' })
                         return
                     } 
-                    uni.showLoading({ title: 'Loading' })
+                    uni.showLoading({ title: 'Loading', mask: true })
                     for (var i = 0; i < this.invs.length; i++) {
                         let inv = this.invs[i]
                         if (inv.checked && inv.checked_qty > 0) {

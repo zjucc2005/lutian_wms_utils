@@ -331,11 +331,11 @@
                 }
                 let ids = checked_inv_plans.map(x => x.FID)
                 if (ids.length) {
-                    uni.showLoading({ title: 'Loading' })
+                    uni.showLoading({ title: 'Loading', mask: true })
                     let response = await InvPlan.audit(ids)
                     if (response.data.Result.ResponseStatus.IsSuccess) {
                         for (let i = 0; i < checked_inv_plans.length; i++) {
-                            uni.showLoading({ title: `Loading:${i}/${checked_inv_plans.length}` })
+                            uni.showLoading({ title: `Loading:${i}/${checked_inv_plans.length}`, mask: true })
                             await InvPlan.execute(checked_inv_plans[i])
                         }
                         await this.load_inv_plans()
@@ -351,7 +351,7 @@
             async submit_submit() {
                 let ids = this.inv_plans.filter(x => x.checked).map(x => x.FID)
                 if (ids.length) {
-                    uni.showLoading({ title: 'Loading' })
+                    uni.showLoading({ title: 'Loading', mask: true })
                     InvPlan.submit(ids).then(res => {
                         if (res.data.Result.ResponseStatus.IsSuccess) {
                             this.load_inv_plans()
@@ -367,7 +367,7 @@
             },
             async submit_delete(inv_plan) {
                 if (inv_plan.FDocumentStatu == 'A') {
-                    uni.showLoading({ title: 'Loading' })
+                    uni.showLoading({ title: 'Loading', mask: true })
                     return InvPlan.delete([inv_plan.FID]).then(res => {
                         uni.hideLoading()
                         if (res.data.Result.ResponseStatus.IsSuccess) {

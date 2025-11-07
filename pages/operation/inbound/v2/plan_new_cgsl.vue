@@ -394,8 +394,6 @@
             },
             // 2. 表单操作
             init_form(obj) {
-                // uni.showLoading({ title: '初始化表单' })
-                // this.form.pallet_infos = [{ per_qty: '', pallet_qty: '' }]
                 this.init_pallet_infos(obj) // 初始化托盘信息
                 this.form.material_id = obj.material_id
                 this.form.base_unit_qty = obj.base_unit_qty
@@ -600,7 +598,7 @@
                 })
             },
             async submit_save() {
-                uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading', mask: true })
                 let obj = this.inbound_task.inbound_list.find(x => x.material_id == this.form.material_id)
                 for (let item of this.inv_plans_preview) {
                     let inv_plan = new InvPlan({
@@ -636,7 +634,7 @@
                     uni.showToast({ icon: 'none', title: '不能删除' })
                     return
                 }
-                uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading', mask: true })
                 let res = await InvPlan.delete(inv_plans.map(x => x.FID))
                 uni.hideLoading()
                 if (res.data.Result.ResponseStatus.IsSuccess) {

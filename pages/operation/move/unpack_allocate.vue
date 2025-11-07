@@ -8,7 +8,7 @@
                         <view class="note">
                             <view>名称：{{ material.material_name }}</view> 
                             <view>规格：{{ material.material_spec }}</view>
-                            <view>仓库：<text class="text-primary">{{ material.stock_name }}</text></view>
+                            <view>仓库：<text :class="[material.stock_id == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ material.stock_name }}</text></view>
                             <view>仓管员：{{ material.storekeeper }}</view>
                         </view>
                     </view>
@@ -102,6 +102,7 @@
 <script>
     import store from '@/store'
     import { Inv, InvPlan } from '@/utils/model'
+    import { sleep } from '@/utils'
     export default {
         data() {
             return {
@@ -171,9 +172,9 @@
             async load_invs() {
                 let options = { FStockId: store.state.cur_stock.FStockId, 'FMaterialId.FNumber': this.material.material_no, FQty_gt: 0 }
                 let meta = { order: 'FSupplierId ASC, FBatchNo ASC, FStockLocId.FNumber ASC' }
-                uni.showLoading({ title: 'Loading' })
+                // uni.showLoading({ title: 'Loading' })
                 let res = await Inv.query(options, meta)
-                uni.hideLoading()
+                // uni.hideLoading()
                 this.invs = res.data
             },
             async load_inv_plans() {
@@ -183,6 +184,7 @@
                 this.inv_plans = res.data
             },
             async submit_move() {
+                uni.showLoading({ title: 'Loading', mask: true })
                 for (let inv of this.invs) {
                     let dest_loc_no = `${inv['FStockLocId.FNumber'].split('-')[0]}-拆包区`
                     if (inv.checked && inv['FStockLocId.FNumber'] !== dest_loc_no) {
@@ -206,6 +208,7 @@
                 }
                 await this.load_invs()
                 await this.load_inv_plans()
+                uni.hideLoading()
             }
         }
     }

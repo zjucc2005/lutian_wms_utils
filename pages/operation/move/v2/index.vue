@@ -352,7 +352,7 @@
                     uni.showToast({ icon: 'none', title: '未选择任何条目' })
                     return
                 }
-                uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading', mask: true })
                 let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
                 if (save_ids.length) {
                     await InvPlan.submit(save_ids) // 提交(admin补)
@@ -361,7 +361,7 @@
                 let response = await InvPlan.audit(ids)
                 if (response.data.Result.ResponseStatus.IsSuccess) {
                     for (let i = 0; i < checked_inv_plans.length; i++) {
-                        uni.showLoading({ title: `Loading:${i}/${checked_inv_plans.length}` })
+                        uni.showLoading({ title: `Loading:${i}/${checked_inv_plans.length}`, mask: true })
                         await InvPlan.execute(checked_inv_plans[i]) // 审核确认
                     }
                     await this.load_inv_plans()
@@ -378,7 +378,7 @@
                     uni.showToast({ icon: 'none', title: '未选择任何条目' })
                     return
                 }
-                uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading', mask: true })
                 let ids = checked_inv_plans.map(x => x.FID)
                 InvPlan.submit(ids).then(res => {
                     if (res.data.Result.ResponseStatus.IsSuccess) {
@@ -393,7 +393,7 @@
             },
             async submit_delete(inv_plan) {
                 if (inv_plan.FDocumentStatu == 'A') {
-                    uni.showLoading({ title: 'Loading' })
+                    uni.showLoading({ title: 'Loading', mask: true })
                     return InvPlan.delete([inv_plan.FID]).then(res => {
                         uni.hideLoading()
                         if (res.data.Result.ResponseStatus.IsSuccess) {

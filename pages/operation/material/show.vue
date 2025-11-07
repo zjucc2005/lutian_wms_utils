@@ -375,7 +375,7 @@
             },
             async image_upload(image_field_index) {
                 const { tempFiles } = await choose_image({ count: 1, sizeType: ['compressed'] })
-                uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading', mask: true })
                 for (let i = 0; i < tempFiles.length; i++) {
                     let temp_file = tempFiles[i]
                     let base64_data = await read_file_as_base64(temp_file.path)
@@ -400,7 +400,7 @@
                 this.load_material(this.bd_material.Id) // reload
             },
             async load_material(material_id) {
-                uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading', mask: true })
                 this.image_urls = []
                 this.blank_image_fields = []
                 let view_res = await BdMaterial.view(material_id)
@@ -452,7 +452,7 @@
                 } else {
                     params[this.edit_form.field] = this.edit_form.value
                 }
-                uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading', mask: true })
                 let update_res = await BdMaterial.update(this.bd_material.Id, params)
                 uni.hideLoading()
                 this.$refs.edit_popup.close()
