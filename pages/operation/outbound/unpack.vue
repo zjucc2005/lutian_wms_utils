@@ -28,6 +28,9 @@
     <!-- 分配库位 -->
     <uni-section v-if="scfl.length" title="子项明细" type="square"
         :sub-title="`产线：${scfl[0]?.prd_line}`" sub-title-color="#007aff" class="above-uni-goods-nav">
+        <template #right>
+            <view>已勾选 <text class="text-primary">{{ scfl.filter(m => m.checked).length }}</text> 行</view>
+        </template>
         <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
             <uni-tr>
                 <uni-th align="center" width="30"></uni-th>
@@ -43,7 +46,7 @@
                 <uni-th align="center">仓管员</uni-th>
             </uni-tr>
             
-            <uni-tr v-for="(obj, index) in scfl" :key="index">
+            <uni-tr v-for="(obj, index) in scfl_filtered" :key="index">
                 <uni-td>
                     <uni-icons v-if="inv_logs_map[obj.material_id] >= obj.must_qty" type="paperplane" size="30" color="#007aff"></uni-icons>
                     <checkbox
@@ -68,7 +71,7 @@
         </uni-table>
         
         <uni-list v-else>
-            <uni-list-item v-for="(obj, index) in scfl" :key="index">
+            <uni-list-item v-for="(obj, index) in scfl_filtered" :key="index">
                 <template #header>
                     <view class="uni-list-item__head">
                         <uni-icons v-if="inv_logs_map[obj.material_id] >= obj.must_qty" type="paperplane" size="30" color="#007aff"></uni-icons>                       
@@ -134,12 +137,14 @@
                 invs_map: {},      // 优化库存查询性能
                 inv_logs: [],      // 实发物料
                 inv_logs_map: {},  // 优化实发查询性能
+                filter_cond: '全部',
                 search_form: {
                     bill_no: ''
                 },
                 goods_nav: {
                     options: [
-                        { icon: 'checkbox', text: '全选' }
+                        { icon: 'checkbox', text: '全选' },
+                        { icon: 'settings', text: '全部'}
                     ],
                     button_group: [
                         { text: '扫码查询单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' },
@@ -149,6 +154,17 @@
             }
         },
         computed: {
+            scfl_filtered() {
+                if (this.filter_cond === '全部') {
+                    return this.scfl
+                } else if (this.filter_cond === '未出库') {
+                    return this.scfl.filter(m => (this.inv_logs_map[m.material_id] || 0) < m.must_qty )
+                } else if (this.filter_cond === '可出库') {
+                    return this.scfl.filter(m => this.can_outbound(m))
+                } else if (this.filter_cond === '已出库') {
+                    return this.scfl.filter(m => (this.inv_logs_map[m.material_id] || 0) >= m.must_qty)
+                }
+            },
             is_completed() {
                 let res = true
                 if (this.scfl.length) {
@@ -167,24 +183,36 @@
         methods: {
             // 页面动作
             check_all() {
-                let checked_all = !this.scfl.find(m => !m.checked && !m.sent_qty)
+                let result = this.scfl.some(m => !m.checked && this.can_outbound(m))
                 for (let m of this.scfl) {
-                    if (!m.is_sent) m.checked = !checked_all
+                    if (this.can_outbound(m))  m.checked = result
                 }
             },
+            can_outbound(m) {
+                // 未（完全）出库 && 有库存
+                return (this.inv_logs_map[m.material_id] || 0) < m.must_qty && this.invs_map[m.material_id]
+            },
             checkbox_click(e) {
-                // console.log('checkbox_click e', e)
                 let material = this.scfl.find(m => m.material_id === e.target.dataset.id)
-                if (material) {
-                    material.checked = !material.checked
-                } 
+                if (material) material.checked = !material.checked
             },
             goods_nav_click(e) {
                 if (e.index === 0) this.check_all()
+                if (e.index === 1) this.filter_list()
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code()       // btn:扫码查询单据
                 if (e.index === 1) this.submit_outbound() // btn:提交出库
+            },
+            filter_list() {
+                let item_list = ['全部', '未出库', '可出库', '已出库']
+                uni.showActionSheet({
+                    itemList: item_list,
+                    success: (e) => {
+                        this.filter_cond = item_list[e.tapIndex]
+                        this.goods_nav.options[1].text = item_list[e.tapIndex]
+                    }
+                })
             },
             searchbar_icon_click(e) {
                 if (e == 'prefix') this.scan_code()
@@ -317,12 +345,12 @@
                 this.inv_logs_map = inv_logs_map
             },
             async submit_outbound() {
-                uni.showLoading({ title: 'Loading', mask: true }) 
                 let checked_materials = this.scfl.filter(m => m.checked)
                 if (checked_materials.length === 0) {
-                    uni.showToast({ icon: 'none', title: '未勾选出库信息', mask: true })
+                    uni.showToast({ icon: 'none', title: '未勾选出库信息' })
                     return
                 }
+                uni.showLoading({ title: 'Loading', mask: true }) 
                 for (let i=0;i<checked_materials.length;i++) {
                     uni.showLoading({ title: `${i+1}/${checked_materials.length}`, mask: true })
                     let m = checked_materials[i]

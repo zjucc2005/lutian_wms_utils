@@ -621,7 +621,6 @@
                         })
                     }
                     // this.$logger.info('>>> this.$data', this.$data)
-                    // return
                     uni.showLoading({ title: 'Loading' })
                     let res = await inv_plan.save()
                     uni.hideLoading()
