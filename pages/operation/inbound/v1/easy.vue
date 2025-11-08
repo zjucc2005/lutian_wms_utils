@@ -1,5 +1,5 @@
 <template>
-    <uni-section title="扫码" type="square">
+    <uni-section title="扫码" type="square" @click="$logger.info('>>>', this.$data)">
         <view class="container">
             <uni-forms ref="form" :model="form" :rules="form_rules" labelWidth="80px">
                 <uni-forms-item label="物料编码" name="material_no" required>
@@ -8,7 +8,12 @@
                         trim="both"
                         @change="handle_material_no_change"
                         @clear="handle_material_no_change"
-                    />
+                    >
+                    <template #left>
+                        <uni-icons v-if="material.FMaterialId" type="checkbox-filled" size="24" color="#67c23a"></uni-icons>
+                        <uni-icons v-else-if="form.material_no && !material.FMaterialId" type="help-filled" size="24" color="#c0c4cc"></uni-icons>
+                    </template>
+                    </uni-easyinput>
                 </uni-forms-item>
                 <uni-forms-item label="库位号" name="loc_no" required>
                     <uni-easyinput v-model="form.loc_no" trim="both"/>
@@ -79,7 +84,14 @@
                 form_rules: {
                     material_no: {
                         rules: [
-                            { required: true, errorMessage: '物料编码不能为空' }
+                            { required: true, errorMessage: '物料编码不能为空' },
+                            {
+                                validateFunction: (rule, value, data, callback) => {
+                                    if (!this.material.FMaterialId) {
+                                        return callback('物料编码不存在')
+                                    }
+                                }
+                            }
                         ]
                     },
                     loc_no: {
@@ -172,6 +184,8 @@
                 let res = await BdMaterial.query({ FNumber: this.form.material_no, FUseOrgId: store.state.cur_stock.FUseOrgId })
                 if (res.data.length) {
                     this.material = res.data[0]
+                } else {
+                    this.material = {}
                 }
             },
             async submit_inbound() {
@@ -184,7 +198,6 @@
                         'FStockLocId.FName': loc_no, 
                         FOpQTY: this.form.qty * 1,
                         FBatchNo: batch_no })
-                    // console.log('log_res', log_res)
                     if (log_res.data.length) {
                         uni.showToast({ icon: 'error', title: '重复入库' })
                         return
@@ -199,7 +212,6 @@
                         FBatchNo: batch_no,
                         FOpStaffNo: store.state.cur_staff.FNumber,
                     })
-                    // console.log('inv_log', inv_log)
                     let res = await inv_log.save()
                     play_audio_prompt('success')
                     this.after_save(res)
