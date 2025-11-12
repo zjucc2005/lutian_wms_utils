@@ -5,4 +5,5 @@
 /electron/app
 /electron/electron-dist
 /electron/node_modules
+/electron/yarn.lock
 /package-lock.json

@@ -1,6 +1,6 @@
 {
   "name": "electron",
-  "version": "1.5.3",
+  "version": "1.5.5",
   "description": "lutian.wms.utils pc",
   "main": "main.js",
   "build": {
@@ -36,12 +36,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
     "app:dir": "electron-builder --dir",
-    "app:dist": "electron-builder"
+    "app:dist": "electron-builder",
+    "app:dist32": "electron-builder --win --ia32"
   },
   "author": "caichang",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^33.0.2",
-    "electron-builder": "^25.1.8"
+    "electron": "^39.1.2",
+    "electron-builder": "^26.0.12"
   }
 }

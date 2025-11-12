@@ -186,7 +186,9 @@
                 // for (let loc of res.data) {
                 //     // arr.push(loc.FID)
                 // }
-                BdEmpInfo.query({  FName: '蔡畅'})
+                // EngBom.query("FNumerator / FDenominator <> ROUND(FNumerator / FDenominator, FCHILDUNITID.FPRECISION)")
+                // EngBom.view('2.05.01.01.01.0001_V1.1')
+                // BdEmpInfo.query({  FName: '蔡畅'})
                 // BdEmpInfo.update(2980281, { FWMSPWD: '19352' })
                 // const params = {
                 //     FormId: 'BD_EMPINFO',

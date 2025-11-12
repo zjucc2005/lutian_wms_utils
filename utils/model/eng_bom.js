@@ -32,7 +32,8 @@ class EngBom {
         let fields = ['FID', "FName", "FNumber", "FForbidStatus", "FDocumentStatus", 'FUseOrgId', 'FUseOrgId.FName', 
                       'FBomCategory', 'FOperId',
                       'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FCategoryId', 'FMaterialId.FImageFileServer', 'FItemModel', 'FUnitId', 'FUnitId.FName', 'FItemPProperty',
-                      'FMaterialIdChild', 'FMaterialIdChild.FNumber', 'FMaterialIdChild.FName', 'FMaterialIdChild.FImageFileServer', 'FChildItemModel', 'FChildUnitId', 'FChildUnitId.FName', 'FChildItemProperty'
+                      'FMaterialIdChild', 'FMaterialIdChild.FNumber', 'FMaterialIdChild.FName', 'FMaterialIdChild.FImageFileServer', 'FChildItemModel', 'FChildUnitId', 'FChildUnitId.FName', 'FChildItemProperty',
+                      'FNumerator', 'FDenominator', 'FChildUnitId', 'FChildUnitId.FNumber', 'FChildUnitId.FPrecision'
                       ]
         const data = {
             FormId: this.form_id,
@@ -52,7 +53,11 @@ class EngBom {
     }
     
     static async view(id) {
-        return K3CloudApi.view(this.form_id, { Id: id })
+        if (typeof(id) == 'number') {
+            return K3CloudApi.view(this.form_id, { Id: id })
+        } else {
+            return K3CloudApi.view(this.form_id, { Number: id })
+        }
     }
 }
 

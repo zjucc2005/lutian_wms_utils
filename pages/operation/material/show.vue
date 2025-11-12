@@ -21,6 +21,13 @@
                 :show-arrow="is_admin"
                 />
             <uni-list-item
+                title="产品简称" 
+                :right-text="bd_material.F_RGEN_Text_cpjc"
+                @click="edit_field('F_RGEN_Text_cpjc')"
+                :clickable="is_admin"
+                :show-arrow="is_admin"
+                />
+            <uni-list-item
                 title="单箱标准数量"
                 :right-text="bd_material.MaterialStock[0].BoxStandardQty.toString()"
                 @click="edit_field('FBoxStandardQty')"
@@ -248,6 +255,14 @@
                         value: this.bd_material.F_RGEN_xsjc_83g,
                         value_was: this.bd_material.F_RGEN_xsjc_83g
                     }
+                } else if (field == 'F_RGEN_Text_cpjc'){
+                    this.edit_form = {
+                        field,
+                        type: 'text',
+                        name: '产品简称',
+                        value: this.bd_material.F_RGEN_Text_cpjc,
+                        value_was: this.bd_material.F_RGEN_Text_cpjc
+                    }
                 } else if (field == 'FBoxStandardQty') {
                     this.edit_form = {
                         field,
@@ -308,7 +323,6 @@
             goods_nav_click(e) {
                 if (e.index === 0) this.$refs.image_popup.open()
                 if (e.index === 1) this.search_bom()
-                // console.log('this.$data', this.$data)
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.select_material_card() // btn:物料资料卡模板
@@ -467,9 +481,6 @@
             thumbnail_url(file_id) {
                 let image_url = this.image_urls.find(x => x.id == file_id.trim())
                 return image_url?.original || '/static/default_40x40.png'
-            },
-            test() {
-                console.log('编辑模式')
             }
         }
     }

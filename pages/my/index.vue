@@ -15,21 +15,14 @@
     
     <uni-list class="uni-mb-5">
         <uni-list-item title="重置密码"
-            :show-extra-icon="true"
-            :extra-icon="{ type: 'compose', size: '24', color: '#007bff' }"
-            @click="link_to('/pages/my/reset_password')" clickable
-            show-arrow />
+            :extra-icon="{ type: 'compose', size: '24', color: '#007bff' }" show-extra-icon
+            @click="link_to('/pages/my/reset_password')" clickable show-arrow />
         <uni-list-item title="设置"
-            :show-extra-icon="true"
-            :extra-icon="{ type: 'gear', size: '24', color: '#007bff' }"
-            @click="link_to('/pages/my/settings')" clickable
-            show-arrow />
-        <uni-list-item title="检查更新"
-            :show-extra-icon="true"
-            :extra-icon="{ type: 'loop', size: '24', color: '#007bff' }"
-            rightText="如无法在线更新，请联系开发者"
-            @click="check_update" clickable
-            show-arrow>
+            :extra-icon="{ type: 'gear', size: '24', color: '#007bff' }" show-extra-icon
+            @click="link_to('/pages/my/settings')" clickable show-arrow />
+        <uni-list-item title="检查更新" rightText="如无法在线更新，请联系开发者"
+            :extra-icon="{ type: 'loop', size: '24', color: '#007bff' }" show-extra-icon
+            @click="check_update" clickable show-arrow>
             <template #body>
                 <view class="uni-list-item__body">
                     <view class="title">检查更新
@@ -40,35 +33,29 @@
             </template>
         </uni-list-item>
         <uni-list-item title="历次更新说明"
-            :show-extra-icon="true"
-            :extra-icon="{ type: 'list', size: '24', color: '#007bff' }"
-            @click="link_to('/pages/my/release_note')" clickable
-            show-arrow />
+            :extra-icon="{ type: 'list', size: '24', color: '#007bff' }" show-extra-icon
+            @click="link_to('/pages/my/release_note')" clickable show-arrow
+            />
         <uni-list-item title="关于"
-            :show-extra-icon="true"
-            :extra-icon="{ type: 'info', size: '24', color: '#007bff' }"
-            @click="about" clickable
-            show-arrow />
+            :extra-icon="{ type: 'info', size: '24', color: '#007bff' }" show-extra-icon
+            @click="about" clickable show-arrow
+            />
         <uni-list-item v-if="door.open" title="全局状态"
-            :show-extra-icon="true"
-            :extra-icon="{ type: 'settings', size: '24', color: '#007bff' }"
-            @click="link_to('/pages/api_utils/store/store')" clickable
-            show-arrow />
+            :extra-icon="{ type: 'settings', size: '24', color: '#007bff' }" show-extra-icon
+            @click="link_to('/pages/api_utils/store/store')" clickable show-arrow
+            />
         <uni-list-item title="脚本工具"
-            :show-extra-icon="true"
-            :extra-icon="{ type: 'pyq', size: '24', color: '#007bff' }"
-            @click="link_to('/pages/my/utils/index')" clickable
-            show-arrow />
+            :extra-icon="{ type: 'pyq', size: '24', color: '#007bff' }" show-extra-icon
+            @click="link_to('/pages/my/utils/index')" clickable show-arrow
+            />
         <uni-list-item title="调试"
-            :show-extra-icon="true"
-            :extra-icon="{ type: 'settings', size: '24', color: '#007bff' }"
-            @click="debug" clickable
-            show-arrow />  
+            :extra-icon="{ type: 'settings', size: '24', color: '#007bff' }" show-extra-icon
+            @click="debug" clickable show-arrow
+            />  
     </uni-list>
     <uni-list>
         <uni-list-item title="退出"
-            :show-extra-icon="true"
-            :extra-icon="{ color: '#dc3545', size: '24', type: 'close' }"
+            :extra-icon="{ color: '#dc3545', size: '24', type: 'close' }" show-extra-icon
             @click="logout" clickable
             />
     </uni-list>

@@ -19,7 +19,8 @@
                 :styles="{
                     color: '#000',
                     backgroundColor: 'rgb(238, 238, 238)',
-                    borderColor: 'rgb(238, 238, 238)'
+                    borderColor: 'rgb(238, 238, 238)',
+                    height: '60px'
                 }"
             />
         </view>
@@ -82,6 +83,19 @@
         </uni-list>
     </uni-section>
     
+    <!-- 当日生产发料提醒 -->
+    <uni-section v-if="!scfl.length && scfl_todo.length" title="今日生产发料" type="square">
+        <uni-card spacing="0" padding="0">
+            <uni-list>
+                <uni-list-item v-for="(obj, index) in scfl_todo" :key="index"
+                    :extra-icon="{ type: 'chat', size: '24', color: '#007bff' }"  show-extra-icon
+                    :title="obj.bill_no" :right-text="obj.prd_line"
+                    @click="search_form.bill_no=obj.bill_no;handle_search();" clickable show-arrow
+                    />
+            </uni-list>
+        </uni-card>
+    </uni-section>
+    
     <view v-if="$store.state.screen_type === 'app-plus'" class="uni-goods-nav-wrapper">
         <uni-goods-nav 
             :options="goods_nav.options" 
@@ -97,13 +111,14 @@
 
 <script>
     import store from '@/store'
-    import { play_audio_prompt } from '@/utils'
+    import { play_audio_prompt, formatDate } from '@/utils'
     import scan_code from '@/utils/scan_code'
     import { PrdIssueMtrNotice, SpPickMtrl, InvPlan } from '@/utils/model'
     export default {
         data() {
             return {
                 scfl: [], // 发料物料
+                scfl_todo: [], // 今日生产发料通知单
                 inv_plans: [], // 已计划
                 inv_plans_map: {}, // 优化计划查询性能
                 search_form: {
@@ -111,16 +126,22 @@
                 },
                 goods_nav: {
                     options: [
-                        // { icon: 'cart', text: '计划', info: '' }
+                        { icon: 'close', text: '清空', info: '' }
                     ],
                     button_group: [
-                        { text: '扫码查询单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' }
+                        { text: '扫描单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' }
                     ]
                 }
             }
         },
         onShow() {
-            if (this.search_form.bill_no) this.load_inv_plans()
+            if (this.search_form.bill_no) {
+                this.load_inv_plans()
+            } else {
+                this.load_scfl_todo()
+            }
+        },
+        mounted() {
         },
         computed: {
             is_completed() {
@@ -141,7 +162,11 @@
         methods: {
             // 页面动作
             goods_nav_click(e) {
-                if (e.index === 0) this.$logger.info('this.$data', this.$data)
+                if (e.index === 0) {
+                    this.$logger.info('this.$data', this.$data)
+                    this.search_form.bill_no = ''
+                    this.handle_search()
+                }
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询单据
@@ -151,8 +176,17 @@
             },
             scan_code() {
                 scan_code().then(res => {
-                    this.search_form.bill_no = res.result
-                    this.handle_search()
+                    if (this.scfl.length) {
+                        let obj = this.scfl.find(m => m.material_no == res.result)
+                        if (obj) {
+                            this.allocate_loc_no(obj)
+                        } else{
+                            uni.showToast({ icon: 'none', title: '物料编码不存在' })
+                        }
+                    } else {
+                        this.search_form.bill_no = res.result
+                        this.handle_search()
+                    }
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })
                 })
@@ -172,6 +206,11 @@
                 } else {
                     this.scfl = []
                     this.inv_plans = []
+                }
+                if (this.scfl.length) {
+                    this.goods_nav.button_group[0] = { text: '扫描物料', backgroundColor: store.state.goods_nav_color.yellow, color: '#fff' }
+                } else {
+                    this.goods_nav.button_group[0] = { text: '扫描单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' }
                 }
             },
             // 选择库位
@@ -280,11 +319,33 @@
                     inv_plans_map[inv_plan.FMaterialId] += inv_plan.FOpQTY
                 }
                 this.inv_plans_map = inv_plans_map
+            },
+            // 查询今日的生产发料通知单
+            async load_scfl_todo() {
+                let scfl_todo = []
+                uni.showLoading({ title: 'Loading' })
+                // 区分仓管员
+                let res = await PrdIssueMtrNotice.query({
+                    FDocumentStatus: 'C',                                // 已审核
+                    FCloseStatus: 'A',                                   // 未关闭
+                    FStockId: store.state.cur_stock.FStockId,            // 本仓库
+                    F_PAEZ_BaseProperty1: store.state.cur_staff.FName,   // 仓管员
+                    FCreateDate_ge: formatDate(Date.now(), 'yyyy-MM-dd') // 今天
+                }, {
+                    fields: ['FBillNo', 'F_PAEZ_Base.FName'],            // 指定返回字段，优化查询速度
+                    order: 'FCreateDate DESC' ,                          // 时间降序
+                })
+                uni.hideLoading()
+                for (let d of res.data) {
+                    let obj = scfl_todo.find(x => x.bill_no == d.FBillNo)
+                    if (!obj) scfl_todo.push({ bill_no: d.FBillNo, prd_line: d['F_PAEZ_Base.FName'] })
+                }
+                this.scfl_todo = scfl_todo
             }
         }
     }
 </script>
 
-<style>
+<style lang="scss" scoped>
 
 </style>

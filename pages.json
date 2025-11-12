@@ -75,8 +75,9 @@
         { "path": "pages/my/release_note", "style": { "navigationBarTitleText": "历次更新说明" } },
         { "path": "pages/my/settings",    "style": { "navigationBarTitleText": "设置" } },
         { "path": "pages/my/utils/index", "style": { "navigationBarTitleText": "脚本工具" } },
-        // 脚本
+        { "path": "pages/my/utils/gen_qrcode", "style": { "navigationBarTitleText": "util: 生成二维码" } },
         { "path": "pages/my/utils/bom_level_transfer", "style": { "navigationBarTitleText": "script: BOM批量模版转化层级号" } },
+        // 脚本
         { "path": "pages/api_utils/index", "style": { "navigationBarTitleText": "API调试" } },
         // { "path": "pages/api_utils/console", "style": { "navigationBarTitleText": "Console" } },
         { "path": "pages/api_utils/login/validateUser", "style" : { "navigationBarTitleText": "用户名/密码" } },

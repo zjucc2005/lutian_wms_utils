@@ -1,8 +1,8 @@
 {
   "name": "lutian_wms_utils",
-  "version": "1.5.3",
-  "versionCode": 153,
-  "versionNote": "v1.5.3更新内容\n1.修复扫码入库时可能提交空物料信息的问题；",
+  "version": "1.5.5",
+  "versionCode": 155,
+  "versionNote": "v1.5.5更新内容\n1.库内调拨在加载单据信息后，增加支持扫码物料编码进入选择调拨；\n2.库内调拨在勾选后，可以调整选择行的调拨数量；\n3.库内调拨和出库增加当日新增生产发料通知单的提醒；\n4.物料详情增加产品简称字段（可编辑）；",
   "installPack": {
     "h5": "https://musetransfer.com/s/or0l9uleu",
     "android": "https://musetransfer.com/s/o45ttjktl"

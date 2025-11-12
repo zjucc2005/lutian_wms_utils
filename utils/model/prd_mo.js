@@ -6,6 +6,7 @@ import db_model from '@/utils/db_model';
  * 生产订单模型
  */
 class PrdMo {
+    static form_id = 'PRD_MO'
     constructor() {
         
     }
@@ -33,7 +34,7 @@ class PrdMo {
         const fields = ['FID', 'FDate', 'FBillNo', 'FSaleOrderNo', 'FStatus', 'FPrdOrgId.FName', 'F_LT_CX.FName', 
                         'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FName', 'FMaterialId.FSpecification']
         const data = {
-            FormId: "PRD_MO",
+            FormId: this.form_id,
             FieldKeys: fields.join(','),
             FilterString: K3CloudApi.query_filter(options)
         }
@@ -51,9 +52,9 @@ class PrdMo {
     
     static view(id) {
         if (typeof(id) == 'number') {
-            return K3CloudApi.view('PRD_MO', { Id: id })
+            return K3CloudApi.view(this.form_id, { Id: id })
         } else {
-            return K3CloudApi.view('PRD_MO', { Number: id })
+            return K3CloudApi.view(this.form_id, { Number: id })
         }
     }
     

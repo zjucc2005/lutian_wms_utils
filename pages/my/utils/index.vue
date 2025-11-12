@@ -1,5 +1,12 @@
 <template>
     <uni-list>
+        <uni-list-item title="util: 生成二维码"
+            :show-extra-icon="true"
+            :extra-icon="{ color: '#007bff', size: '24', type: 'star' }"
+            @click="link_to('/pages/my/utils/gen_qrcode')"
+            clickable
+            show-arrow
+            />
         <uni-list-item title="script: BOM批量模版转化层级号"
             :show-extra-icon="true"
             :extra-icon="{ color: '#007bff', size: '24', type: 'link' }"

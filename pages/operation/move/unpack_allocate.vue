@@ -54,11 +54,13 @@
         <uni-load-more v-if="inv_plans.length === 0" status="nomore" />
     </uni-section>
     
-    <uni-section title="库存信息" type="square" class="above-uni-goods-nav">
+    <uni-section title="库存信息" type="square" sub-title="可修改选择的库存数" class="above-uni-goods-nav">
         <template #right>
             <view>已选择：<text class="text-primary">{{ sum_checked_qty }}</text></view>
         </template>
-        <uni-list-item v-for="(inv, index) in invs" :key="index">
+        <uni-list-item v-for="(inv, index) in invs" :key="index"
+            @click="edit_checked_qty(inv)" clickable
+            show-arrow>
             <template #header>
                 <view class="uni-list-item__head">
                     <checkbox
@@ -79,9 +81,8 @@
             </template>
             <template v-slot:footer>
                 <view class="uni-list-item__foot">
-                    <view class="op_qty">
-                        <text>{{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}</text>
-                    </view>
+                    <view>{{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}</view>
+                    <view v-if="inv.checked" class="text-primary">已选择：{{ inv.checked_qty }}</view>
                 </view>
             </template>
         </uni-list-item>
@@ -97,6 +98,19 @@
             @buttonClick="goods_nav_button_click"
         />
     </view>
+    
+    <!-- 修改checked_qty -->
+    <uni-popup ref="checked_qty_dialog" type="dialog">
+        <uni-popup-dialog title="修改选择的库存数" type="error" :show-close="false">
+            <view class="plan-form">
+                <uni-number-box 
+                    v-model="inv_editing.checked_qty" 
+                    :min="0" :max="inv_editing.FQty"
+                    @change="inv_editing.checked = inv_editing.checked_qty > 0"
+                />
+            </view>
+        </uni-popup-dialog>
+    </uni-popup>
 </template>
 
 <script>
@@ -110,6 +124,7 @@
                 material: {},
                 invs: [],
                 inv_plans: [],
+                inv_editing: {},
                 goods_nav: {
                     options: [
                         // { icon: 'cart', text: '计划', info: '' }
@@ -138,7 +153,8 @@
             sum_checked_qty() {
                 let res = 0
                 for (let inv of this.invs) {
-                    if (inv.checked) res += inv.FQty
+                    // if (inv.checked) res += inv.FQty
+                    if (inv.checked) res += inv.checked_qty
                 }
                 return res
             },
@@ -156,12 +172,23 @@
                 let inv = this.invs.find(x => x.FID == e.target.dataset.id)
                 if (inv.checked) {
                     inv.checked = false
+                    inv.checked_qty = 0
                 } else {
                     inv.checked = true
+                    inv.checked_qty = inv.FQty
                     if (this.sum_checked_qty >= this.material.must_qty) {
                         uni.showToast({ icon: 'none', title: '已选择足够数量' })
                     }
                 }
+            },
+            edit_checked_qty(inv) {
+                if (inv.checked) {
+                    this.$refs.checked_qty_dialog.open()
+                    this.inv_editing = inv
+                }
+            },
+            update_checked_qty(e) {
+                this.inv_editing.checked = e > 0
             },
             goods_nav_click(e) {
                 if (e.index === 0) this.$logger.info('this.$data', this.$data)
@@ -194,7 +221,7 @@
                             FStockLocNo: inv['FStockLocId.FNumber'],
                             FDestStockLocNo: dest_loc_no,
                             FMaterialId: inv.FMaterialId,
-                            FOpQTY: inv.FQty,
+                            FOpQTY: inv.checked_qty,
                             FBatchNo: inv.FBatchNo,
                             FSupplierId: inv.FSupplierId,
                             FOpStaffNo: store.state.cur_staff.FNumber,

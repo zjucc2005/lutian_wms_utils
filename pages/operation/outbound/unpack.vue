@@ -111,6 +111,19 @@
         </uni-list>
     </uni-section>
     
+    <!-- 当日生产发料提醒 -->
+    <uni-section v-if="!scfl.length && scfl_todo.length" title="今日生产发料" type="square">
+        <uni-card spacing="0" padding="0">
+            <uni-list>
+                <uni-list-item v-for="(obj, index) in scfl_todo" :key="index"
+                    :extra-icon="{ type: 'chat', size: '24', color: '#007bff' }"  show-extra-icon
+                    :title="obj.bill_no" :right-text="obj.prd_line"
+                    @click="search_form.bill_no=obj.bill_no;handle_search();" clickable show-arrow
+                    />
+            </uni-list>
+        </uni-card>
+    </uni-section>
+    
     <view class="uni-goods-nav-wrapper">
         <uni-goods-nav 
             :options="goods_nav.options" 
@@ -126,13 +139,14 @@
 
 <script>
     import store from '@/store'
-    import { play_audio_prompt } from '@/utils'
+    import { play_audio_prompt, formatDate } from '@/utils'
     import scan_code from '@/utils/scan_code'
     import { PrdIssueMtrNotice, SpPickMtrl, InvLog, Inv } from '@/utils/model'
     export default {
         data() {
             return {
                 scfl: [],          // 应发物料
+                scfl_todo: [],     // 今日生产发料通知单
                 invs: [],          // 拆包区库存
                 invs_map: {},      // 优化库存查询性能
                 inv_logs: [],      // 实发物料
@@ -151,6 +165,11 @@
                         { text: '确认出库', backgroundColor: store.state.goods_nav_color.blue, color: '#fff' }
                     ]
                 }
+            }
+        },
+        onShow() {
+            if (!this.search_form.bill_no) {
+                this.load_scfl_todo()
             }
         },
         computed: {
@@ -375,32 +394,31 @@
                     }
                     m.checked = false
                 }
-                // for (let m of checked_materials) {
-                //     let invs = this.invs.filter(inv => inv.FMaterialId === m.material_id)
-                //     let rest_must_qty = m.must_qty * 1 // 剩余应发数量
-                //     for (let inv of invs) {
-                //         if (rest_must_qty === 0) break; // 分配完毕，跳出循环
-                //         let op_qty = inv.FQty >= rest_must_qty ? rest_must_qty : inv.FQty
-                //         let inv_log = new InvLog({
-                //             FOpType: 'out',
-                //             FStockId: store.state.cur_stock.FStockId,
-                //             FStockLocNo: inv['FStockLocId.FNumber'],
-                //             FMaterialId: inv.FMaterialId,
-                //             FOpQTY: op_qty,
-                //             FBatchNo: inv.FBatchNo,
-                //             FSupplierId: inv.FSupplierId,
-                //             FBillNo: this.search_form.bill_no,
-                //             FOpStaffNo: store.state.cur_staff.FNumber
-                //         })
-                //         await inv_log.save()
-                //         rest_must_qty -= op_qty
-                //     }
-                //     m.checked = false
-                // }
                 await this.load_invs()
                 await this.load_inv_logs()
                 uni.hideLoading()
                 uni.showToast({ title: '出库成功', mask: true })
+            },
+            // 查询今日的生产发料通知单
+            async load_scfl_todo() {
+                let scfl_todo = []
+                uni.showLoading({ title: 'Loading' })
+                // 区分仓管员
+                let res = await PrdIssueMtrNotice.query({
+                    FDocumentStatus: 'C',                                // 已审核
+                    FCloseStatus: 'A',                                   // 未关闭
+                    FStockId: store.state.cur_stock.FStockId,            // 本仓库
+                    FCreateDate_ge: formatDate(Date.now(), 'yyyy-MM-dd') // 今天
+                }, {
+                    fields: ['FBillNo', 'F_PAEZ_Base.FName'],            // 指定返回字段，优化查询速度
+                    order: 'FCreateDate DESC' ,                          // 时间降序
+                })
+                uni.hideLoading()
+                for (let d of new Set(res.data)) {
+                    let obj = scfl_todo.find(x => x.bill_no == d.FBillNo)
+                    if (!obj) scfl_todo.push({ bill_no: d.FBillNo, prd_line: d['F_PAEZ_Base.FName'] })
+                }
+                this.scfl_todo = scfl_todo
             }
         }
     }
