@@ -23,7 +23,7 @@ const full_url = (path) => {
 }
 
 const default_field_keys = (model_name) => {
-    return Object.getOwnPropertyNames(db_model[model_name]?.fields || {})
+    return Object.keys(db_model[model_name]?.fields || {})
 }
 
 const conn = async () => {
@@ -428,6 +428,47 @@ const batch_save = async (form_id, data) => {
 }
 
 /**
+ * 下推接口
+ * @param form_id:String 表单Id，必须
+ * @param data:Hash
+ *   @field Ids:String 单据内码集合，字符串类型，格式："Id1,Id2,..."（使用内码时必录，按整单下推）
+ *   @field Numbers:Array 单据编码集合，数组类型，格式：[No1,No2,...]（使用编码时必录，按整单下推）
+ *   @field EntryIds:String 分录内码集合，逗号分隔（分录下推时必录） 注（Ids,Numbers,EntryIds选其一）
+ *   @field RuleId:String 转换规则内码，字符串类型（未启用默认转换规则时，则必录）
+ *   @field TargetBillTypeId:String 目标单据类型内码，字符串类型（非必录）
+ *   @field TargetOrdId:Integer 目标组织内码，整型（非必录）
+ *   @field TargetFormId:String 目标单据FormId，字符串类型，（启用默认转换规则时，则必录）
+ *   @field IsEnableDefaultRule:Boolean 是否启用默认转换规则，布尔类型，默认false（非必录）
+ *   @field IsDraftWhenSaveFail:Boolean 保存失败时是否暂存，布尔类型，默认false（非必录） 注（暂存的单据是没有编码的）
+ *   @field CustomParams:Hash 自定义参数，字典类型，格式："{key1:value1,key2:value2,...}"（非必录） 注（传到转换插件的操作选项中，平台不会解析里面的值）
+ * @return { String } Promise
+ */
+const _push_ = async (form_id, data) => {
+    const _data_ = {
+        ...data
+    }
+    return conn().then(_ => {
+        return new Promise((resolve, reject) => {
+            logger.info("K3CloudApi.push req:", _data_)
+            uni.request({
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Push.common.kdsvc'),
+                method: 'POST',
+                header: set_header(),
+                data: { formid: form_id, data: _data_ },
+                success: (res) => {
+                    logger.info("K3CloudApi.push res:", res)
+                    resolve(res)
+                },
+                fail: (err) => {
+                    logger.info("K3CloudApi.push fail:", err)
+                    reject(err)
+                }
+            })
+        })
+    })
+}
+
+/**
  * 查询表单数据接口
  * @param data:Hash
  *   @field FormId:String 业务对象表单Id（必录）
@@ -564,16 +605,16 @@ const upload_file = async (data) => {
  * @param file_id:String
  * @return { String } Promise
  */
-const download_file = async (file_id) => {
+const download_file = async (file_id, nail=0) => {
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
             let t1 = Date.now()
-            logger.info("K3CloudApi.download_file req:", { file_id: file_id })
+            logger.info("K3CloudApi.download_file req:", { FileId: file_id, Nail: nail })
             uni.request({
                 url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.AttachmentDownLoad.common.kdsvc'),
                 method: 'POST',
                 header: set_header(),
-                data: { data: { FileId: file_id } },
+                data: { data: { FileId: file_id, Nail: nail } },
                 success: (res) => {
                     logger.info("K3CloudApi.download_file res:", res)
                     logger.info('K3CloudApi.download_file cost', Date.now() - t1, 'ms')
@@ -603,8 +644,9 @@ const download_file = async (file_id) => {
     })
 }
 
-const download_image_cache = async (file_id) => {
-    let res = await download_file(file_id)
+// blob
+const download_image_cache = async (file_id, nail=0) => {
+    let res = await download_file(file_id, nail)
     if (res.statusCode === 200) {
         let path = await base64ToPath('data:image/jpg;base64,' + res.data.Result.FilePart)
         return path
@@ -613,34 +655,23 @@ const download_image_cache = async (file_id) => {
     }
 }
 
-const download_image_base64 = async (file_id) => {
-    return download_file(file_id).then(res => {
-        if (res.statusCode === 200) {
-            // let filename = res.data.Result.FileName
-            let pref = 'data:image/jpg;base64,'
-            return pref + res.data.Result.FilePart
-        } else {
-            return ''
-        }
-    })
+const download_image_base64 = async (file_id, nail=0) => {
+    let res = await download_file(file_id, nail)
+    if (res.statusCode === 200) {
+        return 'data:image/jpg;base64,' + res.data.Result.FilePart
+    } else {
+        return ''
+    }
 }
-// >>> DEPRECATED
-const download_url = (file_id, nail=0) => {
-    return conn().then(_ => {
-        let token = store.state.conn_info?.Context?.UserToken
-        return full_url(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}&nail=${nail}`)
-    })
-}
-const download_url_sync = (file_id, nail=0) => {
-    let token = store.state.conn_info?.Context?.UserToken
-    return full_url(`FileUpLoadServices/Download.aspx?fileId=${file_id}&token=${token}&nail=${nail}`)
-}
-const thumbnail_url = (file_id, default_url='/static/default_40x40.png') => {
-    // return file_id?.trim() ? download_url_sync(file_id, 1) : default_url
-    return default_url // 缩略图目前无标准接口可获取，URL传token获取防火墙会报警, 目前暂时屏蔽
-}
-// >>> END
 
+const thumbnail_url = async (file_id, default_url='/static/default_40x40.png') => {
+    if (file_id?.trim()) {
+        let res = await download_image_base64(file_id, 1)
+        return res || default_url
+    } else {
+        return default_url
+    }
+}
 
 /**
  * Helper - 组装查询条件，返回查询SQL
@@ -712,12 +743,11 @@ const K3CloudApi = {
     batch_save,
     execute_bill_query,
     bill_query,
+    push: _push_,
     upload_file,
     download_file,
-    download_url,
     download_image_cache,
     download_image_base64,
-    download_url_sync,
     thumbnail_url,
     query_filter
 }

@@ -6,7 +6,9 @@
             $store.state.cur_stock['FGroup.FName'] || '未分组',
             $store.state.cur_stock.FName
         ].join(' / ')"
+        sub-title-color="#007aff"
         class="above-uni-goods-nav"
+        @click="$logger.info('>>>', this.$data)"
         >
         <view class="searchbar-container">
             <uni-easyinput
@@ -33,7 +35,7 @@
                     `名称：${inv_group.material_name}`, 
                     `规格：${inv_group.material_spec}`
                 ].join('\n')"
-                :thumb="_thumbnail_url(inv_group.material_image)"
+                :thumb="inv_group.thumbnail"
                 thumb-size="lg"
                 :rightText="[inv_group.qty, inv_group.base_unit_name].join(' ')"
                 @click="inv_menu(inv_group)" clickable
@@ -129,13 +131,6 @@
                     return text
                 }
             },
-            // show_invs(material_no) {
-            //     link_to('/pages/operation/manage/inv_search?t=' + material_no)
-            // },
-            // show_material(material_id) {
-            //     if (!material_id) uni.showToast({ icon: 'none', title: '物料ID不能为空' })
-            //     link_to(`/pages/operation/material/show?id=${material_id}`)
-            // },
             inv_menu(inv_group) {
                 if (!inv_group.material_id) {
                     uni.showToast({ icon: 'none', title: '物料ID不能为空' })
@@ -151,15 +146,6 @@
                     }
                 })
             },
-            // inv_longpress(inv_group) {
-            //     uni.showActionSheet({
-            //         itemList: ['物料详情', '库存明细'],
-            //         success: (e) => {
-            //             if (e.tapIndex === 0) this.show_material(inv_group.material_id)
-            //             if (e.tapIndex === 1) this.show_invs(inv_group.material_no)
-            //         }
-            //     })
-            // },
             inv_map() {
                 uni.navigateTo({
                     url: '/pages/operation/manage/inv_map',
@@ -182,7 +168,6 @@
                                     // res.eventChannel.emit('sendInvs', { invs: this.invs })
                                 }
                             })
-                            // uni.showToast({ icon: 'error', title: '请联系开发人员' })
                         }
                     }
                 })
@@ -192,11 +177,11 @@
                     FStockId: store.state.cur_stock.FStockId
                 }
                 uni.showLoading({ title: 'Loading' })
-                return Inv.get_all(options).then(res => {
-                    uni.hideLoading()
-                    this.invs = res
-                    this._set_inv_groups(res)
-                })
+                let res = await Inv.get_all(options)
+                uni.hideLoading()
+                this.invs = res
+                this.set_inv_groups(res)
+                this.get_thumbnail()
             },
             async refresh() {
                 if (this.last_refresh_time + this.refresh_interval > Date.now()) {
@@ -215,7 +200,7 @@
                     inv_group.material_spec.toUpperCase().includes(no.toUpperCase())
                 })
             },
-            _set_inv_groups(data) {
+            set_inv_groups(data) {
                 let inv_groups = []
                 data.forEach(inv => {
                     let group = inv_groups.find(x => x.material_id == inv.FMaterialId)
@@ -229,14 +214,18 @@
                             material_spec: inv['FMaterialId.FSpecification'],
                             material_image: inv['FMaterialId.FImageFileServer'],
                             qty: inv.FQty,
-                            base_unit_name: inv['FStockUnitId.FName']
+                            base_unit_name: inv['FStockUnitId.FName'],
+                            thumbnail: '/static/default_40x40.png'
                         })
                     }
                 })
                 this.inv_groups = inv_groups
             },
-            _thumbnail_url(file_id) {
-                return K3CloudApi.thumbnail_url(file_id)
+            async get_thumbnail() {
+                for (let obj of this.inv_groups) {
+                    let res = await K3CloudApi.thumbnail_url(obj.material_image)
+                    obj.thumbnail = res
+                }
             }
         }
     }

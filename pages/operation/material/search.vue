@@ -57,7 +57,7 @@
                             `规格：${material.FSpecification}`,
                             // `使用组织：${material['FUseOrgId.FName']}`
                         ].join('\n')"
-                        :thumb="_thumbnail_url(material.FImageFileServer)"
+                        :thumb="material.thumbnail"
                         thumb-size="lg"
                         @click="load_material(material.FMaterialId)" clickable
                         show-arrow
@@ -138,13 +138,13 @@
                 if (this.search_form.material_category_id) options.FCategoryId = this.search_form.material_category_id
                 let meta = { per_page: 50, order: 'FNumber ASC' }
                 uni.showLoading({ title: 'Loading' })
-                BdMaterial.query(options, meta).then(res => {
-                    uni.hideLoading()
-                    this.search_form.candidates = res.data
-                    if (res.data.length > 1) this.$refs.search_drawer.open()
-                    if (res.data.length === 1) this.load_material(res.data[0]?.FMaterialId)
-                    if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
-                })
+                let res = await BdMaterial.query(options, meta)
+                uni.hideLoading()
+                this.search_form.candidates = res.data
+                this.get_thumbnail()
+                if (res.data.length > 1) this.$refs.search_drawer.open()
+                if (res.data.length === 1) this.load_material(res.data[0]?.FMaterialId)
+                if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
             },
             async load_bd_materialcategories() {
                 if (!store.state.bd_materialcategories?.length) {
@@ -161,8 +161,11 @@
                 play_audio_prompt('success')
                 uni.navigateTo({ url: '/pages/operation/material/show?id=' + material_id })
             },
-            _thumbnail_url(file_id) {
-                return K3CloudApi.thumbnail_url(file_id)
+            async get_thumbnail() {
+                for (let obj of this.search_form.candidates) {
+                    let res = await K3CloudApi.thumbnail_url(obj.FImageFileServer)
+                    obj.thumbnail = res
+                }
             }
         }
     }

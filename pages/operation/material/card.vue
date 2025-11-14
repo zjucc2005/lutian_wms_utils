@@ -182,7 +182,6 @@
                         {   
                             span: 12, style: { height: this.window_width * 0.25 + 'px' },
                             image: {
-                                // url: await K3CloudApi.download_url(bd_material.ImageFileServer),
                                 url: this.image_urls[0]?.original,
                                 style: { width: this.window_width * 0.5 + 'px', height: this.window_width * 0.25 + 'px' }
                             }

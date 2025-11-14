@@ -64,6 +64,7 @@
     import XLSX from 'xlsx'
     import K3CloudApi from '@/utils/k3cloudapi'
     import { get_bd_material } from '@/utils/api'
+    import * as model from '@/utils/model'
     import { Inv, InvPlan, InvLog, BdEmpInfo, BdMaterial, StockLoc, EngBom } from '@/utils/model'
     import { CcGrid } from '@/utils/model/cc_shelf'
     import { string_to_arraybuffer, link_to } from '@/utils'
@@ -181,6 +182,16 @@
                 })
             },
             async call_test_api() {
+                // model.PrdPpbom.query({ FBillNo: 'PPBOM00867816' })
+                // model.PrdPpbom.view('PPBOM00867816')
+                
+                // let data = {
+                //     EntryIds: [13125151].join(','),
+                //     RuleId: 'PRD_PPBOM2PICKMTRL_NORMAL',
+                //     TargetFormId: 'PRD_PickMtrl'
+                // }
+                // K3CloudApi.push('PRD_PPBOM', data)
+                
                 // let arr = []
                 // let res = await StockLoc.query({ FNumber_sw: 'WL02' })
                 // for (let loc of res.data) {
@@ -188,17 +199,6 @@
                 // }
                 // EngBom.query("FNumerator / FDenominator <> ROUND(FNumerator / FDenominator, FCHILDUNITID.FPRECISION)")
                 // EngBom.view('2.05.01.01.01.0001_V1.1')
-                // BdEmpInfo.query({  FName: '蔡畅'})
-                // BdEmpInfo.update(2980281, { FWMSPWD: '19352' })
-                // const params = {
-                //     FormId: 'BD_EMPINFO',
-                //     StartRow: 0,
-                //     Limit: 100,
-                //     FilterString: "FName = '龙求云'",
-                //     // FilterString: [{"Left":"","FieldName":"FName","Compare":"17","Value":"罗","Right":"","Logic":0}],
-                //     OrderString: "FID DESC"
-                // }
-                // K3CloudApi.bill_query(params)
             },
             call_delete_api() {
                 // Inv.query({ FMaterialId: '' }).then(res => {
