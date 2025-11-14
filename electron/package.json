@@ -1,5 +1,5 @@
 {
-  "name": "electron",
+  "name": "lutian-wms",
   "version": "1.5.5",
   "description": "lutian.wms.utils pc",
   "main": "main.js",
@@ -37,12 +37,13 @@
     "start": "electron .",
     "app:dir": "electron-builder --dir",
     "app:dist": "electron-builder",
-    "app:dist32": "electron-builder --win --ia32"
+    "package": "electron-packager . app"
   },
   "author": "caichang",
   "license": "MIT",
   "devDependencies": {
     "electron": "^39.1.2",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.0.12",
+    "electron-packager": "^17.1.2"
   }
 }
