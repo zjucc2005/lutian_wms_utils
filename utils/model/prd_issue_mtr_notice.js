@@ -6,6 +6,17 @@ class PrdIssueMtrNotice {
         
     }
     
+    static async update(id, options={}) {
+        const data = {
+            IsDeleteEntry: false,
+            Model: {
+                FID: id,
+                ...options
+            }
+        }
+        return K3CloudApi.save(this.form_id, data)
+    }
+    
     /** 
      * @param options:Hash 参数集
      * @param meta:Hash 
@@ -15,8 +26,9 @@ class PrdIssueMtrNotice {
      * @return {Hash} Promise
      */
     static async query (options={}, meta={}) {
-        let fields = ['FID', 'FBillNo', 'FDocumentStatus', 'FCloseStatus', 'FCreateDate',
+        let fields = ['FID', 'FBillNo', 'FDocumentStatus', 'FCloseStatus', 'FCreateDate', 
                       'F_PAEZ_Base', 'F_PAEZ_Base.FName',
+                      'FDetailEntity_FSeq', 'FDetailEntity_FEntryId', 'F_ZZLN_Integer_83g',
                       'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'F_PAEZ_BaseProperty1',
                       'FStockId', 'FStockId.FName',
                       'FMustQty', 'FUnitId1', 'FUnitId1.FName', 'FBaseMustQty', 'FBaseUnitId1', 'FBaseUnitId1.FName'

@@ -184,6 +184,13 @@
             async call_test_api() {
                 // model.PrdPpbom.query({ FBillNo: 'PPBOM00867816' })
                 // model.PrdPpbom.view('PPBOM00867816')
+                // model.PrdIssueMtrNotice.query({ FBillNo: 'SCFLTZD32739' })
+                // model.PrdIssueMtrNotice.update(132784, {
+                //     FDetailEntity: [
+                //         { FEntryID: 5717882, FSeq: 1 },
+                //         { FEntryID: 5717883, FSeq: 1 }
+                //     ]
+                // })
                 
                 // let data = {
                 //     EntryIds: [13125151].join(','),

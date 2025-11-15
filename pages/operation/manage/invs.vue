@@ -25,22 +25,50 @@
                 }"
             />
         </view>
+        <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
+            <uni-tr>
+                <uni-th align="center" width="60">序号</uni-th>
+                <uni-th align="center" width="60">ICON</uni-th>
+                <uni-th align="center">物料编码</uni-th>
+                <uni-th align="center">物料名称</uni-th>
+                <uni-th align="center">规格型号</uni-th>
+                <uni-th align="center">单位</uni-th>
+                <uni-th align="center">数量</uni-th>
+                <uni-th align="center" width="230">操作</uni-th>
+            </uni-tr>
+            
+            <uni-tr v-for="(obj, index) in inv_groups_filtered()" :key="index">
+                <uni-td align="center">{{ index + 1 }}</uni-td>
+                <uni-td><image :src="obj.thumbnail" mode="aspectFill" class="thumbnail" /></uni-td>
+                <uni-td>
+                    <view class="text-primary" @click="link_to(`/pages/operation/material/show?id=${obj.material_id}`)">
+                        {{ obj.material_no }}
+                    </view>
+                </uni-td>
+                <uni-td>{{ obj.material_name }}</uni-td>
+                <uni-td>{{ obj.material_spec }}</uni-td>
+                <uni-td align="center">{{ obj.base_unit_name }}</uni-td>
+                <uni-td align="center">{{ obj.qty }}</uni-td>
+                <uni-td align="center">
+                    <uni-tag text="库存明细" type="primary" inverted @click="link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}&m=0`)"/>
+                    <uni-tag text="库存调整" type="primary" @click="link_to(`/pages/operation/move/v2/plan_new?material_no=${obj.material_no}`)" class="uni-ml-2"/>
+                    <uni-tag text="库存日志" type="primary" inverted @click="link_to(`/pages/operation/list/inv_logs?material_no=${obj.material_no}`)" class="uni-ml-2"/>
+                </uni-td>
+            </uni-tr>
+        </uni-table>
         
-        <uni-list>
+        <uni-list v-else>
             <uni-list-item
-                v-for="(inv_group, index) in inv_groups_filtered()"
-                :key="index"
-                :title="inv_group.material_no"
+                v-for="(obj, index) in inv_groups_filtered()" :key="index"
+                :title="obj.material_no"
                 :note="[
-                    `名称：${inv_group.material_name}`, 
-                    `规格：${inv_group.material_spec}`
+                    `名称：${obj.material_name}`, 
+                    `规格：${obj.material_spec}`
                 ].join('\n')"
-                :thumb="inv_group.thumbnail"
-                thumb-size="lg"
-                :rightText="[inv_group.qty, inv_group.base_unit_name].join(' ')"
-                @click="inv_menu(inv_group)" clickable
-                show-arrow
-                @longpress="inv_menu(inv_group)"
+                :thumb="obj.thumbnail" thumb-size="lg"
+                :rightText="[obj.qty, obj.base_unit_name].join(' ')"
+                @click="inv_menu(obj)" clickable show-arrow
+                @longpress="inv_menu(obj)"
                 >
             </uni-list-item>
         </uni-list>
@@ -105,6 +133,7 @@
             this.load_invs()
         },
         methods: {
+            link_to,
             goods_nav_click(e) {
                 if (e.index === 0) this.refresh() // btn:刷新
                 if (e.index === 1) this.more()
@@ -131,18 +160,18 @@
                     return text
                 }
             },
-            inv_menu(inv_group) {
-                if (!inv_group.material_id) {
+            inv_menu(obj) {
+                if (!obj.material_id) {
                     uni.showToast({ icon: 'none', title: '物料ID不能为空' })
                     return
                 } 
                 uni.showActionSheet({
                     itemList: ['库存明细', '库存调整', '库存日志', '物料详情'],
                     success: (e) => {
-                        if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${inv_group.material_no}&m=0`)
-                        if (e.tapIndex === 1) link_to(`/pages/operation/move/v2/plan_new?material_no=${inv_group.material_no}`)
-                        if (e.tapIndex === 2) link_to(`/pages/operation/list/inv_logs?material_no=${inv_group.material_no}`)
-                        if (e.tapIndex === 3) link_to(`/pages/operation/material/show?id=${inv_group.material_id}`)
+                        if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}&m=0`)
+                        if (e.tapIndex === 1) link_to(`/pages/operation/move/v2/plan_new?material_no=${obj.material_no}`)
+                        if (e.tapIndex === 2) link_to(`/pages/operation/list/inv_logs?material_no=${obj.material_no}`)
+                        if (e.tapIndex === 3) link_to(`/pages/operation/material/show?id=${obj.material_id}`)
                     }
                 })
             },
@@ -231,6 +260,10 @@
     }
 </script>
 
-<style>
-
+<style lang="scss" scoped>
+    .thumbnail {
+        width: 40px;
+        height: 40px;
+        display: block;
+    }
 </style>
