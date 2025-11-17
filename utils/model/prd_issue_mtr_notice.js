@@ -28,7 +28,7 @@ class PrdIssueMtrNotice {
     static async query (options={}, meta={}) {
         let fields = ['FID', 'FBillNo', 'FDocumentStatus', 'FCloseStatus', 'FCreateDate', 
                       'F_PAEZ_Base', 'F_PAEZ_Base.FName',
-                      'FDetailEntity_FSeq', 'FDetailEntity_FEntryId', 'F_ZZLN_Integer_83g',
+                      'FDetailEntity_FSeq', 'FDetailEntity_FEntryId',
                       'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'F_PAEZ_BaseProperty1',
                       'FStockId', 'FStockId.FName',
                       'FMustQty', 'FUnitId1', 'FUnitId1.FName', 'FBaseMustQty', 'FBaseUnitId1', 'FBaseUnitId1.FName'

@@ -20,6 +20,7 @@ class SpPickMtrl {
                       'FStockId', 'FStockId.FName',
                       'FActualQty', 'FUnitId', 'FUnitId.FName', 'FBaseActualQty', 'FBaseUnitId', 'FBaseUnitId.FName'
                       ]
+        if (meta.fields) fields = meta.fields
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),

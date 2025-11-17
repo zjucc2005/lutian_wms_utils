@@ -90,6 +90,7 @@
                         <view class="note">
                             <view>名称：{{ obj.material_name }}</view> 
                             <view>规格：{{ obj.material_spec }}</view>
+                            <view>仓库：<text :class="[obj.stock_id == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj.stock_name }}</text></view>
                             <view>单位：{{ obj.unit_name }}</view>
                         </view>
                     </view>
@@ -269,7 +270,7 @@
             async load_scfltzd() {
                 try {
                     uni.showLoading({ title: 'Loading' })
-                    let res = await PrdIssueMtrNotice.query({ FBillNo: this.search_form.bill_no })
+                    let res = await PrdIssueMtrNotice.query({ FBillNo: this.search_form.bill_no, FStockId: store.state.cur_stock.FStockId })
                     uni.hideLoading()
                     if (res.data.length == 0) {
                         uni.showToast({ icon: 'none' ,title: '没有相关数据' })
@@ -308,7 +309,7 @@
                 try {
                     uni.showLoading({ title: 'Loading' })
                     // 区分仓管员
-                    let res = await SpPickMtrl.query({ FBillNo: this.search_form.bill_no })
+                    let res = await SpPickMtrl.query({ FBillNo: this.search_form.bill_no, FStockId: store.state.cur_stock.FStockId })
                     uni.hideLoading()
                     if (res.data.length == 0) {
                         uni.showToast({ icon: 'none' ,title: '没有相关数据' })
@@ -403,7 +404,7 @@
             async load_scfl_todo() {
                 let scfl_todo = []
                 uni.showLoading({ title: 'Loading' })
-                // 区分仓管员
+                // 生产发料
                 let res = await PrdIssueMtrNotice.query({
                     FDocumentStatus: 'C',                                // 已审核
                     FCloseStatus: 'A',                                   // 未关闭
@@ -413,11 +414,23 @@
                     fields: ['FBillNo', 'F_PAEZ_Base.FName'],            // 指定返回字段，优化查询速度
                     order: 'FCreateDate DESC' ,                          // 时间降序
                 })
-                uni.hideLoading()
-                for (let d of new Set(res.data)) {
+                for (let d of res.data) {
                     let obj = scfl_todo.find(x => x.bill_no == d.FBillNo)
                     if (!obj) scfl_todo.push({ bill_no: d.FBillNo, prd_line: d['F_PAEZ_Base.FName'] })
                 }
+                // 简单生产领料
+                let res1 = await SpPickMtrl.query({
+                    FStockId: store.state.cur_stock.FStockId,            // 本仓库
+                    FCreateDate_ge: formatDate(Date.now(), 'yyyy-MM-dd') // 今天
+                }, {
+                    fields: ['FBillNo', 'FWorkShopId.FName'],            // 指定返回字段，优化查询速度
+                    order: 'FCreateDate DESC',                           // 时间降序
+                })
+                for (let d of res1.data) {
+                    let obj = scfl_todo.find(x => x.bill_no == d.FBillNo)
+                    if (!obj) scfl_todo.push({ bill_no: d.FBillNo, prd_line: d['FWorkShopId.FName'] })
+                }
+                uni.hideLoading()
                 this.scfl_todo = scfl_todo
             }
         }

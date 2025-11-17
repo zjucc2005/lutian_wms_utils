@@ -124,7 +124,8 @@
         { "path": "pages/k3cloud/xiaoshouguanli/fahuotongzhidan/index", "style": { "navigationBarTitleText": "销售管理 / 发货通知单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
         { "path": "pages/k3cloud/xiaoshouguanli/fahuotongzhidan/show",  "style": { "navigationBarTitleText": "销售管理 / 发货通知单" } },
         { "path": "pages/k3cloud/shengchanguanli/index", "style": { "navigationBarTitleText": "生产管理" } },
-        { "path": "pages/k3cloud/shengchanguanli/shengchanyongliaoqingdan/index", "style": { "navigationBarTitleText": "生产管理 / 生产用料清单" } }
+        { "path": "pages/k3cloud/shengchanguanli/shengchanyongliaoqingdan/index", "style": { "navigationBarTitleText": "生产管理 / 生产用料清单"} },
+        { "path": "pages/k3cloud/shengchanguanli/shengchanfaliaotongzhidan/modify_seq", "style": { "navigationBarTitleText": "生产发料 / 调整序号" } }
     ],
     "globalStyle": {
         "navigationBarTextStyle": "#fff",
@@ -155,8 +156,8 @@
             {
                 "pagePath": "pages/k3cloud/index",
                 "text": "金蝶云",
-                "iconPath": "/static/icon/tab_k3cloud.png",
-                "selectedIconPath": "/static/icon/tab_k3cloud_active.png"
+                "iconPath": "/static/icon/cc_k3cloud.png",
+                "selectedIconPath": "/static/icon/cc_k3cloud_active.png"
             },
             {
                 "pagePath": "pages/my/index",

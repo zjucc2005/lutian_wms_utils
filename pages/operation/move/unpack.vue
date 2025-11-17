@@ -324,22 +324,35 @@
             async load_scfl_todo() {
                 let scfl_todo = []
                 uni.showLoading({ title: 'Loading' })
-                // 区分仓管员
+                // 生产发料
                 let res = await PrdIssueMtrNotice.query({
                     FDocumentStatus: 'C',                                // 已审核
                     FCloseStatus: 'A',                                   // 未关闭
-                    FStockId: store.state.cur_stock.FStockId,            // 本仓库
+                    // FStockId: store.state.cur_stock.FStockId,            // 本仓库
                     F_PAEZ_BaseProperty1: store.state.cur_staff.FName,   // 仓管员
                     FCreateDate_ge: formatDate(Date.now(), 'yyyy-MM-dd') // 今天
                 }, {
                     fields: ['FBillNo', 'F_PAEZ_Base.FName'],            // 指定返回字段，优化查询速度
                     order: 'FCreateDate DESC' ,                          // 时间降序
                 })
-                uni.hideLoading()
                 for (let d of res.data) {
                     let obj = scfl_todo.find(x => x.bill_no == d.FBillNo)
                     if (!obj) scfl_todo.push({ bill_no: d.FBillNo, prd_line: d['F_PAEZ_Base.FName'] })
                 }
+                // 简单生产领料
+                let res1 = await SpPickMtrl.query({
+                    // FStockId: store.state.cur_stock.FStockId,                // 本仓库
+                    'FMaterialId.F_PAEZ_Base1': store.state.cur_staff.FName, // 仓管员
+                    FCreateDate_ge: formatDate(Date.now(), 'yyyy-MM-dd')     // 今天
+                }, {
+                    fields: ['FBillNo', 'FWorkShopId.FName'],                // 指定返回字段，优化查询速度
+                    order: 'FCreateDate DESC',                               // 时间降序
+                })
+                for (let d of res1.data) {
+                    let obj = scfl_todo.find(x => x.bill_no == d.FBillNo)
+                    if (!obj) scfl_todo.push({ bill_no: d.FBillNo, prd_line: d['FWorkShopId.FName'] })
+                }
+                uni.hideLoading()
                 this.scfl_todo = scfl_todo
             }
         }

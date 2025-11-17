@@ -230,8 +230,8 @@
                         active: false
                     },
                     {
-                        iconPath: '/static/icon/cc_statistics.png',
-                        selectedIconPath: '/static/icon/cc_statistics_active.png',
+                        iconPath: '/static/icon/cc_piechart.png',
+                        selectedIconPath: '/static/icon/cc_piechart_active.png',
                         text: '统计',
                         active: false
                     },
