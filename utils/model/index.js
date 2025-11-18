@@ -17,6 +17,7 @@ import IssuemtrLog from './issuemtr_log'
 import PrdIssueMtrNotice from './prd_issue_mtr_notice'
 import PrdMo from './prd_mo'
 import PrdPpbom from './prd_ppbom'
+import PurMrb from './pur_mrb'
 import PurPurchaseOrder from './pur_purchase_order'
 import PurReceiveBill from './pur_receive_bill'
 import SalDeliveryNotice from './sal_delivery_notice'
@@ -39,6 +40,7 @@ export {
     PrdIssueMtrNotice,
     PrdMo,
     PrdPpbom,
+    PurMrb,
     PurPurchaseOrder,
     PurReceiveBill,
     SalDeliveryNotice,

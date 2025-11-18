@@ -79,7 +79,6 @@
         { "path": "pages/my/utils/bom_level_transfer", "style": { "navigationBarTitleText": "script: BOM批量模版转化层级号" } },
         // 脚本
         { "path": "pages/api_utils/index", "style": { "navigationBarTitleText": "API调试" } },
-        // { "path": "pages/api_utils/console", "style": { "navigationBarTitleText": "Console" } },
         { "path": "pages/api_utils/login/validateUser", "style" : { "navigationBarTitleText": "用户名/密码" } },
         { "path": "pages/api_utils/gongyinglian/bd_stock", "style": { "navigationBarTitleText": "API-供应链-仓库" } },
         { "path": "pages/api_utils/gongyinglian/stk_inventory", "style": { "navigationBarTitleText": "API-供应链-即时库存" } },

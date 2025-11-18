@@ -191,6 +191,7 @@
                 //         { FEntryID: 5717883, FSeq: 1 }
                 //     ]
                 // })
+                // K3CloudApi.view('PUR_MRB', { Number: 'CGTL213693' })
                 
                 // let data = {
                 //     EntryIds: [13125151].join(','),

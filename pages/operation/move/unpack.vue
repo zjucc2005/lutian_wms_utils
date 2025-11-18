@@ -7,6 +7,10 @@
             $store.state.cur_stock.FName
         ].join(' / ')"
         sub-title-color="#007aff" @click="$logger.info('>>>', $data)">
+        <template #right>
+            <text class="text-grey text-sm">{{ multiuser ? '多人' : '单人' }}</text>
+            <switch @change="switch_click" style="transform:scale(0.7)"/>
+        </template>
         <view class="searchbar-container">
             <uni-easyinput
                 v-model="search_form.bill_no" 
@@ -27,7 +31,9 @@
     </uni-section>
     <!-- 分配库位 -->
     <uni-section v-if="scfl.length" title="子项明细" type="square"
-        :sub-title="`产线：${scfl[0]?.prd_line}`" sub-title-color="#007aff" class="above-uni-goods-nav">
+        :sub-title="`${ search_form.bill_no.startsWith('CGTL') ? '供应商' : '产线' }：${scfl[0]?.prd_line}`"
+        sub-title-color="#007aff"
+        class="above-uni-goods-nav">
         <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
             <uni-tr>
                 <uni-th align="center" width="60">序号</uni-th>
@@ -113,7 +119,7 @@
     import store from '@/store'
     import { play_audio_prompt, formatDate } from '@/utils'
     import scan_code from '@/utils/scan_code'
-    import { PrdIssueMtrNotice, SpPickMtrl, InvPlan } from '@/utils/model'
+    import { PrdIssueMtrNotice, SpPickMtrl, PurMrb, InvPlan } from '@/utils/model'
     export default {
         data() {
             return {
@@ -121,6 +127,7 @@
                 scfl_todo: [], // 今日生产发料通知单
                 inv_plans: [], // 已计划
                 inv_plans_map: {}, // 优化计划查询性能
+                multiuser: false,
                 search_form: {
                     bill_no: ''
                 },
@@ -174,6 +181,10 @@
             searchbar_icon_click(e) {
                 if (e == 'prefix') this.scan_code()
             },
+            switch_click(e) {
+                this.multiuser = e.detail.value
+                this.handle_search()
+            },
             scan_code() {
                 scan_code().then(res => {
                     if (this.scfl.length) {
@@ -193,6 +204,8 @@
             },
             // 搜索
             async handle_search() {
+                this.scfl = []
+                this.inv_plans = []
                 if (this.search_form.bill_no) {
                     this.search_form.bill_no = this.search_form.bill_no.trim().toUpperCase()
                     if (this.search_form.bill_no.match(/^\d+$/)) {
@@ -202,10 +215,9 @@
                         await this.load_scfltzd()
                     } else if (this.search_form.bill_no.startsWith('JSCLL')) {
                         await this.load_jscll()
+                    } else if (this.search_form.bill_no.startsWith('CGTL')) {
+                        await this.load_cgtl()
                     }
-                } else {
-                    this.scfl = []
-                    this.inv_plans = []
                 }
                 if (this.scfl.length) {
                     this.goods_nav.button_group[0] = { text: '扫描物料', backgroundColor: store.state.goods_nav_color.yellow, color: '#fff' }
@@ -234,9 +246,15 @@
                 try {
                     uni.showLoading({ title: 'Loading' })
                     // 区分仓管员
-                    let res = await PrdIssueMtrNotice.query({ FBillNo: this.search_form.bill_no, F_PAEZ_BaseProperty1: store.state.cur_staff.FName })
+                    let options = { FBillNo: this.search_form.bill_no }
+                    if (this.multiuser) {
+                        options.FStockId = store.state.cur_stock.FStockId
+                    } else {
+                        options.F_PAEZ_BaseProperty1 = store.state.cur_staff.FName
+                    }
+                    let res = await PrdIssueMtrNotice.query(options)
                     uni.hideLoading()
-                    if (res.data.length == 0) {
+                    if (res.data.length === 0) {
                         uni.showToast({ icon: 'none' ,title: '没有相关数据' })
                         return
                     }
@@ -274,9 +292,15 @@
                 try {
                     uni.showLoading({ title: 'Loading' })
                     // 区分仓管员
-                    let res = await SpPickMtrl.query({ FBillNo: this.search_form.bill_no, 'FMaterialId.F_PAEZ_Base1': store.state.cur_staff.FName })
+                    let options = { FBillNo: this.search_form.bill_no }
+                    if (this.multiuser) {
+                        options.FStockId = store.state.cur_stock.FStockId
+                    } else {
+                        options['FMaterialId.F_PAEZ_Base1'] = store.state.cur_staff.FName
+                    }
+                    let res = await SpPickMtrl.query(options)
                     uni.hideLoading()
-                    if (res.data.length == 0) {
+                    if (res.data.length === 0) {
                         uni.showToast({ icon: 'none' ,title: '没有相关数据' })
                         return
                     }
@@ -309,6 +333,47 @@
                     await this.load_inv_plans()
                 } catch (err) { }
             },
+            // 采购退料
+            async load_cgtl() {
+                try {
+                    uni.showLoading({ title: 'Loading' })
+                    // 区分仓库
+                    let options = { FBillNo: this.search_form.bill_no, FStockId: store.state.cur_stock.FStockId }
+                    let res = await PurMrb.query(options)
+                    uni.hideLoading()
+                    if (res.data.length === 0) {
+                        uni.showToast({ icon: 'none' ,title: '没有相关数据' })
+                        return
+                    }
+                    let materials = []
+                    for (let d of res.data) {
+                        let material = materials.find(m => m.material_id === d.FMaterialId)
+                        if (material) {
+                            material.must_qty += d.FRmRealQty
+                            material.base_must_qty += d.FRmRealQty
+                        } else {
+                            materials.push({
+                                material_id: d.FMaterialId,
+                                material_no: d['FMaterialId.FNumber'],
+                                material_name: d['FMaterialId.FName'],
+                                material_spec: d['FMaterialId.FSpecification'],
+                                storekeeper: d['FMaterialId.F_PAEZ_Base1'],
+                                stock_id: d.FStockId,
+                                stock_name: d['FStockId.FName'],
+                                prd_line: d['FSupplierId.FName'], // 供应商
+                                must_qty: d.FRmRealQty,
+                                unit_id: d.FUnitId,
+                                unit_name: d['FUnitId.FName'],
+                                base_must_qty: d.FRmRealQty,
+                                base_unit_id: d.FUnitId,
+                                base_unit_name: d['FUnitId.FName']
+                            })
+                        }
+                    }
+                    this.scfl = materials
+                    await this.load_inv_plans()
+                } catch (err) { }
+            },
             async load_inv_plans() {
                 let res = await InvPlan.query({ FBillNo: this.search_form.bill_no, FStockId: store.state.cur_stock.FStockId, 
                                                 FDocumentStatu: 'C', FOpType: 'mv' })
@@ -328,7 +393,7 @@
                 let res = await PrdIssueMtrNotice.query({
                     FDocumentStatus: 'C',                                // 已审核
                     FCloseStatus: 'A',                                   // 未关闭
-                    // FStockId: store.state.cur_stock.FStockId,            // 本仓库
+                    // FStockId: store.state.cur_stock.FStockId,         // 本仓库
                     F_PAEZ_BaseProperty1: store.state.cur_staff.FName,   // 仓管员
                     FCreateDate_ge: formatDate(Date.now(), 'yyyy-MM-dd') // 今天
                 }, {
@@ -341,7 +406,8 @@
                 }
                 // 简单生产领料
                 let res1 = await SpPickMtrl.query({
-                    // FStockId: store.state.cur_stock.FStockId,                // 本仓库
+                    FDocumentStatus: 'C',                                    // 已审核
+                    // FStockId: store.state.cur_stock.FStockId,             // 本仓库
                     'FMaterialId.F_PAEZ_Base1': store.state.cur_staff.FName, // 仓管员
                     FCreateDate_ge: formatDate(Date.now(), 'yyyy-MM-dd')     // 今天
                 }, {

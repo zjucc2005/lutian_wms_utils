@@ -155,6 +155,8 @@
             handle_scan_code(text) {
                 if (text.includes('-')) {
                     this.form.loc_no = text
+                } else if (text.includes('||')) {
+                    this.form.material_no = text.split('||')[1]
                 } else {
                     this.form.material_no = text
                     this.load_material()

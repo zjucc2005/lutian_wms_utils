@@ -27,7 +27,9 @@
     
     <!-- 分配库位 -->
     <uni-section v-if="scfl.length" title="子项明细" type="square"
-        :sub-title="`产线：${scfl[0]?.prd_line}`" sub-title-color="#007aff" class="above-uni-goods-nav">
+        :sub-title="`${ search_form.bill_no.startsWith('CGTL') ? '供应商' : '产线' }：${scfl[0]?.prd_line}`"
+        sub-title-color="#007aff"
+        class="above-uni-goods-nav">
         <template #right>
             <view>已勾选 <text class="text-primary">{{ scfl.filter(m => m.checked).length }}</text> 行</view>
         </template>
@@ -142,7 +144,7 @@
     import store from '@/store'
     import { play_audio_prompt, formatDate } from '@/utils'
     import scan_code from '@/utils/scan_code'
-    import { PrdIssueMtrNotice, SpPickMtrl, InvLog, Inv } from '@/utils/model'
+    import { PrdIssueMtrNotice, SpPickMtrl, PurMrb, InvLog, Inv } from '@/utils/model'
     export default {
         data() {
             return {
@@ -247,6 +249,9 @@
             },
             // 搜索
             async handle_search() {
+                this.scfl = []
+                this.invs = []
+                this.inv_logs = []
                 if (this.search_form.bill_no) {
                     this.search_form.bill_no = this.search_form.bill_no.trim().toUpperCase()
                     if (this.search_form.bill_no.match(/^\d+$/)) {
@@ -256,13 +261,11 @@
                         await this.load_scfltzd()
                     } else if (this.search_form.bill_no.startsWith('JSCLL')) {
                         await this.load_jscll()
+                    } else if (this.search_form.bill_no.startsWith('CGTL')) {
+                        await this.load_cgtl()
                     }
                     await this.load_invs()
                     await this.load_inv_logs()
-                } else {
-                    this.scfl = []
-                    this.invs = []
-                    this.inv_logs = []
                 }
             },
             // ** 加载数据 **
@@ -337,6 +340,46 @@
                                 base_must_qty: d.FBaseActualQty,
                                 base_unit_id: d.FBaseUnitId,
                                 base_unit_name: d['FBaseUnitId.FName']
+                            })
+                        }
+                    }
+                    this.scfl = materials
+                    await this.load_inv_plans()
+                } catch (err) { }
+            },
+            // 采购退料
+            async load_cgtl() {
+                try {
+                    uni.showLoading({ title: 'Loading' })
+                    // 区分仓库
+                    let res = await PurMrb.query({ FBillNo: this.search_form.bill_no, FStockId: store.state.cur_stock.FStockId })
+                    uni.hideLoading()
+                    if (res.data.length === 0) {
+                        uni.showToast({ icon: 'none' ,title: '没有相关数据' })
+                        return
+                    }
+                    let materials = []
+                    for (let d of res.data) {
+                        let material = materials.find(m => m.material_id === d.FMaterialId)
+                        if (material) {
+                            material.must_qty += d.FRmRealQty
+                            material.base_must_qty += d.FRmRealQty
+                        } else {
+                            materials.push({
+                                material_id: d.FMaterialId,
+                                material_no: d['FMaterialId.FNumber'],
+                                material_name: d['FMaterialId.FName'],
+                                material_spec: d['FMaterialId.FSpecification'],
+                                storekeeper: d['FMaterialId.F_PAEZ_Base1'],
+                                stock_id: d.FStockId,
+                                stock_name: d['FStockId.FName'],
+                                prd_line: d['FSupplierId.FName'], // 供应商
+                                must_qty: d.FRmRealQty,
+                                unit_id: d.FUnitId,
+                                unit_name: d['FUnitId.FName'],
+                                base_must_qty: d.FRmRealQty,
+                                base_unit_id: d.FUnitId,
+                                base_unit_name: d['FUnitId.FName']
                             })
                         }
                     }
@@ -420,6 +463,7 @@
                 }
                 // 简单生产领料
                 let res1 = await SpPickMtrl.query({
+                    FDocumentStatus: 'C',                                // 已审核
                     FStockId: store.state.cur_stock.FStockId,            // 本仓库
                     FCreateDate_ge: formatDate(Date.now(), 'yyyy-MM-dd') // 今天
                 }, {
