@@ -218,6 +218,7 @@
                     } else if (this.search_form.bill_no.startsWith('CGTL')) {
                         await this.load_cgtl()
                     }
+                    await this.load_inv_plans()
                 }
                 if (this.scfl.length) {
                     this.goods_nav.button_group[0] = { text: '扫描物料', backgroundColor: store.state.goods_nav_color.yellow, color: '#fff' }
@@ -284,7 +285,6 @@
                         }
                     }
                     this.scfl = materials
-                    await this.load_inv_plans()
                 } catch (err) { }
             },
             // 简易生产领料单
@@ -330,7 +330,6 @@
                         }
                     }
                     this.scfl = materials
-                    await this.load_inv_plans()
                 } catch (err) { }
             },
             // 采购退料
@@ -371,7 +370,6 @@
                         }
                     }
                     this.scfl = materials
-                    await this.load_inv_plans()
                 } catch (err) { }
             },
             async load_inv_plans() {

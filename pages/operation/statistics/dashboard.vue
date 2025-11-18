@@ -47,6 +47,14 @@
                     </uni-card>
                 </uni-row>
                 <uni-row>
+                    <uni-card margin="10px" spacing="0" padding="5px">
+                        <view class="timer">
+                            <view>{{ timer.year }}年{{ timef(timer.month) }}月{{ timef(timer.day) }}日</view>
+                            <view>星期{{ wday_map[timer.wday] }} {{ timef(timer.hour) }}:{{ timef(timer.minute) }}:{{ timef(timer.second) }}</view>
+                        </view>
+                    </uni-card>
+                </uni-row>
+                <uni-row>
                     <uni-card margin="10px" spacing="0" padding="0">
                         <view class="title">滚动速度</view>
                         <slider :value="scroll_speed" step="1" :min="1" :max="4"
@@ -106,22 +114,39 @@
                 sum_inv_qty: 0,
                 loc_qty: { total: 0, disabled: 0, used: 0, idle: 0 }, // 库位数统计
                 stock_locs_used: {}, // 记录库位是否被占用，刷新库存时，先对比此数据，再更新table_shelves，减少渲染请求
-                timer: null,
+                refresh_interval: null, // 刷新计时器
+                timer: {
+                    interval: null,
+                    year: 0,
+                    month: 0,
+                    day: 0,
+                    hour: 0,
+                    minute: 0,
+                    second: 0,
+                    wday: 0
+                },
+                wday_map: ['日', '一', '二', '三', '四', '五', '六'],
                 scroll_speed: 1,
                 chart_data: {}
             }
         },
         onUnload() {
-            if (this.timer) {
-                clearInterval(this.timer) // 回收计时器
+            if (this.refresh_interval) {
+                this.$logger.info('>>> clear refresh interval', this.refresh_interval)
+                clearInterval(this.refresh_interval) // 回收刷新计时器
+            }
+            if (this.timer.interval) {
+                this.$logger.info('>>> clear timer interval', this.timer.interval)
+                clearInterval(this.timer.interval)
             }
         },
         mounted() {
             this.init_table_shelves()
             this.load_invs()
-            this.timer = setInterval(() => {
+            this.refresh_interval = setInterval(() => {
                 this.load_invs()
-            }, 30000) // 设定计时器，定时刷新
+            }, 30000) // 设定刷新计时器
+            this.timer.interval = this.set_timer()
         },
         computed: {
             chart_opts() {
@@ -248,6 +273,22 @@
             },
             slider_change(e) {
                 this.scroll_speed = e.detail.value
+            },
+            // 设定计时器
+            set_timer() {
+                return setInterval(() => {
+                    let t = new Date()
+                    this.timer.year = t.getFullYear()
+                    this.timer.month = t.getMonth() + 1
+                    this.timer.day = t.getDate()
+                    this.timer.hour = t.getHours()
+                    this.timer.minute = t.getMinutes()
+                    this.timer.second = t.getSeconds()
+                    this.timer.wday = t.getDay()
+                }, 1000)
+            },
+            timef(n) {
+                return n <= 9 ? `0${n}` : n
             }
         }
     }
@@ -338,6 +379,12 @@
         display: flex;
         align-items: center;
         justify-content: space-around;
+    }
+    .timer {
+        color: #fff32b;
+        font-size: 24px;
+        text-align: center;
+        line-height: 1.5;
     }
     .striking-number {
         height: 72px;

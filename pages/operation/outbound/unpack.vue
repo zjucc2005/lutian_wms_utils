@@ -344,7 +344,6 @@
                         }
                     }
                     this.scfl = materials
-                    await this.load_inv_plans()
                 } catch (err) { }
             },
             // 采购退料
@@ -384,7 +383,6 @@
                         }
                     }
                     this.scfl = materials
-                    await this.load_inv_plans()
                 } catch (err) { }
             },
             async load_invs() {
