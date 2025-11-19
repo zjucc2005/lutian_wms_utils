@@ -48,10 +48,10 @@
             :extra-icon="{ type: 'pyq', size: '24', color: '#007bff' }" show-extra-icon
             @click="link_to('/pages/my/utils/index')" clickable show-arrow
             />
-        <uni-list-item title="调试"
+        <!-- <uni-list-item title="调试"
             :extra-icon="{ type: 'settings', size: '24', color: '#007bff' }" show-extra-icon
             @click="debug" clickable show-arrow
-            />  
+            /> -->
     </uni-list>
     <uni-list>
         <uni-list-item title="退出"

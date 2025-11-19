@@ -57,7 +57,7 @@
                             `规格：${material.FSpecification}`,
                             // `使用组织：${material['FUseOrgId.FName']}`
                         ].join('\n')"
-                        :thumb="material.thumbnail"
+                        :thumb="material.thumbnail || '/static/default_40x40.png'"
                         thumb-size="lg"
                         @click="load_material(material.FMaterialId)" clickable
                         show-arrow

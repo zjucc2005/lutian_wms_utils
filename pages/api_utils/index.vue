@@ -182,6 +182,7 @@
                 })
             },
             async call_test_api() {
+                // model.InvPlan.query({ FCreateTime_ge: '2025-11-18 14:07:14' })
                 // model.PrdPpbom.query({ FBillNo: 'PPBOM00867816' })
                 // model.PrdPpbom.view('PPBOM00867816')
                 // model.PrdIssueMtrNotice.query({ FBillNo: 'SCFLTZD32739' })

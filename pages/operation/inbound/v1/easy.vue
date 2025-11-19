@@ -153,10 +153,11 @@
                 })
             },
             handle_scan_code(text) {
-                if (text.includes('-')) {
-                    this.form.loc_no = text
-                } else if (text.includes('||')) {
+                if (text.includes('||')) {
                     this.form.material_no = text.split('||')[1]
+                    this.load_material()
+                } else if (text.includes('-') && !text.includes('.')) {
+                    this.form.loc_no = text
                 } else {
                     this.form.material_no = text
                     this.load_material()
@@ -199,7 +200,9 @@
                         FMaterialId: this.material.FMaterialId, 
                         'FStockLocId.FName': loc_no, 
                         FOpQTY: this.form.qty * 1,
-                        FBatchNo: batch_no })
+                        FBatchNo: batch_no,
+                        FCreateTime_ge: formatDate(Date.now() - 15000, 'yyyy-MM-dd hh:mm:ss') // 15s内禁止重复入库，防呆
+                        })
                     if (log_res.data.length) {
                         uni.showToast({ icon: 'error', title: '重复入库' })
                         return

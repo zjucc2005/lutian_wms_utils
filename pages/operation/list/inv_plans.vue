@@ -184,7 +184,7 @@
         methods: {
             formatDate,
             fab_trigger(e) {
-                console.log('this.$data', this.$data)
+                this.$logger.info('this.$data', this.$data)
                 if (e.index === 0) this.$refs.search_dialog.open()
                 if (e.index === 1) uni.pageScrollTo({ scrollTop: 0 })
             },

@@ -1,8 +1,8 @@
 {
   "name": "lutian_wms_utils",
-  "version": "1.5.6",
-  "versionCode": 156,
-  "versionNote": "v1.5.6更新内容\n1.[原料仓]增加适配采购退料单出库；\n2.[原料仓]库内调拨增加多人模式，可操作其他仓管员的物料；\n3.库存看板增加计时器；",
+  "version": "1.5.7",
+  "versionCode": 157,
+  "versionNote": "v1.5.7更新内容\n详见《我-历次更新说明》；",
   "installPack": {
     "h5": "",
     "android": ""
