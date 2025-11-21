@@ -42,7 +42,8 @@ const createWindow = () => {
     //     })
     // })
     
-    win.loadFile('./app/index.html')
+    // win.loadFile('./app/index.html')  // 本地模式
+    win.loadURL('https://lutian-wms-pages.pages.dev/#/')  // 在线模式 - 静态网页托管
     // 打开调试窗口
     // win.webContents.openDevTools()
 }
