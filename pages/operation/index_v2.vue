@@ -12,7 +12,7 @@
     </cc-grid>
     
     <!-- 仓库选择组件 -->
-    <uni-popup ref="nav_dialog" type="dialog">
+    <uni-popup ref="nav_dialog" type="dialog" style="z-index: 1000;">
         <uni-popup-dialog
             type="error"
             title="切换仓库"

@@ -31,7 +31,7 @@
     </uni-section>
     <!-- 分配库位 -->
     <uni-section v-if="scfl.length" title="子项明细" type="square"
-        :sub-title="`${ search_form.bill_no.startsWith('CGTL') ? '供应商' : '产线' }：${scfl[0]?.prd_line}`"
+        :sub-title="`${ search_form.bill_no.startsWith('CGTL') ? '供应商' : '领用部门' }：${scfl[0]?.prd_line}`"
         sub-title-color="#007aff"
         class="above-uni-goods-nav">
         <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
@@ -119,7 +119,7 @@
     import store from '@/store'
     import { play_audio_prompt, formatDate } from '@/utils'
     import scan_code from '@/utils/scan_code'
-    import { PrdIssueMtrNotice, SpPickMtrl, PurMrb, InvPlan } from '@/utils/model'
+    import { PrdIssueMtrNotice, StkOutStockApply, SpPickMtrl, PurMrb, InvPlan } from '@/utils/model'
     export default {
         data() {
             return {
@@ -213,6 +213,8 @@
                     }
                     if (this.search_form.bill_no.startsWith('SCFLTZD')) {
                         await this.load_scfltzd()
+                    } else if (this.search_form.bill_no.startsWith('CKSQD')){
+                        await this.load_cksqd()
                     } else if (this.search_form.bill_no.startsWith('JSCLL')) {
                         await this.load_jscll()
                     } else if (this.search_form.bill_no.startsWith('CGTL')) {
@@ -281,6 +283,51 @@
                                 base_must_qty: d.FBaseMustQty,
                                 base_unit_id: d.FBaseUnitId1,
                                 base_unit_name: d['FBaseUnitId1.FName']
+                            })
+                        }
+                    }
+                    this.scfl = materials
+                } catch (err) { }
+            },
+            // 出库申请单
+            async load_cksqd() {
+                try {
+                    uni.showLoading({ title: 'Loading' })
+                    // 区分仓管员
+                    let options = { FBillNo: this.search_form.bill_no }
+                    if (this.multiuser) {
+                        options.FStockId = store.state.cur_stock.FStockId
+                    } else {
+                        options['FMaterialId.F_PAEZ_Base1'] = store.state.cur_staff.FName
+                    }
+                    let res = await StkOutStockApply.query(options)
+                    uni.hideLoading()
+                    if (res.data.length === 0) {
+                        uni.showToast({ icon: 'none' ,title: '没有相关数据' })
+                        return
+                    }
+                    let materials = []
+                    for (let d of res.data) {
+                        let material = materials.find(m => m.material_id === d.FMaterialId)
+                        if (material) {
+                            material.must_qty += d.FQty
+                            material.base_must_qty += d.FBaseQty
+                        } else {
+                            materials.push({
+                                material_id: d.FMaterialId,
+                                material_no: d['FMaterialId.FNumber'],
+                                material_name: d['FMaterialId.FName'],
+                                material_spec: d['FMaterialId.FSpecification'],
+                                storekeeper: d['FMaterialId.F_PAEZ_Base1'],
+                                stock_id: d.FStockId,
+                                stock_name: d['FStockId.FName'],
+                                prd_line: d['FDeptId.FName'],
+                                must_qty: d.FQty,
+                                unit_id: d.FUnitId,
+                                unit_name: d['FUnitId.FName'],
+                                base_must_qty: d.FBaseQty,
+                                base_unit_id: d.FBaseUnitId,
+                                base_unit_name: d['FBaseUnitId.FName']
                             })
                         }
                     }

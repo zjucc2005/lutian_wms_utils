@@ -145,7 +145,7 @@
             this.load_invs()
             this.refresh_interval = setInterval(() => {
                 this.load_invs()
-            }, 30000) // 设定刷新计时器
+            }, 120000) // 设定刷新计时器
             this.timer.interval = this.set_timer()
         },
         computed: {

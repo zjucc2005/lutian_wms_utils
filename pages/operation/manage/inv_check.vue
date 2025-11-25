@@ -7,6 +7,7 @@
             $store.state.cur_stock.FName
         ].join(' / ')"
         class="above-uni-goods-nav"
+        @click="$logger.info('>>>', $data)"
         >
         <uni-table ref="table" class="table-sm" border stripe>
             <uni-tr>
@@ -141,7 +142,7 @@
                         this.invs = res
                         this._init_check_invs()
                     })
-                    StkInventory.query({ FStockId: this.$store.state.cur_stock.FStockId }, { order: 'FMaterialId.FNumber ASC' })
+                    // StkInventory.query({ FStockId: this.$store.state.cur_stock.FStockId }, { order: 'FMaterialId.FNumber ASC' })
                 }
             })
         },
@@ -338,8 +339,8 @@
                 while (i < stk_inv_res.data.length || j < this.invs.length) {
                     let stk_inv = stk_inv_res.data[i]
                     let inv = this.invs[j]
-                    if (!inv || (stk_inv && stk_inv.FMaterialId <= inv.FMaterialId)) {
-                        let inv_group = inv_groups.find(x => x.material_id == stk_inv.FMaterialId)
+                    if (!inv || (stk_inv && stk_inv['FMaterialId.FNumber'] <= inv['FMaterialId.FNumber'])) {
+                        let inv_group = inv_groups.find(x => x.material_no == stk_inv['FMaterialId.FNumber'])
                         if (inv_group) {
                             inv_group.stk_qty += stk_inv.FBaseQty
                         } else {
@@ -356,7 +357,7 @@
                             inv_groups.push(inv_group)
                         }
                         i += 1
-                        if (inv_group.material_id == inv?.FMaterialId) {
+                        if (inv_group.material_no == inv?.['FMaterialId.FNumber']) {
                             inv_group.qty += inv.FQty
                             if (inv_group.loc_nos[inv['FStockLocId.FNumber']]) {
                                 inv_group.loc_nos[inv['FStockLocId.FNumber']] += inv.FQty
@@ -370,7 +371,7 @@
                             j += 1
                         }
                     } else {
-                        let inv_group = inv_groups.find(x => x.material_id == inv.FMaterialId)
+                        let inv_group = inv_groups.find(x => x.material_no == inv['FMaterialId.FNumber'])
                         if (inv_group) {
                             inv_group.qty += inv.FQty
                             if (inv_group.loc_nos[inv['FStockLocId.FNumber']]) {
@@ -400,7 +401,7 @@
                     }
                 }
                 uni.hideLoading()
-                console.log('inv_groups:', inv_groups)
+                // console.log('inv_groups:', inv_groups)
                 return inv_groups
             },
             _init_check_invs() {

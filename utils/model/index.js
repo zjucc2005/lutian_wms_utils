@@ -23,6 +23,7 @@ import PurReceiveBill from './pur_receive_bill'
 import SalDeliveryNotice from './sal_delivery_notice'
 import SpPickMtrl from './sp_pick_mtrl'
 import StkInventory from './stk_inventory'
+import StkOutStockApply from './stk_out_stock_apply'
 import StockLoc from './stock_loc'
 export {
     Enum,
@@ -46,5 +47,6 @@ export {
     SalDeliveryNotice,
     SpPickMtrl,
     StkInventory,
+    StkOutStockApply,
     StockLoc
 }

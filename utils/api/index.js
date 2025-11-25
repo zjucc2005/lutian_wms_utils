@@ -17,9 +17,9 @@ const validate_user = async (options) => {
     let result = { FOperatorGroup: [] }
     // 用户验证
     // let emp_fields = ['FID', 'FName', 'FNumber', 'FForbidStatus', 'FUseOrgId', 'FUseOrgId.FName', 'FWMSPWD']
-    let emp_res = await BdEmpInfo.query({ 
-        FName: options.staff_name, 
-        FNumber: options.staff_no, 
+    let emp_res = await BdEmpInfo.query({
+        FName: options.staff_name,
+        FNumber: options.staff_no,
         FWMSPWD_in: options.password.toUpperCase() === options.staff_no.toUpperCase() ? ['', options.password] : [options.password],
     })
     if (emp_res.data.length > 0) {
