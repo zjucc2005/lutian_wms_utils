@@ -42,6 +42,10 @@ export default {
             lcid: '2052',
             duration: 600 * 1000
         }
+    },
+    update: {
+        endpoint: 'http://upgrade.url/',
+        info: '/upgrade-info.json'
     }
 }
 ```

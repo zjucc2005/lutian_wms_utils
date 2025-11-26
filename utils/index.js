@@ -163,7 +163,7 @@ const string_to_arraybuffer = (s) => {
 
 // 检查PC端更新
 const get_latest_version = async (positive=false) => {
-    return
+    // return
     // #ifdef H5
     if (positive) {
         uni.showModal({
@@ -182,7 +182,7 @@ const get_latest_version = async (positive=false) => {
         url: config.update.endpoint + config.update.info,
         method: 'GET'
     })
-    console.log('get_latest_version', res)
+    // console.log('get_latest_version', res)
     uni.hideLoading()
     if (res.statusCode == 200) {
         store.commit('set_latest_version', res.data.versionCode)
@@ -197,7 +197,7 @@ const get_latest_version = async (positive=false) => {
                         try {
                             download_and_install(config.update.endpoint + res.data.installPack.android)
                         } catch (err) {
-                            console.log('>>> err', err)
+                            // console.log('>>> err', err)
                         }
                     }
                 }
@@ -218,43 +218,32 @@ const get_latest_version = async (positive=false) => {
 
 const download_and_install = (url) => {
     uni.downloadFile({
-        url: url,
+        url,
         success: (download_res) => {
-            console.log('downloadFile succ:', download_res)
+            // console.log('downloadFile succ:', download_res)
             if (download_res.statusCode === 200) {
                 uni.saveFile({
                     tempFilePath: download_res.tempFilePath,
                     success: (save_res) => {
-                        console.log('save_res', save_res)
-                        plus.runtime.install({
-                            path: save_res.savedFilePath,
-                            success: (res) => {
-                                console.log('install succ:', res)
+                        // console.log('save_res', save_res)
+                        plus.runtime.install(
+                            save_res.savedFilePath,
+                            {
+                                force: false
                             },
-                            fail: (err) => {
-                                console.log('install fail:', err)
+                            (install_res) => {
+                                // console.log('install succ:', install_res)
+                                // uni.removeSavedFile({ filePath: save_res.savedFilePath })  // 移除安装包
+                            },
+                            (install_err) => {
+                                // console.log('install fail:', install_err)
                             }
-                        })
+                        )
                     }
                 })
             }
         }
     })
-    
-    // plus.downloader.createDownload(url, {
-    //     method: 'GET'
-    // }, (task, status) => {
-    //     console.log('task', task)
-    //     console.log('status', status)
-    //     if (status == 200) {
-    //         // plus.runtime.install()
-    //     } else {
-    //         uni.showToast({
-    //             icon: 'none',
-    //             title: '下载失败'
-    //         })
-    //     }
-    // })
 }
 
 export {
