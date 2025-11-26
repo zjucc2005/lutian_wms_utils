@@ -1,8 +1,8 @@
 {
   "name": "lutian_wms_utils",
-  "version": "1.5.8",
-  "versionCode": 158,
-  "versionNote": "v1.5.8更新内容\n详见《我-历次更新说明》；",
+  "version": "1.5.9",
+  "versionCode": 159,
+  "versionNote": "更新内容\n详见《我-历次更新说明》；",
   "installPack": {
     "h5": "",
     "android": ""
