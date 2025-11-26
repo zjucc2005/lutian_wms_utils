@@ -83,7 +83,6 @@
 </template>
 
 <script>
-    // import checkUpdate from '@/uni_modules/uni-upgrade-center-app/utils/check-update'
     import store from '@/store'
     import { play_audio_prompt, get_latest_version } from '@/utils'
     import { validate_user, get_bd_stocks } from '@/utils/api'
@@ -165,9 +164,6 @@
         },
         onReady() {
             get_latest_version()
-            // ifdef APP-PLUS
-            // checkUpdate()
-            // endif
         },
         mounted() {
             this.load_stocks()

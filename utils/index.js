@@ -1,4 +1,5 @@
 import store from '@/store'
+import config from '@/config'
 import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
 
 /**
@@ -162,32 +163,42 @@ const string_to_arraybuffer = (s) => {
 
 // 检查PC端更新
 const get_latest_version = async (positive=false) => {
-    // uni.showLoading({ title: '检查更新' })
+    return
+    // #ifdef H5
+    if (positive) {
+        uni.showModal({
+            title: '检查更新',
+            content: '已经是最新版本',
+            showCancel: false
+        })
+    }
+    return
+    // #endif
+    
+    // #ifdef APP-PLUS
+    uni.showLoading({ title: '检查更新', mask: true })
     let res = await uni.request({
-        url: 'https://zjucc2005.github.io/lutian_wms_utils/package.json',
+        // url: 'https://zjucc2005.github.io/lutian_wms_utils/package.json',
+        url: config.update.endpoint + config.update.info,
         method: 'GET'
     })
-    // console.log('get_latest_version', res)
-    // uni.hideLoading()
+    console.log('get_latest_version', res)
+    uni.hideLoading()
     if (res.statusCode == 200) {
         store.commit('set_latest_version', res.data.versionCode)
-        // ifdef H5
         if (res.data.versionCode > store.state.system_info.appVersionCode) {
             uni.showModal({
                 title: '发现新版本',
                 content: res.data.versionNote,
-                confirmText: '前往下载',
+                confirmText: '下载并安装',
                 success: (e) => {
                     if (e.cancel) return
                     if (e.confirm) {
-                        // #ifdef H5
-                        window.open(res.data.installPack.h5, '_blank') // 跳转至外部下载页面
-                        // #endif
-                        // #ifdef APP-PLUS
-                        uni.navigateTo({
-                            url: `/pages/my/open_url?url=${res.data.installPack.android}`
-                        })
-                        // #endif
+                        try {
+                            download_and_install(config.update.endpoint + res.data.installPack.android)
+                        } catch (err) {
+                            console.log('>>> err', err)
+                        }
                     }
                 }
             })
@@ -201,8 +212,49 @@ const get_latest_version = async (positive=false) => {
                 })
             }
         }
-        // endif
     }
+    // #endif
+}
+
+const download_and_install = (url) => {
+    uni.downloadFile({
+        url: url,
+        success: (download_res) => {
+            console.log('downloadFile succ:', download_res)
+            if (download_res.statusCode === 200) {
+                uni.saveFile({
+                    tempFilePath: download_res.tempFilePath,
+                    success: (save_res) => {
+                        console.log('save_res', save_res)
+                        plus.runtime.install({
+                            path: save_res.savedFilePath,
+                            success: (res) => {
+                                console.log('install succ:', res)
+                            },
+                            fail: (err) => {
+                                console.log('install fail:', err)
+                            }
+                        })
+                    }
+                })
+            }
+        }
+    })
+    
+    // plus.downloader.createDownload(url, {
+    //     method: 'GET'
+    // }, (task, status) => {
+    //     console.log('task', task)
+    //     console.log('status', status)
+    //     if (status == 200) {
+    //         // plus.runtime.install()
+    //     } else {
+    //         uni.showToast({
+    //             icon: 'none',
+    //             title: '下载失败'
+    //         })
+    //     }
+    // })
 }
 
 export {
