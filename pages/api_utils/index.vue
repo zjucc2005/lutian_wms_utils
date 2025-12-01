@@ -48,6 +48,7 @@
             <uni-list>
                 <uni-list-item title="store.state" clickable showArrow @click="goDetailPage('store', 'store')"></uni-list-item>
                 <uni-list-item title="getSystemInfo" clickable showArrow @click="goDetailPage('store', 'get_system_info')"></uni-list-item>
+                <uni-list-item title="防连点，防抖" clickable showArrow @click="debounce"></uni-list-item>
                 <uni-list-item title="Chart" clickable @click="goDetailPage('store', 'chart')"></uni-list-item>
                 <uni-list-item title="scanCode(安卓原生插件)" clickable @click="scanCode"></uni-list-item>
                 <uni-list-item title="share(微信开放平台APPID)" clickable @click="share"></uni-list-item>
@@ -107,6 +108,13 @@
             goDetailPage(path1, path2) {
                 const url = `/pages/api_utils/${path1}/${path2}`
                 uni.navigateTo({ url: url })
+            },
+            debounce() {
+                uni.showToast({
+                    title: '防抖' + Date.now(),
+                    mask: true,
+                    duration: 2000
+                })
             },
             scanCode() {
                 // #ifdef APP-PLUS
@@ -182,6 +190,24 @@
                 })
             },
             async call_test_api() {
+                // model.BdMaterial.update(
+                //     3118698, 
+                //     {
+                //         FSpecification: 'PLM规格型号/组装，测试1128-01',
+                //         FDescription: 'FDescription 1128-01',
+                //         F_PAEZ_Text: '',
+                //         F_PAEZ_MulLangText: '',
+                //         F_PLM_CREATOR: '钱海琴',
+                //         F_PLM_MODIFIER: '钱海琴',
+                //         SubHeadEntity: {
+                //             FErpClsID: '1',
+                //             FBaseUnitId: {
+                //                 FNumber: 'Pcs'
+                //             },
+                //             FNETWEIGHT: 0
+                //         }
+                //     }
+                // )
                 // model.StkOutStockApply.view('CKSQD037464')
                 // model.PrdPpbom.view('PPBOM00867816')
                 // model.PrdIssueMtrNotice.query({ FBillNo: 'SCFLTZD32739' })

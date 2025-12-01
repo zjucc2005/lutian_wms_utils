@@ -188,9 +188,9 @@ const get_latest_version = async (positive=false) => {
         store.commit('set_latest_version', res.data.versionCode)
         if (res.data.versionCode > store.state.system_info.appVersionCode) {
             uni.showModal({
-                title: '发现新版本',
+                title: `发现新版本v${res.data.version}`,
                 content: res.data.versionNote,
-                confirmText: '下载并安装',
+                confirmText: '立即下载更新',
                 success: (e) => {
                     if (e.cancel) return
                     if (e.confirm) {

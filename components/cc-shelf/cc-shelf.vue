@@ -575,7 +575,12 @@
             .qty {
                 width: 100%;
                 color: #fff;
+                // #ifdef H5
                 font-size: $uni-font-size-base;
+                // #endif
+                // #ifndef H5
+                font-size: $uni-font-size-sm;
+                // #endif
                 font-weight: bold;
                 text-align: right;
             }

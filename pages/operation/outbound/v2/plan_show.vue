@@ -340,9 +340,9 @@
                         }
                         await this.load_inv_plans()
                         uni.hideLoading()
-                        uni.showToast({ title: '操作成功' })
+                        uni.showToast({ title: '操作成功', mask: true })
                     } else {
-                        uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
+                        uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message, mask: true })
                     }
                 } else {
                     uni.showToast({ icon: 'none', title: '未选择任何条目' })
@@ -358,7 +358,7 @@
                             // const eventChannel = this.getOpenerEventChannel()
                             // eventChannel.emit('reloadInvPlans', { reload: true })
                         } else {
-                            uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
+                            uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message, mask: true })
                         }
                     })
                 } else {

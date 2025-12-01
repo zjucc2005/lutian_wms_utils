@@ -300,13 +300,13 @@
                 text-align: left;
                 padding-left: 2px;
             }
-            .qty {
-                width: 100%;
-                color: #fff;
-                font-size: $uni-font-size-base;
-                font-weight: bold;
-                text-align: right;
-            }
+            // .qty {
+            //     width: 100%;
+            //     color: #fff;
+            //     font-size: $uni-font-size-base;
+            //     font-weight: bold;
+            //     text-align: right;
+            // }
             .pallet_qty {
                 position: absolute;
                 font-size: $uni-font-size-base;

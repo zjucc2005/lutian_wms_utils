@@ -369,7 +369,7 @@
                     play_audio_prompt('success')
                 } else {
                     uni.hideLoading()
-                    uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
+                    uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message, mask: true })
                 }
             },
             async submit_submit() {
@@ -387,7 +387,7 @@
                         this.load_inv_plans()
                     } else {
                         uni.hideLoading()
-                        uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message })
+                        uni.showToast({ icon: 'none', title: res.data.Result.ResponseStatus.Errors[0]?.Message, mask: true })
                     }
                 })
             },
