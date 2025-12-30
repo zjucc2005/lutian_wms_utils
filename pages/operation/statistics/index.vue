@@ -20,8 +20,12 @@
                 :show-extra-icon="true"
                 :extra-icon="{ type: 'pyq', size: '24', color: '#007bff' }"
                 @click="link_to('/pages/operation/statistics/dashboard')" clickable
-                showArrow>
-            </uni-list-item>
+                showArrow />
+            <!-- <uni-list-item title="监控看板-原料仓库"
+                :show-extra-icon="true"
+                :extra-icon="{ type: 'eye-filled', size: '24', color: '#007bff' }"
+                @click="link_to('/pages/operation/statistics/monitor_wl')" clickable
+                showArrow /> -->
 <!--            <uni-list-item title="库存周期统计"
                 :show-extra-icon="true"
                 :extra-icon="{ type: 'navigate', size: '24', color: '#4cd964' }"

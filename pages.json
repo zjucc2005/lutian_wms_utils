@@ -97,6 +97,7 @@
         { "path": "pages/operation/statistics/move_plan_record", "style": { "navigationBarTitleText": "库存调整统计" } },
         { "path": "pages/operation/statistics/inventory_daily",  "style": { "navigationBarTitleText": "库存量统计" } },
         { "path": "pages/operation/statistics/dashboard",        "style": { "navigationBarTitleText": "仓库看板", "navigationStyle": "custom" } },
+        { "path": "pages/operation/statistics/monitor_wl",       "style": { "navigationBarTitleText": "监控看板-原料仓库", "navigationStyle": "custom" } },
         // 列表管理
         { "path": "pages/operation/list/index",     "style":  { "navigationBarTitleText": "列表" } },
         { "path": "pages/operation/list/inv_plans", "style": { "navigationBarTitleText": "列表 - 库存变更计划", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },

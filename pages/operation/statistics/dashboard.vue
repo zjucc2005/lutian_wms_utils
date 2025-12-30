@@ -1,25 +1,6 @@
 <template>
     <view class="bg">
         <uni-row :gutter="10">
-            <!-- <uni-col :span="21" class="scroll-list1" :style="{ animationDuration: 120 / scroll_speed + 's' }">
-                <uni-table>
-                    <template v-for="dup in 2" :key="dup">
-                        <template v-for="(shelf, si) in table_shelves" :key="si">
-                            <uni-tr v-for="(row, i) in shelf.grids" :key="i">
-                                <uni-td v-if="i === 0" :rowspan="shelf.grids.length" class="cc-shelf-name" align="center" width="60">
-                                    {{ shelf.name.split('-')[1] }}
-                                </uni-td>
-                                <uni-td v-for="(grid, j) in shelf.grids[shelf.grids.length-i-1]" :key="j" :class="['cc-shelf-grid', grid?.style || 'none']" align="center" width="20">
-                                    <view v-if="grid">
-                                        {{ grid.name }}
-                                    </view>
-                                    <view v-else>ᅠ</view>
-                                </uni-td>
-                            </uni-tr>
-                        </template>
-                    </template>
-                </uni-table>
-            </uni-col> -->
             <uni-col v-if="table_shelves.length" :span="21" class="scroll-list" :style="{ animationDuration: 120 / scroll_speed + 's' }">
                 <template v-for="dup in 2" :key="dup">
                     <uni-card v-for="(shelf, si) in table_shelves" :key="si" margin="5px" padding="10px 0">
@@ -302,17 +283,6 @@
         background-color: #1D2B56;
         background: url('@/static/image/dashboard-bg.jpg') no-repeat;
         background-size: cover;
-        .uni-table {
-            background: none !important;
-        }
-        .uni-table-tr:hover {
-            background: none !important;
-        }
-        .uni-table-th, .uni-table-td {
-            color: #fff;
-            padding: 2px 1px;
-            // white-space: nowrap;
-        }
         .uni-card {
             background: rgba(21,45,103,.4);
             border-color: rgba(103,144,255,.2);
@@ -322,11 +292,6 @@
                 margin: 5px 10px;
             }
         }        
-    }
-    .cc-shelf-name {
-        border: 1px #EBEEF580 solid;
-        padding: 8px;
-        font-size: 24px;
     }
     .cc-shelf-grid {
         border: 1px #EBEEF580 solid;

@@ -2,40 +2,39 @@
     <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
         <uni-tr>
             <uni-th align="center" width="160">时间</uni-th>
-            <uni-th align="center" width="80">操作类型</uni-th>
-            <uni-th align="center" width="60">数量</uni-th>
-            <uni-th align="center" width="80">计量单位</uni-th>
             <uni-th align="center" width="160">物料编码</uni-th>
             <uni-th align="center" width="200">物料名称</uni-th>
             <uni-th align="center">规格型号</uni-th>
-            <uni-th align="center" width="80">批次</uni-th>
+            <uni-th align="center" width="80">操作类型</uni-th>
+            <uni-th align="center" width="60">数量</uni-th>
+            <uni-th align="center" width="60">单位</uni-th>
             <uni-th align="center" width="120">库位</uni-th>
+            <uni-th align="center" width="80">批次</uni-th>
+            <uni-th align="center">供应商</uni-th>
             <uni-th align="center">单据编号</uni-th>
             <uni-th align="center" width="80">收货人</uni-th>
             <uni-th align="center">备注</uni-th>
-            <uni-th align="center" width="120">操作员工编号</uni-th>
-            <uni-th align="center" width="80">状态</uni-th>
+            <uni-th align="center" width="80">操作员工</uni-th>
         </uni-tr>
         <uni-tr v-for="(inv_log, index) in inv_logs" :key="index">
             <uni-td>{{ formatDate(inv_log.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</uni-td>
-            <uni-td>
-                <view v-if="['in', 'add'].includes(inv_log.FOpType)" class="text-error">{{ op_type_dict[inv_log.FOpType] }}</view>
-                <view v-if="['out', 'sub'].includes(inv_log.FOpType)" class="text-primary">{{ op_type_dict[inv_log.FOpType] }}</view>
-                <view v-if="['mv_in', 'mv_out'].includes(inv_log.FOpType)">{{ op_type_dict[inv_log.FOpType] }}</view>
-                
-            </uni-td>
-            <uni-td>{{ inv_log['FOpQTY'] }}</uni-td>
-            <uni-td>{{ inv_log['FStockUnitId.FName'] }}</uni-td>
             <uni-td>{{ inv_log['FMaterialId.FNumber'] }}</uni-td>
             <uni-td>{{ inv_log['FMaterialId.FName'] }}</uni-td>
             <uni-td>{{ inv_log['FMaterialId.FSpecification'] }}</uni-td>
-            <uni-td>{{ inv_log.FBatchNo }}</uni-td>
+            <uni-td align="center">
+                <view v-if="['in', 'add'].includes(inv_log.FOpType)" class="text-error">{{ op_type_dict[inv_log.FOpType] }}</view>
+                <view v-if="['out', 'sub'].includes(inv_log.FOpType)" class="text-primary">{{ op_type_dict[inv_log.FOpType] }}</view>
+                <view v-if="['mv_in', 'mv_out'].includes(inv_log.FOpType)">{{ op_type_dict[inv_log.FOpType] }}</view>
+            </uni-td>
+            <uni-td>{{ inv_log['FOpQTY'] }}</uni-td>
+            <uni-td>{{ inv_log['FStockUnitId.FName'] }}</uni-td>
             <uni-td>{{ inv_log['FStockLocId.FNumber'] }}</uni-td>
+            <uni-td>{{ inv_log.FBatchNo }}</uni-td>
+            <uni-td>{{ inv_log['FSupplierId.FName'] }}</uni-td>
             <uni-td>{{ inv_log.FBillNo }}</uni-td>
             <uni-td>{{ inv_log.FReceiver }}</uni-td>
             <uni-td>{{ inv_log.FRemark }}</uni-td>
             <uni-td>{{ inv_log.FOpStaffNo }}</uni-td>
-            <uni-td><text class="text-primary">{{ $store.state.document_status_dict[inv_log.FDocumentStatu] }}</text></uni-td>
         </uni-tr>
     </uni-table>
     
@@ -64,6 +63,7 @@
                             </template>
                             <text class="uni-ml-5">批次：{{ inv_log.FBatchNo }}</text>
                         </view>
+                        <view v-if="inv_log['FSupplierId.FName']">供应商：{{ inv_log['FSupplierId.FName'] }}</view>
                         <view v-if="inv_log.FBillNo?.trim()">单据：{{ inv_log.FBillNo }}</view>
                         <view v-if="inv_log.FReceiver?.trim()">收货人：{{ inv_log.FReceiver }}</view>
                         <view v-if="inv_log.FRemark?.trim()">备注：{{ inv_log.FRemark }}</view>
