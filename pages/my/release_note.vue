@@ -13,6 +13,8 @@
         data() {
             return {
                 notes: [
+                    { ver: '1.6.2', timestamp: '2026-02-06',
+                      content: ['1.库存总览开放浏览权限；']},
                     { ver: '1.5.9', timestamp: '2025-11-25',
                       content: ['1.[原料仓]增加适配出库申请单出库；']},
                     { ver: '1.5.6', timestamp: '2025-11-18',

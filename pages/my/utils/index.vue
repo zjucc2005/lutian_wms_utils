@@ -14,6 +14,13 @@
             clickable
             show-arrow
             />
+        <uni-list-item title="script: BOM父级物料字段补充"
+            :show-extra-icon="true"
+            :extra-icon="{ color: '#007bff', size: '24', type: 'link' }"
+            @click="link_to('/pages/my/utils/bom_add_p_material')"
+            clickable
+            show-arrow
+            />
     </uni-list>
 </template>
 

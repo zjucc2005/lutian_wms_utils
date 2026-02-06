@@ -51,7 +51,7 @@
                 <uni-td align="center">{{ obj.qty }}</uni-td>
                 <uni-td align="center">
                     <uni-tag text="库存明细" type="primary" inverted @click="link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}&m=0`)"/>
-                    <uni-tag text="库存调整" type="primary" @click="link_to(`/pages/operation/move/v2/plan_new?material_no=${obj.material_no}`)" class="uni-ml-2"/>
+                    <uni-tag text="库存调整" type="primary" @click="inv_modify(obj.material_no)" class="uni-ml-2"/>
                     <uni-tag text="库存日志" type="primary" inverted @click="link_to(`/pages/operation/list/inv_logs?material_no=${obj.material_no}`)" class="uni-ml-2"/>
                 </uni-td>
             </uni-tr>
@@ -169,11 +169,18 @@
                     itemList: ['库存明细', '库存调整', '库存日志', '物料详情'],
                     success: (e) => {
                         if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}&m=0`)
-                        if (e.tapIndex === 1) link_to(`/pages/operation/move/v2/plan_new?material_no=${obj.material_no}`)
+                        if (e.tapIndex === 1) this.inv_modify(obj.material_no)
                         if (e.tapIndex === 2) link_to(`/pages/operation/list/inv_logs?material_no=${obj.material_no}`)
                         if (e.tapIndex === 3) link_to(`/pages/operation/material/show?id=${obj.material_id}`)
                     }
                 })
+            },
+            inv_modify(material_no) {
+                if (store.state.role.includes('admin')) {
+                    link_to(`/pages/operation/move/v2/plan_new?material_no=${obj.material_no}`)
+                } else {
+                    uni.showToast({ icon: 'error', title: '无权限' })
+                }
             },
             inv_map() {
                 uni.navigateTo({
@@ -185,6 +192,7 @@
                 })
             },
             more() {
+                if (!store.state.role.includes('admin')) return // 需要有仓库管理员权限
                 uni.showActionSheet({
                     itemList: ['库存盘点'],
                     success: (e) => {
@@ -223,10 +231,25 @@
             inv_groups_filtered() {
                 let no = this.search_form.no.trim()
                 if (!no) return this.inv_groups
+                let kws = no.split('+')
+                if (kws.length > 2) {
+                    uni.showToast({ icon: 'error', title: '最多支持2个关键词' })
+                    return
+                }
                 return this.inv_groups.filter(inv_group => {
-                    return inv_group.material_no.includes(no) ||
-                    inv_group.material_name.toUpperCase().includes(no.toUpperCase()) ||
-                    inv_group.material_spec.toUpperCase().includes(no.toUpperCase())
+                    for (let kw of kws) {
+                        if (inv_group.material_no.includes(kw) ||
+                        inv_group.material_name.toUpperCase().includes(kw.toUpperCase()) ||
+                        inv_group.material_spec.toUpperCase().includes(kw.toUpperCase())) {
+                            continue
+                        } else {
+                            return false
+                        }
+                    }
+                    // inv_group.material_no.includes(no) ||
+                    // inv_group.material_name.toUpperCase().includes(no.toUpperCase()) ||
+                    // inv_group.material_spec.toUpperCase().includes(no.toUpperCase())
+                    return true
                 })
             },
             set_inv_groups(data) {

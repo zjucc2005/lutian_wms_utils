@@ -88,7 +88,7 @@
                         action: () => { this.inv_search() }
                     },
                     {
-                        name: '库存总览', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock.png',
+                        name: '库存总览', permission: ['default', 'wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock.png',
                         action: () => { link_to('/pages/operation/manage/invs') }
                     },
                     {

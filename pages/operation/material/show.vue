@@ -214,7 +214,7 @@
                 goods_nav: {
                     options: [
                         { icon: 'image', text: '上传图片'},
-                        // { icon: 'search', text: 'BOM' }
+                        { icon: 'search', text: 'BOM' }
                     ],
                     button_group: [
                         { text: '打印模板', color: '#fff', backgroundColor: store.state.goods_nav_color.grey }
@@ -238,7 +238,7 @@
                 return (store.state.cur_stock.FUseOrgId && store.state.cur_stock.FUseOrgId === 1 && ['wh_admin', 'nrj_admin'].includes(store.state.role))
             },
             is_storekeeper() {
-                return store.state.cur_staff.FName === this.bd_material.F_PAEZ_Base1.Name[0]?.Value
+                return store.state.cur_staff.FName === this.bd_material.F_PAEZ_Base1?.Name[0]?.Value
             }
         },
         methods: {
