@@ -4,7 +4,7 @@
  * @return { String }
  */
 const get_system_role = (operator_group=[]) => {
-    // return 'wh_admin' // 开发调试
+    return 'nrj_admin' // 开发调试
     // == wh_admin ==
     let wh_admin_list = ['000'] // 绿田库存管理组，成品组
     for (let item of wh_admin_list) {

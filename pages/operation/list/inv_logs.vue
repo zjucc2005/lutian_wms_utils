@@ -74,8 +74,8 @@
             </template>
             <template #footer>
                 <view class="uni-list-item__foot">
-                    <view v-if="['in', 'add'].includes(inv_log.FOpType)" class="text-error">{{ op_type_dict[inv_log.FOpType] }}</view>
-                    <view v-if="['out', 'sub'].includes(inv_log.FOpType)" class="text-primary">{{ op_type_dict[inv_log.FOpType] }}</view>
+                    <view v-if="['in', 'add', 'out_cl'].includes(inv_log.FOpType)" class="text-error">{{ op_type_dict[inv_log.FOpType] }}</view>
+                    <view v-if="['out', 'sub', 'in_cl'].includes(inv_log.FOpType)" class="text-primary">{{ op_type_dict[inv_log.FOpType] }}</view>
                     <view v-if="['mv_in', 'mv_out'].includes(inv_log.FOpType)">{{ op_type_dict[inv_log.FOpType] }}</view>
                     <view>{{ inv_log['FOpQTY'] }} {{ inv_log['FStockUnitId.FName'] }}</view>
                     <view class="text-primary">{{ $store.state.document_status_dict[inv_log.FDocumentStatu] }}</view>

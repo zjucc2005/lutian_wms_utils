@@ -1,7 +1,7 @@
 <template>
     <view class="container">
         <view class="logo-wrapper">
-            <image src="/static/logo-wms.png"></image>
+            <image src="/static/image/logo.png"></image>
             <view>绿田WMS测试版 {{ 'v' + $store.state.system_info.appVersion }}
                 <uni-badge v-if="$store.state.latest_version > $store.state.system_info.appVersionCode"
                     size="small" text="NEW" type="error" @click="get_latest_version"></uni-badge>
@@ -260,8 +260,8 @@
         text-align: center;
         padding: 100px 0 20px 0;
         image {
-            width: 80px;
-            height: 80px;
+            width: 180px;
+            height: 44px;
         }
         view {
             font-size: $uni-font-size-sm;

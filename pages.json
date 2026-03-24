@@ -17,7 +17,7 @@
         //     }
         // },
         // 仓库流程 VERSION 1
-        { "path": "pages/operation/inbound/v1/index",     "style": { "navigationBarTitleText": "入库" } },
+        { "path": "pages/operation/inbound/v1/index",     "style": { "navigationBarTitleText": "入库扫码" } },
         { "path": "pages/operation/inbound/v1/task",      "style": { "navigationBarTitleText": "入库 - 详情" } },
         { "path": "pages/operation/inbound/v1/mount",     "style": { "navigationBarTitleText": "入库 - 扫描上架" } },
         { "path": "pages/operation/inbound/v1/logs",      "style": { "navigationBarTitleText": "入库 - 操作日志" } },

@@ -36,9 +36,9 @@ class InvLog {
     
     static FOpTypeEnum = {
         in: '入库',           // +
-        // in_cl: '入库-取消',   // -
+        in_cl: '入库回退',   // -
         out: '出库',          // -
-        // out_cl: '出库-取消',  // +
+        out_cl: '出库回退',  // +
         mv_in: '移库上架',    // +
         mv_out: '移库下架',   // -
         add: '增加', // +

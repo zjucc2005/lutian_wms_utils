@@ -190,6 +190,7 @@
                 })
             },
             async call_test_api() {
+                K3CloudApi.view('QM_InspectBill', { Number: 'IQC000001' })
                 // model.BdMaterial.update(
                 //     3118698, 
                 //     {

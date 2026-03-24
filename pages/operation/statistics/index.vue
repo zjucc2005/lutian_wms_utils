@@ -16,7 +16,7 @@
                 :extra-icon="{ type: 'calendar', size: '24', color: '#007bff' }"
                 @click="link_to('/pages/operation/statistics/inventory_daily')" clickable
                 showArrow />
-            <uni-list-item title="库存看板"
+            <uni-list-item title="库存看板" v-if="$store.state.screen_type === 'h5'"
                 :show-extra-icon="true"
                 :extra-icon="{ type: 'pyq', size: '24', color: '#007bff' }"
                 @click="link_to('/pages/operation/statistics/dashboard')" clickable
