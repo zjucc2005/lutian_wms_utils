@@ -1,6 +1,6 @@
 <template>
     <!-- <uni-notice-bar single scrollable text="查询物料获取库存信息，然后点击库存明细新增计划" /> -->
-    <uni-section title="查询物料" type="square">
+    <uni-section title="查询物料" type="square" v-if="!material.material_id">
         <view class="container">
             <uni-forms ref="form" :model="search_form" labelWidth="70px">
                 <uni-forms-item label="编码" name="material_no">
@@ -27,7 +27,7 @@
         </view>
     </uni-section>
     
-    <uni-section title="物料信息" type="square" v-if="material.material_no">
+    <uni-section title="物料信息" type="square" v-if="material.material_id">
         <uni-list>
             <uni-list-item
                 :title="material.material_no"
@@ -35,7 +35,7 @@
                     `名称：${material.material_name}`, 
                     `规格：${material.material_spec}`
                 ].join('\n')"
-                :thumb="thumbnail_url(material.material_image)"
+                :thumb="material.thumbnail"
                 thumb-size="lg"
             />
         </uni-list>
@@ -177,7 +177,7 @@
                             `名称：${material.FName}`, 
                             `规格：${material.FSpecification}`
                         ].join('\n')"
-                        :thumb="thumbnail_url(material.FImageFileServer)"
+                        :thumb="material.thumbnail || '/static/default_40x40.png'"
                         thumb-size="lg"
                         @click="load_data(material.FNumber)" clickable
                         show-arrow
@@ -381,7 +381,6 @@
                     material_image: ''
                 },
                 search_form: {
-                    no: '',
                     material_no: '',
                     material_name: '',
                     material_spec: '',
@@ -481,14 +480,10 @@
                 ],
                 goods_nav: {
                     options: [
-                        { icon: 'cart', text: '计划', info: 0 }
+                        { icon: 'clear', text: '清空', info: 0 }
                     ],
                     button_group: [
-                        {
-                            text: '扫码查询',
-                            backgroundColor: store.state.goods_nav_color.red,
-                            color: '#fff'
-                        }
+                        { text: '扫码查询', backgroundColor: store.state.goods_nav_color.red, color: '#fff' }
                     ]
                 }
             }
@@ -496,8 +491,16 @@
         onLoad(options) {
             if (options.material_no) {
                 this.search_form.material_no = options.material_no
-                this.search()
+                this.search(true)
             }
+            // #ifdef APP-PLUS
+            if (!this.broadcast_receiver) this.reg_broadcast_receiver()
+            // #endif
+        },
+        onUnload() {
+            // #ifdef APP-PLUS
+            this.unreg_broadcast_receiver()
+            // #endif
         },
         mounted() {
             // if (this.search_form.material_no) this.load_data(this.search_form.material_no)
@@ -508,7 +511,18 @@
                if (e.index === 0) this.submit_delete(inv_plan) // btn:删除
             },
             goods_nav_click(e) {
-                if (e.index === 0) this.$logger.info('this.$data', this.$data)
+                if (e.index === 0) {
+                    this.search_form = {
+                        material_no: '',
+                        material_name: '',
+                        material_spec: '',
+                        material_category_id: '',
+                        candidates: []
+                    }
+                    this.material = {}
+                    this.invs = []
+                    this.inv_plans = []
+                }
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询
@@ -518,14 +532,17 @@
             },
             scan_code() {
                 scan_code().then(res => {
-                    this.search_form.no = res.result
-                    if (res.result.includes('||')) {
-                        this.search_form.no = res.result.split('||')[1]
-                    }
-                    this.search()
+                    this.handle_scan_code(res.result)
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })
                 })
+            },
+            handle_scan_code(code) {
+                this.search_form.material_no = code
+                if (code.includes('||')) {
+                    this.search_form.material_no = code.split('||')[1]
+                }
+                this.search(true)
             },
             open_move_dialog(inv) {
                 if (inv) {
@@ -556,26 +573,35 @@
                 this.move_form.remark = text
             },
             // 物料模糊匹配
-            async search() {
+            async search(strict) {
+                if (this.search_form.material_no == this.material.material_no) return
                 this._set_material()
                 this.invs = []
                 this.inv_plans = []
                 if (!this.search_form.material_no && !this.search_form.material_name && !this.search_form.material_spec) return
                 let options = {}
                 if (store.state.cur_stock.FUseOrgId) options.FUseOrgId = store.state.cur_stock.FUseOrgId
-                if (this.search_form.material_no) options.FNumber_lk = this.search_form.material_no
+                if (this.search_form.material_no) {
+                    if (strict == true) {
+                        options.FNumber = this.search_form.material_no
+                    } else {
+                        options.FNumber_lk = this.search_form.material_no
+                    }
+                } 
                 if (this.search_form.material_name) options.FName_lk = this.search_form.material_name
                 if (this.search_form.material_spec) options.FSpecification_lk = this.search_form.material_spec
                 if (this.search_form.material_category_id) options.FCategoryId = this.search_form.material_category_id
                 let meta = { per_page: 50, order: 'FNumber ASC' }
                 uni.showLoading({ title: 'Loading', mask: true })
-                BdMaterial.query(options, meta).then(res => {
-                    uni.hideLoading()
-                    this.search_form.candidates = res.data
-                    if (res.data.length > 1) this.$refs.search_drawer.open()
-                    if (res.data.length === 1) this.load_data(res.data[0]?.FNumber)
-                    if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
-                })
+                let res = await BdMaterial.query(options, meta)
+                uni.hideLoading()
+                this.search_form.candidates = res.data
+                if (res.data.length > 1) {
+                    this.$refs.search_drawer.open()
+                    this.get_thumbnail()
+                } 
+                if (res.data.length === 1) this.load_data(res.data[0]?.FNumber)
+                if (res.data.length < 1) uni.showToast({ icon: 'none', title: '无匹配结果' })
             },
             async confirm_move_dialog() {
                 try {
@@ -650,7 +676,7 @@
                 this.$refs.search_drawer.close()
                 uni.showLoading({ title: 'Loading', mask: true })
                 let bd_material = await this.load_material(material_no)
-                this._set_material(bd_material)
+                await this._set_material(bd_material)
                 if (bd_material) {
                     await this.load_invs(material_no)
                     await this.load_inv_plans(material_no)
@@ -735,21 +761,21 @@
                     && inv_plan['FDestStockLocId.FNumber'] == this.move_form.dest_loc_no
                 })
             },
-            _set_material(bd_material) {
+            async _set_material(bd_material) {
                 if (bd_material) {
                     this.material.material_id = bd_material.FMaterialId
                     this.material.material_no = bd_material.FNumber
                     this.material.material_name = bd_material.FName
                     this.material.material_spec = bd_material.FSpecification
                     this.material.base_unit_name = bd_material['FBaseUnitId.FName']
-                    this.material.material_image = bd_material.FImageFileServer
+                    this.material.thumbnail = await K3CloudApi.thumbnail_url(bd_material.FImageFileServer)
                 } else {
                     this.material.material_id = ''
                     this.material.material_no = ''
                     this.material.material_name = ''
                     this.material.material_spec = ''
                     this.material.base_unit_name = 'Pcs'
-                    this.material.material_image = ''
+                    this.material.thumbnail = ''
                 }
             },
             _sum_planned_qty() {
@@ -767,9 +793,38 @@
                     })
                 })
             },
-            thumbnail_url(file_id) {
-                return K3CloudApi.thumbnail_url(file_id)
-            }
+            async get_thumbnail() {
+                for (let obj of this.search_form.candidates) {
+                    let res = await K3CloudApi.thumbnail_url(obj.FImageFileServer)
+                    obj.thumbnail = res
+                }
+            },
+            // #ifdef APP-PLUS
+            // Broadcast receiver
+            reg_broadcast_receiver() {
+                let main = plus.android.runtimeMainActivity()
+                let IntentFilter = plus.android.importClass('android.content.IntentFilter')
+                let filter = new IntentFilter()
+                filter.addAction(store.state.android_intent_action)
+                let receiver = plus.android.implements('io.dcloud.feature.internal.reflect.BroadcastReceiver', {
+                    onReceive: (content, intent) => {
+                        plus.android.importClass(intent)
+                        let code = intent.getStringExtra(store.state.android_intent_string_label)
+                        this.$logger.info('>>> broadcast:', code)
+                        play_audio_prompt('laser_scan')
+                        this.handle_scan_code(code)
+                    }
+                })
+                this.broadcast_receiver = receiver
+                main.registerReceiver(this.broadcast_receiver, filter)
+                this.$logger.info('>>> main.registerReceiver:move/v2/plan_new', this.broadcast_receiver)
+            },
+            unreg_broadcast_receiver() {
+                let main = plus.android.runtimeMainActivity()
+                main.unregisterReceiver(this.broadcast_receiver)
+                this.$logger.info('>>> main.unregisterReceiver:move/v2/plan_new', this.broadcast_receiver)
+            },
+            // #endif
         }
     }
 </script>

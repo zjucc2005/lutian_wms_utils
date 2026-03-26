@@ -29,12 +29,19 @@ class PrdPpbom {
      * @return {Hash} Promise
      */
     static query(options={}, meta={}) {
-        const fields = ['FID', 'FBillNo', 'FMoBillNo', 'FMoEntrySeq', 'FSaleOrderNo',
-                        'FMaterialId', 'FMaterialId.FNumber',
+        let fields = ['FID', 'FBillNo', 'FMoBillNo', 'FMoEntrySeq', 'FSaleOrderNo',
+                        'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
                         'FMaterialId2', 'FMaterialId2.FNumber', 'FMaterialId2.FName', 'FMaterialId2.FSpecification', 'FMaterialType', 
                         'FNumerator', 'FDenominator', 'FUnitId2', 'FUnitId2.FName', 'FMustQty', 'FPickedQty', 'FMtoNo', 'FIssueType',
-                        'FOwnerId', 'FOwnerId.FName', 'FStockId', 'FStockId.FName'
+                        'FOwnerId', 'FOwnerId.FName', 'FStockId', 'FStockId.FName', 'FReplaceGroup'
                        ]
+        if (meta.fields) {
+            if (meta.replace_fields) {
+                fields = meta.fields
+            } else {
+                fields = fields.concat(meta.fields)
+            }
+        }
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),

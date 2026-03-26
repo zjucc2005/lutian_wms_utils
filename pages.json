@@ -22,7 +22,7 @@
         { "path": "pages/operation/inbound/v1/mount",     "style": { "navigationBarTitleText": "入库 - 扫描上架" } },
         { "path": "pages/operation/inbound/v1/logs",      "style": { "navigationBarTitleText": "入库 - 操作日志" } },
         { "path": "pages/operation/inbound/v1/easy",      "style": { "navigationBarTitleText": "入库扫码 - 简易" } },
-        { "path": "pages/operation/outbound/v1/index",    "style": { "navigationBarTitleText": "出库" } },
+        { "path": "pages/operation/outbound/v1/index",    "style": { "navigationBarTitleText": "出库扫码" } },
         { "path": "pages/operation/outbound/v1/task",     "style": { "navigationBarTitleText": "出库 - 详情" } },
         { "path": "pages/operation/outbound/v1/allocate", "style": { "navigationBarTitleText": "出库 - 分配预览" } },
         { "path": "pages/operation/outbound/v1/unmount",  "style": { "navigationBarTitleText": "出库 - 扫描下架" } },

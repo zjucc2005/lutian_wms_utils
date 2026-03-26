@@ -1,160 +1,212 @@
 <template>
-    <view v-if="!cur_outbound_task.bill_no">
-        <uni-section title="出库设定" type="line">
-            <view class="container">
-                <uni-forms ref="outbound_task_form" :model="outbound_task_form" :rules="outbound_task_form_rules" labelWidth="80px">
-                    <uni-forms-item label="单据编号" name="bill_no" required>
-                        <uni-easyinput 
-                            v-model="outbound_task_form.bill_no" 
-                            prefixIcon="search"
-                            trim="both"
-                            @change="handle_bill_no_change"
-                            @clear="handle_bill_no_clear"
-                        />
-                    </uni-forms-item>
-                </uni-forms>
-            </view>
-        </uni-section>
-        
-        <uni-section v-if="outbound_task_form.outbound_list?.length" title="出库物料信息" type="line" style="padding-bottom: 60px;">
-            <uni-list>
-                <uni-list-item
-                    v-for="(obj, index) in outbound_task_form.outbound_list"
-                    :key="index"
-                    :title="obj.material_no"
-                    :note="[obj.material_name, obj.material_spec].join('\n')"
-                    :rightText="[obj.base_unit_qty, obj.base_unit_name].join(' ')" />
-            </uni-list>
-        </uni-section>
-        
-        <view class="uni-goods-nav-wrapper">
-            <uni-goods-nav
-                :options="goods_nav.options"
-                :button-group="goods_nav.button_group"
-                @click="goods_nav_click"
-                @buttonClick="goods_nav_button_click"
+    <uni-section title="当前仓库" type="square"
+        :sub-title="[
+            $store.state.cur_stock['FUseOrgId.FName'],
+            $store.state.cur_stock['FGroup.FName'] || '未分组',
+            $store.state.cur_stock.FName
+        ].join(' / ')"
+        sub-title-color="#007aff"
+        @click="$logger.info('>>>', this.$data)"
+        >
+        <view class="searchbar-container">
+            <uni-easyinput
+                v-model="search_form.bill_no" 
+                placeholder="请输入单据编号"
+                prefix-icon="scan"
+                @confirm="handle_search"
+                @clear="handle_search"
+                @icon-click="searchbar_icon_click"
+                primary-color="rgb(238, 238, 238)"
+                :styles="{
+                    color: '#000',
+                    backgroundColor: 'rgb(238, 238, 238)',
+                    borderColor: 'rgb(238, 238, 238)',
+                    height: '60px'
+                }"
             />
         </view>
-    </view>
+    </uni-section>
     
-    <view v-else>
-        <uni-section 
-            title="进行中的出库任务"
-            :sub-title="cur_outbound_task.bill_no"
-            type="line">
+    <uni-section v-if="!ppbom.FID && ppboms.length" title="生产用料清单列表" type="square" sub-title="点击查看子项明细" class="above-uni-goods-nav">
+        <uni-card spacing="0" padding="0">
             <uni-list>
-                <uni-list-item
-                    v-for="(obj, index) in cur_outbound_task.outbound_list"
-                    :key="index"
-                    :title="obj.material_no"
-                    :note="[obj.material_name, obj.material_spec].join('\n')"
-                    :rightText="[obj.base_unit_qty, obj.base_unit_name].join(' ')" />
+                <uni-list-item v-for="(obj, index) in ppboms" :key="index"
+                    :title="obj.FBillNo"
+                    @click="load_ppbom(obj)" clickable 
+                    show-arrow
+                    >
+                    <template #body>
+                        <view class="uni-list-item__body">
+                            <view class="title">
+                                <uni-badge :text="`${obj.FMoEntrySeq}`" type="primary" />
+                                {{ obj.FBillNo }}
+                            </view>
+                            <view class="note">
+                                <view>产品编码：{{ obj['FMaterialId.FNumber'] }}</view>
+                                <view>产品名称：{{ obj['FMaterialId.FName'] }}</view>
+                                <view>规格型号：{{ obj['FMaterialId.FSpecification'] }}</view>
+                            </view>
+                        </view>
+                    </template>
+                    <template #footer>
+                        <view class="uni-list-item__foot">
+                            <view>{{ obj.FQty }} {{ obj['FUnitId.FName'] }}</view>
+                            <!-- <view class="text-primary">{{ 'status' }}</view> -->
+                        </view>
+                    </template>
+                </uni-list-item>
             </uni-list>
-        </uni-section>
+        </uni-card>
+    </uni-section>
+    
+    <uni-section v-if="ppbom.FID" title="生产用料清单子项明细" type="square" class="above-uni-goods-nav"
+        :sub-title="[
+            `单据：${ppbom.FBillNo} / ${ppbom.FMoBillNo}`,
+            `产品：${ppbom['FMaterialId.FNumber']} / ${ppbom['FMaterialId.FName']}`,
+            `规格：${ppbom['FMaterialId.FSpecification']}`
+        ].join('\n')"
+        sub-title-color="#007aff"
+        >
+        <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
+            <uni-tr>
+                <uni-th align="center" width="60">项次</uni-th>
+                <uni-th align="center">物料编码</uni-th>
+                <uni-th align="center">物料名称</uni-th>
+                <uni-th align="center">规格型号</uni-th>
+                <uni-th align="center">单位</uni-th>
+                <uni-th align="center">应发数量</uni-th>
+                <uni-th align="center">拆包区数量</uni-th>
+                <uni-th align="center">实发数量</uni-th>
+                <uni-th align="center">仓库</uni-th>
+                <uni-th align="center">仓管员</uni-th>
+            </uni-tr>
+            
+            <uni-tr v-for="(obj, index) in ppbom.entry" :key="index">
+                <uni-td align="center">{{ obj.FReplaceGroup }}</uni-td>
+                <uni-td>{{ obj['FMaterialId2.FNumber'] }}</uni-td>
+                <uni-td>{{ obj['FMaterialId2.FName'] }}</uni-td>
+                <uni-td>{{ obj['FMaterialId2.FSpecification'] }}</uni-td>
+                <uni-td align="center">{{ obj['FUnitId2.FName'] }}</uni-td>
+                <uni-td align="center">{{ obj.FMustQty }}</uni-td>
+                <uni-td align="center">{{ invs_map[obj.FMaterialId2] || 0 }}</uni-td>
+                <uni-td align="center">{{ inv_logs_map[obj.FMaterialId2] }}</uni-td>
+                <uni-td><text :class="[obj.FStockId == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj['FStockId.FName'] }}</text></uni-td>
+                <uni-td>{{ obj['FMaterialId2.F_PAEZ_Base1'] }}</uni-td>
+            </uni-tr>
+        </uni-table>
         
-        <view class="uni-goods-nav-wrapper">
-            <uni-goods-nav 
-                :options="goods_nav.options_2" 
-                :button-group="goods_nav.button_group_2"
-                @click="goods_nav_click_2"
-                @buttonClick="goods_nav_button_click_2"
-            />
-        </view>
+        <uni-list v-else>
+            <uni-list-item v-for="(obj, index) in ppbom.entry" :key="index">
+                <template #body>
+                    <view class="uni-list-item__body">
+                        <view class="title">
+                            <uni-badge :text="`${obj.FReplaceGroup}`" :type="obj['FStockId'] == $store.state.cur_stock.FStockId ? 'primary' : 'info'" />
+                            {{ obj['FMaterialId2.FNumber'] }} / {{ obj['FMaterialId2.FName'] }}
+                        </view>
+                        <view class="note">
+                            <view>规格：{{ obj['FMaterialId2.FSpecification'] }}</view>
+                            <view>仓库：<text :class="[obj['FStockId'] == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj['FStockId.FName'] }}</text></view>
+                            <view>单位：{{ obj['FUnitId2.FName'] }}， 拆包区：{{ invs_map[obj['FMaterialId2']] || 0 }}</view>
+                        </view>
+                    </view>
+                </template>
+                <template #footer>
+                    <view class="uni-list-item__foot">
+                        <view>应发</view>
+                        <view class="text-lg">{{ obj['FMustQty'] }}</view>
+                        <view>实发</view>
+                        <view class="text-lg" :class="[(inv_logs_map[obj['FMaterialId2']] || 0) >= obj['FMustQty'] ? 'text-primary' : '']">{{ inv_logs_map[obj['FMaterialId2']] || 0 }}</view>
+                    </view>
+                </template>
+            </uni-list-item>
+        </uni-list>
+    </uni-section>
+    
+    <view v-if="$store.state.screen_type === 'app-plus'" class="uni-goods-nav-wrapper">
+        <uni-goods-nav
+            :options="goods_nav.options"
+            :button-group="goods_nav.button_group"
+            :fill="$store.state.goods_nav_fill"
+            @click="goods_nav_click"
+            @buttonClick="goods_nav_button_click"
+        />
     </view>
+    <cover-image v-if="is_completed" src="/static/icon/yiwancheng_stamp.png" class="yiwancheng-stamp" />
 </template>
 
 <script>
     import store from '@/store'
-    import K3CloudApi from '@/utils/k3cloudapi'
-    import { OutboundTask } from '@/utils/model'
-    import { play_audio_prompt } from '@/utils'
-    import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+    import { play_audio_prompt, formatDate } from '@/utils'
     import scan_code from '@/utils/scan_code'
+    import { Inv, InvLog, PrdPpbom } from '@/utils/model'
+    
     export default {
         data() {
             return {
-                cur_outbound_task: {},
-                outbound_task_form: {
-                    bill_no: '',
-                    outbound_list: []
+                broadcast_receiver: null,
+                search_form: {
+                    bill_no: '', // 生产订单编号
                 },
-                outbound_task_form_rules: {
-                    bill_no: {
-                        rules: [
-                            { required: true, errorMessage: '单据编号不能为空' },
-                            { minLength: 8, errorMessage: '单据编号不能小于8位' }
-                        ]
-                    }
-                },
+                ppboms: [],
+                ppbom: {},
+                invs: [],          // 拆包区库存
+                invs_map: {},      // 优化库存查询性能
+                inv_logs: [],      // 实发物料
+                inv_logs_map: {},  // 优化实发查询性能
                 goods_nav: {
                     options: [
-                        { icon: 'search', text: '查询' }
+                        { icon: 'clear', text: '清空' }
                     ],
                     button_group: [
-                        {
-                            text: '扫码',
-                            backgroundColor: 'linear-gradient(90deg, #FE6035, #EF1224)',
-                            color: '#fff'
-                        },
-                        {
-                            text: '新建出库任务',
-                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
-                            color: '#fff'
-                        }
-                    ],
-                    options_2: [
-                        { icon: 'bars', text: '详情' }
-                    ],
-                    button_group_2: [
-                        {
-                            text: '结束出库任务',
-                            backgroundColor: 'linear-gradient(90deg, #999, #606266)',
-                            color: '#fff'
-                        },
-                        {
-                            text: '继续出库任务',
-                            backgroundColor: 'linear-gradient(90deg, #1E83FF, #0053B8)',
-                            color: '#fff'
-                        }
+                        { text: '扫描单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' },
+                        { text: '确认出库', backgroundColor: store.state.goods_nav_color.grey, color: '#fff' }
                     ]
                 }
             }
         },
-        onShow() {
-            this.cur_outbound_task = OutboundTask.current() || {} //读取当前出库任务
-            if (this.cur_outbound_task.stock_id && this.cur_outbound_task.stock_id != store.state.cur_stock.FStockId) {
-                uni.showModal({
-                    title: "注意",
-                    content: "本机中有其他仓库的出库任务，不能操作，将终止此出库任务",
-                    showCancel: false,
-                    success: (res) => {
-                        if (res.confirm) this.finish_outbound_task()
+        onLoad() {
+            // #ifdef APP-PLUS
+            if (!this.broadcast_receiver) this.reg_broadcast_receiver()
+            // #endif
+        },
+        onUnload() {
+            // #ifdef APP-PLUS
+            this.unreg_broadcast_receiver()
+            // #endif
+        },
+        mounted() {
+        },
+        computed: {
+            is_completed() {
+                // return true
+                let res = true
+                if (this.ppbom.entry?.length) {
+                    for (let m of this.ppbom.entry) {
+                        if (!this.inv_logs_map[m.FMaterialId2] || this.inv_logs_map[m.FMaterialId2] < m.FMustQty) {
+                            res = false
+                            break
+                        }
                     }
-                })
+                } else {
+                    res = false
+                }
+                return res
             }
         },
         methods: {
-            // >>> component
+            // operations
             goods_nav_click(e) {
-                if (e.index === 0) this.get_outbound_list_by_bill_no() // btn:查询
+                if (e.index === 0) {
+                    this.search_form.bill_no = ''
+                    this.clear_data()
+                }
             },
             goods_nav_button_click(e) {
-                if (e.index === 0) this.scan_code() // btn:扫码
-                if (e.index === 1) this.create_outbound_task() // btn:新建出库任务
+                if (e.index === 0) this.scan_code()       // btn:扫码查询单据
+                if (e.index === 1) this.submit_outbound() // btn:提交出库
             },
-            goods_nav_click_2(e) {
-                if (e.index === 0) uni.navigateTo({ url: '/pages/operation/outbound/v1/task' })
-            },
-            goods_nav_button_click_2(e) {
-                if (e.index === 0) this.if_finish_outbound_task()
-                if (e.index === 1) this.continue_outbound_task()
-            },
-            // >>> action
-            handle_bill_no_change() {
-                this.get_outbound_list_by_bill_no()
-            },
-            handle_bill_no_clear() {
-                this.outbound_task_form.outbound_list = []
+            searchbar_icon_click(e) {
+                if (e == 'prefix') this.scan_code()
             },
             scan_code() {
                 scan_code().then(res => {
@@ -163,77 +215,154 @@
                     uni.showToast({ icon: 'none', title: err })
                 })
             },
-            handle_scan_code(text) {
-                this.outbound_task_form.bill_no = text
-                if (text) this.get_outbound_list_by_bill_no()
+            handle_scan_code(code) {
+                this.search_form.bill_no = code
+                this.handle_search()
             },
-            get_outbound_list_by_bill_no() {
-                const bill_no = this.outbound_task_form.bill_no
-                if (!bill_no) return
-                if (bill_no.startsWith('FHTZD')) {
-                    // 发货通知单
-                    uni.showLoading({ title: 'Loading' })
-                    K3CloudApi.view('SAL_DELIVERYNOTICE', { Number: bill_no }).then(res => {
-                        this.handle_fhtzd_data(res)
-                        uni.hideLoading()
-                    })
+            clear_data() {
+                this.ppboms = []
+                this.ppbom = {}
+                this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
+            },
+            // 搜索
+            async handle_search() {
+                if (this.search_form.bill_no) {
+                    this.clear_data()
+                    await this.load_ppboms()
+                }  
+            },
+            async load_ppboms() {
+                let options = { FMoBillNo: this.search_form.bill_no }
+                let meta = {
+                    fields: ['FID', 'FBillNo', 'FMoBillNo', 'FMoEntrySeq',
+                             'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
+                             'FBOMID.FNumber', 'FQty', 'FUnitId.FName'],
+                    replace_fields: true,
+                    order: 'FMoEntrySeq ASC'
+                }
+                uni.showLoading({ title: 'Loading' })
+                let res = await PrdPpbom.query(options, meta)
+                uni.hideLoading()
+                if (res.data.length) {
+                    if (res.data.length == 1) this.load_ppbom(res.data[0])
+                    this.ppboms = res.data
                 } else {
-                    this.outbound_task_form.outbound_list = []
-                    uni.showToast({ icon: 'none', title: '未找到单据信息' })
+                    this.ppboms = []
+                    uni.showToast({ icon: 'none' ,title: '没有相关数据' })
                 }
             },
-            handle_fhtzd_data(response) { 
-                if (response.data.Result.ResponseStatus.IsSuccess) {
-                    const data = response.data.Result.Result
-                    let outbound_list = []
-                    data.SAL_DELIVERYNOTICEENTRY.forEach(obj => {
-                        outbound_list.push({
-                            material_no: obj.MaterialID.Number,
-                            material_name: obj.MaterialID.Name[0]?.Value,
-                            material_spec: obj.MaterialID.Specification[0]?.Value,
-                            base_unit_qty: obj.BaseUnitQty,
-                            base_unit_name: obj.BaseUnitID.Name[0]?.Value,
-                            base_unit_no: obj.BaseUnitID.Number
-                        })
-                    })
-                    this.outbound_task_form.outbound_list = outbound_list
-                } else {
-                    this.outbound_task_form.outbound_list = []
-                    uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message })
+            async load_ppbom(obj) {
+                let options = { FBillNo: obj.FBillNo, FMustQty_gt: 0 }
+                let meta = {
+                    fields: [ 'FMaterialId2', 'FMaterialId2.FNumber', 'FMaterialId2.FName', 'FMaterialId2.FSpecification', 'FMaterialId2.F_PAEZ_Base1', 'FMaterialType',
+                              'FNumerator', 'FDenominator', 'FUnitId2.FName', 'FMustQty', 'FStockId', 'FStockId.FName', 'FReplaceGroup'],
+                    replace_fields: true,
+                    order: 'FReplaceGroup ASC'
                 }
+                uni.showLoading({ title: 'Loading' })
+                let res = await PrdPpbom.query(options, meta)
+                uni.hideLoading()
+                this.ppbom = { ...obj, entry: res.data }
+                await this.load_invs()
+                await this.load_inv_logs()
+                this.goods_nav.button_group[1].backgroundColor = this.is_completed ? store.state.goods_nav_color.grey : store.state.goods_nav_color.blue
             },
-            create_outbound_task() {
-                this.$refs.outbound_task_form.validate().then(e => {
-                    play_audio_prompt('success')
-                    const options = {
-                        stock_id: store.state.cur_stock.FStockId,
-                        staff_no: store.state.cur_staff.FNumber,
-                        bill_no: this.outbound_task_form.bill_no,
-                        outbound_list: this.outbound_task_form.outbound_list
+            async load_invs() {
+                let res = await Inv.get_all({ FStockId: store.state.cur_stock.FStockId, 'FStockLocId.FName_lk': '拆包区' }, { order: 'FBatchNo ASC' })
+                this.invs = res
+                let invs_map = {}
+                for (let inv of this.invs) {
+                    invs_map[inv.FMaterialId] ||= 0
+                    invs_map[inv.FMaterialId] += inv.FQty
+                }
+                this.invs_map = invs_map
+            },
+            async load_inv_logs() {
+                let res = await InvLog.query({ FBillNo_lk: this.ppbom.FBillNo, FStockId: store.state.cur_stock.FStockId, FOpType: 'out' })
+                this.inv_logs = res.data
+                let inv_logs_map = {}
+                for (let inv_log of this.inv_logs) {
+                    inv_logs_map[inv_log.FMaterialId] ||= 0
+                    inv_logs_map[inv_log.FMaterialId] += inv_log.FOpQTY
+                }
+                this.inv_logs_map = inv_logs_map
+            },
+            async submit_outbound(){
+                // >>> validation
+                if (!this.ppbom.FID) return   // 1. 是否有生产订单数据
+                if (this.is_completed) return // 2. 是否已完成生产订单
+                // 3. 拆包区库存是否有充足
+                let op_cnt = 0
+                for (let m of this.ppbom.entry) {
+                    if (m.FStockId != store.state.cur_stock.FStockId) continue
+                    if (m.FMustQty === 0) continue
+                    if (m.FMustQty > (this.invs_map[m.FMaterialId2] || 0)) {
+                        uni.showModal({ title: '提示', content: `拆包区库存不足\n[${m.FReplaceGroup}]${m['FMaterialId2.FName']}\n应发：${m.FMustQty}\n拆包区：${this.invs_map[m.FMaterialId2] || 0}` })
+                        return
                     }
-                    let outbound_task = new OutboundTask(options)
-                    outbound_task.save()
-                    this.cur_outbound_task = outbound_task // 赋值cur_outbound_task，解决VUE设置空值对象时console报错
-                    uni.navigateTo({ url: '/pages/operation/outbound/v1/allocate' })                    
-                }).catch(err => {})                
+                    op_cnt++
+                }
+                if (op_cnt === 0) {
+                    uni.showModal({ title: '提示', content: `生产用料清单中不含[${store.state.cur_stock.FName}]的物料` })
+                    return
+                }
+                // >>> main
+                uni.showLoading({ title: 'Loading', mask: true })
+                for (let m of this.ppbom.entry) {
+                    uni.showToast({ title: `${m.FReplaceGroup}/${this.ppbom.entry.length}`, mask: true })
+                    if (m.FStockId != store.state.cur_stock.FStockId) continue
+                    if (m.FMustQty === 0) continue
+                    let invs = this.invs.filter(inv => inv.FMaterialId === m.FMaterialId2)
+                    let rest_must_qty = m.FMustQty - (this.inv_logs_map[m.FMaterialId2] || 0) // 剩余应发数量
+                    for (let inv of invs) {
+                        if (rest_must_qty === 0) break // 分配完毕，跳出循环
+                        let op_qty = inv.FQty >=  rest_must_qty ? rest_must_qty : inv.FQty
+                        let inv_log = new InvLog({
+                            FOpType: 'out',
+                            FStockId: store.state.cur_stock.FStockId,
+                            FStockLocNo: inv['FStockLocId.FNumber'],
+                            FMaterialId: inv.FMaterialId,
+                            FOpQTY: op_qty,
+                            FBatchNo: inv.FBatchNo,
+                            FSupplierId: inv.FSupplierId,
+                            FBillNo: `${this.ppbom.FBillNo},${this.ppbom.FMoBillNo}`,
+                            FOpStaffNo: store.state.cur_staff.FNumber
+                        })
+                        await inv_log.save()
+                        rest_must_qty -= op_qty
+                    }
+                }
+                await this.load_invs()
+                await this.load_inv_logs()
+                uni.hideLoading()
+                uni.showToast({ title: '出库成功', mask: true })
             },
-            continue_outbound_task() {
-                play_audio_prompt('success')
-                uni.navigateTo({ url: '/pages/operation/outbound/v1/allocate' })
-            },
-            if_finish_outbound_task() {
-                uni.showActionSheet({
-                    itemList: ['结束出库任务'],
-                    success: (e) => {
-                        if (e.tapIndex === 0) this.finish_outbound_task()
+            // #ifdef APP-PLUS
+            // Broadcast receiver
+            reg_broadcast_receiver() {
+                let main = plus.android.runtimeMainActivity()
+                let IntentFilter = plus.android.importClass('android.content.IntentFilter')
+                let filter = new IntentFilter()
+                filter.addAction(store.state.android_intent_action)
+                let receiver = plus.android.implements('io.dcloud.feature.internal.reflect.BroadcastReceiver', {
+                    onReceive: (content, intent) => {
+                        plus.android.importClass(intent)
+                        let code = intent.getStringExtra(store.state.android_intent_string_label)
+                        this.$logger.info('>>> broadcast:', code)
+                        play_audio_prompt('laser_scan')
+                        this.handle_scan_code(code)
                     }
                 })
+                this.broadcast_receiver = receiver
+                main.registerReceiver(this.broadcast_receiver, filter)
+                this.$logger.info('>>> main.registerReceiver:outbound/v1/index', this.broadcast_receiver)
             },
-            finish_outbound_task() {
-                OutboundTask.destroy_all()
-                this.cur_outbound_task= {}
-                this.outbound_task_form = { bill_no: '', outbound_list: [] }
-            }
+            unreg_broadcast_receiver() {
+                let main = plus.android.runtimeMainActivity()
+                main.unregisterReceiver(this.broadcast_receiver)
+                this.$logger.info('>>> main.unregisterReceiver:outbound/v1/index', this.broadcast_receiver)
+            },
+            // #endif
         }
     }
 </script>

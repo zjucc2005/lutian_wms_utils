@@ -50,7 +50,7 @@
                 <uni-td align="center">{{ obj.base_unit_name }}</uni-td>
                 <uni-td align="center">{{ obj.qty }}</uni-td>
                 <uni-td align="center">
-                    <uni-tag text="库存明细" type="primary" inverted @click="link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}&m=0`)"/>
+                    <uni-tag text="库存明细" type="primary" inverted @click="link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}`)"/>
                     <uni-tag text="库存调整" type="primary" @click="inv_modify(obj.material_no)" class="uni-ml-2"/>
                     <uni-tag text="库存日志" type="primary" inverted @click="link_to(`/pages/operation/list/inv_logs?material_no=${obj.material_no}`)" class="uni-ml-2"/>
                 </uni-td>
@@ -125,6 +125,16 @@
                 }
             }
         },
+        onLoad() {
+            // #ifdef APP-PLUS
+            if (!this.broadcast_receiver) this.reg_broadcast_receiver()
+            // #endif
+        },
+        onUnload() {
+            // #ifdef APP-PLUS
+            this.unreg_broadcast_receiver()
+            // #endif
+        },
         onPullDownRefresh() {
             this.refresh()
             uni.stopPullDownRefresh()
@@ -147,17 +157,16 @@
             },
             scan_code() {
                 scan_code().then(res => {
-                    console.log('scan code:', res.result)
-                    this.search_form.no = this.parse_scan_code(res.result)
+                    this.handle_scan_code(res.result)
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })
                 })
             },
-            parse_scan_code(text) {
-                if (text.includes('||')) {
-                    return text.split('||')[1]
+            handle_scan_code(code) {
+                if (code.includes('||')) {
+                    this.search_form.no = code.split('||')[1]
                 } else {
-                    return text
+                    this.search_form.no = code
                 }
             },
             inv_menu(obj) {
@@ -168,7 +177,7 @@
                 uni.showActionSheet({
                     itemList: ['库存明细', '库存调整', '库存日志', '物料详情'],
                     success: (e) => {
-                        if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}&m=0`)
+                        if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}`)
                         if (e.tapIndex === 1) this.inv_modify(obj.material_no)
                         if (e.tapIndex === 2) link_to(`/pages/operation/list/inv_logs?material_no=${obj.material_no}`)
                         if (e.tapIndex === 3) link_to(`/pages/operation/material/show?id=${obj.material_id}`)
@@ -177,7 +186,7 @@
             },
             inv_modify(material_no) {
                 if (store.state.role.includes('admin')) {
-                    link_to(`/pages/operation/move/v2/plan_new?material_no=${obj.material_no}`)
+                    link_to(`/pages/operation/move/v2/plan_new?material_no=${material_no}`)
                 } else {
                     uni.showToast({ icon: 'error', title: '无权限' })
                 }
@@ -215,10 +224,10 @@
                 }
                 uni.showLoading({ title: 'Loading' })
                 let res = await Inv.get_all(options)
-                uni.hideLoading()
                 this.invs = res
                 this.set_inv_groups(res)
-                this.get_thumbnail()
+                uni.hideLoading()
+                if (store.state.screen_type === 'h5') this.get_thumbnail()
             },
             async refresh() {
                 if (this.last_refresh_time + this.refresh_interval > Date.now()) {
@@ -278,7 +287,33 @@
                     let res = await K3CloudApi.thumbnail_url(obj.material_image)
                     obj.thumbnail = res
                 }
-            }
+            },
+            // #ifdef APP-PLUS
+            // Broadcast receiver
+            reg_broadcast_receiver() {
+                let main = plus.android.runtimeMainActivity()
+                let IntentFilter = plus.android.importClass('android.content.IntentFilter')
+                let filter = new IntentFilter()
+                filter.addAction(store.state.android_intent_action)
+                let receiver = plus.android.implements('io.dcloud.feature.internal.reflect.BroadcastReceiver', {
+                    onReceive: (content, intent) => {
+                        plus.android.importClass(intent)
+                        let code = intent.getStringExtra(store.state.android_intent_string_label)
+                        this.$logger.info('>>> broadcast:', code)
+                        play_audio_prompt('laser_scan')
+                        this.handle_scan_code(code)
+                    }
+                })
+                this.broadcast_receiver = receiver
+                main.registerReceiver(this.broadcast_receiver, filter)
+                this.$logger.info('>>> main.registerReceiver:inbound/v1/index', this.broadcast_receiver)
+            },
+            unreg_broadcast_receiver() {
+                let main = plus.android.runtimeMainActivity()
+                main.unregisterReceiver(this.broadcast_receiver)
+                this.$logger.info('>>> main.unregisterReceiver:inbound/v1/index', this.broadcast_receiver)
+            },
+            // #endif
         }
     }
 </script>

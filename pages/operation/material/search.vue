@@ -96,6 +96,16 @@
                 }
             }
         },
+        onLoad() {
+            // #ifdef APP-PLUS
+            if (!this.broadcast_receiver) this.reg_broadcast_receiver()
+            // #endif
+        },
+        onUnload() {
+            // #ifdef APP-PLUS
+            this.unreg_broadcast_receiver()
+            // #endif
+        },
         mounted() {
             this.load_bd_materialcategories()
         },
@@ -114,14 +124,18 @@
             },
             scan_code() {
                 scan_code().then(res => {
-                    this.search_form.material_no = res.result
-                    if (res.result.includes('||')) {
-                        this.search_form.material_no = res.result.split('||')[1]
-                    }
-                    this.search()
+                    this.handle_scan_code(res.result)
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })
                 })
+            },
+            handle_scan_code(code) {
+                if (code.includes('||')) {
+                    this.search_form.material_no = code.split('||')[1]
+                } else {
+                    this.search_form.material_no = code
+                }
+                this.search()
             },
             searchbar_icon_click(e) {
                 if (e == 'prefix') this.scan_code()
@@ -166,7 +180,33 @@
                     let res = await K3CloudApi.thumbnail_url(obj.FImageFileServer)
                     obj.thumbnail = res
                 }
-            }
+            },
+            // #ifdef APP-PLUS
+            // Broadcast receiver
+            reg_broadcast_receiver() {
+                let main = plus.android.runtimeMainActivity()
+                let IntentFilter = plus.android.importClass('android.content.IntentFilter')
+                let filter = new IntentFilter()
+                filter.addAction(store.state.android_intent_action)
+                let receiver = plus.android.implements('io.dcloud.feature.internal.reflect.BroadcastReceiver', {
+                    onReceive: (content, intent) => {
+                        plus.android.importClass(intent)
+                        let code = intent.getStringExtra(store.state.android_intent_string_label)
+                        this.$logger.info('>>> broadcast:', code)
+                        play_audio_prompt('laser_scan')
+                        this.handle_scan_code(code)
+                    }
+                })
+                this.broadcast_receiver = receiver
+                main.registerReceiver(this.broadcast_receiver, filter)
+                this.$logger.info('>>> main.registerReceiver:inbound/v1/index', this.broadcast_receiver)
+            },
+            unreg_broadcast_receiver() {
+                let main = plus.android.runtimeMainActivity()
+                main.unregisterReceiver(this.broadcast_receiver)
+                this.$logger.info('>>> main.unregisterReceiver:inbound/v1/index', this.broadcast_receiver)
+            },
+            // #endif
         }
     }
 </script>

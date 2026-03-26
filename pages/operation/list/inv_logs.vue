@@ -327,5 +327,7 @@
 <style lang="scss">
     .search-form {
         flex: 1;
+        max-height: 420px;
+        overflow: hidden;
     }
 </style>

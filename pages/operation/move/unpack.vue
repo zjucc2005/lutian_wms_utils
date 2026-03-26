@@ -1,6 +1,6 @@
 <template>
     <!-- 搜素 -->
-    <uni-section title="查询单据编号" type="square" 
+    <uni-section title="当前仓库" type="square" 
         :sub-title="[
             $store.state.cur_stock['FUseOrgId.FName'],
             $store.state.cur_stock['FGroup.FName'] || '未分组',
@@ -31,9 +31,11 @@
     </uni-section>
     <!-- 分配库位 -->
     <uni-section v-if="scfl.length" title="子项明细" type="square"
+        class="above-uni-goods-nav">
+        <!--
         :sub-title="`${ search_form.bill_no.startsWith('CGTL') ? '供应商' : '领用部门' }：${scfl[0]?.prd_line}`"
         sub-title-color="#007aff"
-        class="above-uni-goods-nav">
+        -->
         <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
             <uni-tr>
                 <uni-th align="center" width="60">序号</uni-th>
@@ -133,7 +135,7 @@
                 },
                 goods_nav: {
                     options: [
-                        { icon: 'close', text: '清空', info: '' }
+                        { icon: 'clear', text: '清空' }
                     ],
                     button_group: [
                         { text: '扫描单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' }
@@ -147,6 +149,16 @@
             } else {
                 this.load_scfl_todo()
             }
+        },
+        onLoad() {
+            // #ifdef APP-PLUS
+            if (!this.broadcast_receiver) this.reg_broadcast_receiver()
+            // #endif
+        },
+        onUnload() {
+            // #ifdef APP-PLUS
+            this.unreg_broadcast_receiver()
+            // #endif
         },
         mounted() {
         },
@@ -187,20 +199,23 @@
             },
             scan_code() {
                 scan_code().then(res => {
-                    if (this.scfl.length) {
-                        let obj = this.scfl.find(m => m.material_no == res.result)
-                        if (obj) {
-                            this.allocate_loc_no(obj)
-                        } else{
-                            uni.showToast({ icon: 'none', title: '物料编码不存在' })
-                        }
-                    } else {
-                        this.search_form.bill_no = res.result
-                        this.handle_search()
-                    }
+                    this.handle_scan_code(res.result)
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })
                 })
+            },
+            handle_scan_code(code) {
+                if (this.scfl.length) {
+                    let obj = this.scfl.find(m => m.material_no == code)
+                    if (obj) {
+                        this.allocate_loc_no(obj)
+                    } else{
+                        uni.showToast({ icon: 'none', title: '物料编码不存在' })
+                    }
+                } else {
+                    this.search_form.bill_no = code
+                    this.handle_search()
+                }
             },
             // 搜索
             async handle_search() {
@@ -465,7 +480,33 @@
                 }
                 uni.hideLoading()
                 this.scfl_todo = scfl_todo
-            }
+            },
+            // #ifdef APP-PLUS
+            // Broadcast receiver
+            reg_broadcast_receiver() {
+                let main = plus.android.runtimeMainActivity()
+                let IntentFilter = plus.android.importClass('android.content.IntentFilter')
+                let filter = new IntentFilter()
+                filter.addAction(store.state.android_intent_action)
+                let receiver = plus.android.implements('io.dcloud.feature.internal.reflect.BroadcastReceiver', {
+                    onReceive: (content, intent) => {
+                        plus.android.importClass(intent)
+                        let code = intent.getStringExtra(store.state.android_intent_string_label)
+                        this.$logger.info('>>> broadcast:', code)
+                        play_audio_prompt('laser_scan')
+                        this.handle_scan_code(code)
+                    }
+                })
+                this.broadcast_receiver = receiver
+                main.registerReceiver(this.broadcast_receiver, filter)
+                this.$logger.info('>>> main.registerReceiver:move/unpack', this.broadcast_receiver)
+            },
+            unreg_broadcast_receiver() {
+                let main = plus.android.runtimeMainActivity()
+                main.unregisterReceiver(this.broadcast_receiver)
+                this.$logger.info('>>> main.unregisterReceiver:move/unpack', this.broadcast_receiver)
+            },
+            // #endif
         }
     }
 </script>

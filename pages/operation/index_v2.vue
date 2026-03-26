@@ -87,7 +87,7 @@
                     },
                     {
                         name: '库存查询', permission: ['wh_admin', 'wh_staff', 'nrj_admin'], icon_path: '/static/icon/nav_scan.png',
-                        action: () => { this.inv_search() }
+                        action: () => { link_to('/pages/operation/manage/inv_search') }
                     },
                     {
                         name: '库存总览', permission: ['default', 'wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock.png',

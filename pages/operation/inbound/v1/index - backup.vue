@@ -224,11 +224,11 @@
                 let main = plus.android.runtimeMainActivity()
                 let IntentFilter = plus.android.importClass('android.content.IntentFilter')
                 let filter = new IntentFilter()
-                filter.addAction('android.intent.ACTION_DECODE_DATA')
+                filter.addAction(store.state.android_intent_action)
                 let pda_scan = plus.android.implements('io.dcloud.feature.internal.reflect.BroadcastReceiver', {
                     onReceive: function(content, intent) {
                         plus.android.importClass(intent)
-                        let code = intent.getStringExtra('barcode_string')
+                        let code = intent.getStringExtra(store.state.android_intent_string_label)
                         console.log(code)
                     }
                 })

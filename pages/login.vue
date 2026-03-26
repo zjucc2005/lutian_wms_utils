@@ -258,7 +258,7 @@
 
     .logo-wrapper {
         text-align: center;
-        padding: 100px 0 20px 0;
+        padding: 80px 0 20px 0;
         image {
             width: 180px;
             height: 44px;

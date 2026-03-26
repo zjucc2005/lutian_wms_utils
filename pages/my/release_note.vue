@@ -13,6 +13,8 @@
         data() {
             return {
                 notes: [
+                    { ver: '1.6.3(临时更新)', timestamp: '2026-03-25',
+                      content: ['1.[原料仓]出库扫码/库内调拨/库存调整增加PDA扫码适配；']},
                     { ver: '1.6.2', timestamp: '2026-02-06',
                       content: ['1.库存总览开放浏览权限；']},
                     { ver: '1.5.9', timestamp: '2025-11-25',

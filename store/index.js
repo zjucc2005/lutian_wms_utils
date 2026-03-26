@@ -48,6 +48,9 @@ const store = createStore({
             grey: 'linear-gradient(90deg, #AAA, #606266)'
         },
         drawer_width: 320,         // drawer 全局宽度，根据窗口尺寸计算
+        android_intent_action: 'android.intent.ACTION_DECODE_DATA', // android广播动作
+        android_intent_string_label: 'barcode_string',              // android广播字符串数据标签
+        android_intent_byte_label: 'barcode',                       // android广播字节数据标签
     },
     mutations: {
         api_conn(state, conn_info, duration) {

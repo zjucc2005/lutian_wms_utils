@@ -6,7 +6,7 @@
             $store.state.cur_stock.FName
         ].join(' / ')"
         sub-title-color="#007aff"
-        @click="$logger.info('>>>', this.$data, this.$refs)"
+        @click="$logger.info('>>>', this.$data)"
         >
         <view class="container">
             <uni-forms 
@@ -170,7 +170,6 @@
             // #endif
         },
         mounted() {
-            // this.load_inv_logs()
         },
         methods: {
             formatDate,
@@ -313,24 +312,17 @@
                     uni.showToast({ icon: 'error', title: 'ERROR' })
                 }
             },
-            // async load_inv_logs() {
-            //     let options = { FStockId: store.state.cur_stock.FStockId }
-            //     InvLog.query(options, { order: 'FID DESC' }).then(res => {
-            //         // this.load_more_status = res.data.length < this.per_page ? 'nomore' : 'more'
-            //         res.data.forEach(item => this.inv_logs.push(item) )
-            //     })
-            // },
             // #ifdef APP-PLUS
             // Broadcast receiver
             reg_broadcast_receiver() {
                 let main = plus.android.runtimeMainActivity()
                 let IntentFilter = plus.android.importClass('android.content.IntentFilter')
                 let filter = new IntentFilter()
-                filter.addAction('android.intent.ACTION_DECODE_DATA')
+                filter.addAction(store.state.android_intent_action)
                 let receiver = plus.android.implements('io.dcloud.feature.internal.reflect.BroadcastReceiver', {
                     onReceive: (content, intent) => {
                         plus.android.importClass(intent)
-                        let code = intent.getStringExtra('barcode_string')
+                        let code = intent.getStringExtra(store.state.android_intent_string_label)
                         this.$logger.info('>>> broadcast:', code)
                         play_audio_prompt('laser_scan')
                         this.handle_scan_code(code)
@@ -338,12 +330,12 @@
                 })
                 this.broadcast_receiver = receiver
                 main.registerReceiver(this.broadcast_receiver, filter)
-                this.$logger.info('>>> main.registerReceiver', this.broadcast_receiver)
+                this.$logger.info('>>> main.registerReceiver:inbound/v1/index', this.broadcast_receiver)
             },
             unreg_broadcast_receiver() {
                 let main = plus.android.runtimeMainActivity()
                 main.unregisterReceiver(this.broadcast_receiver)
-                this.$logger.info('>>> main.unregisterReceiver', this.broadcast_receiver)
+                this.$logger.info('>>> main.unregisterReceiver:inbound/v1/index', this.broadcast_receiver)
             },
             // #endif
         }

@@ -95,7 +95,7 @@
             <!-- <uni-icons v-if="image_url.loading" type="spinner-cycle" size="24" color="#eee" class="image-loading"></uni-icons> -->
             <!-- <image v-if="image_url.loading" :src="image_url.thumbnail" mode="widthFix" style="width: 100%;" /> -->
             <image
-                :src="image_url.original" 
+                :src="image_url.original || image_url.thumbnail" 
                 mode="widthFix"
                 :style="{
                     width: image_url.loading ? 0 : '100%',
@@ -335,8 +335,15 @@
                     }
                 })
             },
-            image_preview(current) {
-                console.log('image_preview', current, this.image_urls.map(x => x.original))
+            async image_preview(current) {
+                uni.showLoading({ title: 'Loading' })
+                for (let field of this.image_fields) {
+                    if (this.bd_material[field]?.trim()) {
+                        let obj = this.image_urls.find(x => x.field === field)
+                        obj.original = await K3CloudApi.download_image_cache(this.bd_material[field])
+                    }
+                }
+                uni.hideLoading()
                 let _this_ = this
                 uni.previewImage({
                     current: current,
@@ -426,8 +433,8 @@
                             this.image_urls.push({
                                 field: field,
                                 id: raw_data[field],
-                                original: await K3CloudApi.download_image_cache(raw_data[field])
-                                // thumbnail: await K3CloudApi.download_file(raw_data[field], 1),
+                                orignal: '',
+                                thumbnail: await K3CloudApi.thumbnail_url(raw_data[field])
                                 // loading: true
                             })
                         } else {
@@ -480,7 +487,7 @@
             },
             thumbnail_url(file_id) {
                 let image_url = this.image_urls.find(x => x.id == file_id.trim())
-                return image_url?.original || '/static/default_40x40.png'
+                return image_url?.thumbnail || '/static/default_40x40.png'
             }
         }
     }
