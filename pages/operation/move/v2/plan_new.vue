@@ -1,6 +1,6 @@
 <template>
     <!-- <uni-notice-bar single scrollable text="查询物料获取库存信息，然后点击库存明细新增计划" /> -->
-    <uni-section title="查询物料" type="square" v-if="!material.material_id">
+    <uni-section title="查询物料" type="square" v-if="!material.material_id" @click="$logger.info('>>> data', $data)">
         <view class="container">
             <uni-forms ref="form" :model="search_form" labelWidth="70px">
                 <uni-forms-item label="编码" name="material_no">
@@ -574,7 +574,7 @@
             },
             // 物料模糊匹配
             async search(strict) {
-                if (this.search_form.material_no == this.material.material_no) return
+                if (!this.material_no && this.search_form.material_no == this.material.material_no) return
                 this._set_material()
                 this.invs = []
                 this.inv_plans = []

@@ -4,9 +4,8 @@
             <uni-list-item>
                 <template #body>
                     <view class="uni-list-item__body">
-                        <text class="title">{{ material.material_no }}</text>
+                        <view class="title">{{ material.material_no }} / {{ material.material_name }}</view>
                         <view class="note">
-                            <view>名称：{{ material.material_name }}</view> 
                             <view>规格：{{ material.material_spec }}</view>
                             <view>仓库：<text :class="[material.stock_id == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ material.stock_name }}</text></view>
                             <view>仓管员：{{ material.storekeeper }}</view>

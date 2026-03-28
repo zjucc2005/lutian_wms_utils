@@ -78,7 +78,7 @@
                         action: () => { link_to('/pages/operation/outbound/v1/index') }
                     },
                     // {
-                    //     name: '出库', permission: ['nrj_admin'], icon_path: '/static/icon/nav_scan_out.png',
+                    //     name: '出库Depre', permission: ['nrj_admin'], icon_path: '/static/icon/nav_scan_out.png',
                     //     action: () => { link_to('/pages/operation/outbound/unpack') }
                     // },
                     {
@@ -126,7 +126,7 @@
                     //     action: () => { link_to('/pages/operation/manufacture_order/index') }
                     // },
                     {
-                        name: '标签打印', permission: ['nrj_admin'], icon_path: '/static/icon/nav_printer.png',
+                        name: '打印', permission: ['nrj_admin'], icon_path: '/static/icon/nav_printer.png',
                         action: () => { link_to('/pages/operation/print/index') }
                     }
                     // ,

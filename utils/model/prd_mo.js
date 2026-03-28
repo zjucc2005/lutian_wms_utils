@@ -31,7 +31,7 @@ class PrdMo {
      * @return {Hash} Promise
      */
     static query(options={}, meta={}) {
-        const fields = ['FID', 'FDate', 'FBillNo', 'FSaleOrderNo', 'FStatus', 'FPrdOrgId.FName', 'F_LT_CX.FName', 
+        const fields = ['FID', 'FDate', 'FBillNo', 'FSaleOrderNo', 'FStatus', 'FPrdOrgId.FName', 'F_LT_CX.FName', 'FPlanStartDate',
                         'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FName', 'FMaterialId.FSpecification']
         const data = {
             FormId: this.form_id,

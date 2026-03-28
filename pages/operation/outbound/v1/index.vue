@@ -14,7 +14,7 @@
                 placeholder="请输入单据编号"
                 prefix-icon="scan"
                 @confirm="handle_search"
-                @clear="handle_search"
+                @clear="clear_data"
                 @icon-click="searchbar_icon_click"
                 primary-color="rgb(238, 238, 238)"
                 :styles="{
@@ -31,7 +31,6 @@
         <uni-card spacing="0" padding="0">
             <uni-list>
                 <uni-list-item v-for="(obj, index) in ppboms" :key="index"
-                    :title="obj.FBillNo"
                     @click="load_ppbom(obj)" clickable 
                     show-arrow
                     >
@@ -69,6 +68,7 @@
         >
         <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
             <uni-tr>
+                <uni-th v-if="outbound_mode == '分批'" align="center" width="30"></uni-th>
                 <uni-th align="center" width="60">项次</uni-th>
                 <uni-th align="center">物料编码</uni-th>
                 <uni-th align="center">物料名称</uni-th>
@@ -81,7 +81,17 @@
                 <uni-th align="center">仓管员</uni-th>
             </uni-tr>
             
-            <uni-tr v-for="(obj, index) in ppbom.entry" :key="index">
+            <uni-tr v-for="(obj, index) in ppbom_entry_filtered" :key="index">
+                <uni-td v-if="outbound_mode == '分批'">
+                    <uni-icons v-if="inv_logs_map[obj.FMaterialId2] >= obj.FMustQty" type="paperplane" size="30" color="#007aff"></uni-icons>
+                    <checkbox
+                        v-else-if="can_outbound(obj)"
+                        :checked="obj.checked"
+                        @click="checkbox_click"
+                        :data-id="obj.FMaterialId2"
+                    />
+                    <checkbox v-else disabled></checkbox>
+                </uni-td>
                 <uni-td align="center">{{ obj.FReplaceGroup }}</uni-td>
                 <uni-td>{{ obj['FMaterialId2.FNumber'] }}</uni-td>
                 <uni-td>{{ obj['FMaterialId2.FName'] }}</uni-td>
@@ -89,14 +99,28 @@
                 <uni-td align="center">{{ obj['FUnitId2.FName'] }}</uni-td>
                 <uni-td align="center">{{ obj.FMustQty }}</uni-td>
                 <uni-td align="center">{{ invs_map[obj.FMaterialId2] || 0 }}</uni-td>
-                <uni-td align="center">{{ inv_logs_map[obj.FMaterialId2] }}</uni-td>
+                <uni-td align="center">
+                    <text :class="[(inv_logs_map[obj['FMaterialId2']] || 0) >= obj['FMustQty'] ? 'text-primary' : '']">{{ inv_logs_map[obj.FMaterialId2] }}</text>
+                </uni-td>
                 <uni-td><text :class="[obj.FStockId == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj['FStockId.FName'] }}</text></uni-td>
                 <uni-td>{{ obj['FMaterialId2.F_PAEZ_Base1'] }}</uni-td>
             </uni-tr>
         </uni-table>
         
         <uni-list v-else>
-            <uni-list-item v-for="(obj, index) in ppbom.entry" :key="index">
+            <uni-list-item v-for="(obj, index) in ppbom_entry_filtered" :key="index">
+                <template #header v-if="outbound_mode == '分批'">
+                    <view class="uni-list-item__head">
+                        <uni-icons v-if="inv_logs_map[obj.FMaterialId2] >= obj.FMustQty" type="paperplane" size="30" color="#007aff"></uni-icons>                       
+                        <checkbox
+                            v-else-if="can_outbound(obj)"
+                            :checked="obj.checked"
+                            @click="checkbox_click"
+                            :data-id="obj.FMaterialId2"
+                        />
+                        <checkbox v-else disabled></checkbox>
+                    </view>
+                </template>
                 <template #body>
                     <view class="uni-list-item__body">
                         <view class="title">
@@ -122,7 +146,7 @@
         </uni-list>
     </uni-section>
     
-    <view v-if="$store.state.screen_type === 'app-plus'" class="uni-goods-nav-wrapper">
+    <view class="uni-goods-nav-wrapper">
         <uni-goods-nav
             :options="goods_nav.options"
             :button-group="goods_nav.button_group"
@@ -153,9 +177,14 @@
                 invs_map: {},      // 优化库存查询性能
                 inv_logs: [],      // 实发物料
                 inv_logs_map: {},  // 优化实发查询性能
+                filter_cond: '全部',
+                outbound_mode: '齐套', // 出库模式，齐套/分批
                 goods_nav: {
                     options: [
-                        { icon: 'clear', text: '清空' }
+                        // { icon: 'clear', text: '清空' },
+                        { icon: 'settings', text: '全部'},
+                        { icon: 'star-filled', text: '齐套' }
+                        
                     ],
                     button_group: [
                         { text: '扫描单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' },
@@ -177,6 +206,17 @@
         mounted() {
         },
         computed: {
+            ppbom_entry_filtered() {
+                if (this.filter_cond === '全部') {
+                    return this.ppbom.entry
+                } else if (this.filter_cond === '未出库') {
+                    return this.ppbom.entry.filter(m => (this.inv_logs_map[m.FMaterialId2] || 0) < m.FMustQty )
+                } else if (this.filter_cond === '可出库') {
+                    return this.ppbom.entry.filter(m => this.can_outbound(m))
+                } else if (this.filter_cond === '已出库') {
+                    return this.ppbom.entry.filter(m => (this.inv_logs_map[m.FMaterialId2] || 0) >= m.FMustQty)
+                }
+            },
             is_completed() {
                 // return true
                 let res = true
@@ -196,10 +236,33 @@
         methods: {
             // operations
             goods_nav_click(e) {
-                if (e.index === 0) {
-                    this.search_form.bill_no = ''
-                    this.clear_data()
-                }
+                // if (e.index === 0) {
+                //     this.search_form.bill_no = ''
+                //     this.clear_data()
+                // }
+                if (e.index === 0) this.filter_list()
+                if (e.index === 1) this.outbound_mode_list()
+            },
+            filter_list() {
+                let item_list = ['全部', '未出库', '可出库', '已出库']
+                uni.showActionSheet({
+                    itemList: item_list,
+                    success: (e) => {
+                        this.filter_cond = item_list[e.tapIndex]
+                        this.goods_nav.options[0].text = item_list[e.tapIndex]
+                    }
+                })
+            },
+            outbound_mode_list() {
+                let item_list = ['齐套', '分批']
+                uni.showActionSheet({
+                    itemList: item_list,
+                    success: (e) => {
+                        this.outbound_mode = item_list[e.tapIndex]
+                        this.goods_nav.options[1].icon = ['star-filled', 'starhalf'][e.tapIndex]
+                        this.goods_nav.options[1].text = item_list[e.tapIndex]
+                    }
+                })
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code()       // btn:扫码查询单据
@@ -218,6 +281,22 @@
             handle_scan_code(code) {
                 this.search_form.bill_no = code
                 this.handle_search()
+            },
+            can_outbound(m) {
+                // 本仓库 && 未（完全）出库 && 有库存
+                return m.FStockId == store.state.cur_stock.FStockId &&
+                       (this.inv_logs_map[m.FMaterialId2] || 0) < m.FMustQty && 
+                       (this.invs_map[m.FMaterialId2] || 0) > 0
+            },
+            check_all() {
+                let result = this.ppbom.entry.some(m => !m.checked && this.can_outbound(m))
+                for (let m of this.ppbom.entry) {
+                    if (this.can_outbound(m))  m.checked = result
+                }
+            },
+            checkbox_click(e) {
+                let material = this.ppbom.entry.find(m => m.FMaterialId2 === e.target.dataset.id)
+                if (material) material.checked = !material.checked
             },
             clear_data() {
                 this.ppboms = []
@@ -292,23 +371,35 @@
                 if (!this.ppbom.FID) return   // 1. 是否有生产订单数据
                 if (this.is_completed) return // 2. 是否已完成生产订单
                 // 3. 拆包区库存是否有充足
-                let op_cnt = 0
-                for (let m of this.ppbom.entry) {
-                    if (m.FStockId != store.state.cur_stock.FStockId) continue
-                    if (m.FMustQty === 0) continue
-                    if (m.FMustQty > (this.invs_map[m.FMaterialId2] || 0)) {
-                        uni.showModal({ title: '提示', content: `拆包区库存不足\n[${m.FReplaceGroup}]${m['FMaterialId2.FName']}\n应发：${m.FMustQty}\n拆包区：${this.invs_map[m.FMaterialId2] || 0}` })
+                let checked_materials = this.ppbom.entry
+                if (this.outbound_mode == '分批') {
+                    checked_materials = this.ppbom.entry.filter(m => m.checked)
+                    if (checked_materials.length === 0) {
+                        uni.showModal({ title: '提示', content: '未勾选出库信息' })
                         return
                     }
-                    op_cnt++
                 }
-                if (op_cnt === 0) {
-                    uni.showModal({ title: '提示', content: `生产用料清单中不含[${store.state.cur_stock.FName}]的物料` })
-                    return
+
+                if (this.outbound_mode == '齐套') {
+                    let op_cnt = 0
+                    for (let m of this.ppbom.entry) {
+                        if (m.FStockId != store.state.cur_stock.FStockId) continue
+                        if (m.FMustQty === 0) continue
+                        if (m.FMustQty - (this.inv_logs_map[m.FMaterialId2] || 0) > (this.invs_map[m.FMaterialId2] || 0)) {
+                            uni.showModal({ title: '提示', content: `拆包区库存不足\n[${m.FReplaceGroup}]${m['FMaterialId2.FName']}\n剩余应发：${m.FMustQty - (this.inv_logs_map[m.FMaterialId2] || 0)}\n拆包区：${this.invs_map[m.FMaterialId2] || 0}` })
+                            return
+                        }
+                        op_cnt++
+                    }
+                    if (op_cnt === 0) {
+                        uni.showModal({ title: '提示', content: `生产用料清单中不含[${store.state.cur_stock.FName}]的物料` })
+                        return
+                    }
                 }
+                
                 // >>> main
                 uni.showLoading({ title: 'Loading', mask: true })
-                for (let m of this.ppbom.entry) {
+                for (let m of checked_materials) {
                     uni.showToast({ title: `${m.FReplaceGroup}/${this.ppbom.entry.length}`, mask: true })
                     if (m.FStockId != store.state.cur_stock.FStockId) continue
                     if (m.FMustQty === 0) continue
@@ -331,6 +422,7 @@
                         await inv_log.save()
                         rest_must_qty -= op_qty
                     }
+                    m.checked = false
                 }
                 await this.load_invs()
                 await this.load_inv_logs()

@@ -5,10 +5,14 @@
                 :show-extra-icon="true"
                 :extra-icon="{ color: '#007aff', size: '24', type: 'image' }"
                 @click="link_to('/pages/operation/print/demo')" clickable show-arrow /> -->
-            <uni-list-item title="根据收料通知单生成物料标签"
+            <uni-list-item title="生成物料标签（收料通知单）"
                 :show-extra-icon="true"
                 :extra-icon="{ color: '#007aff', size: '24', type: 'calendar' }"
                 @click="link_to('/pages/operation/print/material_label_by_cgsl')" clickable show-arrow />
+            <uni-list-item title="生成物流拣选单"
+                :show-extra-icon="true"
+                :extra-icon="{ color: '#007aff', size: '24', type: 'list' }"
+                @click="link_to('/pages/operation/print/mo_picking')" clickable show-arrow />
         </uni-list>
     </view>
 </template>

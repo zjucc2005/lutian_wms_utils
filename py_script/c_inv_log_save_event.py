@@ -61,7 +61,8 @@ def query_inv(inv_log):
     AND FSTOCKLOCID = {f_stock_loc_id}
     AND FMATERIALID = {f_material_id}
     AND FBATCHNO = {f_batch_no}
-    AND FSUPPLIERID = {f_supplier_id};
+    AND FSUPPLIERID = {f_supplier_id}
+    AND FQTY > 0;
     """.format(
     f_stock_id=inv_log['StockId_Id'],
     f_stock_loc_id=inv_log['StockLocId_Id'],

@@ -21,9 +21,9 @@
     
     <uni-section title="物料明细" type="square"
         v-if="materials?.length"
+        sub-title="请在二维码生成以后，再点击生成标签" sub-title-color="#007aff"
         class="above-uni-goods-nav"
         >
-        <uni-notice-bar single text="请在二维码生成后，再点击生成标签" />
         <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
             <uni-tr>
                 <uni-th align="center" width="60">序号</uni-th>
@@ -122,7 +122,7 @@
                     options: [],
                     button_group: [
                         {
-                            text: '扫码查询单据',
+                            text: '扫描单据',
                             backgroundColor: store.state.goods_nav_color.red,
                             color: '#fff'
                         }
@@ -146,7 +146,7 @@
                 })
                 // #endif
                 // #ifdef APP-PLUS
-                    uni.showToast({ icon: 'none', title: '仅PC端支持打印' })
+                    uni.showModal({ title: '提示', content: '仅PC端支持打印' })
                 // #endif
             },
             goods_nav_click(e) {
