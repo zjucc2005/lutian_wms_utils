@@ -52,7 +52,6 @@
                 <uni-td align="center">{{ obj['FUnitId.FName'] }}</uni-td>
                 <uni-td align="center">{{ obj['FWorkShopId.FName'] }}</uni-td>
                 <uni-td align="center">
-                    <uni-tag text="预览" type="primary" inverted class="uni-mr-3" @click="preview_info(obj)"/>
                     <uni-tag text="生成PDF" type="primary" @click="gen_pdf(obj, `qrcode_${index}`)"/>
                 </uni-td>
             </uni-tr>
@@ -60,7 +59,7 @@
         
         <uni-list v-else>
             <uni-list-item v-for="(obj, index) in ppboms" :key="index"
-                @click="preview_info(obj)" clickable 
+                @click="gen_pdf(obj, `qrcode_${index}`)" clickable 
                 show-arrow
                 >
                 <template #header>
@@ -92,44 +91,6 @@
         </uni-list>
     </uni-section>
     
-    <uni-section v-if="$store.state.screen_type === 'app-plus' && pdf_data.id" title="预览《物流拣选单》" type="square"
-        :sub-title="[
-            `计划跟踪单：${pdf_data.sale_order_no}`,
-            `生产车间：${pdf_data.workshop}`,
-            `生产数量：${pdf_data.qty}`,
-            `生产订单编号：${pdf_data.mo_bill_no}`,
-            `产线：${pdf_data.prd_line || ''}`,
-            `计划上线时间：${pdf_data.prd_time || ''}`,
-            `产品名称：${pdf_data.material_name}`,
-            `规格型号：${pdf_data.material_spec}`
-        ].join('\n')"
-        sub-title-color="#007aff"
-        class="above-uni-goods-nav"
-        >
-        <uni-list>
-            <uni-list-item v-for="(m, index) in pdf_data.children" :key="index">
-                <template #body>
-                    <view class="uni-list-item__body">
-                        <view class="title">
-                            <uni-badge :text="`${index+1}`" type="primary" />
-                            {{ m.material_no }} / {{ m.material_name }}
-                        </view>
-                        <view class="note">
-                            <view>规格：{{ m.material_spec }}</view>
-                            <view>分子：{{ m.numerator }}</view>
-                            <view>工序：{{ m.bzgx }}</view>
-                        </view>
-                    </view>
-                </template>
-                <template #footer>
-                    <view class="uni-list-item__foot">
-                        <view>{{ m.qty }} {{ m.unit_name }}</view>
-                    </view>
-                </template>
-            </uni-list-item>
-        </uni-list>
-    </uni-section>
-    
     <view v-if="$store.state.screen_type === 'app-plus'" class="uni-goods-nav-wrapper">
         <uni-goods-nav 
             :options="goods_nav.options" 
@@ -143,11 +104,10 @@
 
 <script>
     import store from '@/store'
-    import { play_audio_prompt } from '@/utils'
     import { PrdPpbom, PrdMo } from '@/utils/model'
     import scan_code from '@/utils/scan_code'
     // #ifdef H5
-    import { gen_pdf_mo_picking } from '@/gen_pdf'
+    import { gen_pdf_mo_confirming } from '@/gen_pdf'
     // #endif
     
     export default {
@@ -189,15 +149,6 @@
                     uni.showToast({ icon: 'none', title: err })
                 })
             },
-            preview_info(ppbom) {
-                uni.navigateTo({
-                    url: '/pages/operation/print/mo_picking_info',
-                    success: (res) => {
-                        play_audio_prompt('success')
-                        res.eventChannel.emit('moPickingInfo', { data: ppbom })
-                    }
-                })
-            },
             async gen_pdf(ppbom, canvas_id) {
                 // #ifdef H5
                 await this.load_pdf_data(ppbom)
@@ -205,7 +156,7 @@
                 uni.canvasToTempFilePath({
                     canvasId: canvas_id,
                     success: function(res) { 
-                        let url = gen_pdf_mo_picking({
+                        let url = gen_pdf_mo_confirming({
                             ..._this_.pdf_data,
                             qr: res.tempFilePath, 
                         })
@@ -218,7 +169,6 @@
                 // #endif
             },
             async handle_search(e) {
-                this.pdf_data = {}
                 if (this.search_form.bill_no) {
                     this.search_form.bill_no = this.search_form.bill_no.trim()
                     let options = { FMoBillNo: this.search_form.bill_no }
@@ -243,7 +193,6 @@
             },
             async load_pdf_data(ppbom) {
                 let pdf_data = {
-                    id: ppbom.FID,
                     sale_order_no: ppbom.FSaleOrderNo,
                     workshop: ppbom['FWorkShopId.FName'],
                     qty: ppbom.FQty,

@@ -629,6 +629,78 @@ const gen_pdf_mo_picking = (options) => {
     return url
 }
 
+/* 物料状态确认表 */
+const gen_pdf_mo_confirming = (options) => {
+    let f = new jsPDF() // 初始化jsPDF对象, 竖向A4
+    f.addFont(font_file_path, font_family, 'normal') // 加载字体
+    f.setFont(font_family) // 设置字体
+    // header
+    f.addImage('/static/image/lutian_logo.png', 6, 6, 37.25, 10.75)
+    if (options.qr) f.addImage(options.qr, 'png', 182, 6, 20, 20)
+    f.setFontSize(20) // 设置固定字段名称
+    f.text('物料状态确认表', 80.3 ,20)
+    f.autoTable({
+        theme: 'grid',
+        startY: 30,
+        margin: { left: 6, right: 6, top: 10, bottom: 10 },
+        styles: { font: 'SourceHanSansCN', fontSize: 10, cellPadding: 1, minCellWidth: 10, maxCellHeight: 5 },
+        bodyStyles: { textColor: 0, lineColor: 0, lineWidth: 0 },
+        columnStyles: {
+            0: { cellWidth: 29.1 },
+            1: { cellWidth: 42 },
+            2: { cellWidth: 21.4 },
+            3: { cellWidth: 42 },
+            4: { cellWidth: 29.1 },
+            5: { }
+        },
+        body: [
+            [ '计划跟踪单号：', options.sale_order_no, '生产车间：', options.workshop, '生产数量：', options.qty ],
+            [ '生产订单编号：', options.mo_bill_no, '产线：', options.prd_line, '计划上线时间：', options.prd_time ],
+            [ '产品名称：', options.material_name, '规格型号：', { content: options.material_spec, colSpan: 3 } ]
+        ]
+    })
+    // body
+    let table_head = [['序号', '物料编码', '物料名称', '规格型号', '分子', '单位', '数量', '物料状态确认', '工序地址']]
+    let table_body = []
+    for (let i = 0; i < options.children.length; i++) {
+        let m = options.children[i]
+        table_body.push([i+1, m.material_no, m.material_name, m.material_spec, m.numerator, m.unit_name, m.qty, '', m.bzgx])
+    }
+    f.autoTable({
+        theme: 'grid',
+        startY: 56,
+        margin: { left: 6, right: 6, top: 10, bottom: 10 },
+        styles: { font: 'SourceHanSansCN', fontSize: 8, cellPadding: 1, minCellWidth: 9 },
+        headStyles: { textColor: 0, fillColor: 255, lineColor: 60, lineWidth: 0.1, halign: 'center'},
+        bodyStyles: { textColor: 0, lineColor: 60, lineWidth: 0.1, halign: 'center' },
+        columnStyles: {
+            0: { cellWidth: 7.65 },
+            1: { minCellWidth: 22.1 },
+            // 3: { minCellWidth: 22.9 },
+            4: { minCellWidth: 7.65 },
+            5: { minCellWidth: 7.65 },
+            6: { minCellWidth: 9.75 },
+            7: { minCellWidth: 20 },
+            8: { minCellWidth: 15 }
+        },
+        head: table_head,
+        body: table_body
+    })
+    // 添加页码
+    f.setFontSize(8)
+    let total_pages = f.getNumberOfPages()
+    // console.log('>>> total_pages:', total_pages)
+    for (let i = 1; i <= total_pages; i++) {
+        f.setPage(i)
+        let t = `${i} / ${total_pages}`
+        f.text(t, 200 - f.getTextWidth(t), 290)
+    }
+    // console.log('>>> width:', f.getTextWidth('拣选数量'))
+    let blob = f.output('blob') // 生成PDF文件的Blob对象
+    let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL
+    return url
+}
+
 export {
     pdf_template_inv_plans_in,
     pdf_template_inv_plans_out,
@@ -638,5 +710,6 @@ export {
     pdf_template_tydzd,
     
     gen_pdf_material_label,
-    gen_pdf_mo_picking
+    gen_pdf_mo_picking,
+    gen_pdf_mo_confirming
 }

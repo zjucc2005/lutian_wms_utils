@@ -126,7 +126,7 @@
                     //     action: () => { link_to('/pages/operation/manufacture_order/index') }
                     // },
                     {
-                        name: '打印', permission: ['nrj_admin'], icon_path: '/static/icon/nav_printer.png',
+                        name: '打印', permission: ['default', 'nrj_admin'], icon_path: '/static/icon/nav_printer.png',
                         action: () => { link_to('/pages/operation/print/index') }
                     }
                     // ,

@@ -112,9 +112,11 @@
         { "path": "pages/operation/material/search_parts", "style": { "navigationBarTitleText": "配件查询" } },
         // 打印
         { "path": "pages/operation/print/index", "style": { "navigationBarTitleText": "打印" } },
-        { "path": "pages/operation/print/demo",  "style": { "navigationBarTitleText": "标签DEMO" } },
+        // { "path": "pages/operation/print/demo",  "style": { "navigationBarTitleText": "标签DEMO" } },
         { "path": "pages/operation/print/material_label_by_cgsl",  "style": { "navigationBarTitleText": "生成物料标签" } },
-        { "path": "pages/operation/print/mo_picking",  "style": { "navigationBarTitleText": "物料拣选单" } },
+        { "path": "pages/operation/print/mo_picking",  "style": { "navigationBarTitleText": "物流拣选单" } },
+        { "path": "pages/operation/print/mo_picking_info",  "style": { "navigationBarTitleText": "物流拣选单预览" } },
+        { "path": "pages/operation/print/mo_confirming",  "style": { "navigationBarTitleText": "物料状态确认表" } },
         // k3cloud
         { "path": "pages/k3cloud/index", "style": { "navigationBarTitleText": "金蝶云" } },
         { "path": "pages/k3cloud/eng_bom/index", "style": { "navigationBarTitleText": "物料清单" } },
