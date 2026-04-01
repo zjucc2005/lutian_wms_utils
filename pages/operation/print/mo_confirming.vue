@@ -5,7 +5,6 @@
                 v-model="search_form.bill_no" 
                 placeholder="请输入搜索内容"
                 prefix-icon="scan"
-                focus
                 @confirm="handle_search"
                 @clear="handle_search"
                 @icon-click="searchbar_icon_click"

@@ -5,7 +5,6 @@
                 v-model="search_form.bill_no" 
                 placeholder="请输入搜索内容"
                 prefix-icon="scan"
-                focus
                 @confirm="handle_search"
                 @clear="handle_search"
                 @icon-click="searchbar_icon_click"
@@ -277,9 +276,11 @@
                         numerator: m.FNumerator,
                         unit_name: m['FUnitId2.FName'],
                         qty: m.FMustQty,
-                        bzgx: m['FMaterialId2.F_RGEN_Text_bzgx']
+                        bzgx: m['FMaterialId2.F_RGEN_Text_bzgx'],
+                        bzgx_seq: m['FMaterialId2.F_RGEN_Text_bzgx'] || 'ZZZZ'
                     })
                 }
+                pdf_data.children.sort((x, y) => x.bzgx_seq < y.bzgx_seq ? -1 : 1)
                 this.pdf_data = pdf_data
             }
         }

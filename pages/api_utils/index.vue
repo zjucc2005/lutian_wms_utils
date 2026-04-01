@@ -190,25 +190,32 @@
                 })
             },
             async call_test_api() {
-                K3CloudApi.view('QM_InspectBill', { Number: 'IQC000001' })
-                // model.BdMaterial.update(
-                //     3118698, 
-                //     {
-                //         FSpecification: 'PLM规格型号/组装，测试1128-01',
-                //         FDescription: 'FDescription 1128-01',
-                //         F_PAEZ_Text: '',
-                //         F_PAEZ_MulLangText: '',
-                //         F_PLM_CREATOR: '钱海琴',
-                //         F_PLM_MODIFIER: '钱海琴',
-                //         SubHeadEntity: {
-                //             FErpClsID: '1',
-                //             FBaseUnitId: {
-                //                 FNumber: 'Pcs'
-                //             },
-                //             FNETWEIGHT: 0
-                //         }
-                //     }
-                // )
+                // K3CloudApi.view('QM_InspectBill', { Number: 'IQC000001' })
+                // K3CloudApi.view('PUR_ReceiveBill', { Number: 'CGSL237799' })
+                // K3CloudApi.view('PUR_ReceiveBill', { Number: 'CGSL237757' })
+                // K3CloudApi.view('PUR_PurchaseOrder', { Number: 'PO1260300804' })
+                
+                let _model_ = { 
+                    FBillTypeID: { FNumber: 'JYD001_SYS' }, // 来料检验单
+                    FBusinessType: '1', // 采购检验
+                    FDate: '2026-03-31',
+                    FSourceOrgId: { FNumber: '102' },
+                    FInspectOrgId: { FNumber: '102' },
+                    FEntry: [
+                        {
+                            
+                        }
+                    ]
+                }
+                let data = {
+                    EntryIds: [939606, 939607].join(','),
+                    RuleId: 'QM_PURReceive2Inspect',
+                    // TargetFormId: 'QM_InspectBill'
+                }
+                // K3CloudApi.push('PUR_ReceiveBill', data)
+                
+                // K3CloudApi.save('QM_InspectBill', { model: _model_ })
+                
                 // model.StkOutStockApply.view('CKSQD037464')
                 // model.PrdPpbom.view('PPBOM00867816')
                 // model.PrdIssueMtrNotice.query({ FBillNo: 'SCFLTZD32739' })
@@ -236,6 +243,7 @@
                 // EngBom.view('2.05.01.01.01.0001_V1.1')
             },
             call_delete_api() {
+                // K3CloudApi.delete('QM_InspectBill', { Numbers: ['IQC000023'] })
                 // Inv.query({ FMaterialId: '' }).then(res => {
                 //     Inv.delete(res.data.map(e => e.FID))
                 // })

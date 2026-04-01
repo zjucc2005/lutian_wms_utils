@@ -4,6 +4,11 @@
         sub-title-color="#007aff"
         class="above-uni-goods-nav"
         >
+        <template #right v-if="mode == 'material_no'">
+            <view class="text-sm text-primary">库存总数：{{ sum_inv_qty }}</view>
+            <view class="text-sm text-grey">金蝶账面：{{ sum_stk_inv_qty }}</view>
+        </template>
+        
         <cc-shelf
             v-if="display_mode == 'grid' && invs.length"
             :stock_locs="$store.state.stock_locs"
@@ -75,7 +80,7 @@
 <script>
     import store from '@/store'
     import { get_bd_material } from '@/utils/api'
-    import { Inv, StockLoc } from '@/utils/model'
+    import { Inv, StockLoc, StkInventory } from '@/utils/model'
     import { play_audio_prompt } from '@/utils'
     import scan_code from '@/utils/scan_code'
     import ccShelf from '@/components/cc-shelf/cc-shelf.vue'
@@ -84,9 +89,9 @@
             t: {
                 type: String
             },
-            m: {
-                type: Number
-            }
+            // m: {
+            //     type: Number
+            // }
         },
         components: {
             ccShelf
@@ -104,6 +109,7 @@
                     base_unit_name: ''
                 },
                 invs: [],
+                stk_invs: [],
                 goods_nav: {
                     options: [
                         // { icon: 'more-filled', text: '更多' },
@@ -135,6 +141,18 @@
         },
         mounted() {
             // this.handle_scan_code('3.08.02.01.10.0013') // 调试用
+        },
+        computed: {
+            sum_inv_qty() {
+                let res = 0
+                for (let inv of this.invs) res += inv.FQty
+                return res
+            },
+            sum_stk_inv_qty() {
+                let res = 0
+                for (let inv of this.stk_invs) res += inv.FBaseQty
+                return res
+            }
         },
         methods: {
             goods_nav_click(e) {
@@ -187,6 +205,7 @@
                     await this.load_invs_by_loc_no(text)
                 } else {
                     await this.load_invs_by_material_no(text)
+                    await this.load_stk_invs(text)
                     await this.load_material(text)
                 }
                 uni.hideLoading()
@@ -205,18 +224,25 @@
                     }
                 })
             },
+            async load_stk_invs(material_no) {
+                const options = {
+                    FStockId: store.state.cur_stock.FStockId,
+                    'FMaterialId.FNumber': material_no
+                }
+                let res = await StkInventory.query(options, {})
+                this.stk_invs = res.data
+            },
             async load_invs_by_material_no(material_no) {
                 const options = {
                     FStockId: store.state.cur_stock.FStockId,
                     'FMaterialId.FNumber': material_no,
                     FQty_gt: 0,
                 }
-                return Inv.query(options, { order: 'FBatchNo ASC, FStockLocId.FNumber ASC' }).then(res => { 
-                    this.invs = res.data
-                    this.mode = 'material_no'
-                    this.set_display_mode('list')
-                    this.no = material_no
-                })
+                let res = await Inv.query(options, { order: 'FBatchNo ASC, FStockLocId.FNumber ASC' })
+                this.invs = res.data
+                this.mode = 'material_no'
+                this.set_display_mode('list')
+                this.no = material_no
             },
             async load_invs_by_loc_no(loc_no) {
                 const options = {
@@ -224,12 +250,11 @@
                     'FStockLocId.FNumber': loc_no,
                     FQty_gt: 0
                 }
-                return Inv.query(options, { order: 'FMaterialId.FNumber ASC, FBatchNo ASC' }).then(res => { 
-                    this.invs = res.data
-                    this.mode = 'loc_no'
-                    this.set_display_mode('list')
-                    this.no = loc_no
-                })
+                let res = await Inv.query(options, { order: 'FMaterialId.FNumber ASC, FBatchNo ASC' })
+                this.invs = res.data
+                this.mode = 'loc_no'
+                this.set_display_mode('list')
+                this.no = loc_no
             },
             set_display_mode(display_mode) {
                 this.display_mode = display_mode
