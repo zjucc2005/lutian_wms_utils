@@ -1,6 +1,6 @@
 <template>
     <uni-collapse>
-        <uni-collapse-item v-for="(note, index) in notes" :title="`V${note.ver}`" :key="index" open>
+        <uni-collapse-item v-for="(note, index) in notes" :title="`v${note.ver}`" :key="index" open>
             <view class="content">
                 <view v-for="line in note.content">{{ line }}</view>
             </view>
@@ -13,6 +13,12 @@
         data() {
             return {
                 notes: [
+                    { ver: '1.6.6', timestamp: '2026-04-03',
+                      content: ['1.金蝶云-采购管理，增加“收料通知单下推检验单”功能；',
+                                '2.金蝶云-质量管理，增加“来料检验单”列表查询；']},
+                    { ver: '1.6.5', timestamp: '2026-04-01',
+                      content: ['1.库存查询结果增加库存总数和金蝶账面库存的显示；',
+                                '2.《物流拣选单》明细按照工序地址升序排序；']},
                     { ver: '1.6.4', timestamp: '2026-03-28',
                       content: ['1.[原料仓]对出入库流程进行了升级更新；',
                                 '2.[原料仓]大部分页面增加PDA扫码适配（出库扫码/库内调拨/出库扫码/库存调整/库存查询等）；',

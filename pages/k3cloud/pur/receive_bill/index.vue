@@ -30,11 +30,27 @@
     </uni-table>
     
     <uni-list v-else>
-        <uni-list-item
-            v-for="(rb, index) in receive_bills"
-            :key="index"
-            >
+        <uni-list-item v-for="(rb, index) in receive_bills" :key="index">
             <template #body>
+                <view class="uni-list-item__body">
+                    <view class="title">{{ rb['FMaterialId.FNumber'] }} / {{ rb['FMaterialId.FName'] }}</view>
+                    <view class="note">
+                        <view>规格：{{ rb['FMaterialId.FSpecification'] }}</view>
+                        <view>单据：
+                            <text class="text-primary">{{ rb.FBillNo }}</text>, 
+                            <text class="text-primary">{{ rb.F_PAEZ_Text }}</text>
+                        </view>
+                        <view>供应商：{{ rb['FSupplierId.FName'] }}</view>
+                        <view>采购员：{{ rb['FPurchaserId.FName'] }}, 创建日期：{{ formatDate(rb.FCreateDate, 'yyyy-MM-dd') }}</view>
+                    </view>
+                </view>
+            </template>
+            <template #footer>
+                <view class="uni-list-item__foot">
+                    <view>{{ rb.FActReceiveQty }} {{ rb['FUnitId.FName'] }}</view>
+                </view>
+            </template>
+            <!-- <template #body>
                 <view class="uni-list-item__body">
                     <view class="title">{{ rb.FBillNo }} / {{ rb.F_PAEZ_Text }}</view>
                     <view class="note">
@@ -51,7 +67,7 @@
                 <view class="uni-list-item__foot">
                     <view>{{ rb.FActReceiveQty }} {{ rb['FUnitId.FName'] }}</view>
                 </view>
-            </template>
+            </template> -->
         </uni-list-item>
     </uni-list>
     
@@ -115,8 +131,7 @@
 <script>
     import store from '@/store'
     import { PurReceiveBill } from '@/utils/model'
-    import { truncate } from '@/utils'
-    import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+    import { truncate, formatDate } from '@/utils'
     
     export default {
         data() {
@@ -206,8 +221,13 @@
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     .search-form {
         flex: 1;
+    }
+    .uni-forms::v-deep {
+        .uni-forms-item {
+            margin-bottom: 10px;
+        }
     }
 </style>

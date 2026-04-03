@@ -28,7 +28,7 @@
         <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
             <uni-tr>
                 <uni-th align="center" width="60">序号</uni-th>
-                <uni-th align="center" width="60">ICON</uni-th>
+                <uni-th align="center" width="60">略图</uni-th>
                 <uni-th align="center">物料编码</uni-th>
                 <uni-th align="center">物料名称</uni-th>
                 <uni-th align="center">规格型号</uni-th>

@@ -682,18 +682,23 @@ const query_filter = (options = {}) => {
     let filters = []
     for (let k of Object.getOwnPropertyNames(options)) {
         let { field, compare } = match_suffix(k)
+        let is_sym = false // 表内字段之间对比
         if (options[k] instanceof Date) { 
             options[k] = options[k].toLocaleString() // Date实例转成String
         } else if (typeof(options[k]) === 'string') {
             options[k] = options[k].replace(/\'|;/g, '') // 去掉特殊字符，防止sql注入
+            if (options[k][0] == ':') {
+                is_sym = true
+                options[k] = options[k].slice(1)
+            }
         }
         switch (compare) {
-            case 'eq': filters.push(`${field} = '${options[k]}'`);                         break;
-            case 'ne': filters.push(`${field} != '${options[k]}'`);                        break;
-            case 'gt': filters.push(`${field} > '${options[k]}'`);                         break;
-            case 'ge': filters.push(`${field} >= '${options[k]}'`);                        break;
-            case 'lt': filters.push(`${field} < '${options[k]}'`);                         break;
-            case 'le': filters.push(`${field} <= '${options[k]}'`);                        break;
+            case 'eq': filters.push(is_sym ? `${field} = ${options[k]}` : `${field} = '${options[k]}'`);  break;
+            case 'ne': filters.push(is_sym ? `${field} != ${options[k]}` : `${field} != '${options[k]}'`);break;
+            case 'gt': filters.push(is_sym ? `${field} > ${options[k]}` : `${field} > '${options[k]}'`);  break;
+            case 'ge': filters.push(is_sym ? `${field} >= ${options[k]}` : `${field} >= '${options[k]}'`);break;
+            case 'lt': filters.push(is_sym ? `${field} < ${options[k]}` : `${field} < '${options[k]}'`);  break;
+            case 'le': filters.push(is_sym ? `${field} <= ${options[k]}` : `${field} <= '${options[k]}'`);break;
             case 'lk': filters.push(`${field} LIKE '%${options[k]}%'`);                    break;
             case 'sw': filters.push(`${field} LIKE '${options[k]}%'`);                     break;
             case 'ew': filters.push(`${field} LIKE '%${options[k]}'`);                     break;

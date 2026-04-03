@@ -39,6 +39,16 @@ const store = createStore({
         stock_loc_opts: [],        // 基础数据，库位，uni-data-picker 用格式
         document_status_dict: { A: '已创建', B: '已提交', C: '已审核' },
         close_status_dict: { A: '未关闭', B: '关闭' },
+        org_enum: [
+            [      1, '100', '绿田机械股份有限公司'],
+            [ 100005, '101', '清洗机事业部'],
+            [ 100006, '102', '内燃机事业部'],
+            [ 100007, '103', '电机分厂'],
+            [ 857126, '104', '新分厂'],
+            [1010448, '105', '商用清洗机'],
+            [2302686, '106', '备件'],
+            [2511431, '107', '新能源事业部']
+        ],
         goods_nav_fill: true,
         goods_nav_color: {
             blue: 'linear-gradient(90deg, #1E83FF, #0053B8)',

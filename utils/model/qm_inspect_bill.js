@@ -1,7 +1,7 @@
 import K3CloudApi from '@/utils/k3cloudapi'
 
-class PurReceiveBill {
-    static form_id = 'PUR_ReceiveBill'
+class QmInspectBill {
+    static form_id = 'QM_InspectBill'
     constructor() {
         
     }
@@ -16,6 +16,28 @@ class PurReceiveBill {
         return K3CloudApi.save(this.form_id, data)
     }
     
+    /**
+     * @param ids:Array[Integer]
+     * @return {Hash} Promise
+     */
+    static async submit(ids=[]) {
+        const data = {
+            Ids: ids.join(',')
+        }
+        return K3CloudApi.submit(this.form_id, data)
+    }
+    
+    /**
+     * @param ids:Array[Integer]
+     * @return {Hash} Promise
+     */
+    static async audit(ids=[]) {
+        const data = {
+            Ids: ids.join(',')
+        }
+        return K3CloudApi.audit(this.form_id, data)
+    }
+    
     /** 
      * 搜索物料基础数据(模糊匹配)
      * @param options:Hash 参数集
@@ -26,12 +48,7 @@ class PurReceiveBill {
      * @return {Hash} Promise
      */
     static async query (options={}, meta={}) {
-        let fields = ['FID', 'FBillNo', 'FCreateDate',
-                      'FSupplierId', 'FSupplierId.FNumber', 'FSupplierId.FName', 'FPurchaserId', 'FPurchaserId.FNumber', 'FPurchaserId.FName',
-                      'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_RGEN_Text_qtr', 'FMaterialId.FBoxStandardQty',
-                      'FStockId', 'FStockId.FNumber', 'FStockId.FName', 'FCheckInComing',
-                      'FActReceiveQty', 'FUnitId', 'FUnitId.FNumber', 'FUnitId.FName', 'FMustQty', 'FCheckJoinQty',
-                      'F_PAEZ_Text']
+        let fields = ['FID', 'FBillNo', 'FDocumentStatus', 'FBillTypeId.FName', 'FCreateDate', 'FInspectorId.FName']
         if (meta.fields) {
             fields = fields.concat(meta.fields)
         }
@@ -59,10 +76,6 @@ class PurReceiveBill {
             return K3CloudApi.view(this.form_id, { Number: id })
         }
     }
-    
-    static async push(data) {
-        return K3CloudApi.push(this.form_id, data)
-    }
 }
 
-export default PurReceiveBill
+export default QmInspectBill

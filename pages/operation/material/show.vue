@@ -340,6 +340,7 @@
                 for (let field of this.image_fields) {
                     if (this.bd_material[field]?.trim()) {
                         let obj = this.image_urls.find(x => x.field === field)
+                        if (obj.original) continue // 避免重复加载
                         obj.original = await K3CloudApi.download_image_cache(this.bd_material[field])
                     }
                 }
@@ -495,6 +496,9 @@
 
 <style lang="scss" scoped>
     .uni-list-item::v-deep {
+        .uni-list-item__container {
+            padding: 9px 15px;
+        }
         .uni-list-item__extra-text {
             color: #666;
             font-size: 13px;

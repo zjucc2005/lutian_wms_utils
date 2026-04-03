@@ -20,6 +20,7 @@ import PrdPpbom from './prd_ppbom'
 import PurMrb from './pur_mrb'
 import PurPurchaseOrder from './pur_purchase_order'
 import PurReceiveBill from './pur_receive_bill'
+import QmInspectBill from './qm_inspect_bill'
 import SalDeliveryNotice from './sal_delivery_notice'
 import SpPickMtrl from './sp_pick_mtrl'
 import StkInventory from './stk_inventory'
@@ -44,6 +45,7 @@ export {
     PurMrb,
     PurPurchaseOrder,
     PurReceiveBill,
+    QmInspectBill,
     SalDeliveryNotice,
     SpPickMtrl,
     StkInventory,

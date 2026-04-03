@@ -190,55 +190,50 @@
                 })
             },
             async call_test_api() {
-                // K3CloudApi.view('QM_InspectBill', { Number: 'IQC000001' })
+                // console.log('>>> obj', raw_data.split('\n')[0].split('\t'))
+                // let i = 1
+                // for (let row of raw_data.split('\n')) {
+                //     let d = row.split('\t')
+                //     let res = await model.BdMaterial.query({ FNumber: d[0], FUseOrgId: 1 })
+                //     for (let obj of res.data) {
+                //         model.BdMaterial.update(obj.FMaterialId, { F_RGEN_Text_bzgx: d[1] })
+                //     }
+                //     // console.log('>>> import row', i)
+                //     i++
+                // }
+                
+                K3CloudApi.view('QM_InspectBill', { Number: 'IQC000021' })
                 // K3CloudApi.view('PUR_ReceiveBill', { Number: 'CGSL237799' })
                 // K3CloudApi.view('PUR_ReceiveBill', { Number: 'CGSL237757' })
                 // K3CloudApi.view('PUR_PurchaseOrder', { Number: 'PO1260300804' })
                 
-                let _model_ = { 
-                    FBillTypeID: { FNumber: 'JYD001_SYS' }, // 来料检验单
-                    FBusinessType: '1', // 采购检验
-                    FDate: '2026-03-31',
-                    FSourceOrgId: { FNumber: '102' },
-                    FInspectOrgId: { FNumber: '102' },
-                    FEntry: [
-                        {
+                // let _model_ = { 
+                //     FBillTypeID: { FNumber: 'JYD001_SYS' }, // 来料检验单
+                //     FBusinessType: '1', // 采购检验
+                //     FDate: '2026-03-31',
+                //     FSourceOrgId: { FNumber: '102' },
+                //     FInspectOrgId: { FNumber: '102' },
+                //     FEntry: [
+                //         {
                             
-                        }
-                    ]
-                }
+                //         }
+                //     ]
+                // }
                 let data = {
                     EntryIds: [939606, 939607].join(','),
                     RuleId: 'QM_PURReceive2Inspect',
+                    TargetOrgId: 100006,
                     // TargetFormId: 'QM_InspectBill'
                 }
                 // K3CloudApi.push('PUR_ReceiveBill', data)
                 
-                // K3CloudApi.save('QM_InspectBill', { model: _model_ })
-                
-                // model.StkOutStockApply.view('CKSQD037464')
-                // model.PrdPpbom.view('PPBOM00867816')
-                // model.PrdIssueMtrNotice.query({ FBillNo: 'SCFLTZD32739' })
-                // model.PrdIssueMtrNotice.update(132784, {
-                //     FDetailEntity: [
-                //         { FEntryID: 5717882, FSeq: 1 },
-                //         { FEntryID: 5717883, FSeq: 1 }
-                //     ]
+                // K3CloudApi.execute_bill_query({ 
+                //     FormId: 'ORG_Organizations', 
+                //     FieldKeys: ['FORGID', 'FNumber', 'FName'].join(','),
+                //     FilterString: "FDocumentStatus = 'C' AND FForbidStatus = 'A' AND FParentId = 1 "
                 // })
-                // K3CloudApi.view('PUR_MRB', { Number: 'CGTL213693' })
                 
-                // let data = {
-                //     EntryIds: [13125151].join(','),
-                //     RuleId: 'PRD_PPBOM2PICKMTRL_NORMAL',
-                //     TargetFormId: 'PRD_PickMtrl'
-                // }
-                // K3CloudApi.push('PRD_PPBOM', data)
-                
-                // let arr = []
-                // let res = await StockLoc.query({ FNumber_sw: 'WL02' })
-                // for (let loc of res.data) {
-                //     // arr.push(loc.FID)
-                // }
+                // K3CloudApi.save('QM_InspectBill', { model: _model_ })
                 // EngBom.query("FNumerator / FDenominator <> ROUND(FNumerator / FDenominator, FCHILDUNITID.FPRECISION)")
                 // EngBom.view('2.05.01.01.01.0001_V1.1')
             },

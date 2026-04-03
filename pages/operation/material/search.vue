@@ -2,7 +2,7 @@
     <uni-section title="查询物料" type="square">
         <view class="container">
             <uni-forms ref="form" :model="search_form" labelWidth="70px">
-                <uni-forms-item label="编码" name="material_no">
+                <uni-forms-item label="物料编码" name="material_no">
                     <uni-easyinput
                         v-model="search_form.material_no"
                         trim="both"
@@ -10,10 +10,10 @@
                         @icon-click="searchbar_icon_click"
                     />
                 </uni-forms-item>
-                <uni-forms-item label="名称" name="material_name">
+                <uni-forms-item label="物料名称" name="material_name">
                     <uni-easyinput v-model="search_form.material_name" trim="both"/>
                 </uni-forms-item>
-                <uni-forms-item label="规格" name="material_spec">
+                <uni-forms-item label="规格型号" name="material_spec">
                     <uni-easyinput v-model="search_form.material_spec" trim="both"/>
                 </uni-forms-item>
                 <uni-forms-item label="存货类别" name="material_category_id">

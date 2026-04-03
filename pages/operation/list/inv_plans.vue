@@ -92,34 +92,56 @@
             @close="search_dialog_close"
             @confirm="search_dialog_confirm"
             :before-close="true"
-            style="width: 360px;"
+            :style="{ width: $store.state.system_info.windowWidth - 20 + 'px', minWidth: '360px', maxWidth: '1200px' }"
             >
             <view class="search-form">
                 <uni-forms ref="search_form" :model="search_form" >
-                    <uni-forms-item label="开始时间">
-                        <uni-datetime-picker type="date" v-model="search_form.create_time_ge" />
-                    </uni-forms-item>
-                    <uni-forms-item label="结束时间">
-                        <uni-datetime-picker type="date" v-model="search_form.create_time_le" />
-                    </uni-forms-item>
-                    <uni-forms-item label="操作类型">
-                        <uni-data-select v-model="search_form.op_type" :localdata="op_type_options"></uni-data-select>
-                    </uni-forms-item>
-                    <uni-forms-item label="物料编码">
-                        <uni-easyinput v-model="search_form.material_no" />
-                    </uni-forms-item>
-                    <uni-forms-item label="名称">
-                        <uni-easyinput v-model="search_form.material_name" />
-                    </uni-forms-item>
-                    <uni-forms-item label="规格">
-                        <uni-easyinput v-model="search_form.material_spec" />
-                    </uni-forms-item>
-                    <uni-forms-item label="单据编号">
-                        <uni-easyinput v-model="search_form.bill_no" />
-                    </uni-forms-item>
-                    <uni-forms-item label="收货人">
-                        <uni-easyinput v-model="search_form.receiver" />
-                    </uni-forms-item>
+                    <uni-row :gutter="15">
+                        <uni-col :md="8" :sm="12" :xs="24">
+                            <uni-forms-item label="开始时间">
+                                <uni-datetime-picker type="date" v-model="search_form.create_time_ge" />
+                            </uni-forms-item>
+                        </uni-col>
+                        <uni-col :md="8" :sm="12" :xs="24">
+                            <uni-forms-item label="结束时间">
+                                <uni-datetime-picker type="date" v-model="search_form.create_time_le" />
+                            </uni-forms-item>
+                        </uni-col>
+                        <uni-col :md="8" :sm="12" :xs="24">
+                            <uni-forms-item label="操作类型">
+                                <uni-data-select v-model="search_form.op_type" :localdata="op_type_options"></uni-data-select>
+                            </uni-forms-item>
+                        </uni-col>
+                    </uni-row>
+                    <uni-row :gutter="15">
+                        <uni-col :md="8" :sm="12" :xs="24">
+                            <uni-forms-item label="物料编码">
+                                <uni-easyinput v-model="search_form.material_no" />
+                            </uni-forms-item>
+                        </uni-col>
+                        <uni-col :md="8" :sm="12" :xs="24">
+                            <uni-forms-item label="物料名称">
+                                <uni-easyinput v-model="search_form.material_name" />
+                            </uni-forms-item>
+                        </uni-col>
+                        <uni-col :md="8" :sm="12" :xs="24">
+                            <uni-forms-item label="规格型号">
+                                <uni-easyinput v-model="search_form.material_spec" />
+                            </uni-forms-item>
+                        </uni-col>
+                    </uni-row>
+                    <uni-row :gutter="15">
+                        <uni-col :md="8" :sm="12" :xs="24">
+                            <uni-forms-item label="单据编号">
+                                <uni-easyinput v-model="search_form.bill_no" />
+                            </uni-forms-item>
+                        </uni-col>
+                        <uni-col :md="8" :sm="12" :xs="24">
+                            <uni-forms-item label="收货人">
+                                <uni-easyinput v-model="search_form.receiver" />
+                            </uni-forms-item>
+                        </uni-col>
+                    </uni-row>
                 </uni-forms>
             </view>
         </uni-popup-dialog>
@@ -230,7 +252,10 @@
 <style lang="scss">
     .search-form {
         flex: 1;
-        max-height: 420px;
-        overflow: scroll;
+    }
+    .uni-forms::v-deep {
+        .uni-forms-item {
+            margin-bottom: 10px;
+        }
     }
 </style>

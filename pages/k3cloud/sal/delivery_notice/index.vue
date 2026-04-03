@@ -191,7 +191,7 @@
                 this.search_dialog_close()
             },
             show_delivery_notice(id) {
-                link_to('/pages/k3cloud/xiaoshouguanli/fahuotongzhidan/show?id=' + id)
+                link_to('/pages/k3cloud/sal/delivery_notice/show?id=' + id)
                 // console.log('show_delivery_notice', id)
             }
         }

@@ -182,7 +182,7 @@
                         {   
                             span: 12, style: { height: this.window_width * 0.25 + 'px' },
                             image: {
-                                url: this.image_urls[0]?.original,
+                                url: this.image_urls[0]?.original || this.image_urls[0]?.thumbnail,
                                 style: { width: this.window_width * 0.5 + 'px', height: this.window_width * 0.25 + 'px' }
                             }
                         },

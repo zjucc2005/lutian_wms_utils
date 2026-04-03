@@ -26,16 +26,20 @@
                 navs: [
                     {
                         name: '采购管理', permission: ['all'], icon_path: '/static/icon/nav_list_cart.png',
-                        action: () => { link_to('/pages/k3cloud/caigouguanli/index') }
+                        action: () => { link_to('/pages/k3cloud/pur/index') }
                     },
                     {
                         name: '销售管理', permission: ['wh_admin'], icon_path: '/static/icon/nav_list_money.png',
-                        action: () => { link_to('/pages/k3cloud/xiaoshouguanli/index') }
+                        action: () => { link_to('/pages/k3cloud/sal/index') }
                     },
                     {
                         name: '生产管理', permission: ['all'], icon_path: '/static/icon/nav_list_link.png',
-                        action: () => { link_to('/pages/k3cloud/shengchanguanli/index') }
-                    }
+                        action: () => { link_to('/pages/k3cloud/prd/index') }
+                    },
+                    {
+                        name: '质量管理', permission: ['all'], icon_path: '/static/icon/nav_bill_check.png',
+                        action: () => { link_to('/pages/k3cloud/qm/index') }
+                    },
                 ]
             }
         },

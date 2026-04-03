@@ -555,7 +555,7 @@ const gen_pdf_mo_picking = (options) => {
     f.addFont(font_file_path, font_family, 'normal') // 加载字体
     f.setFont(font_family) // 设置字体
     // header
-    f.addImage('/static/image/lutian_logo.png', 6, 6, 37.25, 10.75)
+    f.addImage('./static/image/lutian_logo.png', 6, 6, 37.25, 10.75)
     if (options.qr) f.addImage(options.qr, 'png', 182, 6, 20, 20)
     f.setFontSize(20) // 设置固定字段名称
     f.text('物流拣选单', 87.3 ,20)
@@ -635,7 +635,7 @@ const gen_pdf_mo_confirming = (options) => {
     f.addFont(font_file_path, font_family, 'normal') // 加载字体
     f.setFont(font_family) // 设置字体
     // header
-    f.addImage('/static/image/lutian_logo.png', 6, 6, 37.25, 10.75)
+    f.addImage('./static/image/lutian_logo.png', 6, 6, 37.25, 10.75)
     if (options.qr) f.addImage(options.qr, 'png', 182, 6, 20, 20)
     f.setFontSize(20) // 设置固定字段名称
     f.text('物料状态确认表', 80.3 ,20)

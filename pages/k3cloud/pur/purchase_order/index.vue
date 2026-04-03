@@ -120,8 +120,7 @@
 <script>
     import store from '@/store'
     import { PurPurchaseOrder } from '@/utils/model'
-    import { truncate } from '@/utils'
-    import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
+    import { truncate, formatDate } from '@/utils'
     
     export default {
         data() {
