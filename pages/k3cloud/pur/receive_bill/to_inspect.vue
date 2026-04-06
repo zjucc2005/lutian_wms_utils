@@ -1,5 +1,5 @@
 <template>
-    <uni-section title="收料通知单" type="square" class="above-uni-goods-nav">
+    <uni-section title="收料通知单" type="square" class="above-uni-goods-nav" @click="$logger.info('>>>', $data)">
         <template #right>
             <view style="display: flex;" @click="show_push_tips()">
                 <uni-icons type="info" size="18" color="#007aff"></uni-icons>
@@ -372,9 +372,8 @@
             async submit_push() {
                 try {
                     uni.showLoading({ title: 'Loading' })
-                    let entry_ids = new Array(...this.cart)
                     let data = {
-                        EntryIds: entry_ids.join(','),
+                        EntryIds: Array.from(this.cart).join(','),
                         RuleId: this.push_form.rule_id,
                         TargetOrgId: this.push_form.target_org_id
                     }
