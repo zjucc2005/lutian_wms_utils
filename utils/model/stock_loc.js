@@ -19,6 +19,7 @@ class StockLoc {
         this.FGroup = options.FGroup
         this.FPosX = options.FPosX
         this.FPosY = options.FPosY
+        if (options.FRemark) this.FRemark = options.FRemark
         if (options.FPalletSpace) this.FPalletSpace = options.FPalletSpace
     }
     
@@ -41,7 +42,7 @@ class StockLoc {
     static async batch_save(stock_locs=[]) {
         const data = {
             model: stock_locs,
-            ValidateRepeatJson: true
+            // ValidateRepeatJson: true
         }
         return K3CloudApi.batch_save('PAEZ_C_STOCK_LOC', data)
     }

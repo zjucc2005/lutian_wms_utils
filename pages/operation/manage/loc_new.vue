@@ -92,7 +92,7 @@
                             <uni-easyinput v-model="new_form.depot" trim="both" />
                         </uni-forms-item>
                         <uni-forms-item label="类型" name="shelf">
-                            <uni-data-select v-model="new_form.shelf" :localdata="[{ value: '拆包区', text: '拆包区' }]"></uni-data-select>
+                            <uni-data-select v-model="new_form.shelf" :localdata="[{ value: '拆包区', text: '拆包区' }, { value: '拣选测试', text: '拣选测试' }]"></uni-data-select>
                         </uni-forms-item>
                     </template>
                     <uni-forms-item label="示例">
@@ -309,7 +309,8 @@
                                 FGroup: loc_no.shelf,
                                 FPosX: loc_no.x,
                                 FPosY: loc_no.y,
-                                FPalletSpace: 1
+                                FPalletSpace: 1,
+                                FRemark: loc_no.remark
                             })
                         })
                         uni.showLoading({ title: 'Loading' })
@@ -365,8 +366,8 @@
                     loc_nos.push({
                         no: `${depot}-${shelf}`,
                         status: '',
-                        shelf: `${depot}-${shelf}`,
-                        x: 1,
+                        shelf: `${depot}-拆包区`,
+                        x: shelf == '拆包区' ? 1 : 2,
                         y: 1
                     })
                 }

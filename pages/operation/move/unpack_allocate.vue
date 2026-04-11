@@ -1,5 +1,5 @@
 <template>
-    <uni-section title="发料信息" type="square" :sub-title="bill_no" sub-title-color="#007aff">
+    <uni-section title="发料信息" type="square" :sub-title="bill_no" sub-title-color="#007aff" @click="$logger.info('>>>', $data)">
         <uni-list>
             <uni-list-item>
                 <template #body>
@@ -21,7 +21,8 @@
         </uni-list>
     </uni-section>
     
-    <uni-section title="调拨日志" type="square">
+    <uni-section title="调拨日志" type="square"
+        :sub-title="`调拨库位：${dest_loc_no}`" sub-title-color="#007aff">
         <template #right>
             <view>已调拨：<text class="text-primary">{{ sum_moved_qty }}</text></view>
         </template>
@@ -121,6 +122,7 @@
             return {
                 bill_no: '',
                 material: {},
+                dest_loc_no: '',
                 invs: [],
                 inv_plans: [],
                 inv_editing: {},
@@ -144,6 +146,7 @@
                 this.$logger.info('eventChannel res:', res)
                 this.bill_no = res.bill_no
                 this.material = res.material
+                this.dest_loc_no = res.dest_loc_no
                 this.load_invs()
                 this.load_inv_plans()
             })
@@ -212,7 +215,8 @@
             async submit_move() {
                 uni.showLoading({ title: 'Loading', mask: true })
                 for (let inv of this.invs) {
-                    let dest_loc_no = `${inv['FStockLocId.FNumber'].split('-')[0]}-拆包区`
+                    // let dest_loc_no = `${inv['FStockLocId.FNumber'].split('-')[0]}-拆包区`
+                    let dest_loc_no = this.dest_loc_no
                     if (inv.checked && inv['FStockLocId.FNumber'] !== dest_loc_no) {
                         let inv_plan = new InvPlan({
                             FOpType: 'mv',

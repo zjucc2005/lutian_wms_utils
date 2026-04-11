@@ -224,6 +224,8 @@
                     if (no.startsWith(shelf)) {
                         name = no.substring(shelf.length, no.length)
                         if (name.startsWith('-')) name = name.substring(1, name.length)
+                    } else {
+                        name = '' // 不符合格式，grid内不显示名称，避免样式布局错误
                     }
                     let x = stock_loc.FPosX                   // 横坐标
                     let y = stock_loc.FPosY                   // 纵坐标

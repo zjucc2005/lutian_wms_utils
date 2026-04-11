@@ -1,20 +1,26 @@
 <template>
-    <uni-section title="查询生产订单编号" type="square" @click="$logger.info('>>>', $data)">
+    <uni-section title="查询生产订单编号" type="square"
+        sub-title="支持复数编号的查询，用换行符隔开，每行一个编号" sub-title-color="#007aff"
+        @click="$logger.info('>>>', $data)">
         <view class="searchbar-container">
             <uni-easyinput
                 v-model="search_form.bill_no" 
+                type="textarea"
+                :maxlength="-1"
                 placeholder="请输入搜索内容"
-                prefix-icon="scan"
-                @confirm="handle_search"
-                @clear="handle_search"
+                suffix-icon="search"
                 @icon-click="searchbar_icon_click"
                 primary-color="rgb(238, 238, 238)"
                 :styles="{
                     color: '#000',
                     backgroundColor: 'rgb(238, 238, 238)',
-                    borderColor: 'rgb(238, 238, 238)'
+                    borderColor: 'rgb(238, 238, 238)',
+                    marginBottom: '10px'
                 }"
             />
+        </view>
+        <view v-if="$store.state.screen_type === 'h5'" style="padding: 0 15px; text-align: right;">
+            <uni-tag text="查询" type="primary" @click="handle_search"/>
         </view>
     </uni-section>
     
@@ -32,9 +38,9 @@
                 <uni-th align="center">产品名称</uni-th>
                 <uni-th align="center">规格型号</uni-th>
                 <uni-th align="center" width="80">生产数量</uni-th>
-                <uni-th align="center">单位</uni-th>
-                <uni-th align="center">生产车间</uni-th>
-                <uni-th align="center">操作</uni-th>
+                <uni-th align="center" width="60">单位</uni-th>
+                <uni-th align="center" width="140">生产车间</uni-th>
+                <uni-th align="center" width="140">操作</uni-th>
             </uni-tr>
             
             <uni-tr v-for="(obj, index) in ppboms" :key="index">
@@ -166,13 +172,12 @@
             }
         },
         mounted() {
-            this.handle_search()
-            // PrdMo.view('1022602040801')
-            // PrdPpbom.view('PPBOM01128772')
+            // this.handle_search()
         },
         methods: {
             searchbar_icon_click(e) {
-                if (e == 'prefix') this.scan_code()
+                // if (e == 'prefix') this.scan_code()
+                if (e == 'suffix') this.handle_search()
             },
             goods_nav_click(e) {
                 if (e.index === 0) this.$logger.info('>>>', this.$data)
@@ -216,11 +221,14 @@
                     uni.showModal({ title: '提示', content: '仅PC端支持打印' })
                 // #endif
             },
-            async handle_search(e) {
+            async handle_search() {
+                this.ppboms = []
                 this.pdf_data = {}
                 if (this.search_form.bill_no) {
-                    this.search_form.bill_no = this.search_form.bill_no.trim()
-                    let options = { FMoBillNo: this.search_form.bill_no }
+                    // console.log('>>> handle search', this.search_form.bill_no.split('\n'))
+                    // this.search_form.bill_no = this.search_form.bill_no.trim()
+                    uni.showLoading({ title: 'Loading' })
+                    let bill_nos = this.search_form.bill_no.split('\n')
                     let meta = {
                         fields: [ 'FID', 'FBillNo', 'FMoBillNo', 'FMoEntrySeq', 'FSaleOrderNo', 'FWorkShopId.FName', 
                                   'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
@@ -228,16 +236,37 @@
                         replace_fields: true,
                         order: 'FMoEntrySeq ASC'
                     }
-                    uni.showLoading({ title: 'Loading' })
-                    let res = await PrdPpbom.query(options, meta)
-                    uni.hideLoading()
-                    if (res.data.length === 0) {
-                        uni.showToast({ icon: 'none', title: '单据编号不存在' })
-                    } else {
-                        this.ppboms = res.data
+                    for (let bill_no of bill_nos) {
+                        bill_no = bill_no.trim()
+                        if (bill_no) {
+                            let res = await PrdPpbom.query({ FMoBillNo: bill_no }, meta)
+                            for (let ppbom of res.data) {
+                                this.ppboms.push(ppbom)
+                            }
+                        }
                     }
+                    uni.hideLoading()
+                    if (this.ppboms.length === 0) {
+                        uni.showModal({ title: '提示', content: '未查询到相关数据' })
+                    }
+                    // let options = { FMoBillNo: this.search_form.bill_no }
+                    // let meta = {
+                    //     fields: [ 'FID', 'FBillNo', 'FMoBillNo', 'FMoEntrySeq', 'FSaleOrderNo', 'FWorkShopId.FName', 
+                    //               'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
+                    //               'FQty', 'FUnitId.FName' ],
+                    //     replace_fields: true,
+                    //     order: 'FMoEntrySeq ASC'
+                    // }
+                    // uni.showLoading({ title: 'Loading' })
+                    // let res = await PrdPpbom.query(options, meta)
+                    // uni.hideLoading()
+                    // if (res.data.length === 0) {
+                    //     uni.showToast({ icon: 'none', title: '单据编号不存在' })
+                    // } else {
+                    //     this.ppboms = res.data
+                    // }
                 } else {
-                    this.materials = []
+                    uni.showModal({ title: '提示', content: '请输入搜索内容' })
                 }
             },
             async load_pdf_data(ppbom) {

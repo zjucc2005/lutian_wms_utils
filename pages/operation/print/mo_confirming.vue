@@ -126,9 +126,7 @@
             }
         },
         mounted() {
-            this.handle_search()
-            // PrdMo.view('1022602040801')
-            // PrdPpbom.view('PPBOM01128772')
+            // this.handle_search()
         },
         methods: {
             searchbar_icon_click(e) {
@@ -168,6 +166,7 @@
                 // #endif
             },
             async handle_search(e) {
+                this.ppboms = []
                 if (this.search_form.bill_no) {
                     this.search_form.bill_no = this.search_form.bill_no.trim()
                     let options = { FMoBillNo: this.search_form.bill_no }
@@ -186,8 +185,6 @@
                     } else {
                         this.ppboms = res.data
                     }
-                } else {
-                    this.materials = []
                 }
             },
             async load_pdf_data(ppbom) {

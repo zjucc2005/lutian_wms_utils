@@ -190,23 +190,18 @@
                 })
             },
             async call_test_api() {
-                // console.log('>>> obj', raw_data.split('\n')[0].split('\t'))
-                // let i = 1
-                // for (let row of raw_data.split('\n')) {
-                //     let d = row.split('\t')
-                //     let res = await model.BdMaterial.query({ FNumber: d[0], FUseOrgId: 1 })
-                //     for (let obj of res.data) {
-                //         model.BdMaterial.update(obj.FMaterialId, { F_RGEN_Text_bzgx: d[1] })
-                //     }
-                //     // console.log('>>> import row', i)
-                //     i++
-                // }
+                model.EngBom.view('8.802.30200.00_V1.600')
+                model.EngBom.view('8.290.00013.00_V1.100')
                 
-                K3CloudApi.view('QM_InspectBill', { Number: 'IQC000021' })
-                // K3CloudApi.view('PUR_ReceiveBill', { Number: 'CGSL237799' })
-                // K3CloudApi.view('PUR_ReceiveBill', { Number: 'CGSL237757' })
-                // K3CloudApi.view('PUR_PurchaseOrder', { Number: 'PO1260300804' })
-                
+                // model.EngBom.update(3462543, {
+                //     FTreeEntity: [
+                //         {  
+                //             FENTRYID: 31778390,
+                //             FReplacePriority: 1,
+                //             FMRPPriority: 1
+                //         }
+                //     ]
+                // })
                 // let _model_ = { 
                 //     FBillTypeID: { FNumber: 'JYD001_SYS' }, // 来料检验单
                 //     FBusinessType: '1', // 采购检验

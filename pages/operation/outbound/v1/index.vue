@@ -9,21 +9,28 @@
         @click="$logger.info('>>>', this.$data)"
         >
         <view class="searchbar-container">
-            <uni-easyinput
-                v-model="search_form.bill_no" 
-                placeholder="请输入单据编号"
-                prefix-icon="scan"
-                @confirm="handle_search"
-                @clear="clear_data"
-                @icon-click="searchbar_icon_click"
-                primary-color="rgb(238, 238, 238)"
-                :styles="{
-                    color: '#000',
-                    backgroundColor: 'rgb(238, 238, 238)',
-                    borderColor: 'rgb(238, 238, 238)',
-                    height: '60px'
-                }"
-            />
+            <uni-forms ref="search_form">
+                <uni-forms-item label="单据编号">
+                    <uni-easyinput
+                        v-model="search_form.bill_no" 
+                        placeholder="请输入单据编号"
+                        prefix-icon="scan"
+                        @confirm="handle_search"
+                        @clear="clear_data"
+                        @icon-click="searchbar_icon_click"
+                        primary-color="rgb(238, 238, 238)"
+                        :styles="{
+                            color: '#000',
+                            backgroundColor: 'rgb(238, 238, 238)',
+                            borderColor: 'rgb(238, 238, 238)',
+                            height: '60px'
+                        }"
+                    />
+                </uni-forms-item>
+                <uni-forms-item label="拆包区" style="margin-bottom: 0;">
+                    <uni-data-select v-model="dest_loc_no" :localdata="dest_loc_no_options" :clear="false" @change="load_invs" />
+                </uni-forms-item>
+            </uni-forms>
         </view>
     </uni-section>
     
@@ -75,7 +82,7 @@
                 <uni-th align="center">规格型号</uni-th>
                 <uni-th align="center">单位</uni-th>
                 <uni-th align="center">应发数量</uni-th>
-                <uni-th align="center">拆包区数量</uni-th>
+                <uni-th align="center">{{ this.dest_loc_no }}</uni-th>
                 <uni-th align="center">实发数量</uni-th>
                 <uni-th align="center">仓库</uni-th>
                 <uni-th align="center">仓管员</uni-th>
@@ -130,7 +137,7 @@
                         <view class="note">
                             <view>规格：{{ obj['FMaterialId2.FSpecification'] }}</view>
                             <view>仓库：<text :class="[obj['FStockId'] == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj['FStockId.FName'] }}</text></view>
-                            <view>单位：{{ obj['FUnitId2.FName'] }}， 拆包区：{{ invs_map[obj['FMaterialId2']] || 0 }}</view>
+                            <view>单位：{{ obj['FUnitId2.FName'] }}， {{ this.dest_loc_no }}：{{ invs_map[obj['FMaterialId2']] || 0 }}</view>
                         </view>
                     </view>
                 </template>
@@ -162,7 +169,7 @@
     import store from '@/store'
     import { play_audio_prompt, formatDate } from '@/utils'
     import scan_code from '@/utils/scan_code'
-    import { Inv, InvLog, PrdPpbom } from '@/utils/model'
+    import { Inv, InvLog, PrdPpbom, StockLoc } from '@/utils/model'
     
     export default {
         data() {
@@ -171,6 +178,8 @@
                 search_form: {
                     bill_no: '', // 生产订单编号
                 },
+                dest_loc_no: '',
+                dest_loc_no_options: [],
                 ppboms: [],
                 ppbom: {},
                 invs: [],          // 拆包区库存
@@ -204,6 +213,7 @@
             // #endif
         },
         mounted() {
+            this.load_dest_loc_nos()
         },
         computed: {
             ppbom_entry_filtered() {
@@ -310,6 +320,15 @@
                     await this.load_ppboms()
                 }  
             },
+            async load_dest_loc_nos() {
+                let res = await StockLoc.query({ FGroup_lk: '拆包区', FStockId: store.state.cur_stock.FStockId })
+                let options = []
+                for (let obj of res.data) {
+                    options.push({ text: obj.FNumber, value: obj.FNumber })
+                }
+                this.dest_loc_no_options = options
+                this.dest_loc_no = options[0]?.value
+            },
             async load_ppboms() {
                 let options = { FMoBillNo: this.search_form.bill_no }
                 let meta = {
@@ -347,7 +366,8 @@
                 this.goods_nav.button_group[1].backgroundColor = this.is_completed ? store.state.goods_nav_color.grey : store.state.goods_nav_color.blue
             },
             async load_invs() {
-                let res = await Inv.get_all({ FStockId: store.state.cur_stock.FStockId, 'FStockLocId.FName_lk': '拆包区' }, { order: 'FBatchNo ASC' })
+                // let res = await Inv.get_all({ FStockId: store.state.cur_stock.FStockId, 'FStockLocId.FName_lk': '拆包区' }, { order: 'FBatchNo ASC' })
+                let res = await Inv.get_all({ FStockId: store.state.cur_stock.FStockId, 'FStockLocId.FName': this.dest_loc_no }, { order: 'FBatchNo ASC' })
                 this.invs = res
                 let invs_map = {}
                 for (let inv of this.invs) {

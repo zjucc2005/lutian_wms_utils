@@ -197,7 +197,7 @@
             @close="close_move_dialog"
             @confirm="confirm_move_dialog"
             :beforeClose="true"
-            style="width: 360px;"
+            :style="{ width: $store.state.system_info.windowWidth - 20 + 'px', minWidth: '360px', maxWidth: '720px' }"
             >
             <view class="move-form">
                 <uni-data-checkbox

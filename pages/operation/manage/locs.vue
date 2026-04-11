@@ -37,7 +37,7 @@
 <script>
     import store from '@/store'
     import { Inv, StockLoc } from '@/utils/model'
-    import { play_audio_prompt } from '@/utils'
+    import { play_audio_prompt, link_to } from '@/utils'
     import ccShelf from '@/components/cc-shelf/cc-shelf.vue'
     export default {
         components: {
@@ -45,6 +45,7 @@
         },
         data() {
             return {
+                can_edit: false,
                 invs: [],
                 cc_shelf_open: true,
                 last_refresh_time: 0,
@@ -82,8 +83,8 @@
                 if (e.index === 1) this.toggle_cc_shelf()
             },
             goods_nav_button_click(e) {
-                if (store.state.role == 'wh_admin') {
-                    if (e.index === 0) this.new_loc_no()
+                if (this.can_edit) {
+                    if (e.index === 0) link_to('/pages/operation/manage/loc_new')
                 }  
             },
             if_inv_map() {
@@ -95,10 +96,6 @@
                     },
                     fail: (err) => {}
                 })
-            },
-            new_loc_no () {
-                play_audio_prompt('success')
-                uni.navigateTo({ url: '/pages/operation/manage/loc_new' })
             },
             async load_invs() {
                 const options = {
@@ -138,7 +135,7 @@
                 return store.state.stock_locs.filter(x => x.FForbidStatus == 'B').map(x => x.FNumber)
             },
             _set_goods_nav () {
-                if (store.state.role == 'wh_admin') {
+                if (this.can_edit) {
                     this.goods_nav.button_group = [
                         {
                             text: '新增库位',

@@ -12,21 +12,28 @@
             <switch @change="switch_click" style="transform:scale(0.7)"/>
         </template>
         <view class="searchbar-container">
-            <uni-easyinput
-                v-model="search_form.bill_no" 
-                placeholder="请输入单据编号"
-                prefix-icon="scan"
-                @confirm="handle_search"
-                @clear="handle_search"
-                @icon-click="searchbar_icon_click"
-                primary-color="rgb(238, 238, 238)"
-                :styles="{
-                    color: '#000',
-                    backgroundColor: 'rgb(238, 238, 238)',
-                    borderColor: 'rgb(238, 238, 238)',
-                    height: '60px'
-                }"
-            />
+            <uni-forms ref="search_form">
+                <uni-forms-item label="单据编号">
+                    <uni-easyinput
+                        v-model="search_form.bill_no" 
+                        placeholder="请输入单据编号"
+                        prefix-icon="scan"
+                        @confirm="handle_search"
+                        @clear="handle_search"
+                        @icon-click="searchbar_icon_click"
+                        primary-color="rgb(238, 238, 238)"
+                        :styles="{
+                            color: '#000',
+                            backgroundColor: 'rgb(238, 238, 238)',
+                            borderColor: 'rgb(238, 238, 238)',
+                            height: '60px'
+                        }"
+                    />
+                </uni-forms-item>
+                <uni-forms-item label="调拨库位" style="margin-bottom: 0;">
+                    <uni-data-select v-model="dest_loc_no" :localdata="dest_loc_no_options" :clear="false" />
+                </uni-forms-item>
+            </uni-forms>
         </view>
     </uni-section>
     <!-- 分配库位 -->
@@ -120,7 +127,7 @@
     import store from '@/store'
     import { play_audio_prompt, formatDate } from '@/utils'
     import scan_code from '@/utils/scan_code'
-    import { PrdIssueMtrNotice, StkOutStockApply, SpPickMtrl, PurMrb, InvPlan } from '@/utils/model'
+    import { PrdIssueMtrNotice, StkOutStockApply, SpPickMtrl, PurMrb, InvPlan, StockLoc } from '@/utils/model'
     export default {
         data() {
             return {
@@ -132,6 +139,8 @@
                 search_form: {
                     bill_no: ''
                 },
+                dest_loc_no: '',
+                dest_loc_no_options: [],
                 goods_nav: {
                     options: [
                         { icon: 'clear', text: '清空' }
@@ -160,6 +169,7 @@
             // #endif
         },
         mounted() {
+            this.load_dest_loc_nos()
         },
         computed: {
             is_completed() {
@@ -181,7 +191,6 @@
             // 页面动作
             goods_nav_click(e) {
                 if (e.index === 0) {
-                    this.$logger.info('this.$data', this.$data)
                     this.search_form.bill_no = ''
                     this.handle_search()
                 }
@@ -242,6 +251,16 @@
                     this.goods_nav.button_group[0] = { text: '扫描单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' }
                 }
             },
+            // 加载拆包区库位
+            async load_dest_loc_nos() {
+                let res = await StockLoc.query({ FGroup_lk: '拆包区', FStockId: store.state.cur_stock.FStockId })
+                let options = []
+                for (let obj of res.data) {
+                    options.push({ text: obj.FNumber, value: obj.FNumber })
+                }
+                this.dest_loc_no_options = options
+                this.dest_loc_no = options[0]?.value
+            },
             // 选择库位
             allocate_loc_no(obj) {
                 uni.navigateTo({
@@ -253,7 +272,7 @@
                     },
                     success: (res) => {
                         play_audio_prompt('success')
-                        res.eventChannel.emit('eventInput', { bill_no: this.search_form.bill_no, material: obj }) // 候选的库位列表
+                        res.eventChannel.emit('eventInput', { bill_no: this.search_form.bill_no, material: obj, dest_loc_no: this.dest_loc_no }) // 候选的库位列表
                     }
                 })
             },
