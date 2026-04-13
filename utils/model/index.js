@@ -9,6 +9,7 @@ import MoveCart from './move_cart'
 
 import BdEmpInfo from './bd_empinfo'
 import BdMaterial from './bd_material'
+import BdOperator from './bd_operator'
 import EngBom from './eng_bom'
 import Inv from './inv'
 import InvLog from './inv_log'
@@ -34,6 +35,7 @@ export {
     
     BdEmpInfo,
     BdMaterial,
+    BdOperator,
     EngBom,
     Inv,
     InvLog,

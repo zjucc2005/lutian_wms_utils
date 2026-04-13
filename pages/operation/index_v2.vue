@@ -86,15 +86,15 @@
                         action: () => { link_to('/pages/operation/move/v2/index') }
                     },
                     {
-                        name: '库存查询', permission: ['wh_admin', 'wh_staff', 'nrj_admin'], icon_path: '/static/icon/nav_scan.png',
+                        name: '库存查询', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_scan.png',
                         action: () => { link_to('/pages/operation/manage/inv_search') }
                     },
                     {
-                        name: '库存总览', permission: ['default', 'wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock.png',
+                        name: '库存总览', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock.png',
                         action: () => { link_to('/pages/operation/manage/invs') }
                     },
                     {
-                        name: '库位管理', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock_loc.png',
+                        name: '库位管理', permission: ['all'], icon_path: '/static/icon/nav_stock_loc.png',
                         action: () => { link_to('/pages/operation/manage/locs') }
                     },
                     // {
@@ -102,7 +102,7 @@
                     //     action: () => { link_to('/pages/operation/manage/locs') }
                     // },
                     {
-                        name: '物料查询', permission: ['default', 'wh_admin', 'wh_staff', 'nrj_admin', 'guest'], icon_path: '/static/icon/nav_stock_search.png',
+                        name: '物料查询', permission: ['all'], icon_path: '/static/icon/nav_stock_search.png',
                         action: () => { link_to('/pages/operation/material/search') }
                     },
                     // {
@@ -110,7 +110,7 @@
                     //     action: () => { link_to('/pages/operation/material/search_parts') }
                     // },
                     {
-                        name: '出库查询', permission: ['default'], icon_path: '/static/icon/nav_truck.png',
+                        name: '出库查询', permission: ['all'], icon_path: '/static/icon/nav_truck.png',
                         action: () => { link_to('/pages/operation/outbound/v2/search') }
                     },
                     {
@@ -122,11 +122,11 @@
                         action: () => { link_to('/pages/operation/statistics/index') }
                     },
                     // {
-                    //     name: '生产订单', permission: ['nrj_admin', 'guest'], icon_path: '/static/icon/nav_list_move.png',
+                    //     name: '生产订单', permission: ['nrj_admin'], icon_path: '/static/icon/nav_list_move.png',
                     //     action: () => { link_to('/pages/operation/manufacture_order/index') }
                     // },
                     {
-                        name: '打印', permission: ['default', 'nrj_admin'], icon_path: '/static/icon/nav_printer.png',
+                        name: '打印', permission: ['nrj_admin'], icon_path: '/static/icon/nav_printer.png',
                         action: () => { link_to('/pages/operation/print/index') }
                     }
                     // ,

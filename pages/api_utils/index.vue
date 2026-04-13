@@ -190,58 +190,14 @@
                 })
             },
             async call_test_api() {
-                model.EngBom.view('8.802.30200.00_V1.600')
-                model.EngBom.view('8.290.00013.00_V1.100')
-                
-                // model.EngBom.update(3462543, {
-                //     FTreeEntity: [
-                //         {  
-                //             FENTRYID: 31778390,
-                //             FReplacePriority: 1,
-                //             FMRPPriority: 1
-                //         }
-                //     ]
-                // })
-                // let _model_ = { 
-                //     FBillTypeID: { FNumber: 'JYD001_SYS' }, // 来料检验单
-                //     FBusinessType: '1', // 采购检验
-                //     FDate: '2026-03-31',
-                //     FSourceOrgId: { FNumber: '102' },
-                //     FInspectOrgId: { FNumber: '102' },
-                //     FEntry: [
-                //         {
-                            
-                //         }
-                //     ]
-                // }
-                let data = {
-                    EntryIds: [939606, 939607].join(','),
-                    RuleId: 'QM_PURReceive2Inspect',
-                    TargetOrgId: 100006,
-                    // TargetFormId: 'QM_InspectBill'
-                }
-                // K3CloudApi.push('PUR_ReceiveBill', data)
-                
-                // K3CloudApi.execute_bill_query({ 
-                //     FormId: 'ORG_Organizations', 
-                //     FieldKeys: ['FORGID', 'FNumber', 'FName'].join(','),
-                //     FilterString: "FDocumentStatus = 'C' AND FForbidStatus = 'A' AND FParentId = 1 "
-                // })
-                
-                // K3CloudApi.save('QM_InspectBill', { model: _model_ })
-                // EngBom.query("FNumerator / FDenominator <> ROUND(FNumerator / FDenominator, FCHILDUNITID.FPRECISION)")
-                // EngBom.view('2.05.01.01.01.0001_V1.1')
+                // e.g.
+                // model.EngBom.view('8.802.30200.00_V1.600')
             },
             call_delete_api() {
+                // e.g.
                 // K3CloudApi.delete('QM_InspectBill', { Numbers: ['IQC000023'] })
-                // Inv.query({ FMaterialId: '' }).then(res => {
+                // model.Inv.query({ FMaterialId: '' }).then(res => {
                 //     Inv.delete(res.data.map(e => e.FID))
-                // })
-                // InvLog.query({ FCInvId: '' }).then(res => {
-                //     InvLog.delete(res.data.map(e => e.FID))
-                // })
-                // InvPlan.query({ FMaterialId: '' }).then(res => {
-                //     InvPlan.delete(res.data.map(e => e.FID))
                 // })
             },
             async export_refer_mno() {

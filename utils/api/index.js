@@ -7,7 +7,7 @@
  * 删除 delete: delete_examples
  */
 import K3CloudApi from "@/utils/k3cloudapi";
-import { BdEmpInfo } from "@/utils/model";
+import { BdEmpInfo, BdOperator } from "@/utils/model";
 
 /** 用户登录认证
  * @params options.keys - [ org_id, staff_name, staff_no, password ]
@@ -33,22 +33,30 @@ const validate_user = async (options) => {
     } else {
         return result
     }
-    // 获取权限
-    let fields = ['FID', 'FName', 'FNumber', 'FForbidStatus', 'FBizOrgId', 'FBizOrgId.FName']
-    const data = {
-        FormId: "BD_WAREHOUSEWORKERS",
-        FieldKeys: fields.concat(['FOperatorGroupId', 'FOperatorGroupId.FNumber', 'FOperatorGroupId.FName']).join(','),
-        FilterString: K3CloudApi.query_filter({ FNumber: options.staff_no, FBizOrgId: options.org_id })
+    // 获取权限，本组织的业务组优先级 > 非本组织的业务组
+    let op_res = await BdOperator.query({ 'FStaffId.FNumber': options.staff_no, 'FOperatorGroupId_gt': 0 })
+    for (let obj of op_res.data.filter(x => x.FBizOrgId == options.org_id)) {
+        result.FOperatorGroup.push(obj['FOperatorGroupId.FNumber'])
     }
-    let wh_res = await K3CloudApi.bill_query(data)
-    if (wh_res.data.length > 0) {
-        for (let i in fields) {
-            result[fields[i]] = wh_res.data[0][fields[i]]
-        }
-        for (let i in wh_res.data) {
-            result.FOperatorGroup.push(wh_res.data[i]['FOperatorGroupId.FNumber'])
-        }
+    if (result.FOperatorGroup.length === 0 && op_res.data.length > 0) {
+        result.FOperatorGroup.push(op_res.data[0]['FOperatorGroupId.FNumber'])
     }
+    
+    // let fields = ['FID', 'FName', 'FNumber', 'FForbidStatus', 'FBizOrgId', 'FBizOrgId.FName']
+    // const data = {
+    //     FormId: "BD_WAREHOUSEWORKERS",
+    //     FieldKeys: fields.concat(['FOperatorGroupId', 'FOperatorGroupId.FNumber', 'FOperatorGroupId.FName']).join(','),
+    //     FilterString: K3CloudApi.query_filter({ FNumber: options.staff_no, FBizOrgId: options.org_id })
+    // }
+    // let wh_res = await K3CloudApi.bill_query(data)
+    // if (wh_res.data.length > 0) {
+    //     for (let i in fields) {
+    //         result[fields[i]] = wh_res.data[0][fields[i]]
+    //     }
+    //     for (let i in wh_res.data) {
+    //         result.FOperatorGroup.push(wh_res.data[i]['FOperatorGroupId.FNumber'])
+    //     }
+    // }
     return result
 }
 

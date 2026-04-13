@@ -178,18 +178,18 @@
                     "selectedColor": "#007aff"
                 }
             }
-            ,
-            {
-                "pagePath": "pages/api_utils/index",
-                "text": "API调试",
-                "iconfont": {
-                    "text": "\ue653",
-                    "color": "#7A7E83",
-                    "selectedText": "\ue653",
-                    "fontSize": "24px",
-                    "selectedColor": "#007aff"
-                }
-            }
+            // ,
+            // {
+            //     "pagePath": "pages/api_utils/index",
+            //     "text": "API调试",
+            //     "iconfont": {
+            //         "text": "\ue653",
+            //         "color": "#7A7E83",
+            //         "selectedText": "\ue653",
+            //         "fontSize": "24px",
+            //         "selectedColor": "#007aff"
+            //     }
+            // }
         ]
     }
 }

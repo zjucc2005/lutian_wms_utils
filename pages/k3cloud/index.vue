@@ -37,7 +37,7 @@
                         action: () => { link_to('/pages/k3cloud/prd/index') }
                     },
                     {
-                        name: '质量管理', permission: ['all'], icon_path: '/static/icon/nav_bill_check.png',
+                        name: '质量管理', permission: ['nrj_qm'], icon_path: '/static/icon/nav_bill_check.png',
                         action: () => { link_to('/pages/k3cloud/qm/index') }
                     },
                 ]
