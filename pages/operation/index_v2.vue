@@ -90,7 +90,7 @@
                         action: () => { link_to('/pages/operation/manage/inv_search') }
                     },
                     {
-                        name: '库存总览', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock.png',
+                        name: '库存总览', permission: ['wh_admin', 'wh_nx', 'nrj_admin',], icon_path: '/static/icon/nav_stock.png',
                         action: () => { link_to('/pages/operation/manage/invs') }
                     },
                     {
@@ -110,7 +110,7 @@
                     //     action: () => { link_to('/pages/operation/material/search_parts') }
                     // },
                     {
-                        name: '出库查询', permission: ['all'], icon_path: '/static/icon/nav_truck.png',
+                        name: '出库查询', permission: ['wh_nx'], icon_path: '/static/icon/nav_truck.png',
                         action: () => { link_to('/pages/operation/outbound/v2/search') }
                     },
                     {

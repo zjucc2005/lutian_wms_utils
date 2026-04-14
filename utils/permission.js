@@ -5,18 +5,22 @@
  */
 const get_system_role = (operator_group=[]) => {
     // return 'wh_admin' // 开发调试
-    let wh_admin_list = ['000'] // 绿田库存管理组，成品组
-    for (let item of wh_admin_list) {
-        if (operator_group.includes(item)) return 'wh_admin'
+    let role_map = {
+        '000': 'wh_admin',  // 绿田库存管理组，成品组
+        '102': 'wh_nx',     // 内销组
+        '112': 'nrj_admin', // 内燃机库存组，原料组
+        '106': 'nrj_qm',    // 内燃机质检组
     }
-    let nrj_admin_list = ['112'] // 内燃机库存组，原料组
-    for (let item of nrj_admin_list) {
-        if (operator_group.includes(item)) return 'nrj_admin'
+    for (let k of Object.keys(role_map)) {
+        if (operator_group.includes(k)) return role_map[k]
     }
-    let nrj_qm_list = ['106']
-    for (let item of nrj_qm_list) {
-        if (operator_group.includes(item)) return 'nrj_qm'
-    }
+    // let wh_admin_list = ['000'] // 绿田库存管理组，成品组
+    // for (let item of wh_admin_list) {
+    //     if (operator_group.includes(item)) return 'wh_admin'
+    // }
+    // if (operator_group.includes('112')) return 'nrj_admin' // 内燃机库存组，原料组
+    // if (operator_group.includes('106')) return 'nrj_qm' // 内燃机质检组
+    // if (operator_group.includes('102')) return 'wh_nx'  // 内销组
     return 'none'
 }
 
