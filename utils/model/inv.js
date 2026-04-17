@@ -69,7 +69,7 @@ class Inv {
         return sum_data
     }
     static async _get_all_recurse(options={}, meta={}, sum_data=[]) {
-        const fields = ['FID', 'FQty','FBatchNo', 'FCreateTime',
+        let fields = ['FID', 'FQty','FBatchNo', 'FCreateTime',
                         'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.FImageFileServer',
                         'FStockLocId', 'FStockLocId.FNumber', 'FStockLocId.FGroup', 'FStockLocId.FPosX', 'FStockLocId.FPosY',
                         'FStockUnitId', 'FStockUnitId.FName',

@@ -122,8 +122,9 @@
         { "path": "pages/k3cloud/eng_bom/index", "style": { "navigationBarTitleText": "物料清单" } },
         { "path": "pages/k3cloud/eng_bom/tree", "style": { "navigationBarTitleText": "物料清单" } },
         { "path": "pages/k3cloud/prd/index", "style": { "navigationBarTitleText": "生产管理" } },
+        { "path": "pages/k3cloud/prd/mo/receive_search", "style": { "navigationBarTitleText": "生产管理 / 生产订单领用查询"} },
         { "path": "pages/k3cloud/prd/ppbom/index", "style": { "navigationBarTitleText": "生产管理 / 生产用料清单"} },
-        { "path": "pages/k3cloud/prd/issue_mtr_notice/modify_seq", "style": { "navigationBarTitleText": "生产发料 / 调整序号" } },
+        // { "path": "pages/k3cloud/prd/issue_mtr_notice/modify_seq", "style": { "navigationBarTitleText": "生产发料 / 调整序号" } },
         { "path": "pages/k3cloud/pur/index", "style": { "navigationBarTitleText": "采购管理" } },
         { "path": "pages/k3cloud/pur/purchase_order/index", "style": { "navigationBarTitleText": "采购管理 / 采购订单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
         { "path": "pages/k3cloud/pur/receive_bill/index", "style": { "navigationBarTitleText": "采购管理 / 收料通知单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
@@ -133,7 +134,7 @@
         { "path": "pages/k3cloud/qm/inspect_bill/show", "style": { "navigationBarTitleText": "质量管理 / 检验单" } },
         { "path": "pages/k3cloud/sal/index", "style": { "navigationBarTitleText": "销售管理" } },
         { "path": "pages/k3cloud/sal/delivery_notice/index", "style": { "navigationBarTitleText": "销售管理 / 发货通知单", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
-        { "path": "pages/k3cloud/sal/delivery_notice/show",  "style": { "navigationBarTitleText": "销售管理 / 发货通知单" } }
+        { "path": "pages/k3cloud/sal/delivery_notice/show", "style": { "navigationBarTitleText": "销售管理 / 发货通知单" } }
     ],
     "globalStyle": {
         "navigationBarTextStyle": "#fff",

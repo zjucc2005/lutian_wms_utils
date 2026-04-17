@@ -30,11 +30,10 @@ class PrdPpbom {
      */
     static query(options={}, meta={}) {
         let fields = ['FID', 'FBillNo', 'FMoBillNo', 'FMoEntrySeq', 'FSaleOrderNo',
-                        'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
-                        'FMaterialId2', 'FMaterialId2.FNumber', 'FMaterialId2.FName', 'FMaterialId2.FSpecification', 'FMaterialType', 
-                        'FNumerator', 'FDenominator', 'FUnitId2', 'FUnitId2.FName', 'FMustQty', 'FPickedQty', 'FMtoNo', 'FIssueType',
-                        'FOwnerId', 'FOwnerId.FName', 'FStockId', 'FStockId.FName', 'FReplaceGroup'
-                       ]
+                      'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
+                      'FMaterialId2', 'FMaterialId2.FNumber', 'FMaterialId2.FName', 'FMaterialId2.FSpecification', 'FMaterialType', 
+                      'FNumerator', 'FDenominator', 'FUnitId2', 'FUnitId2.FName', 'FMustQty', 'FPickedQty', 'FMtoNo', 'FIssueType',
+                      'FOwnerId', 'FOwnerId.FName', 'FStockId', 'FStockId.FName', 'FReplaceGroup']
         if (meta.fields) {
             if (meta.replace_fields) {
                 fields = meta.fields
@@ -45,14 +44,15 @@ class PrdPpbom {
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),
-            FilterString: K3CloudApi.query_filter(options)
+            FilterString: K3CloudApi.query_filter(options),
+            Limit: 10000,
         }
         if (meta.per_page) {
             data.Limit = meta.per_page
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
         }
         if (meta.order) data.OrderString = meta.order
-        return K3CloudApi.bill_query(data)
+        return meta.return === 'array' ? K3CloudApi.execute_bill_query(data) : K3CloudApi.bill_query(data)
     }
     
     static find(id) {

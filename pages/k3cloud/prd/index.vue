@@ -4,9 +4,9 @@
             :extra-icon="{ color: '#007bff', size: '24', type: 'list' }" show-extra-icon
             @click="link_to('/pages/k3cloud/prd/ppbom/index')" clickable
             show-arrow/>
-        <!-- <uni-list-item title="生产发料 /  调整序号"
-            :extra-icon="{ color: '#dd524d', size: '24', type: 'loop' }" show-extra-icon
-            @click="link_to('/pages/k3cloud/shengchanguanli/shengchanfaliaotongzhidan/modify_seq')" clickable show-arrow/> -->
+        <uni-list-item title="生产订单领用查询"
+            :extra-icon="{ color: '#007bff', size: '24', type: 'search' }" show-extra-icon
+            @click="link_to('/pages/k3cloud/prd/mo/receive_search')" clickable show-arrow/>
     </uni-list>
 </template>
 
