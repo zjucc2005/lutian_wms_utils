@@ -4,12 +4,13 @@
  * @return { String }
  */
 const get_system_role = (operator_group=[]) => {
-    // return 'wh_admin' // 开发调试
+    // return 'nrj_admin' // 开发调试
     let role_map = {
         '000': 'wh_admin',  // 绿田库存管理组，成品组
         '102': 'wh_nx',     // 内销组
         '112': 'nrj_admin', // 内燃机库存组，原料组
         '106': 'nrj_qm',    // 内燃机质检组
+        '109': 'nrj_pln',   // 内燃机计划组
     }
     for (let k of Object.keys(role_map)) {
         if (operator_group.includes(k)) return role_map[k]

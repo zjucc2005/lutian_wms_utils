@@ -190,10 +190,9 @@
                 outbound_mode: '齐套', // 出库模式，齐套/分批
                 goods_nav: {
                     options: [
-                        // { icon: 'clear', text: '清空' },
                         { icon: 'settings', text: '全部'},
-                        { icon: 'star-filled', text: '齐套' }
-                        
+                        { icon: 'star-filled', text: '齐套' },
+                        // { icon: 'more-filled', text: '选项' }
                     ],
                     button_group: [
                         { text: '扫描单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' },
@@ -246,12 +245,9 @@
         methods: {
             // operations
             goods_nav_click(e) {
-                // if (e.index === 0) {
-                //     this.search_form.bill_no = ''
-                //     this.clear_data()
-                // }
                 if (e.index === 0) this.filter_list()
                 if (e.index === 1) this.outbound_mode_list()
+                if (e.index === 2) this.more_actions()
             },
             filter_list() {
                 let item_list = ['全部', '未出库', '可出库', '已出库']
@@ -263,6 +259,14 @@
                     }
                 })
             },
+            more_actions() {
+                uni.showActionSheet({
+                    itemList: ['全选'],
+                    success: (e) => {
+                        if (e.tapIndex === 0) this.check_all()
+                    }
+                })
+            },
             outbound_mode_list() {
                 let item_list = ['齐套', '分批']
                 uni.showActionSheet({
@@ -271,6 +275,12 @@
                         this.outbound_mode = item_list[e.tapIndex]
                         this.goods_nav.options[1].icon = ['star-filled', 'starhalf'][e.tapIndex]
                         this.goods_nav.options[1].text = item_list[e.tapIndex]
+                        
+                        if (e.tapIndex === 1) {
+                            this.goods_nav.options[2] = { icon: 'more-filled', text: '选项' }
+                        } else {
+                            if (this.goods_nav.options.length > 2) this.goods_nav.options.pop()
+                        }
                     }
                 })
             },
@@ -299,6 +309,7 @@
                        (this.invs_map[m.FMaterialId2] || 0) > 0
             },
             check_all() {
+                if (!this.ppbom.entry?.length) return
                 let result = this.ppbom.entry.some(m => !m.checked && this.can_outbound(m))
                 for (let m of this.ppbom.entry) {
                     if (this.can_outbound(m))  m.checked = result
@@ -335,7 +346,6 @@
                     fields: ['FID', 'FBillNo', 'FMoBillNo', 'FMoEntrySeq',
                              'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
                              'FBOMID.FNumber', 'FQty', 'FUnitId.FName'],
-                    replace_fields: true,
                     order: 'FMoEntrySeq ASC'
                 }
                 uni.showLoading({ title: 'Loading' })
@@ -354,7 +364,6 @@
                 let meta = {
                     fields: [ 'FMaterialId2', 'FMaterialId2.FNumber', 'FMaterialId2.FName', 'FMaterialId2.FSpecification', 'FMaterialId2.F_PAEZ_Base1', 'FMaterialType',
                               'FNumerator', 'FDenominator', 'FUnitId2.FName', 'FMustQty', 'FStockId', 'FStockId.FName', 'FReplaceGroup'],
-                    replace_fields: true,
                     order: 'FReplaceGroup ASC'
                 }
                 uni.showLoading({ title: 'Loading' })

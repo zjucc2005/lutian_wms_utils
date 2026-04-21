@@ -174,7 +174,6 @@
                         fields: [ 'FID', 'FBillNo', 'FMoBillNo', 'FMoEntrySeq', 'FSaleOrderNo', 'FWorkShopId.FName', 
                                   'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
                                   'FQty', 'FUnitId.FName' ],
-                        replace_fields: true,
                         order: 'FMoEntrySeq ASC'
                     }
                     uni.showLoading({ title: 'Loading' })
@@ -209,7 +208,6 @@
                 let meta = {
                     fields: [ 'FMaterialId2', 'FMaterialId2.FNumber', 'FMaterialId2.FName', 'FMaterialId2.FSpecification', 'FMaterialId2.F_RGEN_Text_bzgx',
                               'FNumerator', 'FDenominator', 'FUnitId2.FName', 'FMustQty', 'FReplaceGroup'],
-                    replace_fields: true,
                     order: 'FReplaceGroup ASC'
                 }
                 let res = await PrdPpbom.query(options, meta)

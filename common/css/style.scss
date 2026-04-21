@@ -32,6 +32,10 @@
 .text-bold {
     font-weight: bold;
 }
+.text-link {
+    color: $uni-color-primary;
+    text-decoration: underline;
+}
 .text-lg {
     font-size: $uni-font-size-lg;
 }
@@ -41,7 +45,42 @@
 .text-sm {
     font-size: $uni-font-size-sm;
 }
-
+// tab
+.tab-scroll {
+    width: 100%;
+    white-space: nowrap;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+    position: fixed;
+    top: 44px;
+    z-index: 10;
+}
+.tab-item {
+    display: inline-block;
+    padding: 0 15px;
+    font-size: 16px;
+    color: #666;
+    position: relative;
+    &.active {
+        color: #007AFF;
+        font-weight: bold;
+        &:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background-color: #007AFF;
+            border-radius: 3px;
+        }
+    }
+}
+.tab-content {
+    margin-top: 45px;
+}
 // 自定义样式
 .easyinput-suffix-text {
     color: $uni-text-color-placeholder;

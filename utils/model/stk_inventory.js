@@ -21,19 +21,22 @@ class StkInventory {
      * @return {Hash} Promise
      */
     static query(options={}, meta={}) {
-        const fields = ['FBaseQty', 'FBaseUnitId.FName', 'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
-                        'FStockName', 'FStockId', 'FStockOrgId', 'FStockOrgId.FName' ]
+        let fields = ['FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 
+                      'FStockUnitId.FName', 'FQty', 'FBaseQty', 'FBaseUnitId.FName', 
+                      'FStockName', 'FStockId', 'FStockOrgId', 'FStockOrgId.FName']
+        if (meta.fields) fields = meta.fields
         const data = {
             FormId: "STK_Inventory",
             FieldKeys: fields.join(','),
-            FilterString: K3CloudApi.query_filter({ FBaseQty_gt: 0, ...options })
+            FilterString: K3CloudApi.query_filter({ FBaseQty_gt: 0, ...options }),
+            Limit: 10000
         }
         if (meta.per_page) {
             data.Limit = meta.per_page
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
         }
         if (meta.order) data.OrderString = meta.order
-        return K3CloudApi.bill_query(data)
+        return meta.return === 'array' ? K3CloudApi.execute_bill_query(data) : K3CloudApi.bill_query(data)
     }
         
 }

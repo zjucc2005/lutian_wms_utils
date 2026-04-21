@@ -74,15 +74,7 @@
                         <uni-col :md="8" :sm="12" :xs="24">
                             <uni-forms-item label="业务状态">
                                 <uni-data-select v-model="search_form.status" 
-                                    :localdata="[
-                                        { value: '1', text: '计划' },
-                                        { value: '2', text: '计划确认' },
-                                        { value: '3', text: '下达' },
-                                        { value: '4', text: '开工' },
-                                        { value: '5', text: '完工' },
-                                        { value: '6', text: '结案' },
-                                        { value: '7', text: '结算' }
-                                    ]" 
+                                    :localdata="status_options" 
                                 />
                             </uni-forms-item>
                         </uni-col>
@@ -96,7 +88,7 @@
 <script>
     import store from '@/store'
     import XLSX from 'xlsx'
-    import { PrdMo, PrdPpbom } from '@/utils/model'
+    import { PrdMo, PrdPpbom, PrdIssueMtrNotice } from '@/utils/model'
     import { formatDate, string_to_arraybuffer } from '@/utils'
     
     export default {
@@ -104,7 +96,7 @@
             return {
                 mos: [], // 生产订单缓存
                 table_head: ['计划序号', '需求单据', '生产订单编号', '物料编码', '物料名称', '规格型号', '单位',
-                             '数量', '合格品入库数量', '未入库数量', '生产车间', '领料状态', '开工日期',
+                             '数量', '合格品入库数量', '未入库数量', '生产车间', '领料状态', '开工日期', '发料时间',
                              '子项物料编码', '子项物料名称', '子项规格型号', '子项单位', '应发数量', '已领数量', '可用库存', '发料方式', '仓库'],
                 table_body: [], // 最终展示数据
                 search_form: {
@@ -117,6 +109,7 @@
                     workshop: '',
                     status: ''
                 },
+                status_options: Object.entries(PrdMo.FStatusEnum).map(e => { return { value: e[0], text: e[1] } }),
                 pick_mtrl_status_dict: { '1': '未领料', '2': '部分领料', '3': '全部领料', '4': '超额领料' }, 
                 issue_type_dict: { '1': '直接领料', '2': '直接倒冲', '3': '调拨领料', '4': '调拨倒冲', '7': '不发料' }, 
                 goods_nav: {
@@ -130,7 +123,6 @@
             }
         },
         mounted() {
-            PrdMo.view('1022604170463')
         },
         methods: {
             goods_nav_click(e) {
@@ -138,7 +130,11 @@
                 if (e.index === 1) this.export_as_excel()
             },
             search_dialog_confirm() {
-                this.search()
+                try {
+                    this.search()
+                } catch (err) {
+                    console.log('err', err)
+                }
                 this.$refs.search_dialog.close()
             },
             async search() {
@@ -146,11 +142,11 @@
                 let table_body = []
                 let options = {}
                 if (this.search_form.jhxh) {
-                    let jhxh = []
+                    let jhxh = new Set()
                     for (let text of this.search_form.jhxh.split('\n')) {
-                        if (text.trim()) jhxh.push(text.trim())
+                        if (text.trim()) jhxh.add(text.trim())
                     }
-                    if (jhxh.length) options.F_PAEZ_JHXH_in = jhxh
+                    if (jhxh.size) options.F_PAEZ_JHXH_in = Array.from(jhxh)
                 }
                 if (this.search_form.sale_order_no.trim()) options.FSaleOrderNo = this.search_form.sale_order_no.trim()
                 if (this.search_form.bill_no.trim()) options.FBillNo = this.search_form.bill_no.trim()
@@ -163,6 +159,7 @@
                 
                 let x_start_time = Date.now() // 执行开始时间
                 uni.showLoading({ title: 'Loading...' })
+                // 1. 查询生产订单
                 let mo_res_data = await PrdMo.get_all(options, { order: 'FBillNo ASC' })
                 for (let d of mo_res_data) {
                     mos.push({
@@ -179,24 +176,37 @@
                         nsi_qty: d.FNoStockInQty,
                         workshop: d['FWorkShopID.FName'],
                         pick_mtrl_status: this.pick_mtrl_status_dict[d.FPickMtrlStatus],
-                        start_date: formatDate(d.FStartDate, 'yyyy-MM-dd hh:mm:ss')
+                        start_date: new Date(d.FStartDate), // formatDate(d.FStartDate, 'yyyy-MM-dd hh:mm:ss')
+                        issue_date: ''
                     })
                 }
                 this.mos = mos
+                // 2. 查询发料时间
+                let a_step = 1000
+                for (let i = 0; i < mos.length; i += a_step) {
+                    let mo_bill_nos = mos.slice(i, i + a_step).map(mo => mo.bill_no)
+                    let imn_res = await PrdIssueMtrNotice.query({ FMoBillNo1_in: mo_bill_nos }, { fields: ['FMoBillNo1', 'FCreateDate'], return: 'array' })
+                    for (let d of imn_res.data) {
+                        let mo = mos.find(x => x.bill_no === d[0])
+                        mo.issue_date = mo.issue_date || new Date(d[1])
+                    }
+                }
+                // 3. 查询生产用料清单
                 let p_fenmu = mos.length
                 let p_fenzi = 0
                 let ppbom_fields = ['FMoId', 'FMaterialId2.FNumber', 'FMaterialId2.FName', 'FMaterialId2.FSpecification', 'FUnitId2.FName',
                                     'FMustQty', 'FPickedQty', 'FInventoryQty', 'FIssueType', 'FStockId.FName' ]
-                let step = 38 // 多个生产订单编号同时查询，减少接口调用次数
-                for (let i = 0; i < mos.length; i += step) {
-                    let mo_ids = mos.slice(i, i + step).map(mo => mo.id)
-                    let ppbom_res = await PrdPpbom.query({ FMoId_in: mo_ids }, { fields: ppbom_fields, replace_fields: true, return: 'array' })
+                let b_step = 38 // 优化 - 多个生产订单编号同时查询，减少接口调用次数
+                for (let i = 0; i < mos.length; i += b_step) {
+                    let mo_ids = mos.slice(i, i + b_step).map(mo => mo.id)
+                    let ppbom_res = await PrdPpbom.query({ FMoId_in: mo_ids }, { fields: ppbom_fields, return: 'array' })
                     for (let d of ppbom_res.data) {
                         let mo = mos.find(x => x.id === d[0])
                         d[8] = this.issue_type_dict[d[8]]
                         table_body.push([...Object.values(mo).slice(1), ...d.slice(1)])
                     }
-                    p_fenzi += step
+                    p_fenzi += b_step
+                    if (p_fenzi > p_fenmu) p_fenzi = p_fenmu
                     uni.showLoading({ title: `${(p_fenzi * 100 / p_fenmu).toFixed(1)} %` })
                 }
                 this.table_body = table_body
@@ -212,23 +222,24 @@
                     uni.showModal({ title: '提示', content: '没有数据可供导出' })
                     return
                 }
-                // this.$logger.info('>>> $data', this.$data)
-                let sheet = XLSX.utils.aoa_to_sheet([this.table_head, ...this.table_body])
-                let book = XLSX.utils.book_new()
-                XLSX.utils.book_append_sheet(book, sheet, 'Sheet1')
-                var book_output = XLSX.write(book, { bookType: 'xlsx', bookSST: true, type: 'binary'})
-                const blob = new Blob([string_to_arraybuffer(book_output)], { type: "application/octet-stream" })
-                // 下载
-                let link = document.createElement('a')
-                link.href = URL.createObjectURL(blob)
-                link.download = `生产订单领用查询_${Date.now()}.xlsx`
-                link.click()
-                URL.revokeObjectURL(link.href)
+                try {
+                    let book = XLSX.utils.book_new()
+                    let sheet = XLSX.utils.aoa_to_sheet([this.table_head, ...this.table_body])
+                    XLSX.utils.book_append_sheet(book, sheet, 'Sheet1')
+                    var book_output = XLSX.write(book, { bookType: 'xlsx', bookSST: true, type: 'binary'})
+                    const blob = new Blob([string_to_arraybuffer(book_output)], { type: "application/octet-stream" })
+                    // 下载
+                    let link = document.createElement('a')
+                    link.href = URL.createObjectURL(blob)
+                    link.download = `生产订单领用查询_${Date.now()}.xlsx`
+                    link.click()
+                    URL.revokeObjectURL(link.href)
+                } catch (err) {
+                    uni.showModal({ title: '导出Excel失败', content: `原因：${err}` })
+                }
             }
         }
     }
-    
-    
 </script>
 
 <style lang="scss" scoped>

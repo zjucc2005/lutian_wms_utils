@@ -4,9 +4,6 @@
             :extra-icon="{ color: '#007bff', size: '24', type: 'list' }" show-extra-icon
             @click="link_to('/pages/k3cloud/prd/ppbom/index')" clickable
             show-arrow/>
-        <uni-list-item title="生产订单领用查询"
-            :extra-icon="{ color: '#007bff', size: '24', type: 'search' }" show-extra-icon
-            @click="link_to('/pages/k3cloud/prd/mo/receive_search')" clickable show-arrow/>
     </uni-list>
 </template>
 

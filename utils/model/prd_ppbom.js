@@ -1,6 +1,5 @@
 import store from '@/store';
 import K3CloudApi from '@/utils/k3cloudapi';
-import db_model from '@/utils/db_model';
 
 /**
  * 生产用料清单模型
@@ -34,13 +33,7 @@ class PrdPpbom {
                       'FMaterialId2', 'FMaterialId2.FNumber', 'FMaterialId2.FName', 'FMaterialId2.FSpecification', 'FMaterialType', 
                       'FNumerator', 'FDenominator', 'FUnitId2', 'FUnitId2.FName', 'FMustQty', 'FPickedQty', 'FMtoNo', 'FIssueType',
                       'FOwnerId', 'FOwnerId.FName', 'FStockId', 'FStockId.FName', 'FReplaceGroup']
-        if (meta.fields) {
-            if (meta.replace_fields) {
-                fields = meta.fields
-            } else {
-                fields = fields.concat(meta.fields)
-            }
-        }
+        if (meta.fields) fields = meta.fields
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),

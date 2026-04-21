@@ -33,6 +33,10 @@
                         action: () => { link_to('/pages/k3cloud/sal/index') }
                     },
                     {
+                        name: '计划管理', permission: ['nrj_pln'], icon_path: '/static/icon/nav_list_clock.png',
+                        action: () => { link_to('/pages/k3cloud/pln/index') }
+                    },
+                    {
                         name: '生产管理', permission: ['all'], icon_path: '/static/icon/nav_list_link.png',
                         action: () => { link_to('/pages/k3cloud/prd/index') }
                     },

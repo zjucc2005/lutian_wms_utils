@@ -233,7 +233,6 @@
                         fields: [ 'FID', 'FBillNo', 'FMoBillNo', 'FMoEntrySeq', 'FSaleOrderNo', 'FWorkShopId.FName', 
                                   'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
                                   'FQty', 'FUnitId.FName' ],
-                        replace_fields: true,
                         order: 'FMoEntrySeq ASC'
                     }
                     for (let bill_no of bill_nos) {
@@ -249,22 +248,6 @@
                     if (this.ppboms.length === 0) {
                         uni.showModal({ title: '提示', content: '未查询到相关数据' })
                     }
-                    // let options = { FMoBillNo: this.search_form.bill_no }
-                    // let meta = {
-                    //     fields: [ 'FID', 'FBillNo', 'FMoBillNo', 'FMoEntrySeq', 'FSaleOrderNo', 'FWorkShopId.FName', 
-                    //               'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
-                    //               'FQty', 'FUnitId.FName' ],
-                    //     replace_fields: true,
-                    //     order: 'FMoEntrySeq ASC'
-                    // }
-                    // uni.showLoading({ title: 'Loading' })
-                    // let res = await PrdPpbom.query(options, meta)
-                    // uni.hideLoading()
-                    // if (res.data.length === 0) {
-                    //     uni.showToast({ icon: 'none', title: '单据编号不存在' })
-                    // } else {
-                    //     this.ppboms = res.data
-                    // }
                 } else {
                     uni.showModal({ title: '提示', content: '请输入搜索内容' })
                 }
@@ -292,7 +275,6 @@
                 let meta = {
                     fields: [ 'FMaterialId2', 'FMaterialId2.FNumber', 'FMaterialId2.FName', 'FMaterialId2.FSpecification', 'FMaterialId2.F_RGEN_Text_bzgx',
                               'FNumerator', 'FDenominator', 'FUnitId2.FName', 'FMustQty', 'FReplaceGroup'],
-                    replace_fields: true,
                     order: 'FReplaceGroup ASC'
                 }
                 let res = await PrdPpbom.query(options, meta)

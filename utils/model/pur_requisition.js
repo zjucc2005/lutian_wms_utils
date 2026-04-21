@@ -1,15 +1,15 @@
 import K3CloudApi from '@/utils/k3cloudapi'
 
-class PrdIssueMtrNotice {
-    static form_id = 'PRD_ISSUEMTRNOTICE'
+/* 采购申请单 */
+class PurRequisition {
+    static form_id = 'PUR_Requisition'
     constructor() {
         
     }
-    
+
     static async update(id, options={}) {
         const data = {
-            IsDeleteEntry: false,
-            Model: {
+            model: {
                 FID: id,
                 ...options
             }
@@ -26,13 +26,7 @@ class PrdIssueMtrNotice {
      * @return {Hash} Promise
      */
     static async query (options={}, meta={}) {
-        let fields = ['FID', 'FBillNo', 'FDocumentStatus', 'FCloseStatus', 'FCreateDate', 
-                      'F_PAEZ_Base', 'F_PAEZ_Base.FName',
-                      'FDetailEntity_FSeq', 'FDetailEntity_FEntryId',
-                      'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'F_PAEZ_BaseProperty1',
-                      'FStockId', 'FStockId.FName',
-                      'FMustQty', 'FUnitId1', 'FUnitId1.FName', 'FBaseMustQty', 'FBaseUnitId1', 'FBaseUnitId1.FName'
-                      ]
+        let fields = ['FID', 'FBillNo', 'FCreatorId.FName', 'FCreateDate' ]
         if (meta.fields) fields = meta.fields
         const data = {
             FormId: this.form_id,
@@ -61,4 +55,4 @@ class PrdIssueMtrNotice {
     }
 }
 
-export default PrdIssueMtrNotice
+export default PurRequisition

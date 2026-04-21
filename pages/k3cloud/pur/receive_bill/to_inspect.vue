@@ -237,7 +237,7 @@
                     options: [
                         { icon: 'cart', text: '已选择', info: 0 },
                         { icon: 'search', text: '搜索'},
-                        { icon: 'more-filled', text: '选项'}
+                        { icon: 'more-filled', text: '选项' }
                     ],
                     button_group: [
                         { text: '下推', backgroundColor: store.state.goods_nav_color.blue, color: '#fff' }

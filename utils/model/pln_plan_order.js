@@ -1,34 +1,28 @@
-import K3CloudApi from '@/utils/k3cloudapi'
+import store from '@/store';
+import K3CloudApi from '@/utils/k3cloudapi';
 
-class PurPurchaseOrder {
-    static form_id = 'PUR_PurchaseOrder'
+/**
+ * 计划订单模型
+ */
+class PlnPlanOrder {
+    static form_id = 'PLN_PLANORDER'
     constructor() {
         
     }
-
-    static async update(id, options={}) {
-        const data = {
-            model: {
-                FID: id,
-                ...options
-            }
-        }
-        return K3CloudApi.save(this.form_id, data)
-    }
     
-    /** 
+    /**
+     * 获取计划订单列表
      * @param options:Hash 参数集
-     * @param meta:Hash 
+     * @param meta:Hash
      *   @field page:Integer
      *   @field per_page:Integer
      *   @field order:String
      * @return {Hash} Promise
      */
-    static async query (options={}, meta={}) {
-        let fields = ['FID', 'FBillNo', 'FSupplierId', 'FSupplierId.FName', 'FDemandBillNo', 
-                      'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
-                      'FQty','FRemainReceiveQty', 'FUnitId', 'FUnitId.FName', 
-                      'FDate', 'FDeliveryDate', 'FPurchaserId', 'FPurchaserId.FName']
+    static query(options={}, meta={}) {
+        let fields = [ 'FID', 'FComputerNo', 'FBillNo', 'F_PAEZ_JHXH', 'FSaleOrderNo', 'FCreateDate',
+                       'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FUnitId.FName', 
+                       'FFirmQty', 'FReleaseBillType.FName', 'FPrdDeptId.FName' ]
         if (meta.fields) fields = meta.fields
         const data = {
             FormId: this.form_id,
@@ -44,11 +38,11 @@ class PurPurchaseOrder {
         return meta.return === 'array' ? K3CloudApi.execute_bill_query(data) : K3CloudApi.bill_query(data)
     }
     
-    static async find(id) {
+    static find(id) {
         return this.query({ FID: id }, { limit: 1 })
     }
     
-    static async view(id) {
+    static view(id) {
         if (typeof(id) == 'number') {
             return K3CloudApi.view(this.form_id, { Id: id })
         } else {
@@ -57,4 +51,4 @@ class PurPurchaseOrder {
     }
 }
 
-export default PurPurchaseOrder
+export default PlnPlanOrder

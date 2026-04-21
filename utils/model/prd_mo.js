@@ -1,6 +1,5 @@
 import store from '@/store';
 import K3CloudApi from '@/utils/k3cloudapi';
-import db_model from '@/utils/db_model';
 
 /**
  * 生产订单模型
@@ -35,13 +34,7 @@ class PrdMo {
                       'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FUnitId.FName', 
                       'FQty', 'FStockInQuaAuxQty', 'FNoStockInQty', 'FPickMtrlStatus', 'FPlanStartDate', 'FStartDate',
                       'FWorkShopID.FName', 'F_LT_CX.FName', 'F_PAEZ_JHXH']
-        if (meta.fields) {
-            if (meta.replace_fields) {
-                fields = meta.fields
-            } else {
-                fields = fields.concat(meta.fields)
-            }
-        }
+        if (meta.fields) fields = meta.fields
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),
@@ -53,7 +46,7 @@ class PrdMo {
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
         }
         if (meta.order) data.OrderString = meta.order
-        return K3CloudApi.bill_query(data)
+        return meta.return === 'array' ? K3CloudApi.execute_bill_query(data) : K3CloudApi.bill_query(data)
     }
     
     /**
