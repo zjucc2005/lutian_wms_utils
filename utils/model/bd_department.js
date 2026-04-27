@@ -3,24 +3,13 @@ import K3CloudApi from '@/utils/k3cloudapi'
 /**
  * 业务员模型
  */
-class BdOperator {
-    static form_id = 'BD_OPERATOR'
+class BdDepartment {
+    static form_id = 'BD_Department'
     constructor() {
 
     }
-
-    static async update(id, options={}) {
-        const data = {
-            model: {
-                FID: id,
-                ...options
-            }
-        }
-        return K3CloudApi.save(this.form_id, data)
-    }
     
     /** 
-     * 搜索物料基础数据(模糊匹配)
      * @param options:Hash 参数集
      * @param meta:Hash 
      *   @field page:Integer
@@ -29,9 +18,7 @@ class BdOperator {
      * @return {Hash} Promise
      */
     static async query (options={}, meta={}) {
-        let fields = ['FName', 'FNumber', 'FStaffId', 'FStaffId.FNumber', 'FStaffId.FName',
-                       'FBizOrgId', 'FOperatorGroupId', 'FOperatorGroupId.FNumber', 'FOperatorGroupId.FName'
-                        ]
+        let fields = ['FDeptId', 'FNumber', 'FName', 'FUseOrgId']
         if (meta.fields) fields = meta.fields
         const data = {
             FormId: this.form_id,
@@ -59,4 +46,4 @@ class BdOperator {
     }
 }
 
-export default BdOperator
+export default BdDepartment

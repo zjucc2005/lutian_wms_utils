@@ -6,7 +6,7 @@
             :key="index" 
             class="tab-item"
             :class="{ active: currentIndex === index }"
-            @click="currentIndex=index"
+            @click="currentIndex=index;uni.pageScrollTo({ scrollTop: 0 })"
             >
             {{ name }}
         </view>
@@ -38,10 +38,7 @@
                 
                 <uni-tr v-for="i in Math.min(table_body_req.length, 200)" :key="i">
                     <uni-td>{{ i }}</uni-td>
-                    <uni-td v-for="(cell, j) in table_body_req[i-1]" :key="j" align="center">{{ cell }}</uni-td>
-                </uni-tr>
-                <uni-tr v-if="table_body_req.length > 200">
-                    <uni-td>共 {{ table_body_req.length }} 行数据</uni-td>
+                    <uni-td v-for="(cell, j) in table_body_req[i-1]" :key="j" align="center">{{ cell instanceof Date ? formatDate(cell, 'yyyy-MM-dd hh:mm:ss') : cell }}</uni-td>
                 </uni-tr>
             </uni-table>
         </uni-section>
@@ -54,7 +51,7 @@
                 
                 <uni-tr v-for="i in Math.min(table_body_sub.length, 200)" :key="i">
                     <uni-td>{{ i }}</uni-td>
-                    <uni-td v-for="(cell, j) in table_body_sub[i-1]" :key="j" align="center">{{ cell }}</uni-td>
+                    <uni-td v-for="(cell, j) in table_body_sub[i-1]" :key="j" align="center">{{ cell instanceof Date ? formatDate(cell, 'yyyy-MM-dd hh:mm:ss') : cell }}</uni-td>
                 </uni-tr>
             </uni-table>
         </uni-section>
@@ -70,7 +67,7 @@
                 
                 <uni-tr v-for="i in Math.min(table_body_po.length, 200)" :key="i">
                     <uni-td>{{ i }}</uni-td>
-                    <uni-td v-for="(cell, j) in table_body_po[i-1]" :key="j" align="center">{{ cell }}</uni-td>
+                    <uni-td v-for="(cell, j) in table_body_po[i-1]" :key="j" align="center">{{ cell instanceof Date ? formatDate(cell, 'yyyy-MM-dd hh:mm:ss') : cell }}</uni-td>
                 </uni-tr>
             </uni-table>
         </uni-section>
@@ -147,7 +144,7 @@
     import store from '@/store'
     import XLSX from 'xlsx'
     import { StkInventory, PurRequisition, SubSubReqOrder, PurPurchaseOrder, BdOperator } from '@/utils/model'
-    import { formatDate, string_to_arraybuffer } from '@/utils'
+    import { formatDate } from '@/utils'
     
     export default {
         data() {
@@ -205,7 +202,9 @@
                 goods_nav: {
                     options: [
                         { icon: 'search', text: '搜索'},
+                        // #ifdef H5
                         { icon: 'download', text: '导出表格' }
+                        // #endif
                     ],
                     button_group: [
                     ]
@@ -217,6 +216,7 @@
             this.get_search_cond()
         },
         methods: {
+            formatDate,
             goods_nav_click(e) {
                 if (e.index === 0) this.$refs.search_dialog.open()
                 if (e.index === 1) this.export_as_excel()
@@ -339,34 +339,39 @@
                 if (this.search_form.created_at_le) options.FCreateDate_le = this.search_form.created_at_le
                 let res = await PurPurchaseOrder.query(options, { fields: this.fields_po, return: 'array' })
                 for (let d of res.data) {
+                    if (d[8] <= 0 && d[9] == 0) continue
                     d[2] = store.state.document_status_dict[d[2]]
+                    if (d[8] < 0) d[8] = 0 // 剩余收料<0时，重置为0
                     if (d[12]) d[12] = new Date(d[12])
                     if (d[13]) d[13] = new Date(d[13])
                     this.table_body_po.push(d)
                 }
             },
             export_as_excel() {
+                // #ifdef APP-PLUS
+                    uni.showToast({ icon: 'none', title: 'APP不支持导出Excel' })
+                    return
+                // #endif
                 if (this.table_body_inv.length === 0 && this.table_body_req.length === 0 && this.table_body_sub.length === 0 && this.table_body_po.length === 0) {
                     uni.showModal({ title: '提示', content: '没有数据可供导出' })
                     return
                 }
                 try {
-                    let book = XLSX.utils.book_new()
-                    let sheet_inv = XLSX.utils.aoa_to_sheet([this.table_head_inv, ...this.table_body_inv])
-                    XLSX.utils.book_append_sheet(book, sheet_inv, '即时库存')
-                    let sheet_req = XLSX.utils.aoa_to_sheet([this.table_head_req, ...this.table_body_req, ...this.table_body_sub])
-                    XLSX.utils.book_append_sheet(book, sheet_req, '采购申请单（未推）')
-                    let sheet_po = XLSX.utils.aoa_to_sheet([this.table_head_po, ...this.table_body_po])
-                    XLSX.utils.book_append_sheet(book, sheet_po, '采购订单')
-                    var book_output = XLSX.write(book, { bookType: 'xlsx', bookSST: true, type: 'binary'})
-                    const blob = new Blob([string_to_arraybuffer(book_output)], { type: "application/octet-stream" })
-                    // 下载
-                    let link = document.createElement('a')
-                    link.href = URL.createObjectURL(blob)
-                    link.download = `${store.state.cur_staff.FName}_${Date.now()}.xlsx`
-                    link.click()
-                    URL.revokeObjectURL(link.href)
+                    uni.showLoading({ title: '正在导出...', mask: true })
+                    setTimeout(() => {
+                        let book = XLSX.utils.book_new()
+                        let sheet_inv = XLSX.utils.aoa_to_sheet([this.table_head_inv, ...this.table_body_inv])
+                        XLSX.utils.book_append_sheet(book, sheet_inv, '即时库存')
+                        let sheet_req = XLSX.utils.aoa_to_sheet([this.table_head_req, ...this.table_body_req, ...this.table_body_sub])
+                        XLSX.utils.book_append_sheet(book, sheet_req, '采购申请单（未推）')
+                        let sheet_po = XLSX.utils.aoa_to_sheet([this.table_head_po, ...this.table_body_po])
+                        XLSX.utils.book_append_sheet(book, sheet_po, '采购订单')
+                        XLSX.writeFile(book, `在途订单_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`);
+                        uni.hideLoading()
+                        uni.showToast({ title: '导出完毕' })
+                    }, 1000)
                 } catch (err) {
+                    uni.hideLoading()
                     uni.showModal({ title: '导出Excel失败', content: `原因：${err}` })
                 }
             }

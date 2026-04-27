@@ -6,7 +6,7 @@
             :key="index" 
             class="tab-item"
             :class="{ active: currentIndex === index }"
-            @click="currentIndex=index"
+            @click="currentIndex=index;uni.pageScrollTo({ scrollTop: 0 })"
             >
             {{ name }}
         </view>
@@ -22,7 +22,7 @@
                 
                 <uni-tr v-for="i in Math.min(table_body_pln.length, 200)" :key="i">
                     <uni-td>{{ i }}</uni-td>
-                    <uni-td v-for="(cell, j) in table_body_pln[i-1]" :key="j" align="center">{{ cell }}</uni-td>
+                    <uni-td v-for="(cell, j) in table_body_pln[i-1]" :key="j" align="center">{{ cell instanceof Date ? formatDate(cell, 'yyyy-MM-dd hh:mm:ss') : cell }}</uni-td>
                 </uni-tr>
             </uni-table>
         </uni-section>
@@ -83,7 +83,7 @@
     import store from '@/store'
     import XLSX from 'xlsx'
     import { PlnPlanOrder, PlnRequirementOrder } from '@/utils/model'
-    import { formatDate, string_to_arraybuffer } from '@/utils'
+    import { formatDate } from '@/utils'
     
     export default {
         data() {
@@ -102,7 +102,9 @@
                 goods_nav: {
                     options: [
                         { icon: 'search', text: '搜索'},
+                        // #ifdef H5
                         { icon: 'download', text: '导出表格' }
+                        // #endif
                     ],
                     button_group: [
                     ]
@@ -112,6 +114,7 @@
         mounted() {
         },
         methods: {
+            formatDate,
             goods_nav_click(e) {
                 if (e.index === 0) this.$refs.search_dialog.open()
                 if (e.index === 1) this.export_as_excel()
@@ -160,25 +163,28 @@
                 })
             },
             export_as_excel() {
+                // #ifdef APP-PLUS
+                    uni.showToast({ icon: 'none', title: 'APP不支持导出Excel' })
+                    return
+                // #endif
                 if (this.table_body_pln.length === 0 && this.table_body_req.length === 0) {
                     uni.showModal({ title: '提示', content: '没有数据可供导出' })
                     return
                 }
                 try {
-                    let book = XLSX.utils.book_new()
-                    let sheet_pln = XLSX.utils.aoa_to_sheet([this.table_head_pln, ...this.table_body_pln])
-                    XLSX.utils.book_append_sheet(book, sheet_pln, '计划订单')
-                    let sheet_req = XLSX.utils.aoa_to_sheet([this.table_head_req, ...this.table_body_req])
-                    XLSX.utils.book_append_sheet(book, sheet_req, '组织间需求单')
-                    var book_output = XLSX.write(book, { bookType: 'xlsx', bookSST: true, type: 'binary'})
-                    const blob = new Blob([string_to_arraybuffer(book_output)], { type: "application/octet-stream" })
-                    // 下载
-                    let link = document.createElement('a')
-                    link.href = URL.createObjectURL(blob)
-                    link.download = `计划订单查询_${Date.now()}.xlsx`
-                    link.click()
-                    URL.revokeObjectURL(link.href)
+                    uni.showLoading({ title: '正在导出...', mask: true })
+                    setTimeout(() => {
+                        let book = XLSX.utils.book_new()
+                        let sheet_pln = XLSX.utils.aoa_to_sheet([this.table_head_pln, ...this.table_body_pln])
+                        XLSX.utils.book_append_sheet(book, sheet_pln, '计划订单')
+                        let sheet_req = XLSX.utils.aoa_to_sheet([this.table_head_req, ...this.table_body_req])
+                        XLSX.utils.book_append_sheet(book, sheet_req, '组织间需求单')
+                        XLSX.writeFile(book, `计划订单查询_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`);
+                        uni.hideLoading()
+                        uni.showToast({ title: '导出完毕' })
+                    }, 1000)
                 } catch (err) {
+                    uni.hideLoading()
                     uni.showModal({ title: '导出Excel失败', content: `原因：${err}` })
                 }
             }

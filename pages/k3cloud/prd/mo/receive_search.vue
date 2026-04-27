@@ -8,7 +8,7 @@
             
             <uni-tr v-for="i in Math.min(table_body.length, 1000)" :key="i">
                 <uni-td>{{ i }}</uni-td>
-                <uni-td v-for="(cell, j) in table_body[i-1]" :key="j" align="center">{{ cell }}</uni-td>
+                <uni-td v-for="(cell, j) in table_body[i-1]" :key="j" align="center">{{ cell instanceof Date ? formatDate(cell, 'yyyy-MM-dd hh:mm:ss') : cell }}</uni-td>
             </uni-tr>
         </uni-table>
     </view>
@@ -71,15 +71,16 @@
                                 <uni-easyinput v-model="search_form.workshop" />
                             </uni-forms-item>
                         </uni-col>
-                        <uni-col :md="8" :sm="12" :xs="24">
+                        <!-- <uni-col :md="8" :sm="12" :xs="24">
                             <uni-forms-item label="业务状态">
                                 <uni-data-select v-model="search_form.status" 
                                     :localdata="status_options" 
                                 />
                             </uni-forms-item>
-                        </uni-col>
+                        </uni-col> -->
                     </uni-row>
                 </uni-forms>
+                <view class="text-grey text-sm">固定条件: 业务状态=开工 or 业务状态=完工 or (业务状态=结案 and 结案类型=自动结案)</view>
             </view>
         </uni-popup-dialog>
     </uni-popup>
@@ -89,7 +90,7 @@
     import store from '@/store'
     import XLSX from 'xlsx'
     import { PrdMo, PrdPpbom, PrdIssueMtrNotice } from '@/utils/model'
-    import { formatDate, string_to_arraybuffer } from '@/utils'
+    import { formatDate } from '@/utils'
     
     export default {
         data() {
@@ -115,7 +116,9 @@
                 goods_nav: {
                     options: [
                         { icon: 'search', text: '搜索'},
+                        // #ifdef H5
                         { icon: 'download', text: '导出表格' }
+                        // #endif
                     ],
                     button_group: [
                     ]
@@ -125,6 +128,7 @@
         mounted() {
         },
         methods: {
+            formatDate,
             goods_nav_click(e) {
                 if (e.index === 0) this.$refs.search_dialog.open()
                 if (e.index === 1) this.export_as_excel()
@@ -141,12 +145,14 @@
                 let mos = []
                 let table_body = []
                 let options = {}
+                let jhxh = []
                 if (this.search_form.jhxh) {
-                    let jhxh = new Set()
+                    let jhxh_set = new Set()
                     for (let text of this.search_form.jhxh.split('\n')) {
-                        if (text.trim()) jhxh.add(text.trim())
+                        if (text.trim()) jhxh_set.add(text.trim())
                     }
-                    if (jhxh.size) options.F_PAEZ_JHXH_in = Array.from(jhxh)
+                    jhxh = Array.from(jhxh_set)
+                    // if (jhxh.size) options.F_PAEZ_JHXH_in = Array.from(jhxh)
                 }
                 if (this.search_form.sale_order_no.trim()) options.FSaleOrderNo = this.search_form.sale_order_no.trim()
                 if (this.search_form.bill_no.trim()) options.FBillNo = this.search_form.bill_no.trim()
@@ -154,32 +160,57 @@
                 if (this.search_form.material_name.trim()) options['FMaterialId.FName_lk'] = this.search_form.material_name.trim()
                 if (this.search_form.material_spec.trim()) options['FMaterialId.FSpecification_lk'] = this.search_form.material_spec.trim()
                 if (this.search_form.workshop.trim()) options['FWorkShopID.FName'] = this.search_form.workshop.trim()
-                if (this.search_form.status) options.FStatus = this.search_form.status
-                if (Object.keys(options).length === 0) return // 搜索条件为空时，忽略
+                // if (this.search_form.status) options.FStatus = this.search_form.status
+                if (jhxh.length === 0 && Object.keys(options).length === 0) return // 搜索条件为空时，忽略
                 
                 let x_start_time = Date.now() // 执行开始时间
                 uni.showLoading({ title: 'Loading...' })
                 // 1. 查询生产订单
-                let mo_res_data = await PrdMo.get_all(options, { order: 'FBillNo ASC' })
-                for (let d of mo_res_data) {
-                    mos.push({
-                        id: d.FID,
-                        jhxh: d.F_PAEZ_JHXH,
-                        sale_order_no: d.FSaleOrderNo,
-                        bill_no: d.FBillNo,
-                        material_no: d['FMaterialId.FNumber'],
-                        material_name: d['FMaterialId.FName'],
-                        material_spec: d['FMaterialId.FSpecification'],
-                        unit_name: d['FUnitId.FName'],
-                        qty: d.FQty,
-                        siqa_qty: d.FStockInQuaAuxQty,
-                        nsi_qty: d.FNoStockInQty,
-                        workshop: d['FWorkShopID.FName'],
-                        pick_mtrl_status: this.pick_mtrl_status_dict[d.FPickMtrlStatus],
-                        start_date: new Date(d.FStartDate), // formatDate(d.FStartDate, 'yyyy-MM-dd hh:mm:ss')
-                        issue_date: ''
-                    })
+                let step = 500
+                for (let i = 0; i < jhxh.length; i += step) {
+                    let mo_res_1 = await PrdMo.get_all({ ...options, F_PAEZ_JHXH_in: jhxh.slice(i, i+step), FStatus_in: ['4', '5'] }, {}) // 业务状态=开工|完工
+                    let mo_res_2 = await PrdMo.get_all({ ...options, F_PAEZ_JHXH_in: jhxh.slice(i, i+step), FStatus: '6', FCloseType: 'A' }, {}) // 业务状态=结案&结案类型=自动结案
+                    for (let d of mo_res_1.concat(mo_res_2)) {
+                        mos.push({
+                            id: d.FID,
+                            jhxh: d.F_PAEZ_JHXH,
+                            sale_order_no: d.FSaleOrderNo,
+                            bill_no: d.FBillNo,
+                            material_no: d['FMaterialId.FNumber'],
+                            material_name: d['FMaterialId.FName'],
+                            material_spec: d['FMaterialId.FSpecification'],
+                            unit_name: d['FUnitId.FName'],
+                            qty: d.FQty,
+                            siqa_qty: d.FStockInQuaAuxQty,
+                            nsi_qty: d.FNoStockInQty,
+                            workshop: d['FWorkShopID.FName'],
+                            pick_mtrl_status: this.pick_mtrl_status_dict[d.FPickMtrlStatus],
+                            start_date: new Date(d.FStartDate), // formatDate(d.FStartDate, 'yyyy-MM-dd hh:mm:ss')
+                            issue_date: ''
+                        })
+                    }
                 }
+                // let mo_res_data = await PrdMo.get_all({...options, FStatus_in: ['4', '5'] }, {}) // 业务状态=开工|完工
+                // let mo_res_data_6 = await PrdMo.get_all({...options, FStatus: '6', FCloseType: 'A' }, {}) // 业务状态=结案&结案类型=自动结案
+                // for (let d of mo_res_data.concat(mo_res_data_6)) {
+                //     mos.push({
+                //         id: d.FID,
+                //         jhxh: d.F_PAEZ_JHXH,
+                //         sale_order_no: d.FSaleOrderNo,
+                //         bill_no: d.FBillNo,
+                //         material_no: d['FMaterialId.FNumber'],
+                //         material_name: d['FMaterialId.FName'],
+                //         material_spec: d['FMaterialId.FSpecification'],
+                //         unit_name: d['FUnitId.FName'],
+                //         qty: d.FQty,
+                //         siqa_qty: d.FStockInQuaAuxQty,
+                //         nsi_qty: d.FNoStockInQty,
+                //         workshop: d['FWorkShopID.FName'],
+                //         pick_mtrl_status: this.pick_mtrl_status_dict[d.FPickMtrlStatus],
+                //         start_date: new Date(d.FStartDate), // formatDate(d.FStartDate, 'yyyy-MM-dd hh:mm:ss')
+                //         issue_date: ''
+                //     })
+                // }
                 this.mos = mos
                 // 2. 查询发料时间
                 let a_step = 1000
@@ -217,24 +248,27 @@
                               '本页面最多展示1000行，请导出查看全部数据'].join('\n'),
                 })
             },
-            export_as_excel() {
+            async export_as_excel() {
+                // #ifdef APP-PLUS
+                    uni.showToast({ icon: 'none', title: 'APP不支持导出Excel' })
+                    return
+                // #endif
                 if (this.table_body.length === 0) {
                     uni.showModal({ title: '提示', content: '没有数据可供导出' })
                     return
                 }
                 try {
-                    let book = XLSX.utils.book_new()
-                    let sheet = XLSX.utils.aoa_to_sheet([this.table_head, ...this.table_body])
-                    XLSX.utils.book_append_sheet(book, sheet, 'Sheet1')
-                    var book_output = XLSX.write(book, { bookType: 'xlsx', bookSST: true, type: 'binary'})
-                    const blob = new Blob([string_to_arraybuffer(book_output)], { type: "application/octet-stream" })
-                    // 下载
-                    let link = document.createElement('a')
-                    link.href = URL.createObjectURL(blob)
-                    link.download = `生产订单领用查询_${Date.now()}.xlsx`
-                    link.click()
-                    URL.revokeObjectURL(link.href)
+                    uni.showLoading({ title: '正在导出...', mask: true })
+                    setTimeout(() => {
+                        let book = XLSX.utils.book_new()
+                        let sheet = XLSX.utils.aoa_to_sheet([this.table_head, ...this.table_body])
+                        XLSX.utils.book_append_sheet(book, sheet, 'Sheet1')
+                        XLSX.writeFile(book, `生产订单领用查询_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`);
+                        uni.hideLoading()
+                        uni.showToast({ title: '导出完毕' })
+                    }, 1000)
                 } catch (err) {
+                    uni.hideLoading()
                     uni.showModal({ title: '导出Excel失败', content: `原因：${err}` })
                 }
             }

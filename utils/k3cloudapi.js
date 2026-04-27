@@ -408,7 +408,7 @@ const batch_save = async (form_id, data) => {
     }
     return conn().then(_ => {
         return new Promise((resolve, reject) => {
-            logger.info("K3CloudApi.save req:", form_id, _data_)
+            logger.info("K3CloudApi.batch_save req:", form_id, _data_)
             uni.request({
                 url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BatchSave.common.kdsvc'),
                 method: 'POST',
@@ -489,7 +489,7 @@ const execute_bill_query = async (data) => {
         OrderString: "",
         TopRowCount: 0,
         StartRow: 0,
-        Limit: 2000,
+        Limit: 10000,
         SubSystemId: '',
         ...data,
     }
@@ -537,7 +537,7 @@ const bill_query = async (data) => {
         OrderString: "",
         TopRowCount: 0,
         StartRow: 0,
-        Limit: 2000,
+        Limit: 10000,
         SubSystemId: '',
         ...data,
     }

@@ -128,8 +128,8 @@
                             { required: true, errorMessage: '仓库编号不能为空' },
                             {
                                 validateFunction: (rule, value, data, callback) => {
-                                    if (value.length > 4) {
-                                        return callback('仓库编号不能大于4位')
+                                    if (value.length > 5) {
+                                        return callback('仓库编号不能大于5位')
                                     }
                                 }
                             }

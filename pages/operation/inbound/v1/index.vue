@@ -243,7 +243,9 @@
             async load_material() {
                 let res = await BdMaterial.query(
                     { FNumber: this.form.material_no, FUseOrgId: store.state.cur_stock.FUseOrgId },
-                    { fields: ['FBoxStandardQty'] })
+                    { fields: ["FMaterialId", "FName", "FNumber", "FSpecification", "FForbidStatus", "FDocumentStatus", 
+                      "FBaseUnitId", "FBaseUnitId.FNumber", "FBaseUnitId.FName", "FMaterialGroup.FName", "FUseOrgId", 
+                      "FUseOrgId.FName", "FImageFileServer", 'FBoxStandardQty'] })
                 if (res.data.length) {
                     this.material = res.data[0]
                     // 自动赋值单箱标准数量，待定

@@ -53,7 +53,12 @@
     border-bottom: 1px solid #eee;
     padding: 10px 0;
     position: fixed;
+    // #ifdef H5
     top: 44px;
+    // #endif
+    // #ifdef APP-PLUS
+    top: 0;
+    // #endif
     z-index: 10;
 }
 .tab-item {

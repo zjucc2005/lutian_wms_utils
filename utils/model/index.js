@@ -7,6 +7,7 @@ import InboundTask from './inbound_task'
 import OutboundTask from './outbound_task'
 import MoveCart from './move_cart'
 
+import BdDepartment from './bd_department'
 import BdEmpInfo from './bd_empinfo'
 import BdMaterial from './bd_material'
 import BdOperator from './bd_operator'
@@ -38,6 +39,7 @@ export {
     OutboundTask,
     MoveCart,
     
+    BdDepartment,
     BdEmpInfo,
     BdMaterial,
     BdOperator,

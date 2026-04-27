@@ -19,6 +19,13 @@ class BdMaterial {
         return K3CloudApi.save(this.form_id, data)
     }
     
+    static async batch_update(options=[]) {
+        const data = {
+            model: options
+        }
+        return K3CloudApi.batch_save(this.form_id, data)
+    }
+    
     /** 
      * 搜索物料基础数据(模糊匹配)
      * @param options:Hash 参数集
@@ -32,9 +39,7 @@ class BdMaterial {
         let fields = ["FMaterialId", "FName", "FNumber", "FSpecification", "FForbidStatus", "FDocumentStatus", 
                       "FBaseUnitId", "FBaseUnitId.FNumber", "FBaseUnitId.FName", "FMaterialGroup.FName", "FUseOrgId", 
                       "FUseOrgId.FName", "FImageFileServer"]
-        if (meta.fields) {
-            fields = fields.concat(meta.fields)
-        }
+        if (meta.fields) fields = meta.fields
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),
