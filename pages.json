@@ -122,6 +122,8 @@
         { "path": "pages/k3cloud/eng_bom/index", "style": { "navigationBarTitleText": "物料清单" } },
         { "path": "pages/k3cloud/eng_bom/tree", "style": { "navigationBarTitleText": "物料清单" } },
         { "path": "pages/k3cloud/pln/index", "style": { "navigationBarTitleText": "计划管理" } },
+        { "path": "pages/k3cloud/pln/bom_batch_update", "style": { "navigationBarTitleText": "物料清单批改" } },
+        { "path": "pages/k3cloud/pln/bom_find_ancestors", "style": { "navigationBarTitleText": "物料清单反查（查顶层）" } },
         { "path": "pages/k3cloud/pln/inv_analysis", "style": { "navigationBarTitleText": "在途订单" } },
         { "path": "pages/k3cloud/pln/material_batch_update", "style": { "navigationBarTitleText": "物料批改" } },
         { "path": "pages/k3cloud/pln/plan_order/search", "style": { "navigationBarTitleText": "计划订单查询" } },

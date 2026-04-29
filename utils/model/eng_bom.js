@@ -11,7 +11,7 @@ class EngBom {
 
     static async update(id, options={}) {
         const data = {
-            // IsDeleteEntry: false,
+            IsDeleteEntry: false,
             model: {
                 FID: id,
                 ...options
@@ -19,6 +19,15 @@ class EngBom {
         }
         return K3CloudApi.save(this.form_id, data)
     }
+    
+    static async batch_update(options=[]) {
+        const data = {
+            IsDeleteEntry: false, // NOTE!! 是否删除已存在的分录
+            model: options
+        }
+        return K3CloudApi.batch_save(this.form_id, data)
+    }
+    
     /** 
      * 搜索
      * @param options:Hash 参数集
@@ -33,8 +42,8 @@ class EngBom {
                       'FBomCategory', 'FOperId',
                       'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FCategoryId', 'FMaterialId.FImageFileServer', 'FItemModel', 'FUnitId', 'FUnitId.FName', 'FItemPProperty',
                       'FMaterialIdChild', 'FMaterialIdChild.FNumber', 'FMaterialIdChild.FName', 'FMaterialIdChild.FImageFileServer', 'FChildItemModel', 'FChildUnitId', 'FChildUnitId.FName', 'FChildItemProperty',
-                      'FNumerator', 'FDenominator', 'FChildUnitId', 'FChildUnitId.FNumber', 'FChildUnitId.FPrecision'
-                      ]
+                      'FNumerator', 'FDenominator', 'FChildUnitId', 'FChildUnitId.FNumber', 'FChildUnitId.FPrecision']
+        if (meta.fields) fields = meta.fields
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),

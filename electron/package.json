@@ -1,6 +1,6 @@
 {
   "name": "lutian_wms",
-  "version": "1.7.3",
+  "version": "1.7.5",
   "description": "lutian.wms.utils pc",
   "main": "main.js",
   "build": {
