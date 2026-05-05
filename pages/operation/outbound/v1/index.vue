@@ -188,6 +188,7 @@
                 inv_logs_map: {},  // 优化实发查询性能
                 filter_cond: '全部',
                 outbound_mode: '齐套', // 出库模式，齐套/分批
+                new_inv_logs: [],  // 缓存待提交出库的日志报文，集中一次性提交，保持幂等性
                 goods_nav: {
                     options: [
                         { icon: 'settings', text: '全部'},
@@ -322,6 +323,7 @@
             clear_data() {
                 this.ppboms = []
                 this.ppbom = {}
+                this.new_inv_logs = []
                 this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
             },
             // 搜索
@@ -428,33 +430,43 @@
                 
                 // >>> main
                 uni.showLoading({ title: 'Loading', mask: true })
-                for (let m of checked_materials) {
-                    uni.showToast({ title: `${m.FReplaceGroup}/${this.ppbom.entry.length}`, mask: true })
-                    if (m.FStockId != store.state.cur_stock.FStockId) continue
-                    if (m.FMustQty === 0) continue
-                    let invs = this.invs.filter(inv => inv.FMaterialId === m.FMaterialId2)
-                    let rest_must_qty = m.FMustQty - (this.inv_logs_map[m.FMaterialId2] || 0) // 剩余应发数量
-                    for (let inv of invs) {
-                        if (rest_must_qty === 0) break // 分配完毕，跳出循环
-                        let op_qty = inv.FQty >=  rest_must_qty ? rest_must_qty : inv.FQty
-                        let inv_log = new InvLog({
-                            FOpType: 'out',
-                            FStockId: store.state.cur_stock.FStockId,
-                            FStockLocNo: inv['FStockLocId.FNumber'],
-                            FMaterialId: inv.FMaterialId,
-                            FOpQTY: op_qty,
-                            FBatchNo: inv.FBatchNo,
-                            FSupplierId: inv.FSupplierId,
-                            FBillNo: `${this.ppbom.FBillNo},${this.ppbom.FMoBillNo}`,
-                            FOpStaffNo: store.state.cur_staff.FNumber
-                        })
-                        await inv_log.save()
-                        rest_must_qty -= op_qty
+                if (this.new_inv_logs.length === 0) {
+                    for (let m of checked_materials) {
+                        // uni.showToast({ title: `${m.FReplaceGroup}/${this.ppbom.entry.length}`, mask: true })
+                        if (m.FStockId != store.state.cur_stock.FStockId) continue
+                        if (m.FMustQty === 0) continue
+                        let invs = this.invs.filter(inv => inv.FMaterialId === m.FMaterialId2)
+                        let rest_must_qty = m.FMustQty - (this.inv_logs_map[m.FMaterialId2] || 0) // 剩余应发数量
+                        for (let inv of invs) {
+                            if (rest_must_qty === 0) break // 分配完毕，跳出循环
+                            let op_qty = inv.FQty >=  rest_must_qty ? rest_must_qty : inv.FQty
+                            let inv_log = new InvLog({
+                                FOpType: 'out',
+                                FStockId: store.state.cur_stock.FStockId,
+                                FStockLocNo: inv['FStockLocId.FNumber'],
+                                FMaterialId: inv.FMaterialId,
+                                FOpQTY: op_qty,
+                                FBatchNo: inv.FBatchNo,
+                                FSupplierId: inv.FSupplierId,
+                                FBillNo: `${this.ppbom.FBillNo},${this.ppbom.FMoBillNo}`,
+                                FOpStaffNo: store.state.cur_staff.FNumber
+                            })
+                            this.new_inv_logs.push(inv_log)
+                            // await inv_log.save()
+                            rest_must_qty -= op_qty
+                        }
+                        m.checked = false
                     }
-                    m.checked = false
+                } else {
+                    this.$logger.warn(">>> double click")
+                }
+                for (let i = 0; i < this.new_inv_logs.length; i++) {
+                    uni.showToast({ title: `${i}/${this.new_inv_logs.length}`, mask: true })
+                    await this.new_inv_logs[i].save()
                 }
                 await this.load_invs()
                 await this.load_inv_logs()
+                this.new_inv_logs = []
                 uni.hideLoading()
                 uni.showToast({ title: '出库成功', mask: true })
             },

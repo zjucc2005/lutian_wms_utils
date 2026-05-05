@@ -1,6 +1,6 @@
 <template>
     <!-- <uni-notice-bar single scrollable text="查询物料获取库存信息，然后点击库存明细新增计划" /> -->
-    <uni-section title="查询物料" type="square" v-if="!material.material_id" @click="$logger.info('>>> data', $data)">
+    <uni-section title="查询物料" type="square" v-if="!material.material_id" @click="$logger.info('>>>', $data)">
         <view class="container">
             <uni-forms ref="form" :model="search_form" labelWidth="70px">
                 <uni-forms-item label="编码" name="material_no">
@@ -27,7 +27,7 @@
         </view>
     </uni-section>
     
-    <uni-section title="物料信息" type="square" v-if="material.material_id">
+    <uni-section title="物料信息" type="square" v-if="material.material_id" @click="$logger.info('>>>', $data)">
         <uni-list>
             <uni-list-item
                 :title="material.material_no"
@@ -392,6 +392,7 @@
                     confirm_text: '新增'
                 },
                 move_form: {
+                    open: false,
                     type: 'edit', // move: 改库位, edit: 改数量, new: 新增库位批次
                     inv: {},
                     dest_loc_no: '', // move
@@ -538,11 +539,20 @@
                 })
             },
             handle_scan_code(code) {
-                this.search_form.material_no = code
-                if (code.includes('||')) {
-                    this.search_form.material_no = code.split('||')[1]
+                if (this.move_form.open) {
+                    if (!store.state.stock_locs.some(x => x.FNumber == code)) return
+                    if (this.move_form.type === 'move') {
+                        this.move_form.dest_loc_no = code
+                    } else if (this.move_form.type === 'new') {
+                        this.move_form.new_loc_no = code
+                    }
+                } else {
+                    this.search_form.material_no = code
+                    if (code.includes('||')) {
+                        this.search_form.material_no = code.split('||')[1]
+                    }
+                    this.search(true)
                 }
-                this.search(true)
             },
             open_move_dialog(inv) {
                 if (inv) {
@@ -554,10 +564,11 @@
                     this.move_form.type = 'new'
                 }
                 this.$refs.move_dialog.open()
+                this.move_form.open = true
             },
             close_move_dialog() {
                 this.$refs.move_dialog.close()
-                this.move_form = { 
+                this.move_form = {
                     type: 'edit', 
                     inv: {},
                     dest_loc_no: '', // move

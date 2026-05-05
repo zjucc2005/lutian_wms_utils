@@ -22,7 +22,7 @@
                     <template #label>
                         <view style="display: flex; justify-content: space-between;">
                             <view class="uni-forms-item__label">物料编码</view>
-                            <view v-if="material" class="text-grey">{{ material?.FName }}</view>
+                            <view v-if="material" class="text-grey" style="flex: 1; text-align: right;">{{ material?.FName }}; {{ material?.FSpecification }}</view>
                         </view>
                     </template>
                     <uni-easyinput 

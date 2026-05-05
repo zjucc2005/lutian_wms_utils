@@ -131,7 +131,7 @@
                     this.handle_data(chain)
                     return
                 }
-                let options = { 
+                let options = {
                     'FMaterialIdChild.FNumber': material_no, 'FUseOrgId.FNumber': '102',
                     FDocumentStatus: 'C', FForbidStatus: 'A', FExpireDate_ge: formatDate(Date.now(), 'yyyy-MM-dd')
                 }
@@ -204,10 +204,12 @@
                         } else {
                             let a = chain[chain.length-1]
                             let b = chain[1+i]
+                            let c = chain[0]
                             let row = [
                                 a.level, a.no, a.name, a.spec,
                                 b.level, b.no, b.name, b.spec,
-                                '', '', '', '', '', '', '', '', ''
+                                c.level, c.no, c.name, c.spec, 
+                                '', '', '', '', ''
                             ]
                             this.table_body.push(row)
                         }

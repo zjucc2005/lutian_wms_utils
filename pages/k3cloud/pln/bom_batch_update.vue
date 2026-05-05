@@ -126,6 +126,7 @@
                 this.submit_batch_update()
             },
             async submit_batch_update() {
+                let x_start_time = Date.now()
                 uni.showLoading({ title: 'Loading' })
                 this.response_result = []
                 let succ_cnt = 0
@@ -146,10 +147,14 @@
                 }
                 this.response_result.push({ i: '', msg: `共${sum_cnt}行数据，其中成功更新${succ_cnt}行` })
                 uni.hideLoading()
+                uni.showModal({ title: '搜索完毕',
+                    content: [`搜索耗时 ${(Date.now() - x_start_time) / 1000} 秒`,
+                              '本页面最多展示200行，请导出查看全部数据'].join('\n'),
+                })
             },
             // 验证并格式化待更新数据
             async validate_data(row) {
-                let q = {}      // 查询条件
+                let q = { 'FUseOrgId.FNumber': '102' } // 查询条件
                 let params = {} // 更新参数
                 if (row[0]?.trim()) {
                     q['FMaterialIdChild.FNumber'] = row[0].trim()
@@ -160,9 +165,10 @@
                     q['FNumber'] = row[2].trim()
                 } else if (row[1]?.trim()) {
                     q['FMaterialId.FNumber'] = row[1].trim()
-                } else {
-                    return { status: false, data: [], msg: '父项物料编码和BOM版本不能同时为空' }
                 }
+                // else {
+                //     return { status: false, data: [], msg: '父项物料编码和BOM版本不能同时为空' }
+                // }
                 if (row[3] || [0, '0'].includes(row[3])) {
                     if ([0, '0'].includes(row[3])) {
                         params.FStockId = { FStockId: 0 } 
