@@ -2,13 +2,6 @@
     <view>		
         <uni-section title="API调试" sub-title="Kingdee系统API数据查询展示，仅用来测试API对接。" type="line">
             <uni-list>
-                <uni-list-item
-                    :show-extra-icon="true"
-                    :extra-icon="{ color: '#007aff', size: '24', type: 'right' }"
-                    title="Console"
-                    @click="link_to('/pages/api_utils/console')" clickable
-                    show-arrow>
-                </uni-list-item>
                 <uni-list-item 
                     :show-extra-icon="true"
                     :extra-icon="{ color: '#dd524d', size: '24', type: 'link' }"
@@ -192,6 +185,17 @@
             async call_test_api() {
                 // e.g.
                 // model.EngBom.view('8.802.30200.00_V1.600')
+                // model.PrdPpbom.view('PPBOM01128772')
+                // K3CloudApi.bill_query({
+                //     FormId: "SEC_User",
+                //     FieldKeys: ['FUserId', 'FDomainUser', 'FEmail', 'FUserAccount', 'FMbAccont', 'FName'].join(','),
+                //     FilterString: "FName = '蔡畅'",
+                //     OrderString: "",
+                //     TopRowCount: 0,
+                //     StartRow: 0,
+                //     Limit: 10000,
+                //     SubSystemId: ''
+                // })
             },
             call_delete_api() {
                 // e.g.

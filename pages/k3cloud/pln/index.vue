@@ -15,20 +15,29 @@
         <uni-list-item title="跑单脚本"
             :extra-icon="{ color: '#007bff', size: '24', type: 'pyq' }" show-extra-icon
             @click="link_to('/pages/k3cloud/pln/plan_analysis')" clickable show-arrow/>
-        <uni-list-item title="物料批改"
+        <uni-list-item title="物料需求梳理（生产订单领用&在途订单）"
+            :extra-icon="{ color: '#007bff', size: '24', type: 'pyq' }" show-extra-icon
+            @click="link_to('/pages/k3cloud/pln/inv_analysis_plus')" clickable show-arrow/>
+        <uni-list-item title="物料批改（安全库存）"
+            :extra-icon="{ color: '#dd524d', size: '24', type: 'compose' }" show-extra-icon
+            @click="link_to('/pages/k3cloud/pln/material_batch_update_lite')" clickable show-arrow/>
+        <uni-list-item title="物料批改" v-if="can_edit"
             :extra-icon="{ color: '#dd524d', size: '24', type: 'compose' }" show-extra-icon
             @click="link_to('/pages/k3cloud/pln/material_batch_update')" clickable show-arrow/>
-        <uni-list-item title="物料清单批改"
+        <uni-list-item title="物料清单批改" v-if="can_edit"
             :extra-icon="{ color: '#dd524d', size: '24', type: 'compose' }" show-extra-icon
             @click="link_to('/pages/k3cloud/pln/bom_batch_update')" clickable show-arrow/>
     </uni-list>
 </template>
 
 <script>
+    import store from '@/store'
     import { link_to } from '@/utils'
     export default {
         data() {
             return {
+                // can_edit: false,
+                can_edit: store.state.cur_staff.FName == '沈佳妮'
             }
         },
         methods: {

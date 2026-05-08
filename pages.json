@@ -117,6 +117,9 @@
         { "path": "pages/operation/print/mo_picking",  "style": { "navigationBarTitleText": "物流拣选单" } },
         { "path": "pages/operation/print/mo_picking_info",  "style": { "navigationBarTitleText": "物流拣选单预览" } },
         { "path": "pages/operation/print/mo_confirming",  "style": { "navigationBarTitleText": "物料状态确认表" } },
+        // 记录
+        { "path": "pages/operation/record/index", "style": { "navigationBarTitleText": "记录" } },
+        { "path": "pages/operation/record/mo_confirming", "style": { "navigationBarTitleText": "记录 - 物料状态确认表" } },
         // k3cloud
         { "path": "pages/k3cloud/index", "style": { "navigationBarTitleText": "金蝶云" } },
         { "path": "pages/k3cloud/eng_bom/index", "style": { "navigationBarTitleText": "物料清单" } },
@@ -125,7 +128,9 @@
         { "path": "pages/k3cloud/pln/bom_batch_update", "style": { "navigationBarTitleText": "物料清单批改" } },
         { "path": "pages/k3cloud/pln/bom_find_ancestors", "style": { "navigationBarTitleText": "物料清单反查（查顶层）" } },
         { "path": "pages/k3cloud/pln/inv_analysis", "style": { "navigationBarTitleText": "在途订单" } },
+        { "path": "pages/k3cloud/pln/inv_analysis_plus", "style": { "navigationBarTitleText": "物料需求梳理" } },
         { "path": "pages/k3cloud/pln/material_batch_update", "style": { "navigationBarTitleText": "物料批改" } },
+        { "path": "pages/k3cloud/pln/material_batch_update_lite", "style": { "navigationBarTitleText": "物料批改（安全库存）" } },
         { "path": "pages/k3cloud/pln/plan_analysis", "style": { "navigationBarTitleText": "跑单脚本" } },
         { "path": "pages/k3cloud/pln/plan_order/search", "style": { "navigationBarTitleText": "计划订单查询" } },
         { "path": "pages/k3cloud/prd/index", "style": { "navigationBarTitleText": "生产管理" } },
