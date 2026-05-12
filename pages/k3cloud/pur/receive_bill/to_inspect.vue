@@ -330,7 +330,14 @@
             },
             async load_receive_bills() {
                 let options = { FDocumentStatus: 'C', FCheckInComing: 1, FMustQty_gt: ':FCheckJoinQty' }
-                let meta = { fields: 'FDetailEntity_FEntryId', page: this.page, per_page: this.per_page, order: 'FID DESC' }
+                let meta = { fields: ['FID', 'FBillNo', 'FCreateDate',
+                      'FSupplierId', 'FSupplierId.FNumber', 'FSupplierId.FName', 'FPurchaserId', 'FPurchaserId.FNumber', 'FPurchaserId.FName',
+                      'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_RGEN_Text_qtr', 'FMaterialId.FBoxStandardQty',
+                      'FStockId', 'FStockId.FNumber', 'FStockId.FName', 'FCheckInComing',
+                      'FActReceiveQty', 'FUnitId', 'FUnitId.FNumber', 'FUnitId.FName', 'FMustQty', 'FCheckJoinQty',
+                      'F_PAEZ_Text', 'FDetailEntity_FEntryId'], 
+                    page: this.page, per_page: this.per_page, order: 'FID DESC',
+                }
                 if (this.search_form.bill_no) options.FBillNo_lk = this.search_form.bill_no
                 if (this.search_form.demand_bill_no) options.F_PAEZ_Text_lk = this.search_form.demand_bill_no
                 if (this.search_form.demander) options['FDemanderId.FName_lk'] = this.search_form.demander

@@ -95,12 +95,37 @@
             @button-click="goods_nav_button_click"
         />
     </view>
+    
+    <!-- 搜索候选列表 -->
+    <uni-drawer ref="search_drawer" :width="$store.state.drawer_width">
+        <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
+            <uni-section :title="bill.bill_name" type="square" :sub-title="bill.bill_no" sub-title-color="#007aff">
+                <template #right>
+                    <view class="uni-section__right">
+                        <uni-icons type="closeempty" size="24" color="#333" @click="$refs.search_drawer.close()"/>
+                    </view>
+                </template>
+                <uni-list>
+                    <uni-list-item
+                        v-for="(m, index) in bill.entry"
+                        :key="index"
+                        :title="[m.material_no, m.material_name].join(' / ')"
+                        :note="`规格：${m.material_spec}`"
+                        :rightText="[m.qty, m.unit_name].join(' ')"
+                        @click="select_material(m.material_no)" clickable
+                        show-arrow
+                        >
+                    </uni-list-item>
+                </uni-list>
+            </uni-section>
+        </scroll-view>
+    </uni-drawer>
 </template>
 
 <script>
     import store from '@/store'
     import scan_code from '@/utils/scan_code'
-    import { BdMaterial, Inv, InvLog } from '@/utils/model'
+    import { BdMaterial, Inv, InvLog, PurReceiveBill } from '@/utils/model'
     import { formatDate, play_audio_prompt } from '@/utils'
     
     export default {
@@ -108,6 +133,7 @@
             return {
                 broadcast_receiver: null,
                 material: {},
+                bill: {},
                 inv_logs: [],
                 form: {
                     material_no: '',
@@ -188,6 +214,11 @@
                     uni.showToast({ icon: 'none', title: err })
                 })
             },
+            select_material(material_no) {
+                this.form.material_no = material_no
+                this.handle_material_no_change()
+                this.$refs.search_drawer.close()
+            },
             // functions
             handle_material_no_change() {
                 if (this.form.material_no) {
@@ -197,7 +228,9 @@
                 }
             },
             handle_scan_code(text) {
-                if (text.includes('||')) {
+                if (text.startsWith('CGSL')) {
+                    this.load_candidates(text)
+                } else if (text.includes('||')) {
                     this.form.material_no = text.split('||')[1]
                     this.handle_material_no_change()
                 } else if (text.includes('-') && !text.includes('.')) {
@@ -255,6 +288,23 @@
                 } else {
                     this.material = {}
                 }
+            },
+            async load_candidates(bill_no) {
+                let options = { FBillNo: bill_no }
+                let meta = { fields: ['FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FActReceiveQty', 'FUnitId.FName']}
+                let res = await PurReceiveBill.query(options, meta)
+                let bill = { bill_no, bill_name: '收料通知单', entry: []}
+                for (let d of res.data) {
+                    bill.entry.push({
+                        material_no: d['FMaterialId.FNumber'],
+                        material_name: d['FMaterialId.FName'],
+                        material_spec: d['FMaterialId.FSpecification'],
+                        qty: d['FActReceiveQty'],
+                        unit_name: d['FUnitId.FName']
+                    })
+                }
+                this.bill = bill
+                this.$refs.search_drawer.open()
             },
             async submit() {
                 try {

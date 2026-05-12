@@ -32,9 +32,7 @@ class PurReceiveBill {
                       'FStockId', 'FStockId.FNumber', 'FStockId.FName', 'FCheckInComing',
                       'FActReceiveQty', 'FUnitId', 'FUnitId.FNumber', 'FUnitId.FName', 'FMustQty', 'FCheckJoinQty',
                       'F_PAEZ_Text']
-        if (meta.fields) {
-            fields = fields.concat(meta.fields)
-        }
+        if (meta.fields) fields = meta.fields
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),

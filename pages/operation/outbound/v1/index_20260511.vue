@@ -34,7 +34,7 @@
         </view>
     </uni-section>
     
-    <uni-section v-if="!outbound_bill.bill_no && ppboms.length" title="生产用料清单列表" type="square" sub-title="点击查看子项明细" class="above-uni-goods-nav">
+    <uni-section v-if="!ppbom.FID && ppboms.length" title="生产用料清单列表" type="square" sub-title="点击查看子项明细" class="above-uni-goods-nav">
         <uni-card spacing="0" padding="0">
             <uni-list>
                 <uni-list-item v-for="(obj, index) in ppboms" :key="index"
@@ -57,6 +57,7 @@
                     <template #footer>
                         <view class="uni-list-item__foot">
                             <view>{{ obj.FQty }} {{ obj['FUnitId.FName'] }}</view>
+                            <!-- <view class="text-primary">{{ 'status' }}</view> -->
                         </view>
                     </template>
                 </uni-list-item>
@@ -64,8 +65,14 @@
         </uni-card>
     </uni-section>
     
-    <uni-section v-if="outbound_bill.bill_no" :title="`${bill_type_dict[outbound_bill.bill_type]}子项明细`" type="square" class="above-uni-goods-nav"
-        :sub-title="entry_sub_title" sub-title-color="#007aff">
+    <uni-section v-if="ppbom.FID" title="生产用料清单子项明细" type="square" class="above-uni-goods-nav"
+        :sub-title="[
+            `单据：${ppbom.FBillNo} / ${ppbom.FMoBillNo}`,
+            `产品：${ppbom['FMaterialId.FNumber']} / ${ppbom['FMaterialId.FName']}`,
+            `规格：${ppbom['FMaterialId.FSpecification']}`
+        ].join('\n')"
+        sub-title-color="#007aff"
+        >
         <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
             <uni-tr>
                 <uni-th v-if="outbound_mode == '分批'" align="center" width="30"></uni-th>
@@ -81,42 +88,42 @@
                 <uni-th align="center">仓管员</uni-th>
             </uni-tr>
             
-            <uni-tr v-for="(obj, index) in outbound_entry_filtered" :key="index">
+            <uni-tr v-for="(obj, index) in ppbom_entry_filtered" :key="index">
                 <uni-td v-if="outbound_mode == '分批'">
-                    <uni-icons v-if="inv_logs_map[obj.material_id] >= obj.qty" type="paperplane" size="30" color="#007aff"></uni-icons>
+                    <uni-icons v-if="inv_logs_map[obj.FMaterialId2] >= obj.FMustQty" type="paperplane" size="30" color="#007aff"></uni-icons>
                     <checkbox
                         v-else-if="can_outbound(obj)"
                         :checked="obj.checked"
                         @click="checkbox_click"
-                        :data-id="obj.material_id"
+                        :data-id="obj.FMaterialId2"
                     />
                     <checkbox v-else disabled></checkbox>
                 </uni-td>
-                <uni-td align="center">{{ obj.seq }}</uni-td>
-                <uni-td>{{ obj.material_no }}</uni-td>
-                <uni-td>{{ obj.material_name }}</uni-td>
-                <uni-td>{{ obj.material_spec }}</uni-td>
-                <uni-td align="center">{{ obj.unit_name }}</uni-td>
-                <uni-td align="center">{{ obj.qty }}</uni-td>
-                <uni-td align="center">{{ invs_map[obj.material_id] || 0 }}</uni-td>
+                <uni-td align="center">{{ obj.FReplaceGroup }}</uni-td>
+                <uni-td>{{ obj['FMaterialId2.FNumber'] }}</uni-td>
+                <uni-td>{{ obj['FMaterialId2.FName'] }}</uni-td>
+                <uni-td>{{ obj['FMaterialId2.FSpecification'] }}</uni-td>
+                <uni-td align="center">{{ obj['FUnitId2.FName'] }}</uni-td>
+                <uni-td align="center">{{ obj.FMustQty }}</uni-td>
+                <uni-td align="center">{{ invs_map[obj.FMaterialId2] || 0 }}</uni-td>
                 <uni-td align="center">
-                    <text :class="[(inv_logs_map[obj.material_id] || 0) >= obj.qty ? 'text-primary' : '']">{{ inv_logs_map[obj.material_id] }}</text>
+                    <text :class="[(inv_logs_map[obj['FMaterialId2']] || 0) >= obj['FMustQty'] ? 'text-primary' : '']">{{ inv_logs_map[obj.FMaterialId2] }}</text>
                 </uni-td>
-                <uni-td><text :class="[obj.stock_id == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj.stock_name }}</text></uni-td>
-                <uni-td>{{ obj.storekeeper }}</uni-td>
+                <uni-td><text :class="[obj.FStockId == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj['FStockId.FName'] }}</text></uni-td>
+                <uni-td>{{ obj['FMaterialId2.F_PAEZ_Base1'] }}</uni-td>
             </uni-tr>
         </uni-table>
         
         <uni-list v-else>
-            <uni-list-item v-for="(obj, index) in outbound_entry_filtered" :key="index">
+            <uni-list-item v-for="(obj, index) in ppbom_entry_filtered" :key="index">
                 <template #header v-if="outbound_mode == '分批'">
                     <view class="uni-list-item__head">
-                        <uni-icons v-if="inv_logs_map[obj.material_id] >= obj.qty" type="paperplane" size="30" color="#007aff"></uni-icons>                       
+                        <uni-icons v-if="inv_logs_map[obj.FMaterialId2] >= obj.FMustQty" type="paperplane" size="30" color="#007aff"></uni-icons>                       
                         <checkbox
                             v-else-if="can_outbound(obj)"
                             :checked="obj.checked"
                             @click="checkbox_click"
-                            :data-id="obj.material_id"
+                            :data-id="obj.FMaterialId2"
                         />
                         <checkbox v-else disabled></checkbox>
                     </view>
@@ -124,22 +131,22 @@
                 <template #body>
                     <view class="uni-list-item__body">
                         <view class="title">
-                            <uni-badge :text="obj.seq" :type="obj.stock_id == $store.state.cur_stock.FStockId ? 'primary' : 'info'" />
-                            {{ obj.material_no }} / {{ obj.material_name }}
+                            <uni-badge :text="`${obj.FReplaceGroup}`" :type="obj['FStockId'] == $store.state.cur_stock.FStockId ? 'primary' : 'info'" />
+                            {{ obj['FMaterialId2.FNumber'] }} / {{ obj['FMaterialId2.FName'] }}
                         </view>
                         <view class="note">
-                            <view>规格：{{ obj.material_spec }}</view>
-                            <view>仓库：<text :class="[obj.stock_id == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj.stock_name }}</text></view>
-                            <view>单位：{{ obj.unit_name }}， {{ this.dest_loc_no }}：{{ invs_map[obj.material_id] || 0 }}</view>
+                            <view>规格：{{ obj['FMaterialId2.FSpecification'] }}</view>
+                            <view>仓库：<text :class="[obj['FStockId'] == $store.state.cur_stock.FStockId ? 'text-primary' : 'text-error']">{{ obj['FStockId.FName'] }}</text></view>
+                            <view>单位：{{ obj['FUnitId2.FName'] }}， {{ this.dest_loc_no }}：{{ invs_map[obj['FMaterialId2']] || 0 }}</view>
                         </view>
                     </view>
                 </template>
                 <template #footer>
                     <view class="uni-list-item__foot">
                         <view>应发</view>
-                        <view class="text-lg">{{ obj.qty }}</view>
+                        <view class="text-lg">{{ obj['FMustQty'] }}</view>
                         <view>实发</view>
-                        <view class="text-lg" :class="[(inv_logs_map[obj.material_id] || 0) >= obj.qty ? 'text-primary' : '']">{{ inv_logs_map[obj.material_id] || 0 }}</view>
+                        <view class="text-lg" :class="[(inv_logs_map[obj['FMaterialId2']] || 0) >= obj['FMustQty'] ? 'text-primary' : '']">{{ inv_logs_map[obj['FMaterialId2']] || 0 }}</view>
                     </view>
                 </template>
             </uni-list-item>
@@ -162,7 +169,7 @@
     import store from '@/store'
     import { play_audio_prompt, formatDate } from '@/utils'
     import scan_code from '@/utils/scan_code'
-    import { Inv, InvLog, PrdPpbom, StkTransferDirect, StockLoc } from '@/utils/model'
+    import { Inv, InvLog, PrdPpbom, StockLoc } from '@/utils/model'
     
     export default {
         data() {
@@ -175,8 +182,6 @@
                 dest_loc_no_options: [],
                 ppboms: [],
                 ppbom: {},
-                outbound_bill: {}, // 出库单据
-                bill_type_dict: { 'ZJDB': '直接调拨单', 'PPBOM': '生产用料清单' },
                 invs: [],          // 拆包区库存
                 invs_map: {},      // 优化库存查询性能
                 inv_logs: [],      // 实发物料
@@ -211,17 +216,6 @@
             this.load_dest_loc_nos()
         },
         computed: {
-            outbound_entry_filtered() {
-                if (this.filter_cond === '全部') {
-                    return this.outbound_bill.entry
-                } else if (this.filter_cond === '未出库') {
-                    return this.outbound_bill.entry.filter(m => (this.inv_logs_map[m.material_id] || 0) < m.qty )
-                } else if (this.filter_cond === '可出库') {
-                    return this.outbound_bill.entry.filter(m => this.can_outbound (m))
-                } else if (this.filter_cond === '已出库') {
-                    return this.outbound_bill.entry.filter(m => (this.inv_logs_map[m.material_id] || 0) >= m.qty )
-                }
-            },
             ppbom_entry_filtered() {
                 if (this.filter_cond === '全部') {
                     return this.ppbom.entry
@@ -236,9 +230,9 @@
             is_completed() {
                 // return true
                 let res = true
-                if (this.outbound_bill.entry?.length) {
-                    for (let m of this.outbound_bill.entry) {
-                        if (!this.inv_logs_map[m.material_id] || this.inv_logs_map[m.material_id] < m.qty) {
+                if (this.ppbom.entry?.length) {
+                    for (let m of this.ppbom.entry) {
+                        if (!this.inv_logs_map[m.FMaterialId2] || this.inv_logs_map[m.FMaterialId2] < m.FMustQty) {
                             res = false
                             break
                         }
@@ -247,19 +241,6 @@
                     res = false
                 }
                 return res
-            },
-            entry_sub_title() {
-                if (this.outbound_bill.bill_type == 'ZJDB') {
-                    return [
-                        `单据：${this.outbound_bill.bill_no}`
-                    ].join('\n')
-                } else {
-                    return [
-                        `单据：${this.outbound_bill.bill_no} / ${this.outbound_bill.mo_bill_no}`,
-                        `产品：${this.outbound_bill.material_no} / ${ this.outbound_bill.material_name}`,
-                        `规格：${this.outbound_bill.material_spec}`
-                    ].join('\n')
-                }
             }
         },
         methods: {
@@ -324,25 +305,24 @@
             },
             can_outbound(m) {
                 // 本仓库 && 未（完全）出库 && 有库存
-                return m.stock_id == store.state.cur_stock.FStockId &&
-                       (this.inv_logs_map[m.material_id] || 0) < m.qty &&
-                       (this.invs_map[m.material_id] ||0) > 0
+                return m.FStockId == store.state.cur_stock.FStockId &&
+                       (this.inv_logs_map[m.FMaterialId2] || 0) < m.FMustQty && 
+                       (this.invs_map[m.FMaterialId2] || 0) > 0
             },
             check_all() {
-                if (!this.outbound_bill.entry?.length) return
-                let result = this.outbound_bill.entry.some(m => !m.checked && this.can_outbound(m))
-                for (let m of this.outbound_bill.entry) {
+                if (!this.ppbom.entry?.length) return
+                let result = this.ppbom.entry.some(m => !m.checked && this.can_outbound(m))
+                for (let m of this.ppbom.entry) {
                     if (this.can_outbound(m))  m.checked = result
                 }
             },
             checkbox_click(e) {
-                let material = this.outbound_bill.entry.find(m => m.material_id === e.target.dataset.id)
+                let material = this.ppbom.entry.find(m => m.FMaterialId2 === e.target.dataset.id)
                 if (material) material.checked = !material.checked
             },
             clear_data() {
                 this.ppboms = []
-                // this.ppbom = {}
-                this.outbound_bill = {}
+                this.ppbom = {}
                 this.new_inv_logs = []
                 this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
             },
@@ -350,11 +330,7 @@
             async handle_search() {
                 if (this.search_form.bill_no) {
                     this.clear_data()
-                    if (this.search_form.bill_no.startsWith('ZJDB')) {
-                        await this.load_zjdb()
-                    } else {
-                        await this.load_ppboms()
-                    }
+                    await this.load_ppboms()
                 }  
             },
             async load_dest_loc_nos() {
@@ -395,82 +371,13 @@
                 uni.showLoading({ title: 'Loading' })
                 let res = await PrdPpbom.query(options, meta)
                 uni.hideLoading()
-                let outbound_bill = {
-                    bill_type: 'PPBOM',
-                    bill_no: obj.FBillNo,
-                    mo_bill_no: obj.FMoBillNo,
-                    material_no: obj['FMaterialId.FNumber'],
-                    material_name: obj['FMaterialId.FName'],
-                    material_spec: obj['FMaterialId.FSpecification'],
-                    entry: []
-                }
-                for (let d of res.data) {
-                    let m = outbound_bill.entry.find(m => m.material_id == d['FMaterialId2'])
-                    if (m) {
-                        m.qty += d['FMustQty']
-                    } else {
-                        outbound_bill.entry.push({
-                            seq: d['FReplaceGroup'],
-                            material_id: d['FMaterialId2'],
-                            material_no: d['FMaterialId2.FNumber'],
-                            material_name: d['FMaterialId2.FName'],
-                            material_spec: d['FMaterialId2.FSpecification'],
-                            qty: d['FMustQty'],
-                            unit_name: d['FUnitId2.FName'],
-                            stock_id: d['FStockId'],
-                            stock_name: d['FStockId.FName'],
-                            storekeeper: d['FMaterialId2.F_PAEZ_Base1']
-                        })
-                    }
-                }
-                this.outbound_bill = outbound_bill
-                await this.load_invs()
-                await this.load_inv_logs()
-                this.goods_nav.button_group[1].backgroundColor = this.is_completed ? store.state.goods_nav_color.grey : store.state.goods_nav_color.blue
-            },
-            async load_zjdb() {
-                let options = { FBillNo: this.search_form.bill_no.trim(), FQty_gt: 0 }
-                let meta = {
-                    fields: ['FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FQty', 'FUnitId.FName',
-                             'FSrcStockId', 'FSrcStockId.FName', 'FDestStockId', 'FDestStockId.FName', 'FMaterialId.F_PAEZ_Base1' ]
-                }
-                uni.showLoading({ title: 'Loading' })
-                let res = await StkTransferDirect.query(options, meta)
-                uni.hideLoading()
-                let outbound_bill = {
-                    bill_type: 'ZJDB',
-                    bill_no: this.search_form.bill_no.trim(),
-                    entry: []
-                }
-                let seq = 1
-                for (let d of res.data) {
-                    let m = outbound_bill.entry.find(m => m.material_id == d['FMaterialId'])
-                    if (m) {
-                        m.qty += d['FQty']
-                    } else {
-                        outbound_bill.entry.push({
-                            seq: seq,
-                            material_id: d['FMaterialId'],
-                            material_no: d['FMaterialId.FNumber'],
-                            material_name: d['FMaterialId.FName'],
-                            material_spec: d['FMaterialId.FSpecification'],
-                            qty: d['FQty'],
-                            unit_name: d['FUnitId.FName'],
-                            stock_id: d['FSrcStockId'],
-                            stock_name: d['FSrcStockId.FName'],
-                            dest_stock_id: d['FDestStockId'],
-                            dest_stock_name: d['FDestStockId.FName'],
-                            storekeeper: d['FMaterialId.F_PAEZ_Base1']
-                        })
-                        seq++
-                    }
-                }
-                this.outbound_bill = outbound_bill
+                this.ppbom = { ...obj, entry: res.data }
                 await this.load_invs()
                 await this.load_inv_logs()
                 this.goods_nav.button_group[1].backgroundColor = this.is_completed ? store.state.goods_nav_color.grey : store.state.goods_nav_color.blue
             },
             async load_invs() {
+                // let res = await Inv.get_all({ FStockId: store.state.cur_stock.FStockId, 'FStockLocId.FName_lk': '拆包区' }, { order: 'FBatchNo ASC' })
                 let res = await Inv.get_all({ FStockId: store.state.cur_stock.FStockId, 'FStockLocId.FName': this.dest_loc_no }, { order: 'FBatchNo ASC' })
                 this.invs = res
                 let invs_map = {}
@@ -481,7 +388,7 @@
                 this.invs_map = invs_map
             },
             async load_inv_logs() {
-                let res = await InvLog.query({ FBillNo_lk: this.outbound_bill.bill_no, FStockId: store.state.cur_stock.FStockId, FOpType: 'out' })
+                let res = await InvLog.query({ FBillNo_lk: this.ppbom.FBillNo, FStockId: store.state.cur_stock.FStockId, FOpType: 'out' })
                 this.inv_logs = res.data
                 let inv_logs_map = {}
                 for (let inv_log of this.inv_logs) {
@@ -492,12 +399,12 @@
             },
             async submit_outbound(){
                 // >>> validation
-                if (!this.outbound_bill.bill_no) return // 1. 是否有生产订单数据
+                if (!this.ppbom.FID) return   // 1. 是否有生产订单数据
                 if (this.is_completed) return // 2. 是否已完成生产订单
                 // 3. 拆包区库存是否有充足
-                let checked_materials = this.outbound_bill.entry
+                let checked_materials = this.ppbom.entry
                 if (this.outbound_mode == '分批') {
-                    checked_materials = this.outbound_bill.entry.filter(m => m.checked)
+                    checked_materials = this.ppbom.entry.filter(m => m.checked)
                     if (checked_materials.length === 0) {
                         uni.showModal({ title: '提示', content: '未勾选出库信息' })
                         return
@@ -506,17 +413,17 @@
 
                 if (this.outbound_mode == '齐套') {
                     let op_cnt = 0
-                    for (let m of this.outbound_bill.entry) {
-                        if (m.stock_id != store.state.cur_stock.FStockId) continue
-                        if (m.qty === 0) continue
-                        if (m.qty - (this.inv_logs_map[m.material_id] || 0) > (this.invs_map[m.material_id] || 0)) {
-                            uni.showModal({ title: '提示', content: `拆包区库存不足\n[${ m.seq }]${ m.material_name }\n剩余应发：${m.qty - (this.inv_logs_map[m.material_id] || 0)}\n拆包区：${this.invs_map[m.material_id] || 0}` })
+                    for (let m of this.ppbom.entry) {
+                        if (m.FStockId != store.state.cur_stock.FStockId) continue
+                        if (m.FMustQty === 0) continue
+                        if (m.FMustQty - (this.inv_logs_map[m.FMaterialId2] || 0) > (this.invs_map[m.FMaterialId2] || 0)) {
+                            uni.showModal({ title: '提示', content: `拆包区库存不足\n[${m.FReplaceGroup}]${m['FMaterialId2.FName']}\n剩余应发：${m.FMustQty - (this.inv_logs_map[m.FMaterialId2] || 0)}\n拆包区：${this.invs_map[m.FMaterialId2] || 0}` })
                             return
                         }
                         op_cnt++
                     }
                     if (op_cnt === 0) {
-                        uni.showModal({ title: '提示', content: `出库清单中不含[${store.state.cur_stock.FName}]的物料` })
+                        uni.showModal({ title: '提示', content: `生产用料清单中不含[${store.state.cur_stock.FName}]的物料` })
                         return
                     }
                 }
@@ -525,10 +432,11 @@
                 uni.showLoading({ title: 'Loading', mask: true })
                 if (this.new_inv_logs.length === 0) {
                     for (let m of checked_materials) {
-                        if (m.stock_id != store.state.cur_stock.FStockId) continue
-                        if (m.qty === 0) continue
-                        let invs = this.invs.filter(inv => inv.FMaterialId === m.material_id)
-                        let rest_must_qty = m.qty - (this.inv_logs_map[m.material_id] || 0) // 剩余应发数量
+                        // uni.showToast({ title: `${m.FReplaceGroup}/${this.ppbom.entry.length}`, mask: true })
+                        if (m.FStockId != store.state.cur_stock.FStockId) continue
+                        if (m.FMustQty === 0) continue
+                        let invs = this.invs.filter(inv => inv.FMaterialId === m.FMaterialId2)
+                        let rest_must_qty = m.FMustQty - (this.inv_logs_map[m.FMaterialId2] || 0) // 剩余应发数量
                         for (let inv of invs) {
                             if (rest_must_qty === 0) break // 分配完毕，跳出循环
                             let op_qty = inv.FQty >=  rest_must_qty ? rest_must_qty : inv.FQty
@@ -540,10 +448,11 @@
                                 FOpQTY: op_qty,
                                 FBatchNo: inv.FBatchNo,
                                 FSupplierId: inv.FSupplierId,
-                                FBillNo: this.outbound_bill.bill_type === 'PPBOM' ? `${this.outbound_bill.bill_no},${this.outbound_bill.mo_bill_no}` : this.outbound_bill.bill_no,
+                                FBillNo: `${this.ppbom.FBillNo},${this.ppbom.FMoBillNo}`,
                                 FOpStaffNo: store.state.cur_staff.FNumber
                             })
                             this.new_inv_logs.push(inv_log)
+                            // await inv_log.save()
                             rest_must_qty -= op_qty
                         }
                         m.checked = false
@@ -551,7 +460,6 @@
                 } else {
                     this.$logger.warn(">>> double click")
                 }
-                // 统一分配操作序号，统一提交保存，防重复提交
                 for (let i = 0; i < this.new_inv_logs.length; i++) {
                     uni.showToast({ title: `${i}/${this.new_inv_logs.length}`, mask: true })
                     await this.new_inv_logs[i].save()

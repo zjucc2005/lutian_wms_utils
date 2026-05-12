@@ -204,6 +204,7 @@
 <script>
     import store from '@/store'
     import XLSX from 'xlsx'
+    import K3CloudApi from '@/utils/k3cloudapi'
     import { PrdMo, PrdPpbom, PrdIssueMtrNotice, PurRequisition, SubSubReqOrder, PurPurchaseOrder, StkInventory, BdOperator } from '@/utils/model'
     import { formatDate } from '@/utils'
     
@@ -264,8 +265,10 @@
                     po: {
                         FDocumentStatus: 'C', // C - 已审核
                         FCancelStatus: 'A', // A - 未作废, B - 已作废
-                        FMRPCloseStatus: 'A', // A - 正常, B - 业务关闭
-                        FCloseStatus: 'A', // A - 未关闭, B - 已关闭
+                        FManualClose: 0, // 手工关闭：否
+                        // AND (FRemainReceiveQty > 0 OR FReceiveQty > FStockInQty)
+                        // FMRPCloseStatus: 'A', // A - 正常, B - 业务关闭
+                        // FCloseStatus: 'A', // A - 未关闭, B - 已关闭
                         FMRPTerminateStatus: 'A', // A - 正常, B - 业务终止
                         'FPurchaseOrgId.FNumber_in': ['100', '102']
                     }
@@ -500,17 +503,42 @@
                 let options = { ...this.search_form.po }
                 if (this.search_form.created_at_ge) options.FCreateDate_ge = this.search_form.created_at_ge
                 if (this.search_form.created_at_le) options.FCreateDate_le = this.search_form.created_at_le
-                let res = await PurPurchaseOrder.query(options, { fields: this.fields_po, return: 'array' })
-                for (let d of res.data) {
-                    if (d[8] <= 0 && d[9] == 0) continue
-                    d[2] = store.state.document_status_dict[d[2]]
-                    if (d[8] < 0) d[8] = 0 // 剩余收料<0时，重置为0
-                    d[9] = d[16] - d[17]
-                    if (d[9] < 0) d[9] = 0 // 收料可退<0时，重置为0
-                    if (d[12]) d[12] = new Date(d[12])
-                    if (d[13]) d[13] = new Date(d[13])
-                    this.table_body_po.push(d.slice(0, 16))
+                let filter_string = `${K3CloudApi.query_filter(options)} AND (FRemainReceiveQty > 0 OR FReceiveQty > FStockInQty)`
+                
+                let res = null
+                let page = 1
+                let per_page = 10000
+                while (!res || res.data.length === per_page) {
+                    res = await K3CloudApi.execute_bill_query({
+                        FormId: "PUR_PurchaseOrder",
+                        FieldKeys: this.fields_po.join(','),
+                        FilterString: filter_string,
+                        StartRow: (page - 1) * per_page,
+                        Limit: per_page
+                    })
+                    for (let d of res.data) {
+                        d[2] = store.state.document_status_dict[d[2]]
+                        if (d[8] < 0) d[8] = 0 // 剩余收料<0时，重置为0
+                        d[9] = d[16] - d[17]
+                        if (d[9] < 0) d[9] = 0 // 收料可退<0时，重置为0
+                        if (d[12]) d[12] = new Date(d[12])
+                        if (d[13]) d[13] = new Date(d[13])
+                        this.table_body_po.push(d.slice(0, 16))
+                    }
+                    page++
                 }
+                
+                // let res = await PurPurchaseOrder.query(options, { fields: this.fields_po, return: 'array' })
+                // for (let d of res.data) {
+                //     if (d[8] <= 0 && d[9] == 0) continue
+                //     d[2] = store.state.document_status_dict[d[2]]
+                //     if (d[8] < 0) d[8] = 0 // 剩余收料<0时，重置为0
+                //     d[9] = d[16] - d[17]
+                //     if (d[9] < 0) d[9] = 0 // 收料可退<0时，重置为0
+                //     if (d[12]) d[12] = new Date(d[12])
+                //     if (d[13]) d[13] = new Date(d[13])
+                //     this.table_body_po.push(d.slice(0, 16))
+                // }
             },
             export_as_excel() {
                 // #ifdef APP-PLUS
