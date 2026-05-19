@@ -150,15 +150,15 @@
                 if (order_no_idx === -1) this.response_result.push({ i: 0, msg: '未找到表头[订单号]' })
                 let order_spec_idx = header.indexOf('规格型号')
                 if (order_spec_idx === -1) this.response_result.push({ i: 0, msg: '未找到表头[规格型号]' })
-                
                 for (let i = 1; i < this.raw_data.length; i++) {
                     let row = this.raw_data[i]
+                    if (!row[2]) break
                     let bomver = row[bomver_idx]
                     let force = force_idx > -1 && row[force_idx] == 1
                     this.done_data.push({
                         jhxh: row[jhxh_idx],
                         qty: row[qty_idx],
-                        bomver: bomver.slice(bomver.indexOf('&') + 1), // BOM版本按格式截取 {prefix}&{bomver}
+                        bomver: bomver ? bomver.slice(bomver.indexOf('&') + 1) : '', // BOM版本按格式截取 {prefix}&{bomver}
                         plan_s_date: row[plan_s_date_idx],
                         order_no: row[order_no_idx],
                         order_spec: row[order_spec_idx],
@@ -219,7 +219,6 @@
                 } else {
                     return []
                 }
-                                
                 let res = []
                 if (level === 0) {
                     root = bomver
@@ -367,7 +366,7 @@
                     let bom = await this.load_full_bom(row.bomver)
                     for (let m of bom) {
                         this.table_body.push([
-                            row.computer_no, row.jhxh, m.no, m.name, m.spec, m.unit, m.qty * row.qty, m.prop, m.root, m.root1, m.applicant, m.plan_ident,
+                            row.computer_no, row.jhxh, m.no, m.name, m.spec, m.unit, this.number_round(m.qty * row.qty), m.prop, m.root, m.root1, m.applicant, m.plan_ident,
                             this.xlsx_parse_date(row.plan_s_date), row.order_no, row.order_spec, row.qty
                         ])
                     }
@@ -377,6 +376,9 @@
             xlsx_parse_date(n) {
                 let h = XLSX.SSF.parse_date_code(n)
                 return new Date(h.y, h.m - 1, h.d)
+            },
+            number_round(n) {
+                return parseFloat(n.toFixed(6))
             },
             goods_nav_click(e) {
                 if (e.index === 0) this.export_as_excel()

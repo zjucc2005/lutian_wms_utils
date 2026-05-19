@@ -17,6 +17,7 @@
                 prefix-icon="scan"
                 @icon-click="searchbar_icon_click"
                 primary-color="rgb(238, 238, 238)"
+                class="uni-mb-4"
                 :styles="{
                     color: '#000',
                     backgroundColor: 'rgb(238, 238, 238)',
@@ -24,16 +25,24 @@
                     height: '100px'
                 }"
             />
+            <uni-tag text="库存差异" @click="search_form.no = '库存差异'" type="primary" size="small" inverted circle />
         </view>
         <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
             <uni-tr>
                 <uni-th align="center" width="60">序号</uni-th>
-                <uni-th align="center" width="60">略图</uni-th>
+                <uni-th align="center" width="60">
+                    <text class="text-link" @click="get_thumbnail">略图</text>
+                </uni-th>
                 <uni-th align="center">物料编码</uni-th>
                 <uni-th align="center">物料名称</uni-th>
                 <uni-th align="center">规格型号</uni-th>
-                <uni-th align="center">单位</uni-th>
+                <uni-th align="center" width="50">单位</uni-th>
                 <uni-th align="center">数量</uni-th>
+                <uni-th align="center" width="100">
+                    <image src="/static/icon/cc_k3cloud_active.png" style="width:20px; height:20px;" mode="aspectFit" />
+                    金蝶账面
+                </uni-th>
+                <uni-th align="center" width="50">差异</uni-th>
                 <uni-th align="center" width="230">操作</uni-th>
             </uni-tr>
             
@@ -49,6 +58,12 @@
                 <uni-td>{{ obj.material_spec }}</uni-td>
                 <uni-td align="center">{{ obj.base_unit_name }}</uni-td>
                 <uni-td align="center">{{ obj.qty }}</uni-td>
+                <uni-td align="center">{{ obj.stk_qty }}</uni-td>
+                <uni-td align="center">
+                    <text v-if="obj.qty - obj.stk_qty > 0" class="text-primary">{{ obj.qty - obj.stk_qty }}</text>
+                    <text v-if="obj.qty - obj.stk_qty < 0" class="text-error">{{ obj.qty - obj.stk_qty }}</text>
+                    <text v-if="obj.qty - obj.stk_qty == 0" class="text-grey">{{ obj.qty - obj.stk_qty }}</text>
+                </uni-td>
                 <uni-td align="center">
                     <uni-tag text="库存明细" type="primary" inverted @click="link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}`)"/>
                     <uni-tag text="库存调整" type="primary" @click="inv_modify(obj.material_no)" class="uni-ml-2"/>
@@ -60,16 +75,31 @@
         <uni-list v-else>
             <uni-list-item
                 v-for="(obj, index) in inv_groups_filtered()" :key="index"
-                :title="obj.material_no"
-                :note="[
-                    `名称：${obj.material_name}`, 
-                    `规格：${obj.material_spec}`
-                ].join('\n')"
                 :thumb="obj.thumbnail" thumb-size="lg"
-                :rightText="[obj.qty, obj.base_unit_name].join(' ')"
                 @click="inv_menu(obj)" clickable show-arrow
                 @longpress="inv_menu(obj)"
                 >
+                <template #body>
+                    <view class="uni-list-item__body">
+                        <view class="title">{{ obj.material_no }}</view>
+                        <view class="note">
+                            <view>名称：{{ obj.material_name }}</view>
+                            <view>规格：{{ obj.material_spec }}</view>
+                        </view>
+                    </view>
+                </template>
+                <template #footer>
+                    <view class="uni-list-item__foot">
+                        <view>{{ obj.qty }}</view>
+                        <view style="display: flex; align-items: center;">
+                            <image src="/static/icon/cc_k3cloud_active.png" style="width:16px; height:16px;" mode="aspectFit" />
+                            <text v-if="obj.qty > obj.stk_qty" class="text-primary">{{ obj.stk_qty }}</text>
+                            <text v-if="obj.qty < obj.stk_qty" class="text-error">{{ obj.stk_qty }}</text>
+                            <text v-if="obj.qty == obj.stk_qty">{{ obj.stk_qty }}</text>
+                        </view>
+                        <view>{{ obj.base_unit_name }}</view>
+                    </view>
+                </template>
             </uni-list-item>
         </uni-list>
         
@@ -89,14 +119,15 @@
 
 <script>
     import store from '@/store'
-    import { Inv } from '@/utils/model'
+    import { Inv, StkInventory } from '@/utils/model'
     import { play_audio_prompt, link_to } from '@/utils'
     import K3CloudApi from '@/utils/k3cloudapi'
     import scan_code from '@/utils/scan_code'
     export default {
         data() {
             return {
-                invs: [],
+                invs: [], // WMS库存
+                stk_invs: [], // 金蝶库存
                 inv_groups: [],
                 last_refresh_time: 0,
                 refresh_interval: 30 * 1000, // 30s
@@ -106,9 +137,7 @@
                 goods_nav: {
                     options: [
                         { icon: 'refreshempty', text: '刷新' },
-                        // #ifdef H5
                         { icon: 'more-filled', text: '更多' },
-                        // #endif
                     ],
                     button_group: [
                         {
@@ -203,9 +232,17 @@
             more() {
                 if (!store.state.role.includes('admin')) return // 需要有仓库管理员权限
                 uni.showActionSheet({
-                    itemList: ['库存盘点'],
+                    // #ifndef H5
+                    itemList: ['加载略图'],
+                    // #endif
+                    // #ifdef H5
+                    itemList: ['加载略图', '库存盘点'],
+                    // #endif
                     success: (e) => {
                         if (e.tapIndex === 0) {
+                            this.get_thumbnail()
+                        }
+                        if (e.tapIndex === 1) {
                             play_audio_prompt('success')
                             uni.navigateTo({ 
                                 url: '/pages/operation/manage/inv_check',
@@ -219,15 +256,14 @@
                 })
             },
             async load_invs() {
-                const options = {
-                    FStockId: store.state.cur_stock.FStockId
-                }
                 uni.showLoading({ title: 'Loading' })
-                let res = await Inv.get_all(options)
+                let res = await Inv.get_all({ FStockId: store.state.cur_stock.FStockId })
                 this.invs = res
-                this.set_inv_groups(res)
+                let stk_res = await StkInventory.query({ FStockId: this.$store.state.cur_stock.FStockId }, { order: 'FMaterialId.FNumber ASC' })
+                this.stk_invs = stk_res.data
+                this.get_inv_groups()
                 uni.hideLoading()
-                if (store.state.screen_type === 'h5') this.get_thumbnail()
+                // if (store.state.screen_type === 'h5') this.get_thumbnail()
             },
             async refresh() {
                 if (this.last_refresh_time + this.refresh_interval > Date.now()) {
@@ -240,6 +276,11 @@
             inv_groups_filtered() {
                 let no = this.search_form.no.trim()
                 if (!no) return this.inv_groups
+                if (no === '库存差异') {
+                    return this.inv_groups.filter(inv_group => {
+                        return inv_group.qty != inv_group.stk_qty
+                    })
+                }
                 let kws = no.split('+')
                 if (kws.length > 2) {
                     uni.showToast({ icon: 'error', title: '最多支持2个关键词' })
@@ -255,15 +296,63 @@
                             return false
                         }
                     }
-                    // inv_group.material_no.includes(no) ||
-                    // inv_group.material_name.toUpperCase().includes(no.toUpperCase()) ||
-                    // inv_group.material_spec.toUpperCase().includes(no.toUpperCase())
                     return true
                 })
             },
-            set_inv_groups(data) {
+            get_inv_groups() {
                 let inv_groups = []
-                data.forEach(inv => {
+                let i = 0, j = 0
+                while (i < this.stk_invs.length || j < this.invs.length) {
+                    let stk_inv = this.stk_invs[i]
+                    let inv = this.invs[j]
+                    if (!inv || (stk_inv && stk_inv['FMaterialId.FNumber'] <= inv['FMaterialId.FNumber'])) {
+                        let inv_group = inv_groups.find(x => x.material_no == stk_inv['FMaterialId.FNumber'])
+                        if (inv_group) {
+                            inv_group.stk_qty += stk_inv.FBaseQty
+                        } else {
+                            inv_group = {
+                                material_id: stk_inv.FMaterialId,
+                                material_no: stk_inv['FMaterialId.FNumber'],
+                                material_name: stk_inv['FMaterialId.FName'],
+                                material_spec: stk_inv['FMaterialId.FSpecification'],
+                                material_image: inv?.['FMaterialId.FImageFileServer'],
+                                stk_qty: stk_inv.FBaseQty,
+                                qty: 0,
+                                base_unit_name: stk_inv['FBaseUnitId.FName'],
+                                thumbnail: '/static/default_40x40.png'
+                            }
+                            inv_groups.push(inv_group)
+                        }
+                        i += 1
+                        if (inv_group.material_no == inv?.['FMaterialId.FNumber']) {
+                            inv_group.qty += inv.FQty
+                            j += 1
+                        }
+                    } else {
+                        let inv_group = inv_groups.find(x => x.material_no == inv['FMaterialId.FNumber'])
+                        if (inv_group) {
+                            inv_group.qty += inv.FQty
+                        } else {
+                            inv_groups.push({
+                                material_id: inv.FMaterialId,
+                                material_no: inv['FMaterialId.FNumber'],
+                                material_name: inv['FMaterialId.FName'],
+                                material_spec: inv['FMaterialId.FSpecification'],
+                                material_image: inv['FMaterialId.FImageFileServer'],
+                                stk_qty: 0,
+                                qty: inv.FQty,
+                                base_unit_name: inv['FStockUnitId.FName'],
+                                thumbnail: '/static/default_40x40.png'
+                            })
+                        }
+                        j += 1
+                    }
+                }
+                this.inv_groups = inv_groups
+            },
+            set_inv_groups() {
+                let inv_groups = []
+                this.invs.forEach(inv => {
                     let group = inv_groups.find(x => x.material_id == inv.FMaterialId)
                     if (group) {
                         group.qty += inv.FQty
@@ -283,10 +372,16 @@
                 this.inv_groups = inv_groups
             },
             async get_thumbnail() {
+                uni.showLoading({ title: '0%' })
+                let i = 1
                 for (let obj of this.inv_groups) {
                     let res = await K3CloudApi.thumbnail_url(obj.material_image)
                     obj.thumbnail = res
+                    uni.showLoading({ title: `${(i * 100 / this.inv_groups.length).toFixed(1) }%` })
+                    i++
                 }
+                uni.hideLoading()
+                uni.showToast({ title: '加载略图完毕', duration: 2000 })
             },
             // #ifdef APP-PLUS
             // Broadcast receiver
