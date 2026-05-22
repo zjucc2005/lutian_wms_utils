@@ -384,7 +384,7 @@
                         XLSX.utils.book_append_sheet(book, sheet_req, '采购申请单（未推）')
                         let sheet_po = XLSX.utils.aoa_to_sheet([this.table_head_po, ...this.table_body_po])
                         XLSX.utils.book_append_sheet(book, sheet_po, '采购订单')
-                        XLSX.writeFile(book, `在途订单_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`);
+                        XLSX.writeFile(book, `在途订单_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`, { compression: true });
                         uni.hideLoading()
                         uni.showToast({ title: '导出完毕' })
                     }, 1000)

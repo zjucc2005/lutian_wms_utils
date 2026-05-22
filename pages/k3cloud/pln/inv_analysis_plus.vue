@@ -565,7 +565,7 @@
                         XLSX.utils.book_append_sheet(book, sheet_po, '采购订单')
                         let sheet_inv = XLSX.utils.aoa_to_sheet([this.table_head_inv, ...this.table_body_inv])
                         XLSX.utils.book_append_sheet(book, sheet_inv, '即时库存')
-                        XLSX.writeFile(book, `物料需求梳理_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`);
+                        XLSX.writeFile(book, `物料需求梳理_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`, { compression: true, type: 'binary' });
                         uni.hideLoading()
                         uni.showToast({ title: '导出完毕' })
                     }, 1000)

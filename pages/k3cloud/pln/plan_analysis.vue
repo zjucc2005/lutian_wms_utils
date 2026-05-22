@@ -20,6 +20,7 @@
                 <view class="text-grey text-sm">注意！</view>
                 <view class="text-grey text-sm">1.如果某计划序号在历史跑单数据中已存在，默认将不再跑单，直接引用历史跑单数据；</view>
                 <view class="text-grey text-sm">2.在<text class="text-primary">1-主计划进度</text>工作表中，可对某计划序号，标识表头<text class="text-primary">重新跑单</text>字段值为1，强制重新跑单;</view>
+                <view class="text-grey text-sm">3.文件大小不能超过<text class="text-primary">32MB</text>；</view>
             </view>
         </uni-section>
         
@@ -75,6 +76,7 @@
 
 <script>
     import store from '@/store'
+    import { toRaw } from 'vue'
     import XLSX from 'xlsx'
     import { Enum, EngBom, PlnPlanOrder } from '@/utils/model'
     import { formatDate } from '@/utils'
@@ -86,13 +88,14 @@
                 done_data: [],
                 response_result: [],
                 bom_fields: ['FNumber', 'FUseOrgId.FNumber', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
-                             'FMaterialIdChild.FNumber', 'FMaterialIdChild.FName', 'FMaterialIdChild.FSpecification', 
+                             'FMaterialIdChild.FNumber', 'FMaterialIdChild.FName', 'FMaterialIdChild.FSpecification', 'FMaterialIdChild.FSafeStock',
                              'FChildUnitId.FName', 'FNumerator', 'FDenominator', 'FChildItemProperty', 'FBomId.FNumber',
                              'FChildSupplyOrgId.FNumber', 'FMaterialIdChild.F_RGEN_Text_sqr', 'FMaterialIdChild.FPlanIdent'],
                 bom_cache: {},
                 refer_filename: '',
                 refer_data: {},
-                table_head: ['运算编号', '计划序号', '子项物料编码', '子项物料名称', '子项规格型号', '单位', '确认订单量', '物料属性', 'BOM版本(0层)', 'BOM版本(1层)', '申请人', '计划标识', '计划开工日期', '订单号', '订单规格型号', '订单数量'],
+                table_head: ['运算编号', '计划序号', '子项物料编码', '子项物料名称', '子项规格型号', '单位', '确认订单量', '物料属性', 'BOM版本(0层)', 'BOM版本(1层)',
+                             '申请人', '计划标识', '安全库存'],
                 table_body: [],
                 currentIndex: 0,
                 tabs: [ '请求参数', '运行结果' ],
@@ -144,12 +147,12 @@
                 if (qty_idx === -1) this.response_result.push({ i: 0, msg: '未找到表头[数量]' })
                 let bomver_idx = header.indexOf('整机BOM版本')
                 if (bomver_idx === -1) this.response_result.push({ i: 0, msg: '未找到表头[整机BOM版本]' })
-                let plan_s_date_idx = header.indexOf('计划开工日期')
-                if (plan_s_date_idx === -1 ) this.response_result.push({ i: 0, msg: '未找到表头[计划开工日期]' })
-                let order_no_idx = header.indexOf('订单号')
-                if (order_no_idx === -1) this.response_result.push({ i: 0, msg: '未找到表头[订单号]' })
-                let order_spec_idx = header.indexOf('规格型号')
-                if (order_spec_idx === -1) this.response_result.push({ i: 0, msg: '未找到表头[规格型号]' })
+                // let plan_s_date_idx = header.indexOf('计划开工日期')
+                // if (plan_s_date_idx === -1 ) this.response_result.push({ i: 0, msg: '未找到表头[计划开工日期]' })
+                // let order_no_idx = header.indexOf('订单号')
+                // if (order_no_idx === -1) this.response_result.push({ i: 0, msg: '未找到表头[订单号]' })
+                // let order_spec_idx = header.indexOf('规格型号')
+                // if (order_spec_idx === -1) this.response_result.push({ i: 0, msg: '未找到表头[规格型号]' })
                 for (let i = 1; i < this.raw_data.length; i++) {
                     let row = this.raw_data[i]
                     if (!row[2]) break
@@ -159,9 +162,9 @@
                         jhxh: row[jhxh_idx],
                         qty: row[qty_idx],
                         bomver: bomver ? bomver.slice(bomver.indexOf('&') + 1) : '', // BOM版本按格式截取 {prefix}&{bomver}
-                        plan_s_date: row[plan_s_date_idx],
-                        order_no: row[order_no_idx],
-                        order_spec: row[order_spec_idx],
+                        // plan_s_date: row[plan_s_date_idx],
+                        // order_no: row[order_no_idx],
+                        // order_spec: row[order_spec_idx],
                         force,
                     })
                 }
@@ -271,7 +274,8 @@
                             bomver: d['FBomId.FNumber'],
                             supply_org: d['FChildSupplyOrgId.FNumber'],
                             applicant: d['FMaterialIdChild.F_RGEN_Text_sqr'],
-                            plan_ident: d['FMaterialIdChild.FPlanIdent']
+                            plan_ident: d['FMaterialIdChild.FPlanIdent'],
+                            safe_stock: d['FMaterialIdChild.FSafeStock']
                         })
                     }
                 }
@@ -279,76 +283,6 @@
                 this.bom_cache[material_no][bom.bomver] = bom
                 return this.bom_cache[material_no][bom.bomver]
             },
-            // async load_bom(bomver, org) {
-            //     console.log('>>> load_bom', bomver, org)
-            //     if (this.bom_cache[bomver]) return this.bom_cache[bomver]
-            //     // 返回结果不含替代件
-            //     let options = { FNumber: bomver, 'FUseOrgId.FNumber': org, FMaterialType: '1', FExpireDate_ge: formatDate(Date.now(), 'yyyy-MM-dd') }
-            //     let res = await EngBom.query(options, { fields: this.bom_fields, order: 'FUseOrgId.FNumber, FReplaceGroup' })
-            //     let bom = { children: [] }
-            //     if (!Object.keys(res).includes('data')) console.log(">>> debug", res)
-            //     for (let i = 0; i < res.data.length; i++) {
-            //         let d = res.data[i]
-            //         if (i === 0) {
-            //             bom.bomver = d['FNumber']
-            //             bom.no = d['FMaterialId.FNumber']
-            //             bom.name = d['FMaterialId.FName']
-            //             bom.spec = d['FMaterialId.FSpecification']
-            //             bom.use_org = d['FUseOrgId.FNumber']
-            //         }
-            //         // if (bom.use_org === d['FUseOrgId.FNumber']) {
-            //             bom.children.push({
-            //                 no: d['FMaterialIdChild.FNumber'],
-            //                 name: d['FMaterialIdChild.FName'],
-            //                 spec: d['FMaterialIdChild.FSpecification'],
-            //                 unit: d['FChildUnitId.FName'],
-            //                 qty: d['FNumerator'] / d['FDenominator'],
-            //                 prop: Enum.bd_material_properties[d['FChildItemProperty']],
-            //                 bomver: d['FBomId.FNumber'],
-            //                 supply_org: d['FChildSupplyOrgId.FNumber'],
-            //                 applicant: d['FMaterialIdChild.F_RGEN_Text_sqr'],
-            //                 plan_ident: d['FMaterialIdChild.FPlanIdent']
-            //             })
-            //         // }
-            //     }
-            //     this.bom_cache[bomver] = bom
-            //     return this.bom_cache[bomver]
-            // },
-            // async load_bom_by_material_no(material_no, org) {
-            //     console.log('>>> load_bom_by_material_no', material_no, org)
-            //     if (this.bom_cache[material_no]) return this.bom_cache[material_no]
-            //     let options = { 'FMaterialId.FNumber': material_no, 'FUseOrgId.FNumber': org, FMaterialType: '1', FExpireDate_ge: formatDate(Date.now(), 'yyyy-MM-dd') }
-            //     let res = await EngBom.query(options, { fields: this.bom_fields, order: 'FNumber DESC, FUseOrgId.FNumber, FReplaceGroup', per_page: 2000 })
-            //     let bom = { bomver: material_no, no: material_no, children: [] }
-            //     // 筛选最高BOM版本
-            //     for (let d of res.data) {
-            //         if (!bom.bomver || bom.bomver < d['FNumber']) {
-            //             bom.bomver = d['FNumber']
-            //             bom.no = d['FMaterialId.FNumber']
-            //             bom.name = d['FMaterialId.FName']
-            //             bom.spec = d['FMaterialId.FSpecification']
-            //             bom.use_org = d['FUseOrgId.FNumber']
-            //         }
-            //     }
-            //     for (let d of res.data) {
-            //         if (bom.bomver === d['FNumber'] && bom.use_org === d['FUseOrgId.FNumber']) {
-            //             bom.children.push({
-            //                 no: d['FMaterialIdChild.FNumber'],
-            //                 name: d['FMaterialIdChild.FName'],
-            //                 spec: d['FMaterialIdChild.FSpecification'],
-            //                 unit: d['FChildUnitId.FName'],
-            //                 qty: d['FNumerator'] / d['FDenominator'],
-            //                 prop: Enum.bd_material_properties[d['FChildItemProperty']],
-            //                 bomver: d['FBomId.FNumber'],
-            //                 supply_org: d['FChildSupplyOrgId.FNumber'],
-            //                 applicant: d['FMaterialIdChild.F_RGEN_Text_sqr'],
-            //                 plan_ident: d['FMaterialIdChild.FPlanIdent']
-            //             })
-            //         }
-            //     }
-            //     this.bom_cache[material_no] = bom
-            //     return this.bom_cache[material_no]
-            // },
             async plan_analysis() {
                 this.table_body = []
                 for (let i = 0; i < this.done_data.length; i++) {
@@ -366,8 +300,9 @@
                     let bom = await this.load_full_bom(row.bomver)
                     for (let m of bom) {
                         this.table_body.push([
-                            row.computer_no, row.jhxh, m.no, m.name, m.spec, m.unit, this.number_round(m.qty * row.qty), m.prop, m.root, m.root1, m.applicant, m.plan_ident,
-                            this.xlsx_parse_date(row.plan_s_date), row.order_no, row.order_spec, row.qty
+                            row.computer_no, row.jhxh, m.no, m.name, m.spec, m.unit, this.number_round(m.qty * row.qty), m.prop, m.root, m.root1,
+                            m.applicant, m.plan_ident, m.safe_stock || 0
+                            // this.xlsx_parse_date(row.plan_s_date), row.order_no, row.order_spec, row.qty 
                         ])
                     }
                 }
@@ -399,6 +334,10 @@
                         this.raw_data = [] // init
                         let temp_file = res.tempFiles[0]
                         let extname = temp_file.name.split('.').pop()
+                        if (temp_file.size > 32 * 1024 * 1024) {
+                            uni.showToast({ icon: 'error', title: '文件大小不能超过32MB' })
+                            return
+                        }
                         var reader = new FileReader();
                         reader.onload = function(e) {
                             let data = e.target.result
@@ -440,9 +379,9 @@
                     uni.showLoading({ title: '正在导出...', mask: true })
                     setTimeout(() => {
                         let book = XLSX.utils.book_new()
-                        let sheet = XLSX.utils.aoa_to_sheet([this.table_head, ...this.table_body])
+                        let sheet = XLSX.utils.aoa_to_sheet([toRaw(this.table_head), ...toRaw(this.table_body)])
                         XLSX.utils.book_append_sheet(book, sheet, '跑单结果')
-                        XLSX.writeFile(book, `跑单结果_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`);
+                        XLSX.writeFile(book, `跑单结果_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`, { compression: true });
                         uni.hideLoading()
                         uni.showToast({ title: '导出完毕' })
                     }, 1000)

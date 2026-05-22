@@ -89,7 +89,7 @@
                     let book = XLSX.utils.book_new()
                     let sheet = XLSX.utils.aoa_to_sheet([this.table_head])
                     XLSX.utils.book_append_sheet(book, sheet, 'Sheet1')
-                    XLSX.writeFile(book, '物料批改模板.xlsx');
+                    XLSX.writeFile(book, '物料批改模板.xlsx', { compression: true });
                     uni.hideLoading()
                 }, 200)
             },

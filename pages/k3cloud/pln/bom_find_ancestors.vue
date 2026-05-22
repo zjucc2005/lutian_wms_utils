@@ -231,7 +231,7 @@
                         let book = XLSX.utils.book_new()
                         let sheet = XLSX.utils.aoa_to_sheet([this.table_head, ...this.table_body])
                         XLSX.utils.book_append_sheet(book, sheet, '物料清单反查')
-                        XLSX.writeFile(book, `物料清单反查_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`);
+                        XLSX.writeFile(book, `物料清单反查_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`, { compression: true });
                         uni.hideLoading()
                         uni.showToast({ title: '导出完毕' })
                     }, 1000)

@@ -263,7 +263,7 @@
                         let book = XLSX.utils.book_new()
                         let sheet = XLSX.utils.aoa_to_sheet([this.table_head, ...this.table_body])
                         XLSX.utils.book_append_sheet(book, sheet, 'Sheet1')
-                        XLSX.writeFile(book, `生产订单领用查询_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`);
+                        XLSX.writeFile(book, `生产订单领用查询_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`, { compression: true });
                         uni.hideLoading()
                         uni.showToast({ title: '导出完毕' })
                     }, 1000)

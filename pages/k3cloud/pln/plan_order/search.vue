@@ -179,7 +179,7 @@
                         XLSX.utils.book_append_sheet(book, sheet_pln, '计划订单')
                         let sheet_req = XLSX.utils.aoa_to_sheet([this.table_head_req, ...this.table_body_req])
                         XLSX.utils.book_append_sheet(book, sheet_req, '组织间需求单')
-                        XLSX.writeFile(book, `计划订单查询_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`);
+                        XLSX.writeFile(book, `计划订单查询_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`, { compression: true });
                         uni.hideLoading()
                         uni.showToast({ title: '导出完毕' })
                     }, 1000)
