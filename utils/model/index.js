@@ -27,6 +27,7 @@ import PurReceiveBill from './pur_receive_bill'
 import PurRequisition from './pur_requisition'
 import QmInspectBill from './qm_inspect_bill'
 import SalDeliveryNotice from './sal_delivery_notice'
+import SalSaleOrder from './sal_sale_order'
 import SpPickMtrl from './sp_pick_mtrl'
 import StkInventory from './stk_inventory'
 import StkOutStockApply from './stk_out_stock_apply'
@@ -60,6 +61,7 @@ export {
     PurRequisition,
     QmInspectBill,
     SalDeliveryNotice,
+    SalSaleOrder,
     SpPickMtrl,
     StkInventory,
     StkOutStockApply,

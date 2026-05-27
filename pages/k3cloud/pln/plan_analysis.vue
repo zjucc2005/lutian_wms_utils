@@ -20,7 +20,7 @@
                 <view class="text-grey text-sm">注意！</view>
                 <view class="text-grey text-sm">1.如果某计划序号在历史跑单数据中已存在，默认将不再跑单，直接引用历史跑单数据；</view>
                 <view class="text-grey text-sm">2.在<text class="text-primary">1-主计划进度</text>工作表中，可对某计划序号，标识表头<text class="text-primary">重新跑单</text>字段值为1，强制重新跑单;</view>
-                <view class="text-grey text-sm">3.文件大小不能超过<text class="text-primary">32MB</text>；</view>
+                <view class="text-grey text-sm">3.文件大小不能超过<text class="text-primary">50MB</text>；</view>
             </view>
         </uni-section>
         
@@ -35,6 +35,9 @@
         </uni-section>
         
         <uni-section v-if="response_result.length" title="校验信息" type="square">
+            <template #right>
+                <uni-tag text="导出校验信息" type="warning" @click="export_response_result"></uni-tag>
+            </template>
             <uni-table ref="table" border stripe class="table-sm uni-mb-5">
                 <uni-tr>
                     <uni-th align="center">索引</uni-th>
@@ -78,7 +81,7 @@
     import store from '@/store'
     import { toRaw } from 'vue'
     import XLSX from 'xlsx'
-    import { Enum, EngBom, PlnPlanOrder } from '@/utils/model'
+    import { BdMaterial, Enum, EngBom, PlnPlanOrder, SalSaleOrder } from '@/utils/model'
     import { formatDate } from '@/utils'
     
     export default {
@@ -86,6 +89,7 @@
             return {
                 raw_data: [],
                 done_data: [],
+                so_data: [], // 销售订单数据
                 response_result: [],
                 bom_fields: ['FNumber', 'FUseOrgId.FNumber', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
                              'FMaterialIdChild.FNumber', 'FMaterialIdChild.FName', 'FMaterialIdChild.FSpecification', 'FMaterialIdChild.FSafeStock',
@@ -120,8 +124,8 @@
                     let x_start_time = Date.now() // 执行开始时间
                     // 预处理导入Excel数据
                     await this.handle_data()
-                    // 查询最新运算编号
-                    // await this.load_computer_no() 
+                    // 校对计划序号和BOM版本
+                    await this.check_bomver()
                     // 切换tab，预览结果
                     this.currentIndex = 1
                     // 执行计划分析脚本
@@ -149,8 +153,8 @@
                 if (bomver_idx === -1) this.response_result.push({ i: 0, msg: '未找到表头[整机BOM版本]' })
                 // let plan_s_date_idx = header.indexOf('计划开工日期')
                 // if (plan_s_date_idx === -1 ) this.response_result.push({ i: 0, msg: '未找到表头[计划开工日期]' })
-                // let order_no_idx = header.indexOf('订单号')
-                // if (order_no_idx === -1) this.response_result.push({ i: 0, msg: '未找到表头[订单号]' })
+                let order_no_idx = header.indexOf('订单号')
+                if (order_no_idx === -1) this.response_result.push({ i: 0, msg: '未找到表头[订单号]' })
                 // let order_spec_idx = header.indexOf('规格型号')
                 // if (order_spec_idx === -1) this.response_result.push({ i: 0, msg: '未找到表头[规格型号]' })
                 for (let i = 1; i < this.raw_data.length; i++) {
@@ -163,11 +167,12 @@
                         qty: row[qty_idx],
                         bomver: bomver ? bomver.slice(bomver.indexOf('&') + 1) : '', // BOM版本按格式截取 {prefix}&{bomver}
                         // plan_s_date: row[plan_s_date_idx],
-                        // order_no: row[order_no_idx],
+                        order_no: row[order_no_idx],
                         // order_spec: row[order_spec_idx],
                         force,
                     })
                 }
+                if (this.response_result.length) throw('err')
             },
             handle_refer_data() {
                 let x_start_time = Date.now() // 执行开始时间
@@ -194,26 +199,44 @@
                 this.refer_filename = ''
                 this.refer_data = {}
             },
-            async load_computer_no() {
-                uni.showLoading({ title: '查询最新运算编号' })
-                let jhxh_set = new Set()
-                for (let obj of this.done_data) {
-                    jhxh_set.add(obj.jhxh)
+            async check_bomver() {
+                let so_data = {}
+                let options = { 'F_PAEZ_JHXH_in': this.done_data.map(x => x.jhxh) }
+                let meta = { fields: ['F_PAEZ_JHXH', 'FBomId.FNumber'], return: 'array' }
+                let res = await SalSaleOrder.query(options, meta)
+                for (let d of res.data) {
+                    so_data[d[0]] = d[1]
                 }
-                let jhxh_arr = Array.from(jhxh_set)
-                let h = {}
-                let step = 10
-                for (let i = 0; i < jhxh_arr.length; i += step) {
-                    let res = await PlnPlanOrder.query({ F_PAEZ_JHXH_in: jhxh_arr.slice(i, i+step) }, { fields: ['F_PAEZ_JHXH', 'FComputerNo'], return: 'array' })
-                    for (let d of res.data) {
-                        if (!h[d[0]] || h[d[0]] < d[1]) h[d[0]] = d[1]
-                    }
+                for (let i = 0; i < this.done_data.length; i++) {
+                    let d = this.done_data[i]
+                    if (d.bomver && so_data[d.jhxh] && so_data[d.jhxh] !== d.bomver) {
+                        d.bomver_sys = so_data[d.jhxh]
+                        this.response_result.push({ i: i+1, msg: `导入的整机BOM版本和ERP中不一致，导入[${d.bomver}]，系统[${d.bomver_sys}]`, v: d.bomver_sys, jhxh: d.jhxh })
+                    } 
                 }
-                for (let obj of this.done_data) {
-                    obj.computer_no = h[obj.jhxh] || ''
-                }
-                uni.hideLoading()
+                this.so_data = so_data
+                if (this.response_result.length) throw('err')
             },
+            // async load_computer_no() {
+            //     uni.showLoading({ title: '查询最新运算编号' })
+            //     let jhxh_set = new Set()
+            //     for (let obj of this.done_data) {
+            //         jhxh_set.add(obj.jhxh)
+            //     }
+            //     let jhxh_arr = Array.from(jhxh_set)
+            //     let h = {}
+            //     let step = 10
+            //     for (let i = 0; i < jhxh_arr.length; i += step) {
+            //         let res = await PlnPlanOrder.query({ F_PAEZ_JHXH_in: jhxh_arr.slice(i, i+step) }, { fields: ['F_PAEZ_JHXH', 'FComputerNo'], return: 'array' })
+            //         for (let d of res.data) {
+            //             if (!h[d[0]] || h[d[0]] < d[1]) h[d[0]] = d[1]
+            //         }
+            //     }
+            //     for (let obj of this.done_data) {
+            //         obj.computer_no = h[obj.jhxh] || ''
+            //     }
+            //     uni.hideLoading()
+            // },
             async load_full_bom(bomver, material_no='', org='102', root=null, root1=null, level=0, qty=1) {
                 if (level > 7) return [] // 设定层级上限，防止嵌套BOM导致的死循环
                 let bom = { children: [] }
@@ -225,10 +248,16 @@
                 let res = []
                 if (level === 0) {
                     root = bomver
-                    res.push({ level: 0, no: bom.no, name: bom.name, spec: bom.spec, qty: 1, root, root1 })
+                    // 如果物料信息为空，可能BOM版本处填写的是物料编码，尝试用物料基础信息补全
+                    if (!bom.no) {
+                        bom = await this.load_material(bomver)
+                        res.push({ level: 0, ...bom, qty: 1, root, root1 })
+                    } else {
+                        res.push({ level: 0, no: bom.no, name: bom.name, spec: bom.spec, qty: 1, root, root1 })
+                    }
                 }
                 if (level === 1) root1 = bomver
-                for (let child of bom.children) {
+                for (let child of bom.children || []) {
                     res.push({ ...child, root, root1, level: level + 1, qty: qty * child.qty })
                     // 供应组织为[电机事业部]时，不分析下一级
                     if (['103'].includes(child.supply_org)) continue
@@ -283,6 +312,25 @@
                 this.bom_cache[material_no][bom.bomver] = bom
                 return this.bom_cache[material_no][bom.bomver]
             },
+            async load_material(no) {
+                let options = { FNumber: no, 'FUseOrgId.FNumber': 100 }
+                let meta = {
+                    fields: ['FNumber', 'FName', 'FSpecification', 'FErpClsId', 'FBaseUnitId.FName', 'F_RGEN_Text_sqr', 'FPlanIdent', 'FSafeStock']
+                }
+                let res = await BdMaterial.query(options, meta)
+                let mat = { no }
+                let d = res.data[0]
+                if (d) {
+                    mat.name = d['FName']
+                    mat.spec = d['FSpecification']
+                    mat.unit = d['FBaseUnitId.FName']
+                    mat.prop = Enum.bd_material_properties[d['FErpClsId']]
+                    mat.applicant = d['F_RGEN_Text_sqr']
+                    mat.plan_ident = d['FPlanIdent']
+                    mat.safe_stock = d['FSafeStock']
+                }
+                return mat
+            },
             async plan_analysis() {
                 this.table_body = []
                 for (let i = 0; i < this.done_data.length; i++) {
@@ -334,8 +382,8 @@
                         this.raw_data = [] // init
                         let temp_file = res.tempFiles[0]
                         let extname = temp_file.name.split('.').pop()
-                        if (temp_file.size > 32 * 1024 * 1024) {
-                            uni.showToast({ icon: 'error', title: '文件大小不能超过32MB' })
+                        if (temp_file.size > 50 * 1024 * 1024) {
+                            uni.showToast({ icon: 'error', title: '文件大小不能超过50MB' })
                             return
                         }
                         var reader = new FileReader();
@@ -382,6 +430,30 @@
                         let sheet = XLSX.utils.aoa_to_sheet([toRaw(this.table_head), ...toRaw(this.table_body)])
                         XLSX.utils.book_append_sheet(book, sheet, '跑单结果')
                         XLSX.writeFile(book, `跑单结果_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`, { compression: true });
+                        uni.hideLoading()
+                        uni.showToast({ title: '导出完毕' })
+                    }, 1000)
+                } catch (err) {
+                    uni.hideLoading()
+                    uni.showModal({ title: '导出Excel失败', content: `原因：${err}` })
+                }
+            },
+            export_response_result() {
+                // #ifdef APP-PLUS
+                    uni.showToast({ icon: 'none', title: 'APP不支持导出Excel' })
+                    return
+                // #endif
+                if (this.response_result.length === 0) {
+                    uni.showModal({ title: '提示', content: '没有数据可供导出' })
+                    return
+                }
+                try {
+                    uni.showLoading({ title: '正在导出...', mask: true })
+                    setTimeout(() => {
+                        let book = XLSX.utils.book_new()
+                        let sheet = XLSX.utils.aoa_to_sheet([['索引', '消息'], ...(this.response_result.map(x => [x.i, x.msg, x.v, x.jhxh]))])
+                        XLSX.utils.book_append_sheet(book, sheet, '校验信息')
+                        XLSX.writeFile(book, `校验信息_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`, { compression: true });
                         uni.hideLoading()
                         uni.showToast({ title: '导出完毕' })
                     }, 1000)

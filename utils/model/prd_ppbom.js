@@ -18,6 +18,17 @@ class PrdPpbom {
         '7': '不发料'
     }
     
+    static async update(id, options={}) {
+        const data = {
+            IsDeleteEntry: false,
+            model: {
+                FID: id,
+                ...options
+            }
+        }
+        return K3CloudApi.save(this.form_id, data)
+    }
+    
     /**
      * 获取列表
      * @param options:Hash 参数集

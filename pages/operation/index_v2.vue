@@ -129,10 +129,10 @@
                         name: '打印', permission: ['nrj_admin'], icon_path: '/static/icon/nav_printer.png',
                         action: () => { link_to('/pages/operation/print/index') }
                     },
-                    // {
-                    //     name: '记录', permission: ['nrj_admin'], icon_path: '/static/icon/nav_bill_edit.png',
-                    //     action: () => { link_to('/pages/operation/record/index') }
-                    // },
+                    {
+                        name: '记录', permission: ['nrj_admin'], icon_path: '/static/icon/nav_bill_edit.png',
+                        action: () => { link_to('/pages/operation/record/index') }
+                    },
                     // ,
                     // {
                     //     name: '其他功能', permission: ['wh_admin'], icon_path: '/static/icon/nav_others.png',
