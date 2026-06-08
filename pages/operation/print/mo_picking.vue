@@ -227,7 +227,7 @@
                 if (this.search_form.bill_no) {
                     // console.log('>>> handle search', this.search_form.bill_no.split('\n'))
                     // this.search_form.bill_no = this.search_form.bill_no.trim()
-                    uni.showLoading({ title: 'Loading' })
+                    uni.showLoading({ title: 'Loading', mask: true })
                     let bill_nos = this.search_form.bill_no.split('\n')
                     let meta = {
                         fields: [ 'FID', 'FBillNo', 'FMoBillNo', 'FMoEntrySeq', 'FSaleOrderNo', 'FWorkShopId.FName', 

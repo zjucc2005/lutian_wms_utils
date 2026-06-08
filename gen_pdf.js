@@ -3,7 +3,7 @@
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 import store from '@/store'
-import { compare_loc_no, formatDate } from '@/utils'
+import { formatDate } from '@/utils'
 import { InvPlan } from '@/utils/model'
 
 const font_file_path = './static/font/SourceHanSansCN-Normal.ttf'
@@ -345,7 +345,6 @@ const pdf_template_invs = (inv_groups) => {
             loc_nos.push(`${k.match('[A-Za-z0-9]+-(.+)')[1]}:${inv.loc_nos[k]}`)
         }
         loc_nos.sort()
-        // let loc_nos = inv.loc_nos.sort((x, y) => compare_loc_no(x, y)).map(loc_no => loc_no.match('[A-Za-z0-9]+-(.+)')[1]).join(', ')
         options.table_body.push([
             inv.material_no, inv.material_name, inv.material_spec, inv.base_unit_name, inv.qty, inv.stk_qty, inv.qty - inv.stk_qty, loc_nos.join(', ')
         ])
