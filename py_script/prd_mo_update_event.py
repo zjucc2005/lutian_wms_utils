@@ -78,9 +78,11 @@ def get_ppbomentry(mo_entry_id):
 
 # 更新PPBOM的仓库
 def update_ppbomentry_stock(entry_ids, new_stock_id):
+    if not entry_ids:
+        return None
     sql = """
     UPDATE T_PRD_PPBOMENTRY_C
-    SET FSTOCKID = {new_stock_id}
+    SET FSTOCKID = {new_stock_id}, FISSUETYPE = '1'
     WHERE FENTRYID in ({entry_ids});
     """.format(entry_ids=','.join(entry_ids), new_stock_id=new_stock_id)
     DBUtils.Execute(this.Context, sql)
