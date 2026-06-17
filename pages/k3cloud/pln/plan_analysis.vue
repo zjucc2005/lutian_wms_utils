@@ -91,16 +91,17 @@
                 done_data: [],
                 so_data: [], // 销售订单数据
                 response_result: [],
-                bom_fields: ['FNumber', 'FUseOrgId.FNumber', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
+                bom_fields: ['FNumber', 'FDocumentStatus', 'FUseOrgId.FNumber', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
                              'FMaterialIdChild.FNumber', 'FMaterialIdChild.FName', 'FMaterialIdChild.FSpecification', 'FMaterialIdChild.FSafeStock',
                              'FChildUnitId.FName', 'FNumerator', 'FDenominator', 'FChildItemProperty', 'FBomId.FNumber',
                              'FChildSupplyOrgId.FNumber', 'FMaterialIdChild.F_RGEN_Text_sqr', 'FMaterialIdChild.FPlanIdent'],
                 bom_cache: {},
                 refer_filename: '',
                 refer_data: {},
-                table_head: ['运算编号', '计划序号', '子项物料编码', '子项物料名称', '子项规格型号', '单位', '确认订单量', '物料属性', 'BOM版本(0层)', 'BOM版本(1层)',
+                table_head: ['运算编号', '计划序号', '子项物料编码', '子项物料名称', '子项规格型号', '单位', '确认订单量', '物料属性', 'BOM版本(0层)', 'BOM版本(1层)', 'BOM版本(1层)数据状态',
                              '申请人', '计划标识', '安全库存'],
                 table_body: [],
+                status_dict: store.state.document_status_dict,
                 currentIndex: 0,
                 tabs: [ '请求参数', '运行结果' ],
                 goods_nav: {
@@ -237,7 +238,7 @@
             //     }
             //     uni.hideLoading()
             // },
-            async load_full_bom(bomver, material_no='', org='102', root=null, root1=null, level=0, qty=1) {
+            async load_full_bom(bomver, material_no='', org='102', root=null, root1=null, root1_status=null, level=0, qty=1) {
                 if (level > 7) return [] // 设定层级上限，防止嵌套BOM导致的死循环
                 let bom = { children: [] }
                 if (material_no || bomver) {
@@ -251,20 +252,23 @@
                     // 如果物料信息为空，可能BOM版本处填写的是物料编码，尝试用物料基础信息补全
                     if (!bom.no) {
                         bom = await this.load_material(bomver)
-                        res.push({ level: 0, ...bom, qty: 1, root, root1 })
+                        res.push({ level: 0, ...bom, qty: 1, root, root1, root1_status })
                     } else {
-                        res.push({ level: 0, no: bom.no, name: bom.name, spec: bom.spec, qty: 1, root, root1 })
+                        res.push({ level: 0, no: bom.no, name: bom.name, spec: bom.spec, qty: 1, root, root1, root1_status })
                     }
                 }
-                if (level === 1) root1 = bomver
+                if (level === 1) {
+                    root1 = bomver
+                    root1_status = bom.status
+                }
                 for (let child of bom.children || []) {
-                    res.push({ ...child, root, root1, level: level + 1, qty: qty * child.qty })
+                    res.push({ ...child, root, root1, root1_status, level: level + 1, qty: qty * child.qty })
                     // 供应组织为[电机事业部]时，不分析下一级
                     if (['103'].includes(child.supply_org)) continue
                     // 当物料属性为外购时，不再查询子级
                     if (['外购'].includes(child.prop)) continue
                     // 递归查询
-                    for (let item of await this.load_full_bom(child.bomver, child.no, child.supply_org, root, root1 ,level+1, qty * child.qty)) {
+                    for (let item of await this.load_full_bom(child.bomver, child.no, child.supply_org, root, root1, root1_status, level+1, qty * child.qty)) {
                         res.push(item)
                     }
                 }
@@ -285,6 +289,7 @@
                 for (let d of res.data) {
                     if (!bom.bomver || bom.bomver < d['FNumber']) {
                         bom.bomver = d['FNumber']
+                        bom.status = d['FDocumentStatus']
                         bom.no = d['FMaterialId.FNumber']
                         bom.name = d['FMaterialId.FName']
                         bom.spec = d['FMaterialId.FSpecification']
@@ -348,8 +353,8 @@
                     let bom = await this.load_full_bom(row.bomver)
                     for (let m of bom) {
                         this.table_body.push([
-                            row.computer_no, row.jhxh, m.no, m.name, m.spec, m.unit, this.number_round(m.qty * row.qty), m.prop, m.root, m.root1,
-                            m.applicant, m.plan_ident, m.safe_stock || 0
+                            row.computer_no, row.jhxh, m.no, m.name, m.spec, m.unit, this.number_round(m.qty * row.qty), m.prop, m.root, m.root1, 
+                            this.status_dict[m.root1_status] || '', m.applicant, m.plan_ident, m.safe_stock || 0
                             // this.xlsx_parse_date(row.plan_s_date), row.order_no, row.order_spec, row.qty 
                         ])
                     }

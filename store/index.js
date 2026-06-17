@@ -37,7 +37,7 @@ const store = createStore({
         bd_materialcategories: [], // 基础数据，存货类别
         stock_locs: [],            // 基础数据，库位，登录时获取，在库位管理处可重新获取（刷新）
         stock_loc_opts: [],        // 基础数据，库位，uni-data-picker 用格式
-        document_status_dict: { A: '已创建', B: '已提交', C: '已审核' },
+        document_status_dict: { A: '创建', B: '审核中', C: '已审核', D: '重新审核', Z: '暂存' },
         close_status_dict: { A: '未关闭', B: '关闭' },
         org_enum: [
             [      1, '100', '绿田机械股份有限公司'],
