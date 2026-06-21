@@ -159,8 +159,8 @@
                 fields_sub: ['FCreatorId.FName', 'FBillNo', 'FDocumentStatus', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FQty', 'FNoStockInQty', 'FSaleOrderNo', 'FDate', 'FPlanFinishDate'],
                 table_head_sub: ['创建人', '单据编号', '单据状态', '物料编码', '物料名称', '规格型号', '数量', '未入库数量', '需求单据编号', '单据日期', '计划完工日期'],
                 table_body_sub: [],
-                fields_po: ['FSrcBillNo', 'FBillNo', 'FDocumentStatus', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FUnitId.FName', 'FQty', 'FRemainReceiveQty', 'FCheckRetQty', 'FEntryNote', 'FDemandBillNo', 'FDate', 'FDeliveryDate', 'FPurchaserId.FName', 'FSupplierId.FName', 'FReceiveQty', 'FStockInQty' ],
-                table_head_po: ['源单编号', '单据编号', '单据状态', '物料编码', '物料名称', '规格型号', '采购单位', '采购数量', '剩余收料数量', '收料可退数量', '备注', '需求单据编号', '采购日期', '交货日期', '采购员', '供应商'],
+                fields_po: ['F_PAEZ_Text_83g', 'FSrcBillNo', 'FBillNo', 'FDocumentStatus', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FUnitId.FName', 'FQty', 'FRemainReceiveQty', 'FCheckRetQty', 'FEntryNote', 'FDemandBillNo', 'FDate', 'FDeliveryDate', 'FPurchaserId.FName', 'FSupplierId.FName', 'FReceiveQty', 'FStockInQty' ],
+                table_head_po: ['计划序号', '源单编号', '单据编号', '单据状态', '物料编码', '物料名称', '规格型号', '采购单位', '采购数量', '剩余收料数量', '收料可退数量', '备注', '需求单据编号', '采购日期', '交货日期', '采购员', '供应商'],
                 table_body_po: [],
                 search_form: {
                     // 0. 通用
@@ -354,13 +354,13 @@
                         Limit: per_page
                     })
                     for (let d of res.data) {
-                        d[2] = store.state.document_status_dict[d[2]]
-                        if (d[8] < 0) d[8] = 0 // 剩余收料<0时，重置为0
-                        d[9] = d[16] - d[17]
-                        if (d[9] < 0) d[9] = 0 // 收料可退<0时，重置为0
-                        if (d[12]) d[12] = new Date(d[12])
+                        d[3] = store.state.document_status_dict[d[3]]
+                        if (d[9] < 0) d[9] = 0 // 剩余收料<0时，重置为0
+                        d[10] = d[17] - d[18]
+                        if (d[10] < 0) d[10] = 0 // 收料可退<0时，重置为0
                         if (d[13]) d[13] = new Date(d[13])
-                        this.table_body_po.push(d.slice(0, 16))
+                        if (d[14]) d[14] = new Date(d[14])
+                        this.table_body_po.push(d.slice(0, 17))
                     }
                     page++
                 }
