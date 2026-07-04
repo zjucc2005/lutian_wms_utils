@@ -1,11 +1,7 @@
 <template>
     <!-- <uni-notice-bar single scrollable text="点击库存列表，可查询库存明细;长按弹出功能栏" /> -->
     <uni-section title="当前仓库" type="square"
-        :sub-title="[
-            $store.state.cur_stock['FUseOrgId.FName'],
-            $store.state.cur_stock['FGroup.FName'] || '未分组',
-            $store.state.cur_stock.FName
-        ].join(' / ')"
+        :sub-title="breadcrumb_stockname()"
         sub-title-color="#007aff"
         class="above-uni-goods-nav"
         @click="$logger.info('>>>', this.$data)"
@@ -129,7 +125,7 @@
 <script>
     import store from '@/store'
     import { Inv, StkInventory } from '@/utils/model'
-    import { play_audio_prompt, link_to } from '@/utils'
+    import { breadcrumb_stockname, play_audio_prompt, link_to } from '@/utils'
     import K3CloudApi from '@/utils/k3cloudapi'
     import scan_code from '@/utils/scan_code'
     export default {
@@ -189,6 +185,7 @@
             }
         },
         methods: {
+            breadcrumb_stockname,
             link_to,
             change_page(e) {
                 this.cur_page = e.current

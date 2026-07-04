@@ -118,43 +118,56 @@
                 this.submit_batch_update()
             },
             async submit_batch_update() {
-                uni.showLoading({ title: 'Loading' })
+                try {
+                    let x_start_time = Date.now()
+                    uni.showLoading({ title: 'Loading' })
+                    let request_body = await this.get_request_body()
+                    let res = await BdMaterial.batch_update(request_body)
+                    if (!res.data.Result.ResponseStatus.IsSuccess) {
+                        this.response_result.push({ i: 0, msg: res.data.Result.ResponseStatus.Errors[0]?.Message })
+                    }
+                    uni.hideLoading()
+                    uni.showModal({ title: '执行完毕', content: `执行耗时 ${(Date.now() - x_start_time) / 1000} 秒` })
+                } catch (err) {
+                    this.$logger.info('submit_batch_update err', err)
+                }
+            },
+            async get_request_body() {
+                let res = []
                 this.response_result = []
-                let succ_cnt = 0
-                let sum_cnt = this.raw_data.length
-                for (let i = 0; i < sum_cnt; i++) {
-                    let v_res = await this.validate_data(this.raw_data[i])
-                    if (v_res.status) {
-                        let res = await BdMaterial.batch_update(v_res.data)
-                        if (res.data.Result.ResponseStatus.IsSuccess) {
-                            succ_cnt += 1
+                // 归集物料号，1000个每组查询
+                let material_nos = new Set()
+                for (let row of this.raw_data) {
+                    let material_no = row[0]?.trim()
+                    if (material_no) material_nos.add(material_no)
+                }
+                material_nos = Array.from(material_nos)
+                let materials = [] // 物料数据
+                let step = 1000
+                for (let i = 0; i < material_nos.length; i += step) {
+                    let q_nos = material_nos.slice(i, i + step)
+                    let mat_res = await BdMaterial.query({ FNumber_in: q_nos, 'FUseOrgId.FNumber': '100' }, { fields: ['FMaterialId', 'FNumber', 'FUseOrgId.FNumber', 'FIssueType'] })
+                    for (let d of mat_res.data) materials.push(d)
+                }
+                for (let i = 0; i < this.raw_data.length; i++) {
+                    let row = this.raw_data[i]
+                    if (row[0]?.trim()) {
+                        let material = materials.find(m => m.FNumber == row[0].trim())
+                        if (material) {
+                            let obj = { FMaterialId: material.FMaterialId, SubHeadEntity1: {}, SubHeadEntity5: {} }
+                            if ((row[1] || [0, '0'].includes(row[1]))) { // 安全库存
+                                obj.SubHeadEntity1.FSafeStock = row[1]
+                            }
+                            res.push(obj)
                         } else {
-                            this.response_result.push({ i: i + 1, msg: res.data.Result.ResponseStatus.Errors[0]?.Message })
+                            this.response_result.push({ i: i+1, msg: `未找到物料编码[${row[0]}]` })
                         }
                     } else {
-                        this.response_result.push({ i: i + 1, msg: v_res.msg })
+                        this.response_result.push({ i: i+1, msg: '子项物料编码不能为空'  })
                     }
-                    uni.showLoading({ title: `${((i + 1) * 100 / sum_cnt).toFixed(1)} %` })
                 }
-                this.response_result.push({ i: '', msg: `共${sum_cnt}行数据，其中成功更新${succ_cnt}行` })
-                uni.hideLoading()
+                return res
             },
-            async validate_data(row) {
-                let data = [] // 更新参数
-                let mat_res = []
-                if (row[0]?.trim()) {
-                    mat_res = await BdMaterial.query({ FNumber: row[0].trim(), 'FUseOrgId.FNumber': '100' }, { fields: ['FMaterialId', 'FNumber', 'FUseOrgId.FNumber', 'FIssueType'] })
-                    if (mat_res.data.length === 0) return { status: false, data: [], msg: `未找到物料编码[${row[0]}]` }
-                } else {
-                    return { status: false, data: [], msg: '子项物料编码不能为空' }
-                }
-                let obj = { FMaterialId: mat_res.data[0]?.FMaterialId, SubHeadEntity1: {}, SubHeadEntity5: {} }
-                if ((row[1] || [0, '0'].includes(row[1]))) { // 安全库存
-                    obj.SubHeadEntity1.FSafeStock = row[1]
-                }
-                data.push(obj)
-                return { status: true, data: data, msg: 'ok' }
-            }
         }
     }
 </script>

@@ -1,5 +1,4 @@
 <template>
-    <uni-notice-bar single scrollable text="可以扫码或批量新增库位号，然后一次性点击提交保存" />
     <uni-section title="当前仓库" type="square"
         :sub-title="[
             $store.state.cur_stock['FUseOrgId.FName'],
@@ -181,9 +180,7 @@
             }
         },
         mounted() {
-            // this.gen_loc_nos('DS', 'A01', 20, 3).forEach(x => {
-            //     this.loc_nos.push({ value: x, status: '' })
-            // })
+            this.loc_nos = this.generate_loc_nos('3LM-LZ', '3LM-LZ-Z', 'Z', 12, '')
             // this.gen_loc_nos('DS', 'A02', 20, 3).forEach(x => {
             //     this.loc_nos.push({ value: x, status: '' })
             // })
@@ -370,6 +367,39 @@
                         x: shelf == '拆包区' ? 1 : 2,
                         y: 1
                     })
+                }
+                return loc_nos
+            },
+            // 库位号格式, 仓库, 库区, x, y, z, pos
+            // 生成库位号方法, 前缀 + x * y
+            generate_loc_nos(prefix, group, xlist=[], ylist=[], xlen=2, ylen=2, xy_separator='') {
+                if (typeof xlist === 'string') xlist = [xlist]
+                if (typeof ylist === 'string') ylist = [ylist]
+                if (typeof xlist === 'number') {
+                    let _xlist = []
+                    for (let i = 1; i <= xlist; i++) _xlist.push(i)
+                    xlist = _xlist
+                }
+                if (typeof ylist === 'number') {
+                    let _ylist = []
+                    for (let i = 1; i <= ylist; i++) _ylist.push(i)
+                    ylist = _ylist
+                }
+                let loc_nos = []
+                for (let i = 0; i < xlist.length; i++) {
+                    for (let j = 0; j < ylist.length; j++) {
+                        let x = String(xlist[i])
+                        while (x.length < xlen) x = '0' + x
+                        let y = String(ylist[j])
+                        while (y.length < ylen) y = '0' + y
+                        loc_nos.push({
+                            no: `${prefix}-${x}${xy_separator}${y}`,
+                            status: '',
+                            shelf: group,
+                            x: j + 1,
+                            y: i + 1
+                        })
+                    }
                 }
                 return loc_nos
             },

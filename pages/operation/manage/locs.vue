@@ -7,11 +7,7 @@
         show-icon single scrollable
     /> -->
     <uni-section title="当前仓库" type="square"
-        :sub-title="[
-            $store.state.cur_stock['FUseOrgId.FName'],
-            $store.state.cur_stock['FGroup.FName'] || '未分组',
-            $store.state.cur_stock.FName
-        ].join(' / ')"
+        :sub-title="breadcrumb_stockname()"
         sub-title-color="#007aff"
         class="above-uni-goods-nav"
         >
@@ -37,7 +33,7 @@
 <script>
     import store from '@/store'
     import { Inv, StockLoc } from '@/utils/model'
-    import { play_audio_prompt, link_to } from '@/utils'
+    import { breadcrumb_stockname, play_audio_prompt, link_to } from '@/utils'
     import ccShelf from '@/components/cc-shelf/cc-shelf.vue'
     export default {
         components: {
@@ -75,9 +71,10 @@
         mounted() {
             StockLoc.query({ FStockId: store.state.cur_stock.FStockId, FForbidStatus: 'B' }).then(res => {
                 store.commit('update_stock_locs', res.data) // 只查询禁用库存
-            }) 
+            })
         },
         methods: {
+            breadcrumb_stockname,
             goods_nav_click(e) {
                 if (e.index === 0) this.refresh()
                 if (e.index === 1) this.toggle_cc_shelf()
@@ -113,12 +110,16 @@
                     uni.showToast({ icon: 'none', title: '请不要频繁刷新' })
                     return
                 }
-                uni.showLoading({ title: 'Loading' })               
-                return StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
-                    store.commit('set_stock_locs', res.data)
-                    this.last_refresh_time = Date.now()
-                    uni.showToast({ title: '已刷新' })
-                })
+                uni.showLoading({ title: 'Loading' })
+                let data = await StockLoc.get_all()
+                store.commit('set_stock_locs', data)
+                this.last_refresh_time = Date.now()
+                uni.showToast({ title: '已刷新' })
+                // return StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
+                //     store.commit('set_stock_locs', res.data)
+                //     this.last_refresh_time = Date.now()
+                //     uni.showToast({ title: '已刷新' })
+                // })
             },
             toggle_cc_shelf () {
                 if (this.cc_shelf_open) {

@@ -134,185 +134,121 @@
                 this.departments = res.data
             },
             async submit_batch_update() {
-                uni.showLoading({ title: 'Loading' })
+                try {
+                    let x_start_time = Date.now()
+                    uni.showLoading({ title: 'Loading' })
+                    let request_body = await this.get_request_body()
+                    let res = await BdMaterial.batch_update(request_body)
+                    if (!res.data.Result.ResponseStatus.IsSuccess) {
+                        this.response_result.push({ i: 0, msg: res.data.Result.ResponseStatus.Errors[0]?.Message })
+                    }
+                    uni.hideLoading()
+                    uni.showModal({ title: '执行完毕', content: `执行耗时 ${(Date.now() - x_start_time) / 1000} 秒` })
+                } catch (err) {
+                    this.$logger.info('submit_batch_update err', err)
+                }
+            },
+            async get_request_body() {
+                let res = []
                 this.response_result = []
-                let succ_cnt = 0
-                let sum_cnt = this.raw_data.length
-                for (let i = 0; i < sum_cnt; i++) {
-                    let v_res = await this.validate_data(this.raw_data[i])
-                    if (v_res.status) {
-                        let res = await BdMaterial.batch_update(v_res.data)
-                        if (res.data.Result.ResponseStatus.IsSuccess) {
-                            succ_cnt += 1
-                        } else {
-                            this.response_result.push({ i: i + 1, msg: res.data.Result.ResponseStatus.Errors[0]?.Message })
-                        }
-                    } else {
-                        this.response_result.push({ i: i + 1, msg: v_res.msg })
-                    }
-                    uni.showLoading({ title: `${((i + 1) * 100 / sum_cnt).toFixed(1)} %` })
-                }
-                this.response_result.push({ i: '', msg: `共${sum_cnt}行数据，其中成功更新${succ_cnt}行` })
-                uni.hideLoading()
-                
-                // let done_data = await this.handle_data()
-                // let res = await BdMaterial.batch_update(done_data)
-                // uni.hideLoading()
-                // if (res.data.Result.ResponseStatus.IsSuccess) {
-                //     this.response_result = [{ DIndex: 0, Message: '操作成功' }]
-                // } else {
-                //     this.response_result = res.data.Result.ResponseStatus.Errors
-                // }
-            },
-            async validate_data(row) {
-                let data = [] // 更新参数
-                let mat_res = []
-                if (row[0]?.trim()) {
-                    mat_res = await BdMaterial.query({ FNumber: row[0].trim() }, { fields: ['FMaterialId', 'FNumber', 'FUseOrgId.FNumber', 'FIssueType'] })
-                    if (mat_res.data.length === 0) return { status: false, data: [], msg: `未找到物料编码[${row[0]}]` }
-                } else {
-                    return { status: false, data: [], msg: '子项物料编码不能为空' }
-                }
-                for (let org_no of row[1].split('&')) {
-                    let obj = { SubHeadEntity1: {}, SubHeadEntity5: {} }
-                    let bd_material = mat_res.data.find(x => x['FUseOrgId.FNumber'] == org_no)
-                    if (bd_material) {
+                for (let i = 0; i < this.raw_data.length; i++) {
+                    let row = this.raw_data[i]
+                    let mat_res = await BdMaterial.query({ FNumber: row[0].trim() }, { fields: ['FMaterialId', 'FNumber', 'FUseOrgId.FNumber', 'FIssueType'] })
+                    if (mat_res.data.length === 0) continue
+                    for (let org_no of row[1].split('&')) {
+                        org_no = org_no.trim()
+                        let obj = { SubHeadEntity1: {}, SubHeadEntity5: {} }
+                        let bd_material = mat_res.data.find(x => x['FUseOrgId.FNumber'] == org_no)
+                        if (!bd_material) continue
                         obj.FMaterialId = bd_material.FMaterialId
-                    } else {
-                        continue
-                    }
-                    if (row[2] || [0, '0'].includes(row[2])) { // 仓库
-                        if ([0, '0'].includes(row[2])) {
-                            obj.FStockId = { FStockId: 0 }
-                        } else {
-                            let stock = store.state.bd_stocks.find(x => x.FName == row[2].trim() && x['FUseOrgId.FNumber'] === org_no)
-                            if (stock) obj.FStockId = { FStockId: stock.FStockId }
+
+                        if (row[2] || [0, '0'].includes(row[2])) { // 仓库
+                            if ([0, '0'].includes(row[2])) {
+                                obj.FStockId = { FStockId: 0 }
+                            } else {
+                                let stock = store.state.bd_stocks.find(x => x.FName == row[2].trim() && x['FUseOrgId.FNumber'] === org_no)
+                                if (stock) obj.FStockId = { FStockId: stock.FStockId }
+                            }
                         }
-                    }
-                    if (row[3] || [0, '0'].includes(row[3])) { // 发料仓库
-                        if ([0, '0'].includes(row[3])) {
-                            obj.FPickStockId = { FStockId: 0 }
-                        } else {
-                            let pick_stock = store.state.bd_stocks.find(x => x.FName == row[3].trim() && x['FUseOrgId.FNumber'] === org_no)
-                            if (pick_stock) obj.FPickStockId = { FStockId: pick_stock.FStockId }
+                        if (row[3] || [0, '0'].includes(row[3])) { // 发料仓库
+                            if ([0, '0'].includes(row[3])) {
+                                obj.FPickStockId = { FStockId: 0 }
+                            } else {
+                                let pick_stock = store.state.bd_stocks.find(x => x.FName == row[3].trim() && x['FUseOrgId.FNumber'] === org_no)
+                                if (pick_stock) obj.FPickStockId = { FStockId: pick_stock.FStockId }
+                            }
                         }
-                    }
-                    if (row[4] && org_no == '100') { // 发料方式
-                        let issue_type = this.issue_type_dict[row[4].trim()] || row[4].trim()
-                        if (issue_type) obj.SubHeadEntity5.FIssueType = issue_type
-                    }
-                    if (row[5] || [0, '0'].includes(row[5])) { // 仓管员
-                        if([0, '0'].includes(row[5])) {
-                            obj.F_PAEZ_Base1 = { FStaffNumber: 0 }
-                        } else {
-                            obj.F_PAEZ_Base1 = { FStaffNumber: String(row[5]) }
+                        if (row[4] && org_no == '100') { // 发料方式
+                            let issue_type = this.issue_type_dict[row[4].trim()] || row[4].trim()
+                            if (issue_type) obj.SubHeadEntity5.FIssueType = issue_type
                         }
-                    }
-                    if (row[6] || [0, '0'].includes(row[6])) { // 生产车间
-                        if ([0, '0'].includes(row[6])) {
-                            obj.FWorkShopId = { FDeptId: 0 }
-                        } else {
-                            let department = this.departments.find(x => x.FName == row[6].trim())
-                            if (department) obj.FWorkShopId = { FDeptId: department.FDeptId }
+                        if (row[5] || [0, '0'].includes(row[5])) { // 仓管员
+                            if([0, '0'].includes(row[5])) {
+                                obj.F_PAEZ_Base1 = { FStaffNumber: 0 }
+                            } else {
+                                obj.F_PAEZ_Base1 = { FStaffNumber: String(row[5]) }
+                            }
                         }
-                    }
-                    if ((row[7] || [0, '0'].includes(row[7])) && org_no == '102') { // 申请人
-                        if ([0, '0'].includes(row[7])) {
-                            obj.F_RGEN_Text_sqr = ''
-                        } else {
-                            obj.F_RGEN_Text_sqr = row[7]
+                        if (row[6] || [0, '0'].includes(row[6])) { // 生产车间
+                            if ([0, '0'].includes(row[6])) {
+                                obj.FWorkShopId = { FDeptId: 0 }
+                            } else {
+                                let department = this.departments.find(x => x.FName == row[6].trim())
+                                if (department) obj.FWorkShopId = { FDeptId: department.FDeptId }
+                            }
                         }
-                    }
-                    if ((row[8] || [0, '0'].includes(row[8])) && org_no == '100') { // 计划标识
-                        if ([0, '0'].includes(row[8])) {
-                            obj.FPlanIdent = { FNumber: '' }
-                        } else {
-                            obj.FPlanIdent = { FNumber: String(row[8]) }
+                        if ((row[7] || [0, '0'].includes(row[7])) && org_no == '102') { // 申请人
+                            if ([0, '0'].includes(row[7])) {
+                                obj.F_RGEN_Text_sqr = ''
+                            } else {
+                                obj.F_RGEN_Text_sqr = row[7]
+                            }
                         }
+                        if ((row[8] || [0, '0'].includes(row[8])) && org_no == '102') { // 计划标识
+                            if ([0, '0'].includes(row[8])) {
+                                obj.FPlanIdent = { FNumber: '' }
+                            } else {
+                                obj.FPlanIdent = { FNumber: String(row[8]) }
+                            }
+                        }
+                        if ((row[9] || [0, '0'].includes(row[9])) && org_no == '100') { // 安全库存
+                            obj.SubHeadEntity1.FSafeStock = row[9]
+                        }
+                        res.push(obj)
                     }
-                    if ((row[9] || [0, '0'].includes(row[9])) && org_no == '100') { // 安全库存
-                        obj.SubHeadEntity1.FSafeStock = row[9]
-                    }
-                    data.push(obj)
                 }
-                return { status: true, data: data, msg: 'ok' }
+                return res
             },
-            // async handle_data() {
-            //     let done_data = []
-            //     this.done_data = [] // init
-            //     for (let i = 0; i < this.raw_data.length; i++) {
-            //         let row = this.raw_data[i]
-            //         let res = await BdMaterial.query({ FNumber: row[0].trim() }, { fields: ['FMaterialId', 'FNumber', 'FUseOrgId.FNumber', 'FIssueType'] })
-            //         if (res.data.length === 0) continue
-            //         for (let org_no of row[1].split('&')) {
-            //             org_no = org_no.trim()
-            //             let obj = { SubHeadEntity1: {}, SubHeadEntity5: {} }
-            //             let bd_material = res.data.find(x => x['FUseOrgId.FNumber'] == org_no)
-            //             if (bd_material) {
-            //                 obj.FMaterialId = bd_material.FMaterialId
-            //                 // obj.use_org_no = bd_material['FUseOrgId.FNumber']
+            // async _submit_batch_update() {
+            //     uni.showLoading({ title: 'Loading' })
+            //     this.response_result = []
+            //     let succ_cnt = 0
+            //     let sum_cnt = this.raw_data.length
+            //     for (let i = 0; i < sum_cnt; i++) {
+            //         let v_res = await this.validate_data(this.raw_data[i])
+            //         if (v_res.status) {
+            //             let res = await BdMaterial.batch_update(v_res.data)
+            //             if (res.data.Result.ResponseStatus.IsSuccess) {
+            //                 succ_cnt += 1
             //             } else {
-            //                 continue
+            //                 this.response_result.push({ i: i + 1, msg: res.data.Result.ResponseStatus.Errors[0]?.Message })
             //             }
-            //             if (row[2] || [0, '0'].includes(row[2])) { // 仓库
-            //                 if ([0, '0'].includes(row[2])) {
-            //                     obj.FStockId = { FStockId: 0 }
-            //                 } else {
-            //                     let stock = store.state.bd_stocks.find(x => x.FName == row[2].trim() && x['FUseOrgId.FNumber'] === org_no)
-            //                     if (stock) obj.FStockId = { FStockId: stock.FStockId }
-            //                 }
-            //             }
-            //             if (row[3] || [0, '0'].includes(row[3])) { // 发料仓库
-            //                 if ([0, '0'].includes(row[3])) {
-            //                     obj.FPickStockId = { FStockId: 0 }
-            //                 } else {
-            //                     let pick_stock = store.state.bd_stocks.find(x => x.FName == row[3].trim() && x['FUseOrgId.FNumber'] === org_no)
-            //                     if (pick_stock) obj.FPickStockId = { FStockId: pick_stock.FStockId }
-            //                 }
-            //             }
-            //             if (row[4] && org_no == '100') { // 发料方式
-            //                 let issue_type = this.issue_type_dict[row[4].trim()] || row[4].trim()
-            //                 if (issue_type) obj.SubHeadEntity5.FIssueType = issue_type
-            //             }
-            //             if (row[5] || [0, '0'].includes(row[5])) { // 仓管员
-            //                 if([0, '0'].includes(row[5])) {
-            //                     obj.F_PAEZ_Base1 = { FStaffNumber: 0 }
-            //                 } else {
-            //                     obj.F_PAEZ_Base1 = { FStaffNumber: String(row[5]) }
-            //                 }
-            //             }
-            //             if (row[6] || [0, '0'].includes(row[6])) { // 生产车间
-            //                 if ([0, '0'].includes(row[6])) {
-            //                     obj.FWorkShopId = { FDeptId: 0 }
-            //                 } else {
-            //                     let department = this.departments.find(x => x.FName == row[6].trim())
-            //                     if (department) obj.FWorkShopId = { FDeptId: department.FDeptId }
-            //                 }
-            //             }
-            //             if ((row[7] || [0, '0'].includes(row[7])) && org_no == '102') { // 申请人
-            //                 if ([0, '0'].includes(row[7])) {
-            //                     obj.F_RGEN_Text_sqr = ''
-            //                     // obj.FPlanerID = { FNumber: '' }
-            //                 } else {
-            //                     obj.F_RGEN_Text_sqr = row[7]
-            //                     // obj.FPlanerID = { FNumber: String(row[7]) }
-            //                 }
-            //             }
-            //             if ((row[8] || [0, '0'].includes(row[8])) && org_no == '102') { // 计划标识
-            //                 if ([0, '0'].includes(row[8])) {
-            //                     obj.FPlanIdent = { FNumber: '' }
-            //                 } else {
-            //                     obj.FPlanIdent = { FNumber: String(row[8]) }
-            //                 }
-            //             }
-            //             if ((row[9] || [0, '0'].includes(row[9])) && org_no == '100') { // 安全库存
-            //                 obj.SubHeadEntity1.FSafeStock = row[9]
-            //             }
-            //             done_data.push(obj)
+            //         } else {
+            //             this.response_result.push({ i: i + 1, msg: v_res.msg })
             //         }
+            //         uni.showLoading({ title: `${((i + 1) * 100 / sum_cnt).toFixed(1)} %` })
             //     }
-            //     this.done_data = done_data
-            //     return done_data
+            //     this.response_result.push({ i: '', msg: `共${sum_cnt}行数据，其中成功更新${succ_cnt}行` })
+            //     uni.hideLoading()
+                
+            //     // let done_data = await this.handle_data()
+            //     // let res = await BdMaterial.batch_update(done_data)
+            //     // uni.hideLoading()
+            //     // if (res.data.Result.ResponseStatus.IsSuccess) {
+            //     //     this.response_result = [{ DIndex: 0, Message: '操作成功' }]
+            //     // } else {
+            //     //     this.response_result = res.data.Result.ResponseStatus.Errors
+            //     // }
             // },
         }
     }

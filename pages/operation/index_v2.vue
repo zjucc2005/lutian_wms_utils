@@ -35,13 +35,31 @@
         </uni-popup-dialog>
     </uni-popup>
     
+    <!-- 库区选择组件 -->
+    <uni-popup ref="area_dialog" type="dialog" style="z-index: 1000;">
+        <uni-popup-dialog
+            type="error"
+            title="切换库区"
+            cancelText="关闭"
+            @close="area_dialog_close"
+            @confirm="area_dialog_confirm"
+            :before-close="true"
+            :style="{ width: $store.state.system_info.windowWidth - 20 + 'px', minWidth: '360px', maxWidth: '1200px' }"
+            >
+            <uni-forms ref="area_form" :model="area_form" :rules="area_form_rules" style="width: 100%;">
+                <uni-forms-item label="库区" name="stock_id">
+                    <uni-data-select v-model="area_form.area" :localdata="area_form.area_opts" />
+                </uni-forms-item>
+            </uni-forms>
+        </uni-popup-dialog>
+    </uni-popup>
     
 </template>
 
 <script>
     import store from '@/store'
     import { link_to, play_audio_prompt } from '@/utils'
-    import { StockLoc } from '@/utils/model'
+    import { Enum, StockLoc } from '@/utils/model'
     import scan_code from '@/utils/scan_code'
     import ccGrid from '@/components/cc-grid/cc-grid.vue'
     import ccGridItem from '@/components/cc-grid/cc-grid-item.vue'
@@ -98,6 +116,10 @@
                         action: () => { link_to('/pages/operation/manage/locs') }
                     },
                     // {
+                    //     name: '库位管理2', permission: ['all'], icon_path: '/static/icon/nav_stock_loc_violet.png',
+                    //     action: () => { link_to('/pages/operation/stock_loc/index') }
+                    // },
+                    // {
                     //     name: '库位报警', permission: ['wh_staff'], icon_path: '/static/icon/nav_stock_warn.png',
                     //     action: () => { link_to('/pages/operation/manage/locs') }
                     // },
@@ -145,32 +167,43 @@
                 },
                 nav_form_rules: {
                     stock_id: {
-                        rules: [
-                            { required: true, errorMessage: '请选择仓库'},
-                        ]
+                        rules: [ { required: true, errorMessage: '请选择仓库'} ]
                     }
-                }
+                },
+                area_form: {
+                    area: store.state.cur_area?.value || '',
+                    area_opts: Enum.get_area_options(store.state.cur_stock.FStockId)
+                },
+                area_form_rules: {
+                    stock_id: {
+                        area: [ { required: true, errorMessage: '请选择库区'} ]
+                    }
+                },
             }
         },
         onReady() {
             setTimeout(_ => {
-                uni.setNavigationBarTitle({
-                    title: store.state.cur_stock['FName'] // topbar显示仓库名
-                })
+                this.set_navbar_title()
             }, 100)
         },
         onNavigationBarButtonTap(e) {
             if (e.index === 0) {
-                console.log('this.$data', this.$data)
-                let bd_stock_opts = []
-                for (let opt of store.state.bd_stock_opts) {
-                    bd_stock_opts.push({
-                        ...opt,
-                        disable: opt.value != store.state.cur_stock.FUseOrgId
-                    })
+                this.$logger.info('this.$data', this.$data)
+                if (store.state.cur_area) {
+                    this.$refs.area_dialog.open()
+                } else {
+                    uni.showToast({ icon: 'error', title: '不可切换库区' })
+                    return
+                    let bd_stock_opts = []
+                    for (let opt of store.state.bd_stock_opts) {
+                        bd_stock_opts.push({
+                            ...opt,
+                            disable: opt.value != store.state.cur_stock.FUseOrgId
+                        })
+                    }
+                    this.nav_form.bd_stock_opts = bd_stock_opts
+                    this.$refs.nav_dialog.open()
                 }
-                this.nav_form.bd_stock_opts = bd_stock_opts
-                this.$refs.nav_dialog.open()
             }
         },
         methods: {
@@ -181,6 +214,11 @@
                     uni.showToast({ icon: 'none', title: err })
                 })
             },
+            set_navbar_title () {
+                let title = store.state.cur_stock['FName']
+                if (store.state.cur_area?.text) title += ` / ${store.state.cur_area.text}`
+                uni.setNavigationBarTitle({ title }) // topbar显示仓库名 + 库区
+            },
             nav_dialog_close() {
                 this.$refs.nav_dialog.close()
             },
@@ -188,9 +226,7 @@
                 this.$refs.nav_form.validate().then(res => {
                     let cur_stock = store.state.bd_stocks.find(d => d.FStockId === this.nav_form.stock_id)
                     store.commit('set_cur_stock', cur_stock)
-                    uni.setNavigationBarTitle({
-                        title: store.state.cur_stock['FName']
-                    })
+                    this.set_navbar_title()
                     // 重新加载库位数据
                     StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
                         store.commit('set_stock_locs', res.data)
@@ -201,6 +237,21 @@
                     
                     this.$refs.nav_dialog.close()
                 }).catch(err => {})
+            },
+            area_dialog_close() {
+                this.$refs.area_dialog.close()
+            },
+            async area_dialog_confirm() {
+                try {
+                    let res = await this.$refs.area_form.validate()
+                    let cur_area = this.area_form.area_opts.find(opt => opt.value === this.area_form.area)
+                    store.commit('set_cur_area', cur_area)
+                    this.set_navbar_title() // 设置导航栏标题
+                    let data = await StockLoc.get_all() // 重新加载库位数据
+                    store.commit('set_stock_locs', data)
+                    play_audio_prompt('success')
+                    this.$refs.area_dialog.close()
+                } catch (err) { }
             }
         }
     }

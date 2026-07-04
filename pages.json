@@ -60,6 +60,8 @@
         { "path": "pages/operation/manage/inv_init", "style": { "navigationBarTitleText": "期初库存录入" } },
         { "path": "pages/operation/manage/locs", "style": { "navigationBarTitleText": "库位", "enablePullDownRefresh": true } },
         { "path": "pages/operation/manage/loc_new", "style": { "navigationBarTitleText": "库位 - 新增库位" } },
+        // 库位
+        { "path": "pages/operation/stock_loc/index", "style": { "navigationBarTitleText": "库位管理" } },
         // 我的
         { "path": "pages/my/index",       "style": { "navigationBarTitleText": "我"} },
         { "path": "pages/my/reset_password", "style": { "navigationBarTitleText": "重置密码"} },

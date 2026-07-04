@@ -1,11 +1,7 @@
 <template>
     <!-- 搜素 -->
     <uni-section title="当前仓库" type="square" 
-        :sub-title="[
-            $store.state.cur_stock['FUseOrgId.FName'],
-            $store.state.cur_stock['FGroup.FName'] || '未分组',
-            $store.state.cur_stock.FName
-        ].join(' / ')"
+        :sub-title="breadcrumb_stockname()"
         sub-title-color="#007aff" @click="$logger.info('>>>', $data)">
         <template #right>
             <text class="text-grey text-sm">{{ multiuser ? '多人' : '单人' }}</text>
@@ -125,7 +121,7 @@
 
 <script>
     import store from '@/store'
-    import { play_audio_prompt, formatDate } from '@/utils'
+    import { breadcrumb_stockname, play_audio_prompt, formatDate } from '@/utils'
     import scan_code from '@/utils/scan_code'
     import { PrdIssueMtrNotice, StkOutStockApply, SpPickMtrl, PurMrb, InvPlan, StockLoc } from '@/utils/model'
     export default {
@@ -188,6 +184,7 @@
             }
         },
         methods: {
+            breadcrumb_stockname,
             // 页面动作
             goods_nav_click(e) {
                 if (e.index === 0) {

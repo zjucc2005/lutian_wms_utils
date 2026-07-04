@@ -31,6 +31,9 @@
                             </template>
                         </uni-data-picker>
                     </uni-forms-item>
+                    <uni-forms-item v-if="area_opts.length" label="库区" name="area">
+                        <uni-data-select v-model="login_form.area" :localdata="area_opts" />
+                    </uni-forms-item>
                     <uni-forms-item label="姓名" name="staff_name">
                         <uni-easyinput v-model="login_form.staff_name" trim="both" />
                     </uni-forms-item>
@@ -86,46 +89,30 @@
     import store from '@/store'
     import { play_audio_prompt, get_latest_version } from '@/utils'
     import { validate_user, get_bd_stocks } from '@/utils/api'
-    import { BdMaterial, StockLoc } from '@/utils/model'
+    import { Enum, BdMaterial, StockLoc } from '@/utils/model'
     export default {
         data() {
             return {
                 login_form: {
                     org_id: store.state.cur_stock.FUseOrgId,
                     stock_id: store.state.cur_stock.FStockId,
+                    area: store.state.cur_area?.value || '',
                     staff_name: store.state.cur_staff.FName,
                     staff_no: store.state.cur_staff.FNumber,
                     password: ''
                 },
                 login_form_rules: {
                     stock_id: {
-                        rules: [
-                            { required: true, errorMessage: '请选择仓库'},
-                        ]
+                        rules: [ { required: true, errorMessage: '请选择仓库'} ]
+                    },
+                    area: {
+                        rules: [ { required: true, errorMessage: '请选择库区' } ]
                     },
                     staff_name: {
-                        rules: [
-                            { required: true, errorMessage: '请填写姓名' },
-                        ]
+                        rules: [ { required: true, errorMessage: '请填写姓名' } ]
                     },
                     staff_no: {
-                        rules: [
-                            { required: true, errorMessage: '请填写工号' },
-                            // {
-                            //     validateFunction: (rule, value, data, callback) => {
-                            //         uni.showLoading({ title: 'loading' })
-                            //         return validate_staff(this.login_form.staff_name, this.login_form.staff_no, this.login_form.org_id).then(staff => {
-                            //             uni.hideLoading()
-                            //             if (staff?.FName) {
-                            //                 if (staff.FForbidStatus != 'A') return callback("账号禁用")
-                            //                 this.staff = staff
-                            //             } else {
-                            //                 return callback('姓名或工号或分属组织错误')
-                            //             }
-                            //         })
-                            //     }
-                            // }
-                        ]
+                        rules: [ { required: true, errorMessage: '请填写工号' } ]
                     },
                     password: {
                         rules: [
@@ -150,6 +137,7 @@
                 staff: {},
                 bd_stocks: [],
                 bd_stock_opts: [], // 仓库分组，data-picker为[组织,分组,仓库]3级选择
+                area_opts: [],
                 guest_login_form: {
                     org_id: '', // store.state.cur_stock.FUseOrgId
                 },
@@ -179,12 +167,13 @@
                 }
                 this.bd_stocks = store.state.bd_stocks
                 this.bd_stock_opts = store.state.bd_stock_opts
+                this.area_opts = Enum.get_area_options(this.login_form.stock_id)
             },
-            // show_stock_opts() {
-            //     this.$refs.stock_id_data_picker.show()
-            // },
             handle_stock_change(e) {
+                console.log('handle_stock_change e', e)
                 this.login_form.org_id = e.detail.value[0]?.value
+                this.login_form.area = ''
+                this.area_opts = Enum.get_area_options(e.detail.value[2]?.value)
             },
             selected_stock_info() {
                 if (this.login_form.stock_id) {
@@ -200,6 +189,7 @@
                     play_audio_prompt('success')
                     const store_data = {
                         stock: this.bd_stocks.find(d => d.FStockId === this.login_form.stock_id),
+                        area: this.area_opts.find(opt => opt.value === this.login_form.area),
                         staff: this.staff
                     }
                     store.commit('staff_login', store_data)
@@ -223,10 +213,12 @@
                     uni.reLaunch({ url: '/pages/operation/index_v2' })  
                 }).catch(err => {})
             },
-            after_login() {
-                StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
-                    store.commit('set_stock_locs', res.data)
-                })
+            async after_login() {
+                let data = await StockLoc.get_all()
+                store.commit('set_stock_locs', data)
+                // StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
+                //     store.commit('set_stock_locs', res.data)
+                // })
             }
         }
     }
@@ -283,6 +275,12 @@
                 .uni-forms-item__label {
                     color: #fff;
                 }
+                .uni-stat-box {
+                    border-radius: 4px;
+                }
+                .uni-select {
+                    height: 37px;;
+                }
             }
         }
     }
@@ -316,4 +314,5 @@
             color: $uni-text-color-grey;
         }
     }
+    
 </style>

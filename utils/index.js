@@ -2,6 +2,18 @@ import store from '@/store'
 import config from '@/config'
 import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateformat/date-format.js'
 
+
+// 仓库名称(breadcrumb)
+const breadcrumb_stockname = () => {
+    let arr = [
+        store.state.cur_stock['FUseOrgId.FName'],
+        store.state.cur_stock['FGroup.FName'] || '未分组',
+        store.state.cur_stock.FName
+    ]
+    if (store.state.cur_area?.text) arr.push(store.state.cur_area.text)
+    return arr.join(' / ')
+}
+
 /**
  * 模拟sleep函数, 使用方式 Promise + async await
  */
@@ -135,24 +147,8 @@ const is_decimal_unit = (text) => {
     return whitelist.includes(text)
 }
 
-/**
- * 描述库存操作日志
- * @return String
- */
-const describe_inv_log = (inv_log) => {
-    let op_type_dict = {
-        in: '上架',
-        in_cl: '取消上架',
-        out: '下架',
-        out_cl: '取消下架'
-    }
-    let list = [
-        `${op_type_dict[inv_log.FOpType]} ${inv_log.FOpQTY} ${inv_log['FStockUnitId.FName']} ${inv_log['FMaterialId.FNumber']}`,
-        `${inv_log['FMaterialId.FName']}, ${inv_log['FMaterialId.FSpecification']}`,
-        `库位 ${inv_log['FStockLocId.FNumber']} , 批次 ${inv_log.FBatchNo}`
-    ]
-    return list.join("\n")
-}
+
+
 
 // 注意：s2ab是一个辅助函数，用于将字符串转换为ArrayBuffer
 const string_to_arraybuffer = (s) => {
@@ -248,6 +244,7 @@ const download_and_install = (url) => {
 }
 
 export {
+    breadcrumb_stockname,
     sleep,
     to_raw,
     truncate,
@@ -260,7 +257,6 @@ export {
     is_loc_no_std_sp_format,
     is_decimal_unit,
     compare_loc_no,
-    describe_inv_log,
     string_to_arraybuffer,
     get_latest_version,
     formatDate

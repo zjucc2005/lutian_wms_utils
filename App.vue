@@ -29,6 +29,7 @@
             init_store() {
                 store.commit('staff_login', {
                     stock: uni.getStorageSync('cur_stock'),
+                    area:  uni.getStorageSync('cur_area'),
                     staff: uni.getStorageSync('cur_staff')
                 })
                 this.init_system_info()

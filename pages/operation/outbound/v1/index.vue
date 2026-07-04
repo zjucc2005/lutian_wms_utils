@@ -1,10 +1,6 @@
 <template>
     <uni-section title="当前仓库" type="square"
-        :sub-title="[
-            $store.state.cur_stock['FUseOrgId.FName'],
-            $store.state.cur_stock['FGroup.FName'] || '未分组',
-            $store.state.cur_stock.FName
-        ].join(' / ')"
+        :sub-title="breadcrumb_stockname()"
         sub-title-color="#007aff"
         @click="$logger.info('>>>', this.$data)"
         >
@@ -160,7 +156,7 @@
 
 <script>
     import store from '@/store'
-    import { play_audio_prompt, formatDate } from '@/utils'
+    import { breadcrumb_stockname, play_audio_prompt, formatDate } from '@/utils'
     import scan_code from '@/utils/scan_code'
     import { Inv, InvLog, PrdPpbom, StkTransferDirect, StockLoc } from '@/utils/model'
     
@@ -263,6 +259,7 @@
             }
         },
         methods: {
+            breadcrumb_stockname,
             // operations
             goods_nav_click(e) {
                 if (e.index === 0) this.filter_list()

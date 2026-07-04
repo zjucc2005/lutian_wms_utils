@@ -28,6 +28,7 @@ const store = createStore({
         conn_info: null,           // API连接成功返回数据
         conn_expired_at: null,     // API连接过期时间
         cur_stock: {},             // >>> 当前作业仓库
+        cur_area: {},              // >>> 当前作业库区，库位号前缀
         cur_staff: {},             // >>> 当前作业员工
         role: '',                  // 用户角色，详见 permission.js
         process_version: 'v2',     // 流程版本
@@ -72,8 +73,10 @@ const store = createStore({
         // },
         staff_login(state, params) {
             state.cur_stock = params.stock
+            state.cur_area = params.area
             state.cur_staff = params.staff
             uni.setStorageSync('cur_stock', params.stock)
+            uni.setStorageSync('cur_area', params.area)
             uni.setStorageSync('cur_staff', params.staff)
             state.role = permission.get_system_role(params.staff.FOperatorGroup) // 设定角色
             // 初始化时, 自动生成序列号
@@ -84,6 +87,7 @@ const store = createStore({
         staff_logout(state) {
             if (state.role == 'guest') {
                 state.cur_stock = uni.getStorageSync('cur_stock') // 退出重载
+                state.cur_area = uni.getStorageSync('cur_area')
                 state.cur_staff = uni.getStorageSync('cur_staff')
             } else {
                 state.cur_staff = { FName: state.cur_staff.FName, FNumber: state.cur_staff.FNumber }  // 退出保留上一次登录的姓名+工号
@@ -92,6 +96,7 @@ const store = createStore({
         },
         guest_login(state, params) {
             state.cur_stock = params.stock
+            state.cur_area = params.area
             state.cur_staff = { FName: '访客', FNumber: 'GUEST' }
             state.role = 'guest'
             state.snowflake = new Snowflake(0)
@@ -102,6 +107,10 @@ const store = createStore({
         set_cur_stock(state, cur_stock) {
             state.cur_stock = cur_stock
             uni.setStorageSync('cur_stock', cur_stock)
+        },
+        set_cur_area(state, cur_area) {
+            state.cur_area = cur_area
+            uni.setStorageSync('cur_area', cur_area)
         },
         set_latest_version(state, version) {
             state.latest_version = version

@@ -125,82 +125,151 @@
                 this.raw_data = raw_data
                 this.submit_batch_update()
             },
+            // 批量更新
             async submit_batch_update() {
-                let x_start_time = Date.now()
-                uni.showLoading({ title: 'Loading' })
-                this.response_result = []
-                let succ_cnt = 0
-                let sum_cnt = this.raw_data.length
-                for (let i = 0; i < sum_cnt; i++) {
-                    let v_res = await this.validate_data(this.raw_data[i])
-                    if (v_res.status) {
-                        let res = await EngBom.batch_update(v_res.data)
-                        if (res.data.Result.ResponseStatus.IsSuccess) {
-                            succ_cnt += 1
-                        } else {
-                            this.response_result.push({ i: i + 1, msg: res.data.Result.ResponseStatus.Errors[0]?.Message })
-                        }
-                    } else {
-                        this.response_result.push({ i: i + 1, msg: v_res.msg })
+                try {
+                    let x_start_time = Date.now()
+                    uni.showLoading({ title: 'Loading' })
+                    let request_body = await this.get_request_body()
+                    let res = await EngBom.batch_update(request_body)
+                    if (!res.data.Result.ResponseStatus.IsSuccess) {
+                        this.response_result.push({ i: 0, msg: res.data.Result.ResponseStatus.Errors[0]?.Message })
                     }
-                    uni.showLoading({ title: `${((i + 1) * 100 / sum_cnt).toFixed(1)} %` })
+                    uni.hideLoading()
+                    uni.showModal({ title: '执行完毕', content: `执行耗时 ${(Date.now() - x_start_time) / 1000} 秒` })
+                } catch (err) {
+                    this.$logger.info('submit_batch_update err', err)
                 }
-                this.response_result.push({ i: '', msg: `共${sum_cnt}行数据，其中成功更新${succ_cnt}行` })
-                uni.hideLoading()
-                uni.showModal({ title: '搜索完毕',
-                    content: [`搜索耗时 ${(Date.now() - x_start_time) / 1000} 秒`,
-                              '本页面最多展示200行，请导出查看全部数据'].join('\n'),
-                })
             },
-            // 验证并格式化待更新数据
-            async validate_data(row) {
-                let q = { 'FUseOrgId.FNumber': '102' } // 查询条件
-                let params = {} // 更新参数
-                if (row[0]?.trim()) {
-                    q['FMaterialIdChild.FNumber'] = row[0].trim()
-                } else {
-                    return { status: false, data: [], msg: '子项物料编码不能为空' }
-                }
-                if (row[2]?.trim()) {
-                    q['FNumber'] = row[2].trim()
-                } else if (row[1]?.trim()) {
-                    q['FMaterialId.FNumber'] = row[1].trim()
-                }
-                // else {
-                //     return { status: false, data: [], msg: '父项物料编码和BOM版本不能同时为空' }
-                // }
-                if (row[3] || [0, '0'].includes(row[3])) {
-                    if ([0, '0'].includes(row[3])) {
-                        params.FStockId = { FStockId: 0 } 
+            async get_request_body() {
+                let res = []
+                this.response_result = []
+                for (let i = 0; i < this.raw_data.length; i++) {
+                    let row = this.raw_data[i]
+                    let q = { 'FUseOrgId.FNumber': '102' } // 查询条件
+                    let params = {} // 更新参数
+                    if (row[0]?.trim()) {
+                        q['FMaterialIdChild.FNumber'] = row[0].trim()
                     } else {
-                        let stock = store.state.bd_stocks.find(x => x.FName == row[3].trim() && x['FUseOrgId.FNumber'] === '102') // 限定内燃机组织
-                        if (stock) {
-                            params.FStockId = { FStockId: stock.FStockId }
+                        this.response_result.push({ i: i+1, msg: '子项物料编码不能为空' })
+                        continue
+                    }
+                    if (row[2]?.trim()) {
+                        q['FNumber'] = row[2].trim()
+                    } else if (row[1]?.trim()) {
+                        q['FMaterialId.FNumber'] = row[1].trim()
+                    }
+                    if (row[3] || [0, '0'].includes(row[3])) {
+                        if ([0, '0'].includes(row[3])) {
+                            params.FStockId = { FStockId: 0 } 
                         } else {
-                            return { status: false, data: [], msg: `未找到仓库名[${row[3].trim()}]` }
+                            let stock = store.state.bd_stocks.find(x => x.FName == row[3].trim() && x['FUseOrgId.FNumber'] === '102') // 限定内燃机组织
+                            if (stock) {
+                                params.FStockId = { FStockId: stock.FStockId }
+                            } else {
+                                this.response_result.push({ i: i+1, msg: `未找到仓库名[${row[3].trim()}]` })
+                                continue
+                            }
+                        }
+                    }
+                    if (row[4]?.trim()) {
+                        let issue_type = this.issue_type_dict[row[4].trim()] || row[4].trim()
+                        if (issue_type) params.FIssueType = issue_type
+                    }
+                    let bom_res = await EngBom.query(q, { fields: ['FID', 'FNumber', 'FMaterialId.FNumber', 'FTreeEntity_FEntryId', 'FMaterialIdChild.FNumber'] })
+                    if (bom_res.data.length === 0) {
+                        this.response_result.push({ i: i+1, msg: `未找到对应BOM数据, ${JSON.stringify(q)}` })
+                        continue
+                    }
+                    // 组装报文
+                    for (let d of bom_res.data) {
+                        let obj = res.find(x => x.FID == d.FID)
+                        if (obj) {
+                            obj.FTreeEntity.push({ FEntryId: d['FTreeEntity_FEntryId'], ...params })
+                        } else {
+                            res.push({ FID: d.FID, FTreeEntity: [{ FEntryId: d['FTreeEntity_FEntryId'], ...params }] })
                         }
                     }
                 }
-                if (row[4]?.trim()) {
-                    let issue_type = this.issue_type_dict[row[4].trim()] || row[4].trim()
-                    if (issue_type) params.FIssueType = issue_type
-                }
-                let res = await EngBom.query(q, { fields: ['FID', 'FNumber', 'FMaterialId.FNumber', 'FTreeEntity_FEntryId', 'FMaterialIdChild.FNumber'] })
-                if (res.data.length === 0) {
-                    return { status: false, data: [], msg: `未找到对应BOM数据, ${q}` }
-                }
-                // 组装报文
-                let data = []
-                for (let d of res.data) {
-                    let obj = data.find(x => x.FID = d.FID)
-                    if (obj) {
-                        obj.FTreeEntity.push({ FEntryId: d['FTreeEntity_FEntryId'], ...params })
-                    } else {
-                        data.push({ FID: d.FID, FTreeEntity: [{ FEntryId: d['FTreeEntity_FEntryId'], ...params }] })
-                    }
-                }
-                return { status: true, data: data, msg: 'ok' }
+                return res
             }
+            // async submit_batch_update() {
+            //     let x_start_time = Date.now()
+            //     uni.showLoading({ title: 'Loading' })
+            //     this.response_result = []
+            //     let succ_cnt = 0
+            //     let sum_cnt = this.raw_data.length
+            //     for (let i = 0; i < sum_cnt; i++) {
+            //         let v_res = await this.validate_data(this.raw_data[i])
+            //         if (v_res.status) {
+            //             let res = await EngBom.batch_update(v_res.data)
+            //             if (res.data.Result.ResponseStatus.IsSuccess) {
+            //                 succ_cnt += 1
+            //             } else {
+            //                 this.response_result.push({ i: i + 1, msg: res.data.Result.ResponseStatus.Errors[0]?.Message })
+            //             }
+            //         } else {
+            //             this.response_result.push({ i: i + 1, msg: v_res.msg })
+            //         }
+            //         uni.showLoading({ title: `${((i + 1) * 100 / sum_cnt).toFixed(1)} %` })
+            //     }
+            //     this.response_result.push({ i: '', msg: `共${sum_cnt}行数据，其中成功更新${succ_cnt}行` })
+            //     uni.hideLoading()
+            //     uni.showModal({ title: '搜索完毕',
+            //         content: [`搜索耗时 ${(Date.now() - x_start_time) / 1000} 秒`,
+            //                   '本页面最多展示200行，请导出查看全部数据'].join('\n'),
+            //     })
+            // },
+            
+            // 验证并格式化待更新数据
+            // async validate_data(row) {
+            //     let q = { 'FUseOrgId.FNumber': '102' } // 查询条件
+            //     let params = {} // 更新参数
+            //     if (row[0]?.trim()) {
+            //         q['FMaterialIdChild.FNumber'] = row[0].trim()
+            //     } else {
+            //         return { status: false, data: [], msg: '子项物料编码不能为空' }
+            //     }
+            //     if (row[2]?.trim()) {
+            //         q['FNumber'] = row[2].trim()
+            //     } else if (row[1]?.trim()) {
+            //         q['FMaterialId.FNumber'] = row[1].trim()
+            //     }
+            //     // else {
+            //     //     return { status: false, data: [], msg: '父项物料编码和BOM版本不能同时为空' }
+            //     // }
+            //     if (row[3] || [0, '0'].includes(row[3])) {
+            //         if ([0, '0'].includes(row[3])) {
+            //             params.FStockId = { FStockId: 0 } 
+            //         } else {
+            //             let stock = store.state.bd_stocks.find(x => x.FName == row[3].trim() && x['FUseOrgId.FNumber'] === '102') // 限定内燃机组织
+            //             if (stock) {
+            //                 params.FStockId = { FStockId: stock.FStockId }
+            //             } else {
+            //                 return { status: false, data: [], msg: `未找到仓库名[${row[3].trim()}]` }
+            //             }
+            //         }
+            //     }
+            //     if (row[4]?.trim()) {
+            //         let issue_type = this.issue_type_dict[row[4].trim()] || row[4].trim()
+            //         if (issue_type) params.FIssueType = issue_type
+            //     }
+            //     let res = await EngBom.query(q, { fields: ['FID', 'FNumber', 'FMaterialId.FNumber', 'FTreeEntity_FEntryId', 'FMaterialIdChild.FNumber'] })
+            //     if (res.data.length === 0) {
+            //         return { status: false, data: [], msg: `未找到对应BOM数据, ${JSON.stringify(q)}` }
+            //     }
+            //     // 组装报文
+            //     let data = []
+            //     for (let d of res.data) {
+            //         let obj = data.find(x => x.FID == d.FID)
+            //         if (obj) {
+            //             obj.FTreeEntity.push({ FEntryId: d['FTreeEntity_FEntryId'], ...params })
+            //         } else {
+            //             data.push({ FID: d.FID, FTreeEntity: [{ FEntryId: d['FTreeEntity_FEntryId'], ...params }] })
+            //         }
+            //     }
+            //     return { status: true, data: data, msg: 'ok' }
+            // }
         }
     }
 </script>
