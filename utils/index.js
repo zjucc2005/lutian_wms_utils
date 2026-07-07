@@ -5,8 +5,17 @@ import { formatDate } from '@/uni_modules/uni-dateformat/components/uni-dateform
 
 // 仓库名称(breadcrumb)
 const breadcrumb_stockname = () => {
+    let mapping = {
+        '绿田机械股份有限公司': '绿田',
+        '内燃机事业部': '内燃机',
+        '清洗机事业部': '清洗机',
+        '电机分厂': '电机',
+        '新能源事业部': '新能源',
+        '台州市赛格进出口有限公司': '赛格',
+        '江苏绿田能源技术有限公司': '江苏绿田'
+    }
     let arr = [
-        store.state.cur_stock['FUseOrgId.FName'],
+        mapping[store.state.cur_stock['FUseOrgId.FName']] || store.state.cur_stock['FUseOrgId.FName'],
         store.state.cur_stock['FGroup.FName'] || '未分组',
         store.state.cur_stock.FName
     ]

@@ -1,22 +1,10 @@
 <template>
-    <!-- <uni-notice-bar
-        v-if="_forbid_loc_nos().length"
-        :text="`${ _forbid_loc_nos().length } 个库位报警 ${_forbid_loc_nos().join(', ')}，请尽快处理。`"
-        color="#f55858"
-        background-color="#f5dcdc"
-        show-icon single scrollable
-    /> -->
     <uni-section title="当前仓库" type="square"
         :sub-title="breadcrumb_stockname()"
         sub-title-color="#007aff"
         class="above-uni-goods-nav"
         >
-        <cc-shelf
-            :stock_locs="$store.state.stock_locs"
-            :invs="invs"
-            :open="cc_shelf_open"
-            forbidable
-            />
+        <cc-shelf :stock_locs="$store.state.stock_locs" :open="cc_shelf_open" />
     </uni-section>
             
     <view class="uni-goods-nav-wrapper">
@@ -41,14 +29,14 @@
         },
         data() {
             return {
-                can_edit: true,
+                can_edit: false,
                 invs: [],
                 cc_shelf_open: true,
                 last_refresh_time: 0,
                 refresh_interval: 30 * 1000, // 30s
                 goods_nav: {
                     options: [
-                        { icon: 'refreshempty', text: '刷新' },
+                        // { icon: 'refreshempty', text: '刷新' },
                         { icon: 'up', text: '折叠' }
                     ],
                     button_group: [
@@ -76,34 +64,13 @@
         methods: {
             breadcrumb_stockname,
             goods_nav_click(e) {
-                if (e.index === 0) this.refresh()
-                if (e.index === 1) this.toggle_cc_shelf()
+                // if (e.index === 0) this.refresh()
+                if (e.index === 0) this.toggle_cc_shelf()
             },
             goods_nav_button_click(e) {
                 if (this.can_edit) {
                     if (e.index === 0) link_to('/pages/operation/manage/loc_new')
                 }  
-            },
-            if_inv_map() {
-                uni.showModal({
-                    title: '注意事项',
-                    content: '库存地图需要加载所有库存数据，当数据量较大时，可能会需要较长时间。确定要加载吗？',
-                    success: (res) => {
-                        if (res.confirm) this.load_invs()
-                    },
-                    fail: (err) => {}
-                })
-            },
-            async load_invs() {
-                const options = {
-                    FStockId: store.state.cur_stock.FStockId
-                }
-                uni.showLoading({ title: 'Loading' })
-                return Inv.get_all(options).then(res => {
-                    uni.hideLoading()
-                    play_audio_prompt('success')
-                    this.invs = res
-                })
             },
             async refresh() {
                 if (this.last_refresh_time + this.refresh_interval > Date.now()) {
@@ -115,11 +82,6 @@
                 store.commit('set_stock_locs', data)
                 this.last_refresh_time = Date.now()
                 uni.showToast({ title: '已刷新' })
-                // return StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
-                //     store.commit('set_stock_locs', res.data)
-                //     this.last_refresh_time = Date.now()
-                //     uni.showToast({ title: '已刷新' })
-                // })
             },
             toggle_cc_shelf () {
                 if (this.cc_shelf_open) {
@@ -131,9 +93,6 @@
                     this.goods_nav.options[1].icon = 'up'
                     this.goods_nav.options[1].text = '折叠'
                 }
-            },
-            _forbid_loc_nos () {
-                return store.state.stock_locs.filter(x => x.FForbidStatus == 'B').map(x => x.FNumber)
             },
             _set_goods_nav () {
                 if (this.can_edit) {

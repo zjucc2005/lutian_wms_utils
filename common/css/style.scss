@@ -1,6 +1,14 @@
 // 隐藏滚动条
 ::-webkit-scrollbar {
-    display: none;
+    // display: none;
+}
+
+.uni-section {
+    width: 100%;
+}
+.uni-section-header__content-sub {
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 // 基础样式

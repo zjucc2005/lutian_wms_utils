@@ -111,14 +111,14 @@
                         name: '库存总览', permission: ['wh_admin', 'wh_nx', 'nrj_admin',], icon_path: '/static/icon/nav_stock.png',
                         action: () => { link_to('/pages/operation/manage/invs') }
                     },
-                    {
-                        name: '库位管理', permission: ['all'], icon_path: '/static/icon/nav_stock_loc.png',
-                        action: () => { link_to('/pages/operation/manage/locs') }
-                    },
                     // {
-                    //     name: '库位管理2', permission: ['all'], icon_path: '/static/icon/nav_stock_loc_violet.png',
-                    //     action: () => { link_to('/pages/operation/stock_loc/index') }
+                    //     name: '库位管理', permission: ['all'], icon_path: '/static/icon/nav_stock_loc.png',
+                    //     action: () => { link_to('/pages/operation/manage/locs') }
                     // },
+                    {
+                        name: '库位管理', permission: ['all'], icon_path: '/static/icon/nav_stock_loc_violet.png',
+                        action: () => { link_to('/pages/operation/stock_loc/index') }
+                    },
                     // {
                     //     name: '库位报警', permission: ['wh_staff'], icon_path: '/static/icon/nav_stock_warn.png',
                     //     action: () => { link_to('/pages/operation/manage/locs') }

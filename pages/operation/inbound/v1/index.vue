@@ -35,6 +35,12 @@
                     </uni-easyinput>
                 </uni-forms-item>
                 <uni-forms-item label="库位号" name="loc_no">
+                    <template #label>
+                        <view style="display: flex; justify-content: space-between;">
+                            <view class="uni-forms-item__label">库位号</view>
+                            <view class="text-grey" style="flex: 1; text-align: right;">{{ $store.state.stock_locs.find(x => x.FNumber == form.loc_no.toUpperCase())?.FRemark }}</view>
+                        </view>
+                    </template>
                     <uni-easyinput v-model="form.loc_no" trim="both" :clearable="false" :input-border="false">
                         <template #left>
                             <uni-icons v-if="form.loc_no && $store.state.stock_locs.some(x => x.FNumber == form.loc_no.toUpperCase())" type="checkbox-filled" size="24" color="#67c23a"></uni-icons>

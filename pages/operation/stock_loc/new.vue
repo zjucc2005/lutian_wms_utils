@@ -157,7 +157,8 @@
                 ],
                 goods_nav: {
                     options: [
-                        { icon: 'trash', text: '清空' }
+                        { icon: 'trash', text: '清空' },
+                        { icon: 'trash', text: '去重'}
                     ],
                     button_group: [
                         {
@@ -180,7 +181,7 @@
             }
         },
         mounted() {
-            this.loc_nos = this.generate_loc_nos('3LM-BP', '3LM-BP-X', 'X', 22, '')
+            this.loc_nos = this.generate_loc_nos('3LM-LZ', '3LM-LZ-B', 'B', 61, '')
             // this.gen_loc_nos('DS', 'A02', 20, 3).forEach(x => {
             //     this.loc_nos.push({ value: x, status: '' })
             // })
@@ -218,10 +219,18 @@
                 if (e.index === 0) {
                     this.loc_nos.splice(list_index, 1) // 删除行
                     this.$refs.loc_no_swipe.closeAll() // 复位滑动操作
-                }              
+                }
             },
             goods_nav_click(e) {
-                if (e.index === 0) this.if_clear_loc_nos()                
+                if (e.index === 0) this.if_clear_loc_nos()
+                if (e.index === 1) {
+                    let rem = []
+                    for (let obj of this.loc_nos) {
+                        if (obj.status !== '已存在') rem.push(obj)
+                    }
+                    this.loc_nos = rem
+                  // console.log('>>> rem ', rem)
+                }
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code()
