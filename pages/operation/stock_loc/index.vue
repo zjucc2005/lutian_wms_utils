@@ -23,7 +23,7 @@
                 </uni-group>
                 
                 <uni-group title="批量更新(勾选库位号)" mode="card">
-                    <uni-forms ref="search_form" :model="edit_form" >
+                    <uni-forms ref="edit_form" :model="edit_form" >
                         <uni-forms-item label="库位备注">
                             <uni-easyinput v-model="edit_form.remark" trim />
                         </uni-forms-item>
@@ -38,7 +38,7 @@
             </uni-col>
             
             <uni-col :span="18">
-                <uni-table ref="table" type="selection" stripe>
+                <uni-table ref="table" type="selection" stripe class="cc-list-scroll">
                     <uni-tr>
                         <uni-th align="center">编码</uni-th>
                         <uni-th align="center">分组</uni-th>
@@ -94,7 +94,15 @@
                 show-icon
                 @change="change_page"
             />
-            <uni-fab ref="fab" :content="fab_content" @trigger="fab_trigger" horizontal="right" show />
+            <view class="uni-goods-nav-wrapper">
+                <uni-goods-nav 
+                    :options="goods_nav.options" 
+                    :button-group="goods_nav.button_group"
+                    :fill="$store.state.goods_nav_fill"
+                    @click="goods_nav_click"
+                    @buttonClick="goods_nav_button_click"
+                />
+            </view>
             <uni-popup ref="search_dialog" type="dialog">
                 <uni-popup-dialog
                     type="info"
@@ -126,8 +134,8 @@
 
 <script>
     import store from '@/store'
-    import { StockLoc } from '@/utils/model'
     import { breadcrumb_stockname, link_to } from '@/utils'
+    import { StockLoc } from '@/utils/model'
     
     export default {
         data() {
@@ -135,7 +143,7 @@
                 stock_locs: store.state.stock_locs,
                 stock_locs_q: store.state.stock_locs, // 过滤结果
                 cur_page: 1,
-                per_page: 20,
+                per_page: 40,
                 search_form: {
                     no: '',
                     remark: '',
@@ -144,20 +152,16 @@
                 edit_form: {
                     remark: ''
                 },
-                fab_content: [
-                    {
-                        iconPath: '/static/icon/cc_search.png',
-                        selectedIconPath: '/static/icon/cc_search_active.png',
-                        text: '搜索',
-                        active: false
-                    },
-                    {
-                        iconPath: '/static/icon/cc_barchart.png',
-                        selectedIconPath: '/static/icon/cc_barchart_active.png',
-                        text: '平面图',
-                        active: false
-                    }
-                ]
+                goods_nav: {
+                    options: [
+                        { icon: 'search', text: '搜索' },
+                        { icon: 'clear', text: '重置' },
+                        { icon: 'map', text: '平面图' }
+                    ],
+                    button_group: [
+                        // { text: '搜索', backgroundColor: store.state.goods_nav_color.blue, color: '#fff' },
+                    ]
+                }
             }
         },
         computed: {
@@ -171,15 +175,18 @@
             link_to,
             debug() {
                 this.$logger.info('>>> $data', this.$data)
-                console.log('>>> action', this.$refs.table)
+                console.log('>>> store', store)
             },
             change_page(e) {
                 this.cur_page = e.current
-                // uni.pageScrollTo({ scrollTop: 0 })
             },
-            fab_trigger(e) {
+            goods_nav_click(e) {
                 if (e.index === 0) this.$refs.search_dialog.open()
-                if (e.index === 1) link_to('/pages/operation/stock_loc/map')
+                if (e.index === 1) this.reset_search_form()
+                if (e.index === 2) link_to('/pages/operation/stock_loc/map')
+            },
+            goods_nav_button_click(e) {
+                // if (e.index === 0) this.$refs.search_dialog.open()
             },
             refresh_page() {
                 let o_cur_page = this.cur_page
@@ -199,7 +206,7 @@
                     if (this.search_form.remark && !stock_loc.FRemark.includes(this.search_form.remark)) return false
                     if (this.search_form.forbid_status && stock_loc.FForbidStatus != this.search_form.forbid_status) return false
                     return true
-                })   
+                })
                 this.cur_page = 1
             },
             search_dialog_confirm() {
@@ -256,7 +263,7 @@
     .cc-list-scroll {
         width: 100%;
         overflow-x: auto;
-        height: calc(100vh - 137px);
+        height: calc(100vh - 187px);
     }
     .uni-table-tr::v-deep {
         .uni-table-td {

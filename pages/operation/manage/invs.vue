@@ -1,5 +1,5 @@
 <template>
-    <!-- <uni-notice-bar single scrollable text="点击库存列表，可查询库存明细;长按弹出功能栏" /> -->
+    <uni-notice-bar single scrollable text="请使用新版本“库存查询”，该版本保留至2026-07-31，会在将来的更新中删除" />
     <uni-section title="当前仓库" type="square"
         :sub-title="breadcrumb_stockname()"
         sub-title-color="#007aff"
@@ -292,13 +292,7 @@
                             this.refresh()
                         }
                         if (e.tapIndex === 1) {
-                            play_audio_prompt('success')
-                            uni.navigateTo({ 
-                                url: '/pages/operation/manage/inv_check',
-                                success: (res) => {
-                                    play_audio_prompt('success')
-                                }
-                            })
+                            link_to('/pages/operation/manage/inv_check')
                         }
                     }
                 })

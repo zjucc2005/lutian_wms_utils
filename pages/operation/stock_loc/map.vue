@@ -86,12 +86,12 @@
             toggle_cc_shelf () {
                 if (this.cc_shelf_open) {
                     this.cc_shelf_open = false
-                    this.goods_nav.options[1].icon = 'down'
-                    this.goods_nav.options[1].text = '展开'
+                    this.goods_nav.options[0].icon = 'down'
+                    this.goods_nav.options[0].text = '展开'
                 } else {
                     this.cc_shelf_open = true
-                    this.goods_nav.options[1].icon = 'up'
-                    this.goods_nav.options[1].text = '折叠'
+                    this.goods_nav.options[0].icon = 'up'
+                    this.goods_nav.options[0].text = '折叠'
                 }
             },
             _set_goods_nav () {

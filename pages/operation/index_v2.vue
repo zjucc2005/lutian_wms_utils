@@ -103,12 +103,16 @@
                         name: '库存调整', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock_move.png',
                         action: () => { link_to('/pages/operation/move/v2/index') }
                     },
+                    // {
+                    //     name: '库存查询', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_scan.png',
+                    //     action: () => { link_to('/pages/operation/manage/inv_search') }
+                    // },
                     {
-                        name: '库存查询', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_scan.png',
-                        action: () => { link_to('/pages/operation/manage/inv_search') }
+                        name: '库存查询', permission: ['wh_admin', 'wh_nx', 'nrj_admin',], icon_path: '/static/icon/nav_stock_search_violet.png',
+                        action: () => { link_to('/pages/operation/inv/index') }
                     },
                     {
-                        name: '库存总览', permission: ['wh_admin', 'wh_nx', 'nrj_admin',], icon_path: '/static/icon/nav_stock.png',
+                        name: '库存查询（旧）', permission: ['wh_admin', 'wh_nx', 'nrj_admin',], icon_path: '/static/icon/nav_stock.png',
                         action: () => { link_to('/pages/operation/manage/invs') }
                     },
                     // {

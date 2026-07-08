@@ -64,6 +64,9 @@
         { "path": "pages/operation/stock_loc/index", "style": { "navigationBarTitleText": "库位管理" } },
         { "path": "pages/operation/stock_loc/map", "style": { "navigationBarTitleText": "库位平面图" } },
         { "path": "pages/operation/stock_loc/new", "style": { "navigationBarTitleText": "库位 - 新增" } },
+        // 库存
+        { "path": "pages/operation/inv/index", "style": { "navigationBarTitleText": "库存查询" } },
+        { "path": "pages/operation/inv/map", "style": { "navigationBarTitleText": "库存地图" } },
         // 我的
         { "path": "pages/my/index",       "style": { "navigationBarTitleText": "我"} },
         { "path": "pages/my/reset_password", "style": { "navigationBarTitleText": "重置密码"} },
@@ -111,6 +114,7 @@
         { "path": "pages/operation/print/index", "style": { "navigationBarTitleText": "打印" } },
         // { "path": "pages/operation/print/demo",  "style": { "navigationBarTitleText": "标签DEMO" } },
         { "path": "pages/operation/print/material_label_by_cgsl",  "style": { "navigationBarTitleText": "生成物料标签" } },
+        { "path": "pages/operation/print/material_label_by_import",  "style": { "navigationBarTitleText": "生成物料标签（批量）" } },
         { "path": "pages/operation/print/mo_picking",  "style": { "navigationBarTitleText": "物流拣选单" } },
         { "path": "pages/operation/print/mo_picking_info",  "style": { "navigationBarTitleText": "物流拣选单预览" } },
         { "path": "pages/operation/print/mo_confirming",  "style": { "navigationBarTitleText": "物料状态确认表" } },
