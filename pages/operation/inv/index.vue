@@ -90,7 +90,7 @@
                     >
                     <template #body>
                         <view class="uni-list-item__body">
-                            <view class="title">{{ obj.material_no }}</view>
+                            <view class="title text-bold">{{ obj.material_no }}</view>
                             <view class="note">
                                 <view>名称：{{ obj.material_name }}</view>
                                 <view>规格：{{ obj.material_spec }}</view>
@@ -400,5 +400,10 @@
     }
     .uni-group--card::v-deep {
         overflow: visible;
+    }
+    .uni-list::v-deep {
+        .uni-list--border-bottom {
+            display: none;
+        }
     }
 </style>

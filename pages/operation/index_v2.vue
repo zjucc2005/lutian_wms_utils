@@ -151,10 +151,12 @@
                     //     name: '生产订单', permission: ['nrj_admin'], icon_path: '/static/icon/nav_list_move.png',
                     //     action: () => { link_to('/pages/operation/manufacture_order/index') }
                     // },
+                    // #ifdef H5
                     {
                         name: '打印', permission: ['nrj_admin'], icon_path: '/static/icon/nav_printer.png',
                         action: () => { link_to('/pages/operation/print/index') }
                     },
+                    // #endif
                     {
                         name: '记录', permission: ['nrj_admin'], icon_path: '/static/icon/nav_bill_edit.png',
                         action: () => { link_to('/pages/operation/record/index') }

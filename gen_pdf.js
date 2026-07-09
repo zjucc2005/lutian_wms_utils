@@ -583,7 +583,7 @@ const gen_pdf_material_label_batch = (options) => {
             // 计算各文本长度
             let std_font_size = 18 // 标准文本大小
             let meta = {
-                supplier_name: { x: 20.9, y: 11.8, l: 36.7, mr: 16.9 },
+                supplier:      { x: 20.9, y: 11.8, l: 36.7, mr: 16.9 },
                 inbound_time:  { x: 25.1, y: 24.6, l: 32, mr: 21.6 },
                 no:            { x: 16.7, y: 37.4, l: 40.9, mr: 12.7 },
                 name:          { x: 16.7, y: 50.2, l: 79.3, mr: 12.7 },

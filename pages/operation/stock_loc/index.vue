@@ -143,7 +143,7 @@
                 stock_locs: store.state.stock_locs,
                 stock_locs_q: store.state.stock_locs, // 过滤结果
                 cur_page: 1,
-                per_page: 40,
+                per_page: 20,
                 search_form: {
                     no: '',
                     remark: '',
@@ -272,5 +272,10 @@
     }
     .uni-group--card::v-deep {
         overflow: visible;
+    }
+    .uni-list::v-deep {
+        .uni-list--border-bottom {
+            display: none;
+        }
     }
 </style>
