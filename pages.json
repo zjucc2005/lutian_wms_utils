@@ -67,6 +67,7 @@
         // 库存
         { "path": "pages/operation/inv/index", "style": { "navigationBarTitleText": "库存查询" } },
         { "path": "pages/operation/inv/map", "style": { "navigationBarTitleText": "库存地图" } },
+        { "path": "pages/operation/inv/logs", "style": { "navigationBarTitleText": "库存变更日志" } },
         // 我的
         { "path": "pages/my/index",       "style": { "navigationBarTitleText": "我"} },
         { "path": "pages/my/reset_password", "style": { "navigationBarTitleText": "重置密码"} },

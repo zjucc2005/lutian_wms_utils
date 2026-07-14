@@ -140,7 +140,7 @@
                         action: () => { link_to('/pages/operation/outbound/v2/search') }
                     },
                     {
-                        name: '列表', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_list_search.png',
+                        name: '操作日志', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_list_search.png',
                         action: () => { link_to('/pages/operation/list/index') }
                     },
                     {

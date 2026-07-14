@@ -6,10 +6,15 @@
                 :extra-icon="{ type: 'chat', size: '24', color: '#007bff' }"
                 @click="link_to('/pages/operation/list/inv_plans')" clickable
                 show-arrow />
-           <uni-list-item title="库存变更日志"
+<!--            <uni-list-item title="库存变更日志（旧）"
                 :show-extra-icon="true"
                 :extra-icon="{ type: 'chat-filled', size: '24', color: '#007bff' }"
                 @click="link_to('/pages/operation/list/inv_logs')" clickable 
+                show-arrow /> -->
+            <uni-list-item title="库存变更日志"
+                :show-extra-icon="true"
+                :extra-icon="{ type: 'chat-filled', size: '24', color: '#007bff' }"
+                @click="link_to('/pages/operation/inv/logs')" clickable 
                 show-arrow />
             <!-- <uni-list-item title="库存分表"
                 :show-extra-icon="true"
