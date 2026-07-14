@@ -82,7 +82,7 @@
         </uni-row>
         
         <template v-else>
-            <uni-list class="cc-list-scroll">
+            <uni-list class="cc-list-scroll" :style="{ height: cc_list_height }">
                 <uni-list-item
                     v-for="(obj, index) in table_data" :key="index"
                     @click="inv_menu(obj)" clickable show-arrow
@@ -168,6 +168,14 @@
                 inv_groups_q: [], // 过滤结果
                 cur_page: 1,
                 per_page: 20,
+                // #ifdef H5
+                    cc_list_height: 'calc(100vh - 187px)',
+                // #endif
+                // #ifdef APP-PLUS
+                    cc_list_height: `calc(100vh - ${187 - store.state.system_info.statusBarHeight}px)`,
+                // #endif
+                last_refresh_time: 0,
+                refresh_interval: 30 * 1000, // 30s
                 search_form: {
                     material_no: '',
                     material_name: '',
@@ -186,15 +194,14 @@
                 }
             }
         },
-        onLoad(options) {
+        onShow(options) {
             // #ifdef APP-PLUS
-            if (!this.broadcast_receiver) this.reg_broadcast_receiver()
+            this.reg_broadcast_receiver()
             // #endif
         },
-        onUnload() {
-            // #ifdef APP-PLUS
-            this.unreg_broadcast_receiver()
-            // #endif
+        onPullDownRefresh() {
+            this.refresh()
+            uni.stopPullDownRefresh()
         },
         mounted() {
             this.load_data()
@@ -210,6 +217,7 @@
             link_to,
             debug() {
                 this.$logger.info('>>> $data', this.$data)
+                // this.$logger.info('>>> store.state', store.state)
             },
             change_page(e) {
                 this.cur_page = e.current
@@ -305,6 +313,14 @@
                 uni.hideLoading()
                 this.get_inv_groups()
             },
+            async refresh() {
+                if (this.last_refresh_time + this.refresh_interval > Date.now()) {
+                    uni.showToast({ icon: 'none', title: '请不要频繁刷新' })
+                    return
+                }
+                await this.load_data()
+                this.last_refresh_time = Date.now()
+            },
             get_inv_groups() {
                 let inv_groups = []
                 let i = 0, j = 0
@@ -361,6 +377,7 @@
             // Broadcast receiver
             reg_broadcast_receiver() {
                 let main = plus.android.runtimeMainActivity()
+                main.unregisterReceiver(store.state.broadcast_receiver)
                 let IntentFilter = plus.android.importClass('android.content.IntentFilter')
                 let filter = new IntentFilter()
                 filter.addAction(store.state.android_intent_action)
@@ -373,14 +390,9 @@
                         this.handle_scan_code(code)
                     }
                 })
-                this.broadcast_receiver = receiver
-                main.registerReceiver(this.broadcast_receiver, filter)
-                this.$logger.info('>>> main.registerReceiver:manage/inv_search', this.broadcast_receiver)
-            },
-            unreg_broadcast_receiver() {
-                let main = plus.android.runtimeMainActivity()
-                main.unregisterReceiver(this.broadcast_receiver)
-                this.$logger.info('>>> main.unregisterReceiver:manage/inv_search', this.broadcast_receiver)
+                store.commit('set_broadcast_receiver', receiver)
+                main.registerReceiver(receiver, filter)
+                this.$logger.info(`>>> main.registerReceiver:${this.route}`, receiver)
             },
             // #endif
         }

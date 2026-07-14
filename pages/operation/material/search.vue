@@ -96,14 +96,9 @@
                 }
             }
         },
-        onLoad() {
+        onShow() {
             // #ifdef APP-PLUS
-            if (!this.broadcast_receiver) this.reg_broadcast_receiver()
-            // #endif
-        },
-        onUnload() {
-            // #ifdef APP-PLUS
-            this.unreg_broadcast_receiver()
+            this.reg_broadcast_receiver()
             // #endif
         },
         mounted() {
@@ -185,6 +180,7 @@
             // Broadcast receiver
             reg_broadcast_receiver() {
                 let main = plus.android.runtimeMainActivity()
+                main.unregisterReceiver(store.state.broadcast_receiver)
                 let IntentFilter = plus.android.importClass('android.content.IntentFilter')
                 let filter = new IntentFilter()
                 filter.addAction(store.state.android_intent_action)
@@ -197,14 +193,9 @@
                         this.handle_scan_code(code)
                     }
                 })
-                this.broadcast_receiver = receiver
-                main.registerReceiver(this.broadcast_receiver, filter)
-                this.$logger.info('>>> main.registerReceiver:inbound/v1/index', this.broadcast_receiver)
-            },
-            unreg_broadcast_receiver() {
-                let main = plus.android.runtimeMainActivity()
-                main.unregisterReceiver(this.broadcast_receiver)
-                this.$logger.info('>>> main.unregisterReceiver:inbound/v1/index', this.broadcast_receiver)
+                store.commit('set_broadcast_receiver', receiver)
+                main.registerReceiver(receiver, filter)
+                this.$logger.info(`>>> main.registerReceiver:${this.route}`, receiver)
             },
             // #endif
         }

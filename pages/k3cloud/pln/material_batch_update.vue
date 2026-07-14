@@ -204,7 +204,7 @@
                                 obj.F_RGEN_Text_sqr = row[7]
                             }
                         }
-                        if ((row[8] || [0, '0'].includes(row[8])) && org_no == '102') { // 计划标识
+                        if ((row[8] || [0, '0'].includes(row[8])) && org_no == '100') { // 计划标识
                             if ([0, '0'].includes(row[8])) {
                                 obj.FPlanIdent = { FNumber: '' }
                             } else {

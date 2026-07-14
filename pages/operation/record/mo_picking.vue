@@ -20,32 +20,6 @@
     
     <uni-section v-if="!ppbom.bill_no && ppboms.length" title="生产用料清单列表" type="square" class="above-uni-goods-nav"
         sub-title="查询到 2 个生产用料清单，请先选择" sub-title-color="#007aff">
-        <!-- <uni-table ref="table" border stripe class="table-sm">
-            <uni-tr>
-                <uni-th align="center" width="100">单据编号</uni-th>
-                <uni-th align="center" width="100">生产订单编号</uni-th>
-                <uni-th align="center" width="110">生产订单状态</uni-th>
-                <uni-th align="center" width="120">产品编号</uni-th>
-                <uni-th align="center">产品名称</uni-th>
-                <uni-th align="center">规格型号</uni-th>
-                <uni-th align="center">生产数量</uni-th>
-                <uni-th align="center">生产车间</uni-th>
-                <uni-th align="center" width="70">操作</uni-th>
-            </uni-tr>
-            <uni-tr v-for="(obj, index) in ppboms" :key="index">
-                <uni-td align="center">{{ obj['FBillNo'] }}</uni-td>
-                <uni-td align="center">{{ obj['FMoBillNo'] }}</uni-td>
-                <uni-td align="center">{{ mo_status_dict[obj['FMoEntryStatus']] }}</uni-td>
-                <uni-td align="center">{{ obj['FMaterialId.FNumber'] }}</uni-td>
-                <uni-td align="center">{{ obj['FMaterialId.FName'] }}</uni-td>
-                <uni-td align="center">{{ obj['FMaterialId.FSpecification'] }}</uni-td>
-                <uni-td align="center">{{ obj['FQty'] }} {{ obj['FUnitId.FName'] }}</uni-td>
-                <uni-td align="center">{{ obj['FWorkShopId.FName'] }}</uni-td>
-                <uni-td align="center">
-                    <uni-tag text="选择" type="primary" @click="load_ppbom(obj)"/>
-                </uni-td>
-            </uni-tr>
-        </uni-table> -->
         <uni-card spacing="0" padding="0">
             <uni-list>
                 <uni-list-item v-for="(obj, index) in ppboms" :key="index"
@@ -121,7 +95,7 @@
                 <uni-th align="center" width="50">分子</uni-th>
                 <uni-th align="center" width="50">单位</uni-th>
                 <uni-th align="center">数量</uni-th>
-                <uni-th align="center" width="110">物料状态确认</uni-th>
+                <uni-th align="center" width="110">拣选数量</uni-th>
                 <uni-th align="center">工序地址</uni-th>
             </uni-tr>
             <uni-tr v-for="(obj, index) in ppbom.entry" :key="index">
@@ -133,11 +107,14 @@
                 <uni-td align="center">{{ obj.unit_name }}</uni-td>
                 <uni-td align="center">{{ obj.qty }}</uni-td>
                 <uni-td align="center">
-                    <checkbox
-                        :checked="obj.is_confirmed"
-                        :data-id="obj.id"
-                        @click="checkbox_click"
-                    />
+                    <uni-easyinput
+                        v-model="obj.pick_qty"
+                        type="number"
+                        @change="if (obj.pick_qty < 0) obj.pick_qty = 0;"
+                        :clearable="false"
+                        :input-border="false"
+                        :style="{ textAlign: 'center' }"
+                        />
                 </uni-td>
                 <uni-td align="center">{{ obj.bzgx }}</uni-td>
             </uni-tr>
@@ -171,7 +148,7 @@
                 mo_status_dict: PrdMo.FStatusEnum,
                 goods_nav: {
                     options: [
-                        { icon: 'checkbox', text: '全选' }
+                        // { icon: 'checkbox', text: '全选' }
                     ],
                     button_group: [
                         { text: '扫描单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' },
@@ -189,22 +166,22 @@
             this.handle_search()
         },
         methods: {
-            check_all() {
-                if (!this.ppbom.id) return
-                let checked_all = !this.ppbom.entry.find(x => !x.is_confirmed)
-                for(let obj of this.ppbom.entry) {
-                    obj.is_confirmed = !checked_all
-                }
-            },
-            checkbox_click(e) {
-                let obj = this.ppbom.entry.find(x => x.id === e.target.dataset.id)
-                obj.is_confirmed = !obj.is_confirmed
-            },
+            // check_all() {
+            //     if (!this.ppbom.id) return
+            //     let checked_all = !this.ppbom.entry.find(x => !x.is_confirmed)
+            //     for(let obj of this.ppbom.entry) {
+            //         obj.is_confirmed = !checked_all
+            //     }
+            // },
+            // checkbox_click(e) {
+            //     let obj = this.ppbom.entry.find(x => x.id === e.target.dataset.id)
+            //     obj.is_confirmed = !obj.is_confirmed
+            // },
             searchbar_icon_click(e) {
                 if (e == 'prefix') this.scan_code()
             },
             goods_nav_click(e) {
-                if (e.index === 0) this.check_all()
+                // if (e.index === 0) this.check_all()
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询单据
@@ -256,7 +233,7 @@
                 let options = { FBillNo: obj.FBillNo, FMustQty_gt: 0 }
                 let meta = {
                     fields: [ 'FEntity_FEntryId', 'FMaterialId2', 'FMaterialId2.FNumber', 'FMaterialId2.FName', 'FMaterialId2.FSpecification', 'FMaterialId2.F_PAEZ_Base1', 'FMaterialType',
-                              'FNumerator', 'FDenominator', 'FUnitId2.FName', 'FMustQty', 'FStockId', 'FStockId.FName', 'FReplaceGroup', 'F_RGEN_CheckBox_wlztqr', 'FMaterialId2.F_RGEN_Text_bzgx'],
+                              'FNumerator', 'FDenominator', 'FUnitId2.FName', 'FMustQty', 'FStockId', 'FStockId.FName', 'FReplaceGroup', 'F_RGEN_Decimal_jxsl', 'FMaterialId2.F_RGEN_Text_bzgx'],
                     order: 'FReplaceGroup ASC'
                 }
                 uni.showLoading({ title: 'Loading' })
@@ -291,7 +268,9 @@
                         stock_id: d['FStockId'],
                         stock_name: d['FStockId.FName'],
                         storekeeper: d['FMaterialId2.F_PAEZ_Base1'],
-                        is_confirmed: d['F_RGEN_CheckBox_wlztqr'],
+                        pick_qty_was: d['F_RGEN_Decimal_jxsl'],
+                        pick_qty: d['F_RGEN_Decimal_jxsl'],
+                        // is_confirmed: d['F_RGEN_CheckBox_wlztqr'],
                         bzgx: d['FMaterialId2.F_RGEN_Text_bzgx']
                     })
                 }
@@ -307,7 +286,9 @@
                 if (!this.ppbom.id) return
                 let entity = []
                 for (let obj of this.ppbom.entry) {
-                    entity.push({ FEntryId: obj.id, F_RGEN_CheckBox_wlztqr: obj.is_confirmed })
+                    if (obj.pick_qty != obj.pick_qty_was) {
+                        entity.push({ FEntryId: obj.id, F_RGEN_Decimal_jxsl: obj.pick_qty })
+                    }
                 }
                 uni.showLoading({ title: 'Loading' })
                 let res = await PrdPpbom.update(this.ppbom.id, { FEntity: entity })

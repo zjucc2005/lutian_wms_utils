@@ -79,7 +79,7 @@
         </uni-row>
         
         <template v-else>
-            <uni-list class="cc-list-scroll">
+            <uni-list class="cc-list-scroll" :style="{ height: cc_list_height }">
                 <uni-list-item v-for="(loc, index) in table_data" 
                     :key="index"
                     :title="loc.FNumber"
@@ -144,6 +144,14 @@
                 stock_locs_q: store.state.stock_locs, // 过滤结果
                 cur_page: 1,
                 per_page: 20,
+                // #ifdef H5
+                    cc_list_height: 'calc(100vh - 187px)',
+                // #endif
+                // #ifdef APP-PLUS
+                    cc_list_height: `calc(100vh - ${187 - store.state.system_info.statusBarHeight}px)`,
+                // #endif
+                last_refresh_time: 0,
+                refresh_interval: 30 * 1000, // 30s
                 search_form: {
                     no: '',
                     remark: '',
@@ -164,6 +172,10 @@
                 }
             }
         },
+        onPullDownRefresh() {
+            this.refresh()
+            uni.stopPullDownRefresh()
+        },
         computed: {
             table_data() {
                 let a = (this.cur_page - 1) * this.per_page
@@ -175,7 +187,7 @@
             link_to,
             debug() {
                 this.$logger.info('>>> $data', this.$data)
-                console.log('>>> store', store)
+                console.log('>>> store.state', store.state)
             },
             change_page(e) {
                 this.cur_page = e.current
@@ -254,7 +266,15 @@
                 uni.showToast({ icon: 'none', title: `${loc_no} 禁用成功`})
                 this.refresh_page()
             },
-            
+            async refresh() {
+                if (this.last_refresh_time + this.refresh_interval > Date.now()) {
+                    uni.showToast({ icon: 'none', title: '请不要频繁刷新' })
+                    return
+                }
+                await this.load_stock_locs()
+                this.refresh_page()
+                this.last_refresh_time = Date.now()
+            },
         }
     }
 </script>

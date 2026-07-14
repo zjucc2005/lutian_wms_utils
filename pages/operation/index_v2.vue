@@ -128,7 +128,7 @@
                     //     action: () => { link_to('/pages/operation/manage/locs') }
                     // },
                     {
-                        name: '物料查询', permission: ['all'], icon_path: '/static/icon/nav_stock_search.png',
+                        name: '物料查询', permission: ['all'], icon_path: '/static/icon/nav_layer.png',
                         action: () => { link_to('/pages/operation/material/search') }
                     },
                     // {
@@ -192,6 +192,11 @@
                 this.set_navbar_title()
             }, 100)
         },
+        onShow(options) {
+            // #ifdef APP-PLUS
+            this.reg_broadcast_receiver()
+            // #endif
+        },
         onNavigationBarButtonTap(e) {
             if (e.index === 0) {
                 this.$logger.info('this.$data', this.$data)
@@ -213,12 +218,15 @@
             }
         },
         methods: {
-            inv_search() {
-                scan_code().then(res => {
-                    uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
-                }).catch(err => {
-                    uni.showToast({ icon: 'none', title: err })
-                })
+            // inv_search() {
+            //     scan_code().then(res => {
+            //         uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
+            //     }).catch(err => {
+            //         uni.showToast({ icon: 'none', title: err })
+            //     })
+            // },
+            handle_scan_code(text) {
+                uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${text}`})
             },
             set_navbar_title () {
                 let title = store.state.cur_stock['FName']
@@ -258,7 +266,29 @@
                     play_audio_prompt('success')
                     this.$refs.area_dialog.close()
                 } catch (err) { }
-            }
+            },
+            // #ifdef APP-PLUS
+            // Broadcast receiver
+            reg_broadcast_receiver() {
+                let main = plus.android.runtimeMainActivity()
+                main.unregisterReceiver(store.state.broadcast_receiver)
+                let IntentFilter = plus.android.importClass('android.content.IntentFilter')
+                let filter = new IntentFilter()
+                filter.addAction(store.state.android_intent_action)
+                let receiver = plus.android.implements('io.dcloud.feature.internal.reflect.BroadcastReceiver', {
+                    onReceive: (content, intent) => {
+                        plus.android.importClass(intent)
+                        let code = intent.getStringExtra(store.state.android_intent_string_label)
+                        this.$logger.info('>>> broadcast:', code)
+                        play_audio_prompt('laser_scan')
+                        this.handle_scan_code(code)
+                    }
+                })
+                store.commit('set_broadcast_receiver', receiver)
+                main.registerReceiver(receiver, filter)
+                this.$logger.info(`>>> main.registerReceiver:${this.route}`, receiver)
+            },
+            // #endif
         }
     }
 </script>

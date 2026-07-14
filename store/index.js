@@ -27,6 +27,7 @@ const store = createStore({
         // #endif
         conn_info: null,           // API连接成功返回数据
         conn_expired_at: null,     // API连接过期时间
+        broadcast_receiver: null,  // 扫码枪广播
         cur_stock: {},             // >>> 当前作业仓库
         cur_area: {},              // >>> 当前作业库区，库位号前缀
         cur_staff: {},             // >>> 当前作业员工
@@ -104,6 +105,9 @@ const store = createStore({
         // set_env(state, env) {
         //     state.env = env
         // },
+        set_broadcast_receiver(state, broadcast_receiver) {
+            state.broadcast_receiver = broadcast_receiver
+        },
         set_cur_stock(state, cur_stock) {
             state.cur_stock = cur_stock
             uni.setStorageSync('cur_stock', cur_stock)

@@ -120,6 +120,7 @@
         { "path": "pages/operation/print/mo_confirming",  "style": { "navigationBarTitleText": "物料状态确认表" } },
         // 记录
         { "path": "pages/operation/record/index", "style": { "navigationBarTitleText": "记录" } },
+        { "path": "pages/operation/record/mo_picking", "style": { "navigationBarTitleText": "记录 - 物流拣选单" } },
         { "path": "pages/operation/record/mo_confirming", "style": { "navigationBarTitleText": "记录 - 物料状态确认表" } },
         // k3cloud
         { "path": "pages/k3cloud/index", "style": { "navigationBarTitleText": "金蝶云" } },
@@ -134,6 +135,7 @@
         { "path": "pages/k3cloud/pln/material_batch_update_lite", "style": { "navigationBarTitleText": "物料批改（安全库存）" } },
         { "path": "pages/k3cloud/pln/plan_analysis", "style": { "navigationBarTitleText": "跑单脚本" } },
         { "path": "pages/k3cloud/pln/plan_order/search", "style": { "navigationBarTitleText": "计划订单查询" } },
+        { "path": "pages/k3cloud/pln/po_batch_update", "style": { "navigationBarTitleText": "采购订单批改" } },
         { "path": "pages/k3cloud/prd/index", "style": { "navigationBarTitleText": "生产管理" } },
         { "path": "pages/k3cloud/prd/mo/receive_search", "style": { "navigationBarTitleText": "生产订单领用查询"} },
         { "path": "pages/k3cloud/prd/ppbom/index", "style": { "navigationBarTitleText": "生产管理 / 生产用料清单"} },
