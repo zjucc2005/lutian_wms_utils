@@ -4,7 +4,7 @@
  * @return { String }
  */
 const get_system_role = (operator_group=[]) => {
-    // return 'nrj_admin' // 开发调试
+    // return 'nrj_pln' // 开发调试
     let role_map = {
         '000': 'wh_admin',  // 绿田库存管理组，成品组
         '102': 'wh_nx',     // 内销组

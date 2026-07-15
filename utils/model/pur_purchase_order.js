@@ -16,6 +16,14 @@ class PurPurchaseOrder {
         return K3CloudApi.save(this.form_id, data)
     }
     
+    static async batch_update(options=[]) {
+        const data = {
+            IsDeleteEntry: false, // NOTE!! 是否删除已存在的分录
+            model: options
+        }
+        return K3CloudApi.batch_save(this.form_id, data)
+    }
+    
     /** 
      * @param options:Hash 参数集
      * @param meta:Hash 

@@ -267,6 +267,11 @@
                 }
             }
         },
+        onLoad(options) {
+            if (options.material_no) {
+                this.search_form.material_no = options.material_no
+            }
+        },
         mounted() {
             this.load_inv_logs()
         },
@@ -315,6 +320,7 @@
             },
             async load_inv_logs() {
                 let options = { FStockId: store.state.cur_stock.FStockId }
+                if (store.state.cur_area?.value) options['FStockLocId.FNumber_sw'] = store.state.cur_area.value // 考虑库区
                 if (this.search_form.create_time_ge) options.FCreateTime_ge = this.search_form.create_time_ge
                 if (this.search_form.create_time_le) options.FCreateTime_le = this.search_form.create_time_le
                 if (this.search_form.op_type) options.FOpType = this.search_form.op_type
@@ -325,10 +331,11 @@
                 if (this.search_form.receiver) options.FReceiver_lk = this.search_form.receiver
                 if (this.search_form.status == 'failed') options.FCInvId = ''
                 let meta = { page: this.page, per_page: this.per_page, order: 'FID DESC' }
-                InvLog.query(options, meta).then(res => {
-                    this.inv_logs = res.data
-                    if (this.page * this.per_page == this.total && res.data.length >= 20) this.total += 100 * this.per_page
-                })
+                uni.showLoading({ title: 'Loading' })
+                this.total = await InvLog.count(options, meta)
+                let res = await InvLog.query(options, meta)
+                this.inv_logs = res.data
+                uni.hideLoading()
             },
             // 重试全部失败的日志，金蝶插件脚本有时会不执行，此处为人工触发重试
             async retry_all() {

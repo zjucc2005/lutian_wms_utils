@@ -65,7 +65,7 @@
                         <uni-td align="center">
                             <uni-tag text="库存明细" type="primary" size="small" inverted @click="link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}`)"/>
                             <uni-tag text="库存调整" type="primary" size="small" @click="inv_modify(obj.material_no)" class="uni-ml-2"/>
-                            <uni-tag text="库存日志" type="primary" size="small" inverted @click="link_to(`/pages/operation/list/inv_logs?material_no=${obj.material_no}`)" class="uni-ml-2"/>
+                            <uni-tag text="库存日志" type="primary" size="small" inverted @click="link_to(`/pages/operation/inv/logs?material_no=${obj.material_no}`)" class="uni-ml-2"/>
                         </uni-td>
                     </uni-tr>
                 </uni-table>
@@ -249,7 +249,7 @@
                     success: (e) => {
                         if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}`)
                         if (e.tapIndex === 1) this.inv_modify(obj.material_no)
-                        if (e.tapIndex === 2) link_to(`/pages/operation/list/inv_logs?material_no=${obj.material_no}`)
+                        if (e.tapIndex === 2) link_to(`/pages/operation/inv/logs?material_no=${obj.material_no}`)
                         if (e.tapIndex === 3) link_to(`/pages/operation/material/show?id=${obj.material_id}`)
                     }
                 })

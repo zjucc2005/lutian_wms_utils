@@ -17,6 +17,7 @@ import K3CloudApi from '@/utils/k3cloudapi'
  * }
  */
 class InvLog {
+    static form_id = 'PAEZ_C_INV_LOG'
     constructor(options={}) {
         this.FOpSN = store.state.snowflake.next_id()       
         this.FOpType = options.FOpType  // in, in_cl, out, out_cl, mv_in, mv_out, add, sub
@@ -53,7 +54,7 @@ class InvLog {
         const data = {
             model: this
         }
-        return K3CloudApi.save('PAEZ_C_INV_LOG', data)
+        return K3CloudApi.save(this.form_id, data)
     }
     
     /**
@@ -66,7 +67,7 @@ class InvLog {
             model: inv_logs,
             ValidateRepeatJson: true
         }
-        return K3CloudApi.batch_save('PAEZ_C_INV_LOG', data)
+        return K3CloudApi.batch_save(this.form_id, data)
     }
     
     /**
@@ -78,7 +79,7 @@ class InvLog {
         const data = {
             Ids: ids.join(',')
         }
-        return K3CloudApi.delete('PAEZ_C_INV_LOG', data)
+        return K3CloudApi.delete(this.form_id, data)
     }
     
     /**
@@ -99,7 +100,7 @@ class InvLog {
                         'FInvIncre', 'FInvQTY', 'FBatchNo', 'FBillNo', 'FSupplierId', 'FSupplierId.FName',
                         'FRemark', 'FOpStaffNo', 'FCInvId', 'FReferId', 'FReceiver']
         const data = {
-            FormId: "PAEZ_C_INV_LOG",
+            FormId: this.form_id,
             FieldKeys: fields.join(','),
             FilterString: K3CloudApi.query_filter(options)
         }   
@@ -113,6 +114,17 @@ class InvLog {
     
     static find(id) {
         return this.query({ FID: id }, { limit: 1 })
+    }
+    
+    static async count(options={}, meta={}) {
+        const data = {
+            FormId: this.form_id,
+            FieldKeys: 'count(1)',
+            FilterString: K3CloudApi.query_filter(options),
+            Limit: 0
+        }
+        let res = await K3CloudApi.execute_bill_query(data)
+        return Number(res.data[0][0])
     }
     
     /**

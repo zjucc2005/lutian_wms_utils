@@ -159,17 +159,9 @@
                 fields_sub: ['FCreatorId.FName', 'FBillNo', 'FDocumentStatus', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FQty', 'FNoStockInQty', 'FSaleOrderNo', 'FDate', 'FPlanFinishDate'],
                 table_head_sub: ['创建人', '单据编号', '单据状态', '物料编码', '物料名称', '规格型号', '数量', '未入库数量', '需求单据编号', '单据日期', '计划完工日期'],
                 table_body_sub: [],
-                fields_po: ['F_PAEZ_Text_83g', 'FSrcBillNo', 'FBillNo', 'FDocumentStatus', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FUnitId.FName', 'FQty', 'FRemainReceiveQty', 'FCheckRetQty', 'FEntryNote', 'FDemandBillNo', 'FDate', 'FDeliveryDate', 'FPurchaserId.FName', 'FSupplierId.FName', 'FReceiveQty', 'FStockInQty', 'FEntity_FEntryId' ],
+                fields_po: ['F_PAEZ_Text_83g', 'FSrcBillNo', 'FBillNo', 'FDocumentStatus', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FUnitId.FName', 'FQty', 'FRemainReceiveQty', 'FCheckRetQty', 'FEntryNote', 'FDemandBillNo', 'FDate', 'FDeliveryDate', 'FPurchaserId.FName', 'FSupplierId.FName', 'FID', 'FPOOrderEntry_FEntryId', 'FReceiveQty', 'FStockInQty' ],
                 table_head_po: ['计划序号', '源单编号', '单据编号', '单据状态', '物料编码', '物料名称', '规格型号', '采购单位', '采购数量', '剩余收料数量', '收料可退数量', '备注', '需求单据编号', '采购日期', '交货日期', '采购员', '供应商', '分录行ID'],
                 table_body_po: [],
-                search_form: {
-                    // 0. 通用
-                    created_at_ge: '',
-                    created_at_le: '',
-                    creator: '',
-                    // 1. 即时库存
-                    stock_ids: [],
-                    // 2. 采购申请单
                     req: {
                         FMRPCloseStatus: 'A', // A - 正常, B - 业务关闭
                         FCloseStatus: 'A', // A - 未关闭, B - 已关闭
@@ -181,6 +173,14 @@
                         FStatus_in: ['1', '2'], // 1 - 计划, 2 - 计划确认
                     },
                     // 4. 采购订单
+                search_form: {
+                    // 0. 通用
+                    created_at_ge: '',
+                    created_at_le: '',
+                    creator: '',
+                    // 1. 即时库存
+                    stock_ids: [],
+                    // 2. 采购申请单
                     po: {
                         FDocumentStatus: 'C', // C - 已审核
                         FCancelStatus: 'A', // A - 未作废, B - 已作废
@@ -274,13 +274,13 @@
             },
             async search() {
                 let x_start_time = Date.now() // 执行开始时间
-                uni.showLoading({ title: 'Loading...' })
-                await this.load_inv() // 加载即时库存
-                uni.showLoading({ title: '25%' })
-                await this.load_req() // 加载采购申请单
-                uni.showLoading({ title: '50%' })
-                await this.load_sub() // 加载委外订单
-                uni.showLoading({ title: '75%' })
+                // uni.showLoading({ title: 'Loading...' })
+                // await this.load_inv() // 加载即时库存
+                // uni.showLoading({ title: '25%' })
+                // await this.load_req() // 加载采购申请单
+                // uni.showLoading({ title: '50%' })
+                // await this.load_sub() // 加载委外订单
+                // uni.showLoading({ title: '75%' })
                 await this.load_po() // 加载采购订单
                 uni.hideLoading()
                 uni.showModal({ title: '搜索完毕',
@@ -356,10 +356,11 @@
                     for (let d of res.data) {
                         d[3] = store.state.document_status_dict[d[3]]
                         if (d[9] < 0) d[9] = 0 // 剩余收料<0时，重置为0
-                        d[10] = d[17] - d[18]
+                        d[10] = d[19] - d[20]
                         if (d[10] < 0) d[10] = 0 // 收料可退<0时，重置为0
                         if (d[13]) d[13] = new Date(d[13])
                         if (d[14]) d[14] = new Date(d[14])
+                        d[17] = [d[17], d[18]].join('|')
                         this.table_body_po.push(d.slice(0, 18))
                     }
                     page++

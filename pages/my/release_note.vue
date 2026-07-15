@@ -13,6 +13,11 @@
         data() {
             return {
                 notes: [
+                    { ver: '1.8.7', timestamp: '2026-07-14',
+                      content: ['1.[金蝶云]增加采购订单批改交货日期；',
+                                '2.优化扫码枪的BroadcastReceiver开启和回收机制；']},
+                    { ver: '1.8.6', timestamp: '2026-07-14',
+                      content: ['1.重构库存变更日志；']},
                     { ver: '1.8.5', timestamp: '2026-07-09',
                       content: ['1.[原料仓]新增打印-生成物料标签（批量导入）；',
                                 '2.重构库存查询；',

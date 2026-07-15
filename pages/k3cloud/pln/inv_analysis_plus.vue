@@ -225,8 +225,8 @@
                 table_head_sub: ['创建人', '单据编号', '单据状态', '物料编码', '物料名称', '规格型号', '数量', '未入库数量', '需求单据编号', '单据日期', '计划完工日期'],
                 table_body_sub: [],
                 // 采购订单
-                fields_po: ['F_PAEZ_Text_83g', 'FSrcBillNo', 'FBillNo', 'FDocumentStatus', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FUnitId.FName', 'FQty', 'FRemainReceiveQty', 'FCheckRetQty', 'FEntryNote', 'FDemandBillNo', 'FDate', 'FDeliveryDate', 'FPurchaserId.FName', 'FSupplierId.FName', 'FReceiveQty', 'FStockInQty' ],
-                table_head_po: ['计划序号', '源单编号', '单据编号', '单据状态', '物料编码', '物料名称', '规格型号', '采购单位', '采购数量', '剩余收料数量', '收料可退数量', '备注', '需求单据编号', '采购日期', '交货日期', '采购员', '供应商'],
+                fields_po: ['F_PAEZ_Text_83g', 'FSrcBillNo', 'FBillNo', 'FDocumentStatus', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FUnitId.FName', 'FQty', 'FRemainReceiveQty', 'FCheckRetQty', 'FEntryNote', 'FDemandBillNo', 'FDate', 'FDeliveryDate', 'FPurchaserId.FName', 'FSupplierId.FName', 'FID', 'FPOOrderEntry_FEntryId', 'FReceiveQty', 'FStockInQty' ],
+                table_head_po: ['计划序号', '源单编号', '单据编号', '单据状态', '物料编码', '物料名称', '规格型号', '采购单位', '采购数量', '剩余收料数量', '收料可退数量', '备注', '需求单据编号', '采购日期', '交货日期', '采购员', '供应商', '分录行ID'],
                 table_body_po: [],
                 // 即时库存
                 fields_inv: ['FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FBaseUnitId.FName', 'FBaseQty', 'FStockName'],
@@ -519,26 +519,15 @@
                     for (let d of res.data) {
                         d[3] = store.state.document_status_dict[d[3]]
                         if (d[9] < 0) d[9] = 0 // 剩余收料<0时，重置为0
-                        d[10] = d[17] - d[18]
+                        d[10] = d[19] - d[20]
                         if (d[10] < 0) d[10] = 0 // 收料可退<0时，重置为0
                         if (d[13]) d[13] = new Date(d[13])
                         if (d[14]) d[14] = new Date(d[14])
-                        this.table_body_po.push(d.slice(0, 17))
+                        d[17] = [d[17], d[18]].join('|')
+                        this.table_body_po.push(d.slice(0, 18))
                     }
                     page++
                 }
-                
-                // let res = await PurPurchaseOrder.query(options, { fields: this.fields_po, return: 'array' })
-                // for (let d of res.data) {
-                //     if (d[8] <= 0 && d[9] == 0) continue
-                //     d[2] = store.state.document_status_dict[d[2]]
-                //     if (d[8] < 0) d[8] = 0 // 剩余收料<0时，重置为0
-                //     d[9] = d[16] - d[17]
-                //     if (d[9] < 0) d[9] = 0 // 收料可退<0时，重置为0
-                //     if (d[12]) d[12] = new Date(d[12])
-                //     if (d[13]) d[13] = new Date(d[13])
-                //     this.table_body_po.push(d.slice(0, 16))
-                // }
             },
             export_as_excel() {
                 // #ifdef APP-PLUS

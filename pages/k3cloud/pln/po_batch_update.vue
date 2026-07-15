@@ -10,7 +10,7 @@
                     <uni-td v-for="(desc, index) in table_desc" :key="index" align="center" style="white-space: break-spaces;">{{ desc }}</uni-td>
                 </uni-tr>
             </uni-table>
-            <view class="text-grey text-sm uni-mb-5">注意！如果想要把某字段的值清空，请在对应单元格内填写数字0；如果该字段不允许修改为空，则会忽略；</view>
+            <!-- <view class="text-grey text-sm uni-mb-5">注意！如果想要把某字段的值清空，请在对应单元格内填写数字0；如果该字段不允许修改为空，则会忽略；</view> -->
             
             <view class="uni-mb-5">
                 <uni-icons type="download-filled" size="18" color="#007aff"></uni-icons>
@@ -48,7 +48,7 @@
 <script>
     import XLSX from 'xlsx'
     import store from '@/store'
-    import { BdMaterial } from '@/utils/model'
+    import { PurPurchaseOrder } from '@/utils/model'
     
     export default {
         data() {
@@ -57,11 +57,10 @@
                 raw_data: [],
                 done_data: [],
                 response_result: [],
-                table_head: ['单据编号', '物料编码', '交货日期'],
+                table_head: ['分录行ID',  '交货日期'],
                 table_desc: [
-                    '示例：POJ260400001',
-                    '示例：0.0.0.0001', 
-                    '示例：2026/4/5(日期格式)'
+                    '示例：327397|786898',
+                    '示例：2026/4/5(建议采用文本格式，如果用excel的时间格式，后台可能无法解析)'
                 ],
             }
         },
@@ -78,7 +77,7 @@
                     let book = XLSX.utils.book_new()
                     let sheet = XLSX.utils.aoa_to_sheet([this.table_head])
                     XLSX.utils.book_append_sheet(book, sheet, 'Sheet1')
-                    XLSX.writeFile(book, '物料批改模板.xlsx', { compression: true });
+                    XLSX.writeFile(book, '采购订单批改模板.xlsx', { compression: true });
                     uni.hideLoading()
                 }, 200)
             },
@@ -123,7 +122,10 @@
                     let x_start_time = Date.now()
                     uni.showLoading({ title: 'Loading' })
                     let request_body = await this.get_request_body()
-                    let res = await BdMaterial.batch_update(request_body)
+                    console.log('>>> request_body', request_body)
+                    let res = await PurPurchaseOrder.batch_update(request_body)
+                    // let request_body = await this.get_request_body()
+                    // let res = await BdMaterial.batch_update(request_body)
                     if (!res.data.Result.ResponseStatus.IsSuccess) {
                         this.response_result.push({ i: 0, msg: res.data.Result.ResponseStatus.Errors[0]?.Message })
                     }
@@ -135,36 +137,14 @@
             },
             async get_request_body() {
                 let res = []
-                this.response_result = []
-                // 归集物料号，1000个每组查询
-                let material_nos = new Set()
+                // this.response_result = []
                 for (let row of this.raw_data) {
-                    let material_no = row[0]?.trim()
-                    if (material_no) material_nos.add(material_no)
-                }
-                material_nos = Array.from(material_nos)
-                let materials = [] // 物料数据
-                let step = 1000
-                for (let i = 0; i < material_nos.length; i += step) {
-                    let q_nos = material_nos.slice(i, i + step)
-                    let mat_res = await BdMaterial.query({ FNumber_in: q_nos, 'FUseOrgId.FNumber': '100' }, { fields: ['FMaterialId', 'FNumber', 'FUseOrgId.FNumber', 'FIssueType'] })
-                    for (let d of mat_res.data) materials.push(d)
-                }
-                for (let i = 0; i < this.raw_data.length; i++) {
-                    let row = this.raw_data[i]
-                    if (row[0]?.trim()) {
-                        let material = materials.find(m => m.FNumber == row[0].trim())
-                        if (material) {
-                            let obj = { FMaterialId: material.FMaterialId, SubHeadEntity1: {}, SubHeadEntity5: {} }
-                            if ((row[1] || [0, '0'].includes(row[1]))) { // 安全库存
-                                obj.SubHeadEntity1.FSafeStock = row[1]
-                            }
-                            res.push(obj)
-                        } else {
-                            this.response_result.push({ i: i+1, msg: `未找到物料编码[${row[0]}]` })
-                        }
+                    let [id, entry_id] = row[0].split('|')
+                    let obj = res.find(x => x.FID == id)
+                    if (obj) {
+                        obj.FPOOrderEntry.push({ FEntryId: entry_id, FDeliveryDate: row[1] })
                     } else {
-                        this.response_result.push({ i: i+1, msg: '子项物料编码不能为空'  })
+                        res.push({ FID: id, FPOOrderEntry: [{ FEntryId: entry_id, FDeliveryDate: row[1] }] })
                     }
                 }
                 return res

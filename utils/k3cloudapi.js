@@ -404,6 +404,7 @@ const save = async (form_id, data) => {
 */
 const batch_save = async (form_id, data) => {
     const _data_ = {
+        IsDeleteEntry: false,
         ...data
     }
     return conn().then(_ => {

@@ -81,32 +81,32 @@
     <uni-section v-if="ppbom.id" title="物料状态确认表" type="square" class="above-uni-goods-nav">
         <uni-list>
             <uni-row>
-                <uni-col :sm="24" :md="8">
+                <uni-col :sm="8">
                     <uni-list-item title="计划跟踪单号" :right-text="ppbom.sale_order_no" />
                 </uni-col>
-                <uni-col :sm="24" :md="8">
+                <uni-col :sm="8">
                     <uni-list-item title="生产订单编号" :right-text="ppbom.mo_bill_no" />
                 </uni-col>
-                <uni-col :sm="24" :md="8">
+                <uni-col :sm="8">
                     <uni-list-item title="生产数量" :right-text="`${ppbom.qty} ${ppbom.unit_name}`" />
                 </uni-col>
             </uni-row>
             <uni-row>
-                <uni-col :sm="24" :md="8">
+                <uni-col :sm="8">
                     <uni-list-item title="生产车间" :right-text="ppbom.workshop" />
                 </uni-col>
-                <uni-col :sm="24" :md="8">
+                <uni-col :sm="8">
                     <uni-list-item title="产线" :right-text="ppbom.prd_line" />
                 </uni-col>
-                <uni-col :sm="24" :md="8">
+                <uni-col :sm="8">
                     <uni-list-item title="计划上线时间" :right-text="ppbom.prd_time" />
                 </uni-col>
             </uni-row>
             <uni-row>
-                <uni-col :sm="24" :md="8">
+                <uni-col :sm="8">
                     <uni-list-item title="产品名称" :right-text="ppbom.material_name" />
                 </uni-col>
-                <uni-col :sm="24" :md="16">
+                <uni-col :sm="16">
                     <uni-list-item title="规格型号" :right-text="ppbom.material_spec" />
                 </uni-col>
             </uni-row>
@@ -157,6 +157,7 @@
 
 <script>
     import store from '@/store'
+    import { play_audio_prompt } from '@/utils'
     import { PrdPpbom, PrdMo } from '@/utils/model'
     import scan_code from '@/utils/scan_code'
     
@@ -353,7 +354,7 @@
             font-weight: bold;
         }
         .uni-list-item__extra {
-            flex: 2;
+            flex: 1.5;
         }
         .uni-list-item__extra-text {
             color: #666;
