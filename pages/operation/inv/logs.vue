@@ -36,12 +36,13 @@
                             <uni-data-select v-model="search_form.status" :localdata="[{ value: 'failed', text: '失败' }]"></uni-data-select>
                         </uni-forms-item>
                     </uni-forms>
-                    <button type="primary" size="mini" @click="search">搜索</button>
-                    <button size="mini" @click="reset_search_form" class="uni-ml-5">重置</button>
+                    <button type="primary" size="mini" @click="search" class="uni-mr-5">搜索</button>
+                    <button size="mini" @click="reset_search_form">重置</button>
                 </uni-group>
                 
-                <uni-group title="其他操作" mode="card">
-                    <button type="warn" size="mini" @click="retry_all">重试失败日志</button>
+                <uni-group title="失败日志" mode="card">
+                    <button size="mini" @click="filter_failed" class="uni-mr-5">查看</button>
+                    <button type="warn" size="mini" @click="retry_all">重试</button>
                 </uni-group>
             </uni-col>
             
@@ -306,10 +307,7 @@
             goods_nav_click(e) {
                 if (e.index === 0) this.$refs.search_dialog.open()
                 if (e.index === 1) this.reset_search_form()
-                if (e.index === 2) {
-                    this.search_form = { status: 'failed' }
-                    this.search()
-                }
+                if (e.index === 2) this.filter_failed()
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.retry_all()
@@ -345,6 +343,10 @@
                 let res = await InvLog.query(options, meta)
                 this.inv_logs = res.data
                 uni.hideLoading()
+            },
+            filter_failed() {
+                this.search_form = { status: 'failed' }
+                this.search()
             },
             // 重试全部失败的日志，金蝶插件脚本有时会不执行，此处为人工触发重试
             async retry_all() {

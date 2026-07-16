@@ -201,7 +201,7 @@
             },
             // 加载库存数据
             load_invs(){
-                Inv.get_all({ FStockId: store.state.cur_stock.FStockId }).then(res => {
+                Inv.get_all().then(res => {
                     this.update_data(res)
                 })
             },

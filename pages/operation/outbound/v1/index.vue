@@ -23,7 +23,7 @@
                         }"
                     />
                 </uni-forms-item>
-                <uni-forms-item label="拆包区" style="margin-bottom: 0;">
+                <uni-forms-item label="拣选区" style="margin-bottom: 0;">
                     <uni-data-select v-model="dest_loc_no" :localdata="dest_loc_no_options" :clear="false" @change="load_invs" />
                 </uni-forms-item>
             </uni-forms>
@@ -350,7 +350,8 @@
                 }  
             },
             async load_dest_loc_nos() {
-                let res = await StockLoc.query({ FGroup_lk: '拆包区', FStockId: store.state.cur_stock.FStockId })
+                // let res = await StockLoc.query({ FGroup_lk: '拣选区', FStockId: store.state.cur_stock.FStockId })
+                let res = await StockLoc.get_picking_area()
                 let options = []
                 for (let obj of res.data) {
                     options.push({ text: obj.FNumber, value: obj.FNumber })

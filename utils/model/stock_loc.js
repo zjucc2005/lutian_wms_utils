@@ -33,7 +33,7 @@ class StockLoc {
         const data = {
             model: this
         }
-        return K3CloudApi.save(this.form_id, data)
+        return K3CloudApi.save('PAEZ_C_STOCK_LOC', data)
     }
     
     /**
@@ -177,7 +177,8 @@ class StockLoc {
                 FieldKeys: fields.join(','),
                 FilterString: filter_string,
                 StartRow: (page - 1) * per_page,
-                Limit: per_page
+                Limit: per_page,
+                OrderString: 'FNumber ASC'
             })
             // 本地重新组装成键值对，方便使用
             for (let d of response.data) {
@@ -190,6 +191,20 @@ class StockLoc {
         return data
     }
     
+    /**
+     * 获取当前仓库/库区的拣选区
+     * @return {Array[Hash]}
+     */
+    static async get_picking_area() {
+        let options = { FStockId: store.state.cur_stock.FStockId, FGroup_lk: '拣选区' }
+        if (store.state.cur_area?.value) options['FNumber_sw'] = store.state.cur_area.value
+        let fields = ['FID', 'FStockId', 'FNumber','FGroup', 'FPosX', 'FPosY', 'FRemark', 'FPalletSpace', 'FDocumentStatus', 'FForbidStatus']
+        return K3CloudApi.bill_query({
+            FormId: this.form_id,
+            FieldKeys: fields.join(','),
+            FilterString: K3CloudApi.query_filter(options)
+        })
+    }
 }
 
 export default StockLoc

@@ -27,7 +27,7 @@
         <uni-list-item title="物料清单批改" v-if="can_edit"
             :extra-icon="{ color: '#dd524d', size: '24', type: 'compose' }" show-extra-icon
             @click="link_to('/pages/k3cloud/pln/bom_batch_update')" clickable show-arrow/>
-        <uni-list-item title="采购订单批改" v-if="can_edit"
+        <uni-list-item title="采购订单批改"
             :extra-icon="{ color: '#dd524d', size: '24', type: 'compose' }" show-extra-icon
             @click="link_to('/pages/k3cloud/pln/po_batch_update')" clickable show-arrow/>
     </uni-list>

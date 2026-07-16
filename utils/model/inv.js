@@ -66,7 +66,7 @@ class Inv {
         if (store.state.cur_area?.value) options['FStockLocId.FNumber_sw'] = store.state.cur_area.value
         let filter_string = K3CloudApi.query_filter({ FQty_gt: 0, ...options })
         let fields = ['FID', 'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.FImageFileServer',
-                      'FQty', 'FStockUnitId', 'FStockUnitId.FName', 'FStockLocId', 'FStockLocId.FNumber', 'FStockLocId.FGroup',
+                      'FQty', 'FStockUnitId', 'FStockUnitId.FName', 'FStockLocId', 'FStockLocId.FNumber', 'FStockLocId.FGroup', 'FStockLocId.FPosX', 'FStockLocId.FPosY',
                       'FBatchNo', 'FSupplierId', 'FSupplierId.FName', 'FCreateTime']
         
         let response = null

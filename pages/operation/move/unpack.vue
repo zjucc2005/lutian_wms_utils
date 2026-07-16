@@ -243,9 +243,10 @@
                     this.goods_nav.button_group[0] = { text: '扫描单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' }
                 }
             },
-            // 加载拆包区库位
+            // 加载拣选区库位
             async load_dest_loc_nos() {
-                let res = await StockLoc.query({ FGroup_lk: '拆包区', FStockId: store.state.cur_stock.FStockId })
+                // let res = await StockLoc.query({ FGroup_lk: '拣选区', FStockId: store.state.cur_stock.FStockId })
+                let res = await StockLoc.get_picking_area()
                 let options = []
                 for (let obj of res.data) {
                     options.push({ text: obj.FNumber, value: obj.FNumber })

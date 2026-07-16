@@ -181,14 +181,14 @@
             }
         },
         mounted() {
-            // this.loc_nos = this.generate_loc_nos('3LM-LZ', '3LM-LZ-B', 'B', 61, '')
-            // this.loc_nos = [{
-            //     no: '3LM-BP-拣选区',
-            //     status: '',
-            //     shelf: '3LM-BP-拣选区',
-            //     x: 1,
-            //     y: 1
-            // }]
+            // this.loc_nos = this.generate_loc_nos('3LM-QY', '3LM-QY-X', 'X', 38, '')
+            this.loc_nos = [{
+                no: '3LM-QY-拣选区',
+                status: '',
+                shelf: '3LM-QY-拣选区',
+                x: 1,
+                y: 1
+            }]
             // this.gen_loc_nos('DS', 'A02', 20, 3).forEach(x => {
             //     this.loc_nos.push({ value: x, status: '' })
             // })
