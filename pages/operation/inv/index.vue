@@ -90,9 +90,9 @@
                     >
                     <template #body>
                         <view class="uni-list-item__body">
-                            <view class="title text-bold">{{ obj.material_no }}</view>
+                            <view class="title text-bold">{{ obj.material_no }} / {{ obj.material_name }}</view>
                             <view class="note">
-                                <view>名称：{{ obj.material_name }}</view>
+                                <!-- <view>名称：{{ obj.material_name }}</view> -->
                                 <view>规格：{{ obj.material_spec }}</view>
                             </view>
                         </view>

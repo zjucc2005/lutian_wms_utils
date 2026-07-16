@@ -121,8 +121,10 @@
                                     <text class="uni-ml-5">批次：{{ inv_log.FBatchNo }}</text>
                                 </view>
                                 <view v-if="inv_log['FSupplierId.FName']">供应商：{{ inv_log['FSupplierId.FName'] }}</view>
-                                <view v-if="inv_log.FBillNo?.trim()">单据：{{ inv_log.FBillNo }}</view>
-                                <view v-if="inv_log.FReceiver?.trim()">收货人：{{ inv_log.FReceiver }}</view>
+                                <view>
+                                    <text v-if="inv_log.FBillNo?.trim()" class="uni-mr-5">单据：{{ inv_log.FBillNo }}</text>
+                                    <text v-if="inv_log.FReceiver?.trim()">收货人：{{ inv_log.FReceiver }}</text>
+                                </view>
                                 <view v-if="inv_log.FRemark?.trim()">备注：{{ inv_log.FRemark }}</view>
                                 <view>时间：{{ formatDate(inv_log.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</view>
                                 <view v-if="!inv_log.FCInvId" class="text-error">库存未更新，请点击重试</view>
@@ -139,27 +141,6 @@
                         </view>
                     </template>
                 </uni-list-item>
-                
-                <!-- <uni-list-item
-                    v-for="(obj, index) in table_data" :key="index"
-                    @click="inv_menu(obj)" clickable show-arrow
-                    @longpress="inv_menu(obj)"
-                    >
-                    <template #body>
-                        <view class="uni-list-item__body">
-                            <view class="title text-bold">{{ obj.material_no }}</view>
-                            <view class="note">
-                                <view>名称：{{ obj.material_name }}</view>
-                                <view>规格：{{ obj.material_spec }}</view>
-                            </view>
-                        </view>
-                    </template>
-                    <template #footer>
-                        <view class="uni-list-item__foot">
-                            <view>{{ obj.qty }} {{ obj.unit_name }}</view>
-                        </view>
-                    </template>
-                </uni-list-item> -->
             </uni-list>
             
             <uni-pagination
@@ -190,33 +171,61 @@
                     >
                     <view style="flex: 1;">
                         <uni-forms ref="search_form" :model="search_form" >
-                            <uni-forms-item label="开始时间">
-                                <uni-datetime-picker type="date" v-model="search_form.create_time_ge" />
-                            </uni-forms-item>
-                            <uni-forms-item label="结束时间">
-                                <uni-datetime-picker type="date" v-model="search_form.create_time_le" />
-                            </uni-forms-item>
-                            <uni-forms-item label="操作类型">
-                                <uni-data-select v-model="search_form.op_type" :localdata="op_type_options" />
-                            </uni-forms-item>
-                            <uni-forms-item label="物料编码">
-                                <uni-easyinput v-model="search_form.material_no" trim />
-                            </uni-forms-item>
-                            <uni-forms-item label="物料名称">
-                                <uni-easyinput v-model="search_form.material_name" trim />
-                            </uni-forms-item>
-                            <uni-forms-item label="规格型号">
-                                <uni-easyinput v-model="search_form.material_spec" trim />
-                            </uni-forms-item>
-                            <uni-forms-item label="单据编号">
-                                <uni-easyinput v-model="search_form.bill_no" trim />
-                            </uni-forms-item>
-                            <uni-forms-item label="收货人">
-                                <uni-easyinput v-model="search_form.receiver" trim />
-                            </uni-forms-item>
-                            <uni-forms-item label="状态">
-                                <uni-data-select v-model="search_form.status" :localdata="[{ value: 'failed', text: '失败' }]"></uni-data-select>
-                            </uni-forms-item>
+                            <uni-row :gutter="15">
+                                <uni-col :sm="12">
+                                    <uni-forms-item label="开始时间">
+                                        <uni-datetime-picker type="date" v-model="search_form.create_time_ge" />
+                                    </uni-forms-item>
+                                </uni-col>
+                                <uni-col :sm="12">
+                                    <uni-forms-item label="结束时间">
+                                        <uni-datetime-picker type="date" v-model="search_form.create_time_le" />
+                                    </uni-forms-item>
+                                </uni-col>
+                            </uni-row>
+                            <uni-row :gutter="15">
+                                <uni-col :sm="12">
+                                    <uni-forms-item label="操作类型">
+                                        <uni-data-select v-model="search_form.op_type" :localdata="op_type_options" />
+                                    </uni-forms-item>
+                                </uni-col>
+                                <uni-col :sm="12">
+                                    <uni-forms-item label="物料编码">
+                                        <uni-easyinput v-model="search_form.material_no" trim />
+                                    </uni-forms-item>
+                                </uni-col>
+                            </uni-row>
+                            <uni-row :gutter="15">
+                                <uni-col :sm="12">
+                                    <uni-forms-item label="物料名称">
+                                        <uni-easyinput v-model="search_form.material_name" trim />
+                                    </uni-forms-item>
+                                </uni-col>
+                                <uni-col :sm="12">
+                                    <uni-forms-item label="规格型号">
+                                        <uni-easyinput v-model="search_form.material_spec" trim />
+                                    </uni-forms-item>
+                                </uni-col>
+                            </uni-row>
+                            <uni-row :gutter="15">
+                                <uni-col :sm="12">
+                                    <uni-forms-item label="单据编号">
+                                        <uni-easyinput v-model="search_form.bill_no" trim />
+                                    </uni-forms-item>
+                                </uni-col>
+                                <uni-col :sm="12">
+                                    <uni-forms-item label="收货人">
+                                        <uni-easyinput v-model="search_form.receiver" trim />
+                                    </uni-forms-item>
+                                </uni-col>
+                            </uni-row>
+                            <uni-row :gutter="15">
+                                <uni-col :sm="12">
+                                    <uni-forms-item label="状态">
+                                        <uni-data-select v-model="search_form.status" :localdata="[{ value: 'failed', text: '失败' }]"></uni-data-select>
+                                    </uni-forms-item>
+                                </uni-col>
+                            </uni-row>
                         </uni-forms>
                     </view>
                 </uni-popup-dialog>

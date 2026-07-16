@@ -309,7 +309,7 @@
                     this.inv_plans.forEach(inv_plan => {
                         inv_plan.checked = false
                         // if (store.state.role == 'wh_admin') {
-                            inv_plan.disabled = !['A', 'B'].includes(inv_plan.FDocumentStatu)
+                            // inv_plan.disabled = !['A', 'B'].includes(inv_plan.FDocumentStatu)
                             inv_plan.status = store.state.document_status_dict[inv_plan.FDocumentStatu]
                         // }
                         // if (store.state.role == 'wh_staff') {

@@ -80,7 +80,7 @@
                 <uni-col :sm="8">
                     <uni-list-item title="产品名称" :right-text="ppbom.material_name" />
                 </uni-col>
-                <uni-col :sm="8">
+                <uni-col :sm="16">
                     <uni-list-item title="规格型号" :right-text="ppbom.material_spec" />
                 </uni-col>
             </uni-row>
