@@ -54,6 +54,27 @@ class Inv {
         return this.query({ FID: id }, { limit: 1 })
     }
     
+    static async count(options={}) {
+        const data = {
+            FormId: this.form_id,
+            FieldKeys: 'count(1)',
+            FilterString: K3CloudApi.query_filter(options),
+            Limit: 0
+        }
+        let res = await K3CloudApi.execute_bill_query(data)
+        return Number(res.data[0][0])
+    }
+    
+    static async sum_qty(options={}) {
+        const data = {
+            FormId: this.form_id,
+            FieldKeys: 'sum(FQTY)',
+            FilterString: K3CloudApi.query_filter(options),
+            Limit: 0
+        }
+        let res = await K3CloudApi.execute_bill_query(data)
+        return Number(res.data[0][0])
+    }
 
     /**
      * 获取当前仓库/库区的所有库存数据

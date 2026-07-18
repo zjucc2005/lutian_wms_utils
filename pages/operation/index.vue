@@ -129,7 +129,7 @@
                     // },
                     {
                         name: '物料查询', permission: ['all'], icon_path: '/static/icon/nav_layer.png',
-                        action: () => { link_to('/pages/operation/material/search') }
+                        action: () => { link_to('/pages/operation/material/index') }
                     },
                     // {
                     //     name: '配件查询', permission: ['default'], icon_path: '/static/icon/nav_node_tree.png',

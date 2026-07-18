@@ -115,7 +115,7 @@ class InvLog {
         return this.query({ FID: id }, { limit: 1 })
     }
     
-    static async count(options={}, meta={}) {
+    static async count(options={}) {
         const data = {
             FormId: 'PAEZ_C_INV_LOG',
             FieldKeys: 'count(1)',

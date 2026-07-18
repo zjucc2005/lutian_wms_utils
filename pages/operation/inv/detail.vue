@@ -5,7 +5,7 @@
         @click="debug"
         >
         <uni-row v-if="$store.state.screen_type === 'h5'" >
-            <uni-col :span="6">
+            <uni-col :span="4">
                 <uni-group title="搜索栏" mode="card" style="margin-top: 0;">
                     <uni-forms ref="search_form" :model="search_form" >
                         <uni-forms-item label="物料编码">
@@ -17,8 +17,8 @@
                         <uni-forms-item label="规格型号">
                             <uni-easyinput v-model="search_form.material_spec" trim />
                         </uni-forms-item>
-                        <uni-forms-item v-if="stk_invs.length" label="库存差异">
-                            <uni-data-select v-model="search_form.inv_diff" :localdata="[{ value: 'Y', text: '是' },{ value: 'N', text: '否' }]" />
+                        <uni-forms-item label="库位号">
+                            <uni-easyinput v-model="search_form.loc_no" trim />
                         </uni-forms-item>
                     </uni-forms>
                     <button type="primary" size="mini" @click="search">搜索</button>
@@ -26,53 +26,52 @@
                 </uni-group>
                 
                 <uni-group title="其他操作" mode="card">
-                    <button size="mini" @click="inv_map">库存地图</button>
+                    <!-- <button size="mini" @click="inv_map">库存地图</button> -->
                     <button type="primary" size="mini" @click="link_to('/pages/operation/manage/inv_check')" class="uni-ml-5" >库存盘点</button>
+                </uni-group>
+                
+                <uni-group title="总数量" mode="card">
+                    <view class="sum_qty">{{ sum_qty }}</view>
                 </uni-group>
             </uni-col>
             
-            <uni-col :span="18">
+            <uni-col :span="20">
                 <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }">
                     <uni-table ref="table" stripe>
                         <uni-tr>
                             <uni-th align="center">物料编码</uni-th>
                             <uni-th align="center">物料名称</uni-th>
                             <uni-th align="center">规格型号</uni-th>
-                            <uni-th align="center" width="50">单位</uni-th>
                             <uni-th align="center" width="100">数量</uni-th>
-                            <uni-th v-if="stk_invs.length" align="center" width="100">
-                                <image src="/static/icon/cc_k3cloud_active.png" style="width:20px; height:20px;" mode="aspectFit" />
-                                金蝶账面
-                            </uni-th>
-                            <uni-th v-if="stk_invs.length" align="center" width="100">差异</uni-th>
+                            <uni-th align="center" width="50">单位</uni-th>
+                            <uni-th align="center" width="120">库位号</uni-th>
+                            <uni-th align="center" width="50">批次</uni-th>
+                            <uni-th align="center" width="100">供应商</uni-th>
                             <uni-th align="center" width="220">操作</uni-th>
                         </uni-tr>
-                        <uni-tr v-for="(obj, index) in table_data" :key="index">
+                        <uni-tr v-for="(inv, index) in invs" :key="index">
                             <uni-td align="center">
-                                <view class="text-primary" @click="link_to(`/pages/operation/material/show?id=${obj.material_id}`)">
-                                    {{ obj.material_no }}
+                                <view class="text-primary" @click="link_to(`/pages/operation/material/show?id=${inv.FMaterialId}`)">
+                                    {{ inv['FMaterialId.FNumber'] }}
                                 </view>
                             </uni-td>
-                            <uni-td align="center">{{ obj.material_name }}</uni-td>
-                            <uni-td align="center">{{ obj.material_spec }}</uni-td>
-                            <uni-td align="center">{{ obj.unit_name }}</uni-td>
-                            <uni-td align="center">{{ obj.qty }}</uni-td>
-                            <uni-td v-if="stk_invs.length" align="center">{{ obj.stk_qty }}</uni-td>
-                            <uni-td v-if="stk_invs.length" align="center">
-                                <text v-if="obj.qty - obj.stk_qty > 0" class="text-primary">{{ obj.qty - obj.stk_qty }}</text>
-                                <text v-if="obj.qty - obj.stk_qty < 0" class="text-error">{{ obj.qty - obj.stk_qty }}</text>
-                                <text v-if="obj.qty - obj.stk_qty == 0" class="text-grey">{{ obj.qty - obj.stk_qty }}</text>
-                            </uni-td>
+                            <uni-td align="center">{{ inv['FMaterialId.FName'] }}</uni-td>
+                            <uni-td align="center">{{ inv['FMaterialId.FSpecification'] }}</uni-td>
+                            <uni-td align="center">{{ inv['FQty'] }}</uni-td>
+                            <uni-td align="center">{{ inv['FStockUnitId.FName'] }}</uni-td>
+                            <uni-td align="center">{{ inv['FStockLocId.FNumber'] }}</uni-td>
+                            <uni-td align="center">{{ inv['FBatchNo'] }}</uni-td>
+                            <uni-td align="center">{{ inv['FSupplierId.FName'] }}</uni-td>
                             <uni-td align="center">
-                                <uni-tag text="库存明细" type="primary" size="small" inverted @click="link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}`)"/>
-                                <uni-tag text="库存调整" type="primary" size="small" @click="inv_modify(obj.material_no)" class="uni-ml-2"/>
-                                <uni-tag text="库存日志" type="primary" size="small" inverted @click="link_to(`/pages/operation/inv/logs?material_no=${obj.material_no}`)" class="uni-ml-2"/>
+                                <uni-tag text="只看" type="primary" size="small" inverted @click="search_material(inv['FMaterialId.FNumber'])"/>
+                                <uni-tag text="调整" type="primary" size="small" @click="inv_modify(inv['FMaterialId.FNumber'])" class="uni-ml-2"/>
+                                <uni-tag text="日志" type="primary" size="small" inverted @click="link_to(`/pages/operation/inv/logs?material_no=${inv['FMaterialId.FNumber']}`)" class="uni-ml-2"/>
                             </uni-td>
                         </uni-tr>
                     </uni-table>
                 </scroll-view>
                 <uni-pagination
-                    :total="inv_groups_q.length" 
+                    :total="total" 
                     :current="page" 
                     :page-size="per_page" 
                     show-icon
@@ -86,27 +85,32 @@
             <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }">
                 <uni-list>
                     <uni-list-item
-                        v-for="(obj, index) in table_data" :key="index"
-                        @click="inv_menu(obj)" clickable show-arrow
+                        v-for="(inv, index) in invs" :key="index"
+                        @click="inv_menu(inv)" clickable show-arrow
                         >
                         <template #body>
                             <view class="uni-list-item__body">
-                                <view class="title text-bold">{{ obj.material_no }} / {{ obj.material_name }}</view>
+                                <view class="title text-bold">{{ inv['FMaterialId.FNumber'] }} / {{ inv['FMaterialId.FName'] }}</view>
                                 <view class="note">
-                                    <view>规格：{{ obj.material_spec }}</view>
+                                    <view>规格：{{ inv['FMaterialId.FSpecification'] }}</view>
+                                    <view>
+                                        库位：<text class="text-primary uni-mr-5">{{ inv['FStockLocId.FNumber'] }}</text>
+                                        批次：<text class="text-dark">{{ inv['FBatchNo'] }}</text>
+                                    </view>
+                                    <view v-if="inv['FSupplierId.FName']">供应商：{{ inv['FSupplierId.FName'] }}</view>
                                 </view>
                             </view>
                         </template>
                         <template #footer>
                             <view class="uni-list-item__foot">
-                                <view>{{ obj.qty }} {{ obj.unit_name }}</view>
+                                <view>{{ inv['FQty'] }} {{ inv['FStockUnitId.FName'] }}</view>
                             </view>
                         </template>
                     </uni-list-item>
                 </uni-list>
             </scroll-view>
             <uni-pagination
-                :total="inv_groups_q.length" 
+                :total="total" 
                 :current="page" 
                 :page-size="per_page" 
                 show-icon
@@ -142,8 +146,8 @@
                             <uni-forms-item label="规格型号">
                                 <uni-easyinput v-model="search_form.material_spec" trim />
                             </uni-forms-item>
-                            <uni-forms-item v-if="stk_invs.length" label="库存差异">
-                                <uni-data-select v-model="search_form.inv_diff" :localdata="[{ value: 'Y', text: '是' },{ value: 'N', text: '否' }]" />
+                            <uni-forms-item label="库位号">
+                                <uni-easyinput v-model="search_form.loc_no" trim />
                             </uni-forms-item>
                         </uni-forms>
                     </view>
@@ -163,9 +167,8 @@
         data() {
             return {
                 invs: [], // 后端数据
-                stk_invs: [], // 金蝶库存
-                inv_groups: [], // 按物料分组
-                inv_groups_q: [], // 过滤结果
+                sum_qty: 0,
+                total: 2000,
                 page: 1,
                 per_page: 50,
                 scroll_top: 0,
@@ -175,19 +178,17 @@
                 // #ifdef APP-PLUS
                     scroll_height: `calc(100vh - ${187 - store.state.system_info.statusBarHeight}px)`,
                 // #endif
-                last_refresh_time: 0,
-                refresh_interval: 30 * 1000, // 30s
                 search_form: {
                     material_no: '',
                     material_name: '',
                     material_spec: '',
-                    inv_diff: ''
+                    loc_no: ''
                 },
                 goods_nav: {
                     options: [
                         { icon: 'search', text: '搜索' },
                         { icon: 'clear', text: '重置' },
-                        { icon: 'map', text: '平面图' }
+                        // { icon: 'map', text: '平面图' }
                     ],
                     button_group: [
                         { text: '扫码查询', backgroundColor: store.state.goods_nav_color.red, color: '#fff' },
@@ -200,29 +201,19 @@
             this.reg_broadcast_receiver()
             // #endif
         },
-        onPullDownRefresh() {
-            this.refresh()
-            uni.stopPullDownRefresh()
-        },
         mounted() {
-            this.load_data()
-        },
-        computed: {
-            table_data() {
-                let a = (this.page - 1) * this.per_page
-                return this.inv_groups_q.slice(a, a + this.per_page)
-            }
+            this.load_invs()
         },
         methods: {
             breadcrumb_stockname,
             link_to,
             debug() {
                 this.$logger.info('>>> $data', this.$data)
-                // this.$logger.info('>>> store.state', store.state)
             },
             change_page(e) {
                 this.page = e.current
                 this.scroll_top = 0
+                this.load_invs()
             },
             goods_nav_click(e) {
                 if (e.index === 0) this.$refs.search_dialog.open()
@@ -241,18 +232,18 @@
                     }
                 })
             },
-            inv_menu(obj) {
-                if (!obj.material_id) {
+            inv_menu(inv) {
+                if (!inv.FID) {
                     uni.showToast({ icon: 'none', title: '物料ID不能为空' })
                     return
                 } 
                 uni.showActionSheet({
-                    itemList: ['库存明细', '库存调整', '库存日志', '物料详情'],
+                    itemList: ['只看该物料', '库存调整', '库存日志', '物料详情'],
                     success: (e) => {
-                        if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}`)
-                        if (e.tapIndex === 1) this.inv_modify(obj.material_no)
-                        if (e.tapIndex === 2) link_to(`/pages/operation/inv/logs?material_no=${obj.material_no}`)
-                        if (e.tapIndex === 3) link_to(`/pages/operation/material/show?id=${obj.material_id}`)
+                        if (e.tapIndex === 0) this.search_material(inv['FMaterialId.FNumber'])
+                        if (e.tapIndex === 1) this.inv_modify(inv['FMaterialId.FNumber'])
+                        if (e.tapIndex === 2) link_to(`/pages/operation/inv/logs?material_no=${inv['FMaterialId.FNumber']}`)
+                        if (e.tapIndex === 3) link_to(`/pages/operation/material/show?id=${inv['FMaterialId.FNumber']}`)
                     }
                 })
             },
@@ -262,11 +253,6 @@
                 } else {
                     uni.showToast({ icon: 'error', title: '无权限' })
                 }
-            },
-            refresh_page() {
-                let o_page = this.page
-                this.search()
-                this.page = o_page
             },
             reset_search_form() {
                 this.search_form = { material_no: '', material_name: '', material_spec: '', inv_diff: '' }
@@ -289,97 +275,31 @@
                 uni.showToast({ icon: 'none', title: '已经到底了' })
             },
             search() {
-                this.inv_groups_q = this.inv_groups.filter(obj => {
-                    for (let field of ['material_no', 'material_name', 'material_spec']) {
-                        let kw = this.search_form[field].toUpperCase()
-                        if (kw && !obj[field].toUpperCase().includes(kw)) return false
-                    }
-                    if (this.search_form.inv_diff == 'Y') return obj.qty != obj.stk_qty
-                    if (this.search_form.inv_diff == 'N') return obj.qty == obj.stk_qty
-                    return true
-                })
                 this.page = 1
+                this.load_invs()
+            },
+            search_material(material_no) {
+                this.search_form = { material_no }
+                this.search()
             },
             search_dialog_confirm() {
                 this.search()
                 this.$refs.search_dialog.close()
             },
             async load_invs() {
-                let invs = await Inv.get_all()
-                this.invs = invs
-            },
-            async load_stk_invs() {
-                let stk_invs = await StkInventory.get_all()
-                this.stk_invs = stk_invs
-            },
-            async load_data() {
+                let options = { FQty_gt: 0, FStockId: store.state.cur_stock.FStockId }
+                if (store.state.cur_area?.value) options['FStockLocId.FNumber_sw'] = store.state.cur_area.value // 考虑库区
+                if (this.search_form.material_no) options['FMaterialId.FNumber_lk'] = this.search_form.material_no
+                if (this.search_form.material_name) options['FMaterialId.FName_lk'] = this.search_form.material_name
+                if (this.search_form.material_spec) options['FMaterialId.FSpecification_lk'] = this.search_form.material_spec
+                if (this.search_form.loc_no) options['FStockLocId.FNumber_lk'] = this.search_form.loc_no
+                let meta = { page: this.page, per_page: this.per_page, order: 'FID DESC' }
                 uni.showLoading({ title: 'Loading' })
-                await this.load_invs()
-                if (!store.state.cur_area?.value) {
-                    // await this.load_stk_invs() // 不分库区的仓库，加载金蝶即时库存
-                }
+                this.total = await Inv.count(options)
+                this.sum_qty = await Inv.sum_qty(options)
+                let res = await Inv.query(options, meta)
+                this.invs = res.data
                 uni.hideLoading()
-                this.get_inv_groups()
-            },
-            async refresh() {
-                if (this.last_refresh_time + this.refresh_interval > Date.now()) {
-                    uni.showToast({ icon: 'none', title: '请不要频繁刷新' })
-                    return
-                }
-                await this.load_data()
-                this.last_refresh_time = Date.now()
-            },
-            get_inv_groups() {
-                let inv_groups = []
-                let i = 0, j = 0
-                while (i < this.stk_invs.length || j < this.invs.length) {
-                    let stk_inv = this.stk_invs[i]
-                    let inv = this.invs[j]
-                    if (!inv || (stk_inv && stk_inv['FMaterialId.FNumber'] <= inv['FMaterialId.FNumber'])) {
-                        let inv_group = inv_groups.find(x => x.material_no == stk_inv['FMaterialId.FNumber'])
-                        if (inv_group) {
-                            inv_group.stk_qty += stk_inv['FBaseQty']
-                        } else {
-                            inv_group = {
-                                material_id: stk_inv['FMaterialId'],
-                                material_no: stk_inv['FMaterialId.FNumber'],
-                                material_name: stk_inv['FMaterialId.FName'],
-                                material_spec: stk_inv['FMaterialId.FSpecification'],
-                                material_image: inv?.['FMaterialId.FImageFileServer'],
-                                stk_qty: stk_inv['FBaseQty'],
-                                qty: 0,
-                                unit_name: stk_inv['FBaseUnitId.FName'],
-                                thumbnail: '/static/default_40x40.png'
-                            }
-                            inv_groups.push(inv_group)
-                        }
-                        i += 1
-                        if (inv_group.material_no == inv?.['FMaterialId.FNumber']) {
-                            inv_group.qty += inv.FQty
-                            j += 1
-                        }
-                    } else {
-                        let inv_group = inv_groups.find(x => x.material_no == inv['FMaterialId.FNumber'])
-                        if (inv_group) {
-                            inv_group.qty += inv.FQty
-                        } else {
-                            inv_groups.push({
-                                material_id: inv.FMaterialId,
-                                material_no: inv['FMaterialId.FNumber'],
-                                material_name: inv['FMaterialId.FName'],
-                                material_spec: inv['FMaterialId.FSpecification'],
-                                material_image: inv['FMaterialId.FImageFileServer'],
-                                stk_qty: 0,
-                                qty: inv.FQty,
-                                unit_name: inv['FStockUnitId.FName'],
-                                thumbnail: '/static/default_40x40.png'
-                            })
-                        }
-                        j += 1
-                    }
-                }
-                this.inv_groups = inv_groups
-                this.inv_groups_q = inv_groups
             },
             // #ifdef APP-PLUS
             // Broadcast receiver
@@ -433,5 +353,10 @@
         .uni-forms-item {
             margin-bottom: 10px;
         }
+    }
+    .sum_qty {
+        color: $uni-color-primary;
+        font-size: 30px;
+        text-align: center;
     }
 </style>

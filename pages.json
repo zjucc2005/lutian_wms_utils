@@ -26,7 +26,7 @@
         { "path": "pages/operation/move/unpack_allocate", "style": { "navigationBarTitleText": "库内调拨-分配库位" } },
         { "path": "pages/operation/outbound/unpack",      "style": { "navigationBarTitleText": "出库" } },
         // 仓库流程 VERSION 2
-        { "path": "pages/operation/index_v2", "style": { "navigationBarTitleText": "", 
+        { "path": "pages/operation/index", "style": { "navigationBarTitleText": "", 
             "app-plus": {
                 "titleNView": {
                     "buttons": [{ "type": "menu", "color": "#FFFFFF" }]
@@ -60,14 +60,21 @@
         { "path": "pages/operation/manage/inv_init", "style": { "navigationBarTitleText": "期初库存录入" } },
         { "path": "pages/operation/manage/locs", "style": { "navigationBarTitleText": "库位", "enablePullDownRefresh": true } },
         { "path": "pages/operation/manage/loc_new", "style": { "navigationBarTitleText": "库位 - 新增库位" } },
+        // 物料
+        { "path": "pages/operation/material/index",        "style": { "navigationBarTitleText": "物料查询" } },
+        { "path": "pages/operation/material/search",       "style": { "navigationBarTitleText": "物料查询" } },
+        { "path": "pages/operation/material/show",         "style": { "navigationBarTitleText": "物料详情" } },
+        { "path": "pages/operation/material/card",         "style": { "navigationBarTitleText": "物料资料卡模板" } },
+        { "path": "pages/operation/material/search_parts", "style": { "navigationBarTitleText": "配件查询" } },
         // 库位
-        { "path": "pages/operation/stock_loc/index", "style": { "navigationBarTitleText": "库位管理" } },
-        { "path": "pages/operation/stock_loc/map", "style": { "navigationBarTitleText": "库位平面图" } },
-        { "path": "pages/operation/stock_loc/new", "style": { "navigationBarTitleText": "库位 - 新增" } },
+        { "path": "pages/operation/stock_loc/index",       "style": { "navigationBarTitleText": "库位管理" } },
+        { "path": "pages/operation/stock_loc/map",         "style": { "navigationBarTitleText": "库位平面图" } },
+        { "path": "pages/operation/stock_loc/new",         "style": { "navigationBarTitleText": "库位 - 新增" } },
         // 库存
-        { "path": "pages/operation/inv/index", "style": { "navigationBarTitleText": "库存查询" } },
-        { "path": "pages/operation/inv/map", "style": { "navigationBarTitleText": "库存地图" } },
-        { "path": "pages/operation/inv/logs", "style": { "navigationBarTitleText": "库存变更日志" } },
+        { "path": "pages/operation/inv/index",             "style": { "navigationBarTitleText": "库存查询" } },
+        { "path": "pages/operation/inv/detail",            "style": { "navigationBarTitleText": "库存明细" } },
+        { "path": "pages/operation/inv/map",               "style": { "navigationBarTitleText": "库存地图" } },
+        { "path": "pages/operation/inv/logs",              "style": { "navigationBarTitleText": "库存变更日志" } },
         // 我的
         { "path": "pages/my/index",       "style": { "navigationBarTitleText": "我"} },
         { "path": "pages/my/reset_password", "style": { "navigationBarTitleText": "重置密码"} },
@@ -107,10 +114,7 @@
         { "path": "pages/operation/manufacture_order/index",         "style": { "navigationBarTitleText": "生产订单" } },
         { "path": "pages/operation/manufacture_order/send_material", "style": { "navigationBarTitleText": "生产订单 - 发料", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
         { "path": "pages/operation/manufacture_order/issuemtr_logs", "style": { "navigationBarTitleText": "发料用料日志", "enablePullDownRefresh": true, "onReachBottomDistance": 50 } },
-        { "path": "pages/operation/material/search",       "style": { "navigationBarTitleText": "物料查询" } },
-        { "path": "pages/operation/material/show",         "style": { "navigationBarTitleText": "物料详情" } },
-        { "path": "pages/operation/material/card",         "style": { "navigationBarTitleText": "物料资料卡模板" } },
-        { "path": "pages/operation/material/search_parts", "style": { "navigationBarTitleText": "配件查询" } },
+        
         // 打印
         { "path": "pages/operation/print/index", "style": { "navigationBarTitleText": "打印" } },
         // { "path": "pages/operation/print/demo",  "style": { "navigationBarTitleText": "标签DEMO" } },
@@ -168,7 +172,7 @@
         "backgroundColor": "#F8F8F8",
         "list": [
             {
-                "pagePath": "pages/operation/index_v2",
+                "pagePath": "pages/operation/index",
                 "text": "作业",
                 "iconfont": {
                     "text": "\ue662",

@@ -196,7 +196,7 @@
                     this.after_login()
                     this.$logger.info(`>>> 登录成功[${this.staff.FName}]`)
                     uni.showToast({ title: '登录成功' })
-                    uni.reLaunch({ url: '/pages/operation/index_v2' })                  
+                    uni.reLaunch({ url: '/pages/operation/index' })                  
                 }).catch(err => {})
             },
             // 访客登录要设定组织
@@ -210,7 +210,7 @@
                     store.commit('guest_login', params)
                     this.$logger.info('>>> 登录成功[GUEST]')
                     uni.showToast({ title: '登录成功' })
-                    uni.reLaunch({ url: '/pages/operation/index_v2' })  
+                    uni.reLaunch({ url: '/pages/operation/index' })  
                 }).catch(err => {})
             },
             async after_login() {

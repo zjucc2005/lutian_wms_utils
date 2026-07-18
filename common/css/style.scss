@@ -1,6 +1,6 @@
 // 隐藏滚动条
 ::-webkit-scrollbar {
-    display: none;
+    // display: none;
 }
 .uni-page-head {
     background: linear-gradient(to right, #007aff, #626aef) !important;
@@ -149,33 +149,6 @@
         color: #666666;
         font-size: $uni-font-size-sm;
         overflow: hidden;
-        // .loc_no {
-        //     font-size: $uni-font-size-base;
-        //     color: $uni-color-primary;
-        // }
-        // .src_loc_no {
-        //     font-size: $uni-font-size-base;
-        //     color: $uni-text-color;
-        // }
-        // .dest_loc_no {
-        //     font-size: $uni-font-size-base;
-        //     color: $uni-color-primary;
-        // }
-        // .stock {
-        //     color: $uni-color-primary;
-        //     &.disabled {
-        //         color: $uni-color-error;
-        //     }
-        // }
-        // .dest-stock {
-        //     color: $uni-color-primary;
-        //     &.disabled {
-        //         color: $uni-color-error;
-        //     }
-        // }
-        // .batch_no {
-        //     color: $uni-color-primary;
-        // }
     }
 }
 .uni-list-item__foot {

@@ -53,6 +53,17 @@ class BdMaterial {
         return K3CloudApi.bill_query(data)
     }
     
+    static async count(options={}) {
+        const data = {
+            FormId: this.form_id,
+            FieldKeys: 'count(1)',
+            FilterString: K3CloudApi.query_filter(options),
+            Limit: 0
+        }
+        let res = await K3CloudApi.execute_bill_query(data)
+        return Number(res.data[0][0])
+    }
+    
     /**
      * 搜索存货类别数据
      * @param options:Hash 参数集
@@ -63,7 +74,7 @@ class BdMaterial {
      * @return {Hash} Promise
      */
     static async categories (options={}, meta={}) {
-        let fields = ['FMasterId', 'FNumber', 'FName', 'FDocumentStatus', 'FForbidStatus', 'FCreateOrgId', 'FCreateOrgId.FName', 'FUseOrgId', 'FUseOrgId.FName']
+        let fields = ['FMasterId', 'FNumber', 'FName', 'FCreateOrgId', 'FCreateOrgId.FName', 'FUseOrgId', 'FUseOrgId.FName']
         const data = {
             FormId: 'BD_MATERIALCATEGORY',
             FieldKeys: fields.join(','),

@@ -38,35 +38,36 @@
             </uni-col>
             
             <uni-col :span="18">
-                <uni-table ref="table" type="selection" stripe class="cc-list-scroll">
-                    <uni-tr>
-                        <uni-th align="center">编码</uni-th>
-                        <uni-th align="center">分组</uni-th>
-                        <uni-th align="center">横向位置</uni-th>
-                        <uni-th align="center">纵向位置</uni-th>
-                        <uni-th align="center">位数</uni-th>
-                        <uni-th align="center">库位备注</uni-th>
-                        <uni-th align="center">禁用状态</uni-th>
-                        <!-- <uni-th align="center"></uni-th> -->
-                    </uni-tr>
-                    <uni-tr v-for="(loc, index) in table_data" :key="index" :style="{ backgroundColor: loc.FForbidStatus == 'B' ? 'rgb(254, 240, 240)' : '' }">
-                        <uni-td align="center">{{ loc.FNumber }}</uni-td>
-                        <uni-td align="center">{{ loc.FGroup }}</uni-td>
-                        <uni-td align="center">{{ loc.FPosX }}</uni-td>
-                        <uni-td align="center">{{ loc.FPosY }}</uni-td>
-                        <uni-td align="center">{{ loc.FPalletSpace }}</uni-td>
-                        <uni-td align="center">{{ loc.FRemark }}</uni-td>
-                        <uni-td align="center">
-                            <view v-if="loc.FForbidStatus == 'B'" class="text-error">是</view>
-                            <view v-else>否</view>
-                        </uni-td>
-                        <!-- <uni-td align="center">
-                            <uni-tag v-if="loc.FForbidStatus == 'B'" text="解禁" type="success" size="small" @click="stock_loc_enable(loc.FNumber)" />
-                            <uni-tag v-else text="禁用" type="error" size="small" @click="stock_loc_forbid(loc.FNumber)" />
-                        </uni-td> -->
-                    </uni-tr>
-                </uni-table>
-                
+                <scroll-view :scroll-top="scroll_top" @scroll="scroll" scroll-y @scrolltolower="scrolltolower" :style="{ height: scroll_height }">
+                    <uni-table ref="table" type="selection" stripe style="width: 100%;">
+                        <uni-tr>
+                            <uni-th align="center">编码</uni-th>
+                            <uni-th align="center">分组</uni-th>
+                            <uni-th align="center">横向位置</uni-th>
+                            <uni-th align="center">纵向位置</uni-th>
+                            <uni-th align="center">位数</uni-th>
+                            <uni-th align="center">库位备注</uni-th>
+                            <uni-th align="center">禁用状态</uni-th>
+                            <uni-th v-if="$store.state.config.log" align="center"></uni-th>
+                        </uni-tr>
+                        <uni-tr v-for="(loc, index) in table_data" :key="index" :style="{ backgroundColor: loc.FForbidStatus == 'B' ? 'rgb(254, 240, 240)' : '' }">
+                            <uni-td align="center">{{ loc.FNumber }}</uni-td>
+                            <uni-td align="center">{{ loc.FGroup }}</uni-td>
+                            <uni-td align="center">{{ loc.FPosX }}</uni-td>
+                            <uni-td align="center">{{ loc.FPosY }}</uni-td>
+                            <uni-td align="center">{{ loc.FPalletSpace }}</uni-td>
+                            <uni-td align="center">{{ loc.FRemark }}</uni-td>
+                            <uni-td align="center">
+                                <view v-if="loc.FForbidStatus == 'B'" class="text-error">是</view>
+                                <view v-else>否</view>
+                            </uni-td>
+                            <uni-td v-if="$store.state.config.log" align="center">
+                                <uni-tag v-if="loc.FForbidStatus == 'B'" text="解禁" type="success" size="small" @click="stock_loc_enable(loc.FNumber)" />
+                                <uni-tag v-else text="禁用" type="error" size="small" @click="stock_loc_forbid(loc.FNumber)" />
+                            </uni-td>
+                        </uni-tr>
+                    </uni-table>
+                </scroll-view>
                 <uni-pagination v-if="stock_locs_q.length > 0"
                     :total="stock_locs_q.length" 
                     :current="cur_page" 
@@ -79,14 +80,16 @@
         </uni-row>
         
         <template v-else>
-            <uni-list class="cc-list-scroll" :style="{ height: cc_list_height }">
-                <uni-list-item v-for="(loc, index) in table_data" 
-                    :key="index"
-                    :title="loc.FNumber"
-                    :right-text="loc.FRemark"
-                    :style="{ backgroundColor: loc.FForbidStatus == 'B' ? 'rgb(254, 240, 240)' : '' }"
-                    />
-            </uni-list>
+            <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }">
+                <uni-list>
+                    <uni-list-item v-for="(loc, index) in table_data" 
+                        :key="index"
+                        :title="loc.FNumber"
+                        :right-text="loc.FRemark"
+                        :style="{ backgroundColor: loc.FForbidStatus == 'B' ? 'rgb(254, 240, 240)' : '' }"
+                        />
+                </uni-list>
+            </scroll-view>
             <uni-pagination v-if="stock_locs_q.length > 0"
                 :total="stock_locs_q.length" 
                 :current="cur_page" 
@@ -143,12 +146,13 @@
                 stock_locs: store.state.stock_locs,
                 stock_locs_q: store.state.stock_locs, // 过滤结果
                 cur_page: 1,
-                per_page: 20,
+                per_page: 50,
+                scroll_top: 0,
                 // #ifdef H5
-                    cc_list_height: 'calc(100vh - 187px)',
+                    scroll_height: 'calc(100vh - 187px)',
                 // #endif
                 // #ifdef APP-PLUS
-                    cc_list_height: `calc(100vh - ${187 - store.state.system_info.statusBarHeight}px)`,
+                    scroll_height: `calc(100vh - ${187 - store.state.system_info.statusBarHeight}px)`,
                 // #endif
                 last_refresh_time: 0,
                 refresh_interval: 30 * 1000, // 30s
@@ -191,6 +195,7 @@
             },
             change_page(e) {
                 this.cur_page = e.current
+                this.scroll_top = 0
             },
             goods_nav_click(e) {
                 if (e.index === 0) this.$refs.search_dialog.open()
@@ -211,6 +216,12 @@
             reset_search_form() {
                 this.search_form = { no: '', remark: '', forbid_status: '' }
                 this.search()
+            },
+            scroll(e) {
+                this.scroll_top = e.detail.scrollTop
+            },
+            scrolltolower(e) {
+                uni.showToast({ icon: 'none', title: '已经到底了' })
             },
             search() {
                 this.stock_locs_q = this.stock_locs.filter(stock_loc => {
@@ -280,12 +291,15 @@
 </script>
 
 <style lang="scss" scoped>
-    .cc-list-scroll {
-        width: 100%;
-        overflow-x: auto;
-        height: calc(100vh - 187px);
-    }
+    // .cc-list-scroll {
+    //     width: 100%;
+    //     overflow-x: auto;
+    //     height: calc(100vh - 187px);
+    // }
     .uni-table-tr::v-deep {
+        .uni-table-th {
+            color: $uni-text-color;
+        }
         .uni-table-td {
             padding: 4px 5px;
         }
@@ -296,6 +310,11 @@
     .uni-list::v-deep {
         .uni-list--border-bottom {
             display: none;
+        }
+    }
+    .uni-forms::v-deep {
+        .uni-forms-item {
+            margin-bottom: 10px;
         }
     }
 </style>

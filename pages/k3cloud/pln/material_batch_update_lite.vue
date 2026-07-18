@@ -146,21 +146,18 @@
                 let step = 1000
                 for (let i = 0; i < material_nos.length; i += step) {
                     let q_nos = material_nos.slice(i, i + step)
-                    let mat_res = await BdMaterial.query({ FNumber_in: q_nos, 'FUseOrgId.FNumber': '100' }, { fields: ['FMaterialId', 'FNumber', 'FUseOrgId.FNumber', 'FIssueType'] })
+                    let mat_res = await BdMaterial.query({ FNumber_in: q_nos, 'FUseOrgId.FNumber_in': ['100', '102'] }, { fields: ['FMaterialId', 'FNumber', 'FUseOrgId.FNumber', 'FIssueType'] })
                     for (let d of mat_res.data) materials.push(d)
                 }
                 for (let i = 0; i < this.raw_data.length; i++) {
                     let row = this.raw_data[i]
                     if (row[0]?.trim()) {
-                        let material = materials.find(m => m.FNumber == row[0].trim())
-                        if (material) {
-                            let obj = { FMaterialId: material.FMaterialId, SubHeadEntity1: {}, SubHeadEntity5: {} }
+                        for (let mat of materials.filter(m => m.FNumber == row[0].trim())) {
+                            let obj = { FMaterialId: mat.FMaterialId, SubHeadEntity1: {}, SubHeadEntity5: {} }
                             if ((row[1] || [0, '0'].includes(row[1]))) { // 安全库存
                                 obj.SubHeadEntity1.FSafeStock = row[1]
                             }
                             res.push(obj)
-                        } else {
-                            this.response_result.push({ i: i+1, msg: `未找到物料编码[${row[0]}]` })
                         }
                     } else {
                         this.response_result.push({ i: i+1, msg: '子项物料编码不能为空'  })

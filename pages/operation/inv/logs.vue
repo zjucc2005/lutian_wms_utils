@@ -47,45 +47,46 @@
             </uni-col>
             
             <uni-col :span="20">
-                <uni-table ref="table" stripe>
-                    <uni-tr>
-                        <uni-th align="center" width="160">时间</uni-th>
-                        <uni-th align="center" width="160">物料编码</uni-th>
-                        <uni-th align="center" width="200">物料名称</uni-th>
-                        <uni-th align="center">规格型号</uni-th>
-                        <uni-th align="center" width="80">操作类型</uni-th>
-                        <uni-th align="center" width="60">数量</uni-th>
-                        <uni-th align="center" width="60">单位</uni-th>
-                        <uni-th align="center" width="120">库位</uni-th>
-                        <uni-th align="center" width="80">批次</uni-th>
-                        <uni-th align="center">单据编号</uni-th>
-                        <uni-th align="center" width="80">收货人</uni-th>
-                        <uni-th align="center">备注</uni-th>
-                        <uni-th align="center" width="80">操作员工</uni-th>
-                    </uni-tr>
-                    <uni-tr v-for="(inv_log, index) in inv_logs" :key="index">
-                        <uni-td>{{ formatDate(inv_log.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</uni-td>
-                        <uni-td>{{ inv_log['FMaterialId.FNumber'] }}</uni-td>
-                        <uni-td>{{ inv_log['FMaterialId.FName'] }}</uni-td>
-                        <uni-td :title="inv_log['FMaterialId.FSpecification']">
-                            {{ truncate(inv_log['FMaterialId.FSpecification'], 26) }}
-                        </uni-td>
-                        <uni-td align="center">
-                            <view v-if="['in', 'add', 'out_cl'].includes(inv_log.FOpType)" class="text-error">{{ op_type_dict[inv_log.FOpType] }}</view>
-                            <view v-if="['out', 'sub', 'in_cl'].includes(inv_log.FOpType)" class="text-primary">{{ op_type_dict[inv_log.FOpType] }}</view>
-                            <view v-if="['mv_in', 'mv_out'].includes(inv_log.FOpType)">{{ op_type_dict[inv_log.FOpType] }}</view>
-                        </uni-td>
-                        <uni-td align="center">{{ inv_log['FOpQTY'] }}</uni-td>
-                        <uni-td align="center">{{ inv_log['FStockUnitId.FName'] }}</uni-td>
-                        <uni-td align="center">{{ inv_log['FStockLocId.FNumber'] }}</uni-td>
-                        <uni-td align="center">{{ inv_log.FBatchNo }}</uni-td>
-                        <uni-td align="center">{{ inv_log.FBillNo }}</uni-td>
-                        <uni-td align="center" :title="inv_log.FReceiver">{{ truncate(inv_log.FReceiver, 3) }}</uni-td>
-                        <uni-td :title="inv_log.FRemark">{{ truncate(inv_log.FRemark, 2) }}</uni-td>
-                        <uni-td align="center">{{ inv_log.FOpStaffNo }}</uni-td>
-                    </uni-tr>
-                </uni-table>
-                
+                <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }">
+                    <uni-table ref="table" stripe>
+                        <uni-tr>
+                            <uni-th align="center" width="160">时间</uni-th>
+                            <uni-th align="center" width="160">物料编码</uni-th>
+                            <uni-th align="center" width="200">物料名称</uni-th>
+                            <uni-th align="center">规格型号</uni-th>
+                            <uni-th align="center" width="80">操作类型</uni-th>
+                            <uni-th align="center" width="60">数量</uni-th>
+                            <uni-th align="center" width="60">单位</uni-th>
+                            <uni-th align="center" width="120">库位</uni-th>
+                            <uni-th align="center" width="80">批次</uni-th>
+                            <uni-th align="center">单据编号</uni-th>
+                            <uni-th align="center" width="80">收货人</uni-th>
+                            <uni-th align="center">备注</uni-th>
+                            <uni-th align="center" width="80">操作员工</uni-th>
+                        </uni-tr>
+                        <uni-tr v-for="(inv_log, index) in inv_logs" :key="index">
+                            <uni-td>{{ formatDate(inv_log.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</uni-td>
+                            <uni-td>{{ inv_log['FMaterialId.FNumber'] }}</uni-td>
+                            <uni-td>{{ inv_log['FMaterialId.FName'] }}</uni-td>
+                            <uni-td :title="inv_log['FMaterialId.FSpecification']">
+                                {{ truncate(inv_log['FMaterialId.FSpecification'], 26) }}
+                            </uni-td>
+                            <uni-td align="center">
+                                <view v-if="['in', 'add', 'out_cl'].includes(inv_log.FOpType)" class="text-error">{{ op_type_dict[inv_log.FOpType] }}</view>
+                                <view v-if="['out', 'sub', 'in_cl'].includes(inv_log.FOpType)" class="text-primary">{{ op_type_dict[inv_log.FOpType] }}</view>
+                                <view v-if="['mv_in', 'mv_out'].includes(inv_log.FOpType)">{{ op_type_dict[inv_log.FOpType] }}</view>
+                            </uni-td>
+                            <uni-td align="center">{{ inv_log['FOpQTY'] }}</uni-td>
+                            <uni-td align="center">{{ inv_log['FStockUnitId.FName'] }}</uni-td>
+                            <uni-td align="center">{{ inv_log['FStockLocId.FNumber'] }}</uni-td>
+                            <uni-td align="center">{{ inv_log.FBatchNo }}</uni-td>
+                            <uni-td align="center">{{ inv_log.FBillNo }}</uni-td>
+                            <uni-td align="center" :title="inv_log.FReceiver">{{ truncate(inv_log.FReceiver, 3) }}</uni-td>
+                            <uni-td :title="inv_log.FRemark">{{ truncate(inv_log.FRemark, 2) }}</uni-td>
+                            <uni-td align="center">{{ inv_log.FOpStaffNo }}</uni-td>
+                        </uni-tr>
+                    </uni-table>
+                </scroll-view>
                 <uni-pagination
                     :total="total" 
                     :current="page" 
@@ -98,52 +99,53 @@
         </uni-row>
         
         <template v-else>
-            <uni-list class="cc-list-scroll" :style="{ height: cc_list_height }">
-                <uni-list-item
-                    v-for="(inv_log, index) in inv_logs"
-                    :key="index"
-                    :show-extra-icon="!inv_log.FCInvId"
-                    :extra-icon="{ type: 'loop', size: '24', color: '#dd524d' }"
-                    @click="inv_log_menu(inv_log)"
-                    :clickable="!inv_log.FCInvId"
-                    :show-arrow="!inv_log.FCInvId"
-                    >
-                    <template #body>
-                        <view class="uni-list-item__body">
-                            <view class="title text-bold">{{ inv_log['FMaterialId.FNumber'] }} / {{ inv_log['FMaterialId.FName'] }}</view>
-                            <view class="note">
-                                <view>规格：{{ inv_log['FMaterialId.FSpecification'] }}</view>
-                                <view>
-                                    库位：<text class="text-default">{{ inv_log['FStockLocId.FNumber'] }}</text>
-                                    <template v-if="inv_log.FOpType == 'mv'">
-                                        <uni-icons type="redo" color="#007bff"></uni-icons>
-                                        <text class="text-primary uni-ml-2">{{ inv_log['FDestStockLocId.FNumber'] }}</text>
-                                    </template>
-                                    <text class="uni-ml-5">批次：{{ inv_log.FBatchNo }}</text>
+            <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }">
+                <uni-list>
+                    <uni-list-item
+                        v-for="(inv_log, index) in inv_logs"
+                        :key="index"
+                        :show-extra-icon="!inv_log.FCInvId"
+                        :extra-icon="{ type: 'loop', size: '24', color: '#dd524d' }"
+                        @click="inv_log_menu(inv_log)"
+                        :clickable="!inv_log.FCInvId"
+                        :show-arrow="!inv_log.FCInvId"
+                        >
+                        <template #body>
+                            <view class="uni-list-item__body">
+                                <view class="title text-bold">{{ inv_log['FMaterialId.FNumber'] }} / {{ inv_log['FMaterialId.FName'] }}</view>
+                                <view class="note">
+                                    <view>规格：{{ inv_log['FMaterialId.FSpecification'] }}</view>
+                                    <view>
+                                        库位：<text class="text-default">{{ inv_log['FStockLocId.FNumber'] }}</text>
+                                        <template v-if="inv_log.FOpType == 'mv'">
+                                            <uni-icons type="redo" color="#007bff"></uni-icons>
+                                            <text class="text-primary uni-ml-2">{{ inv_log['FDestStockLocId.FNumber'] }}</text>
+                                        </template>
+                                        <text class="uni-ml-5">批次：{{ inv_log.FBatchNo }}</text>
+                                    </view>
+                                    <view v-if="inv_log['FSupplierId.FName']">供应商：{{ inv_log['FSupplierId.FName'] }}</view>
+                                    <view>
+                                        <text v-if="inv_log.FBillNo?.trim()" class="uni-mr-5">单据：{{ inv_log.FBillNo }}</text>
+                                        <text v-if="inv_log.FReceiver?.trim()">收货人：{{ inv_log.FReceiver }}</text>
+                                    </view>
+                                    <view v-if="inv_log.FRemark?.trim()">备注：{{ inv_log.FRemark }}</view>
+                                    <view>时间：{{ formatDate(inv_log.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</view>
+                                    <view v-if="!inv_log.FCInvId" class="text-error">库存未更新，请点击重试</view>
                                 </view>
-                                <view v-if="inv_log['FSupplierId.FName']">供应商：{{ inv_log['FSupplierId.FName'] }}</view>
-                                <view>
-                                    <text v-if="inv_log.FBillNo?.trim()" class="uni-mr-5">单据：{{ inv_log.FBillNo }}</text>
-                                    <text v-if="inv_log.FReceiver?.trim()">收货人：{{ inv_log.FReceiver }}</text>
-                                </view>
-                                <view v-if="inv_log.FRemark?.trim()">备注：{{ inv_log.FRemark }}</view>
-                                <view>时间：{{ formatDate(inv_log.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }}</view>
-                                <view v-if="!inv_log.FCInvId" class="text-error">库存未更新，请点击重试</view>
                             </view>
-                        </view>
-                    </template>
-                    <template #footer>
-                        <view class="uni-list-item__foot">
-                            <view v-if="['in', 'add', 'out_cl'].includes(inv_log.FOpType)" class="text-error">{{ op_type_dict[inv_log.FOpType] }}</view>
-                            <view v-if="['out', 'sub', 'in_cl'].includes(inv_log.FOpType)" class="text-primary">{{ op_type_dict[inv_log.FOpType] }}</view>
-                            <view v-if="['mv_in', 'mv_out'].includes(inv_log.FOpType)">{{ op_type_dict[inv_log.FOpType] }}</view>
-                            <view>{{ inv_log['FOpQTY'] }} {{ inv_log['FStockUnitId.FName'] }}</view>
-                            <view class="text-primary">{{ $store.state.document_status_dict[inv_log.FDocumentStatu] }}</view>
-                        </view>
-                    </template>
-                </uni-list-item>
-            </uni-list>
-            
+                        </template>
+                        <template #footer>
+                            <view class="uni-list-item__foot">
+                                <view v-if="['in', 'add', 'out_cl'].includes(inv_log.FOpType)" class="text-error">{{ op_type_dict[inv_log.FOpType] }}</view>
+                                <view v-if="['out', 'sub', 'in_cl'].includes(inv_log.FOpType)" class="text-primary">{{ op_type_dict[inv_log.FOpType] }}</view>
+                                <view v-if="['mv_in', 'mv_out'].includes(inv_log.FOpType)">{{ op_type_dict[inv_log.FOpType] }}</view>
+                                <view>{{ inv_log['FOpQTY'] }} {{ inv_log['FStockUnitId.FName'] }}</view>
+                                <view class="text-primary">{{ $store.state.document_status_dict[inv_log.FDocumentStatu] }}</view>
+                            </view>
+                        </template>
+                    </uni-list-item>
+                </uni-list>
+            </scroll-view>
             <uni-pagination
                 :total="total" 
                 :current="page" 
@@ -246,12 +248,13 @@
                 inv_logs: [],
                 total: 2000,
                 page: 1,
-                per_page: 20,
+                per_page: 50,
+                scroll_top: 0,
                 // #ifdef H5
-                    cc_list_height: 'calc(100vh - 187px)',
+                    scroll_height: 'calc(100vh - 187px)',
                 // #endif
                 // #ifdef APP-PLUS
-                    cc_list_height: `calc(100vh - ${187 - store.state.system_info.statusBarHeight}px)`,
+                    scroll_height: `calc(100vh - ${187 - store.state.system_info.statusBarHeight}px)`,
                 // #endif
                 search_form: {
                     create_time_ge: '',
@@ -302,6 +305,7 @@
             },
             change_page(e) {
                 this.page = e.current
+                this.scroll_top = 0
                 this.load_inv_logs()
             },
             goods_nav_click(e) {
@@ -316,9 +320,14 @@
                 this.search_form = {}
                 this.search()
             },
+            scroll(e) {
+                this.scroll_top = e.detail.scrollTop
+            },
+            scrolltolower(e) {
+                uni.showToast({ icon: 'none', title: '已经到底了' })
+            },
             search() {
                 this.page = 1
-                this.total = 100 * this.per_page
                 this.load_inv_logs()
             },
             search_dialog_confirm() {
@@ -339,7 +348,7 @@
                 if (this.search_form.status == 'failed') options.FCInvId = ''
                 let meta = { page: this.page, per_page: this.per_page, order: 'FID DESC' }
                 uni.showLoading({ title: 'Loading' })
-                this.total = await InvLog.count(options, meta)
+                this.total = await InvLog.count(options)
                 let res = await InvLog.query(options, meta)
                 this.inv_logs = res.data
                 uni.hideLoading()
@@ -377,6 +386,9 @@
         height: calc(100vh - 187px);
     }
     .uni-table-tr::v-deep {
+        .uni-table-th {
+            color: $uni-text-color;
+        }
         .uni-table-td {
             padding: 4px 5px;
         }
