@@ -6,6 +6,10 @@
     background: linear-gradient(to right, #007aff, #626aef) !important;
 }
 
+.uni-pagination {
+    height: 30px; // 固定高度，避免“共**条”文字过长挤压变形
+}
+
 .uni-section {
     width: 100%;
 }

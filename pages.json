@@ -130,6 +130,7 @@
         // k3cloud
         { "path": "pages/k3cloud/index", "style": { "navigationBarTitleText": "金蝶云" } },
         { "path": "pages/k3cloud/eng_bom/index", "style": { "navigationBarTitleText": "物料清单" } },
+        { "path": "pages/k3cloud/eng_bom/show", "style": { "navigationBarTitleText": "BOM查询" } },
         { "path": "pages/k3cloud/eng_bom/tree", "style": { "navigationBarTitleText": "物料清单" } },
         { "path": "pages/k3cloud/pln/index", "style": { "navigationBarTitleText": "计划管理" } },
         { "path": "pages/k3cloud/pln/bom_batch_update", "style": { "navigationBarTitleText": "物料清单批改" } },

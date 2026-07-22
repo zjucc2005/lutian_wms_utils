@@ -246,6 +246,7 @@
                 for (let idx of checked_idx) {
                     let obj = this.table_data[idx]
                     params.push({ FID: obj.FID, FRemark: this.edit_form.remark })
+                    // params.push({ FID: obj.FID, FPalletSpace: this.edit_form.remark })
                 }
                 uni.showLoading({ title: 'Loading' })
                 await StockLoc.batch_save(params)

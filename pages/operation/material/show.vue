@@ -190,7 +190,7 @@
 
 <script>
     import store from '@/store'
-    import { play_audio_prompt } from '@/utils'
+    import { play_audio_prompt, link_to } from '@/utils'
     import { BdMaterial, StkInventory } from '@/utils/model'
     import { choose_image, read_file_as_base64 } from '@/utils/file'
     import K3CloudApi from '@/utils/k3cloudapi'
@@ -352,20 +352,21 @@
                 });
             },
             search_bom() {
-                uni.showActionSheet({
-                    itemList: ['查询父项物料', '查询子项物料'],
-                    success: (e) => {
-                        // console.log('search_bom e', e)
-                        if (e.tapIndex === 0) {
-                            play_audio_prompt('success')
-                            uni.navigateTo({ url: `/pages/k3cloud/eng_bom/tree?material_no=${this.bd_material.Number}&sup=true`})
-                        }
-                        if (e.tapIndex === 1) {
-                            play_audio_prompt('success')
-                            uni.navigateTo({ url: `/pages/k3cloud/eng_bom/tree?material_no=${this.bd_material.Number}&sup=false`})
-                        }
-                    }
-                })
+                link_to(`/pages/k3cloud/eng_bom/show?no=${this.bd_material.Number}`)
+                // uni.showActionSheet({
+                //     itemList: ['查询父项物料', '查询子项物料'],
+                //     success: (e) => {
+                //         // console.log('search_bom e', e)
+                //         if (e.tapIndex === 0) {
+                //             play_audio_prompt('success')
+                //             uni.navigateTo({ url: `/pages/k3cloud/eng_bom/tree?material_no=${this.bd_material.Number}&sup=true`})
+                //         }
+                //         if (e.tapIndex === 1) {
+                //             play_audio_prompt('success')
+                //             uni.navigateTo({ url: `/pages/k3cloud/eng_bom/tree?material_no=${this.bd_material.Number}&sup=false`})
+                //         }
+                //     }
+                // })
             },
             select_material_card() {
                 if (!this.bd_material.Id) return

@@ -13,6 +13,9 @@
         data() {
             return {
                 notes: [
+                    { ver: '1.9.0', timestamp: '2026-07-22',
+                      content: ['1.[原料仓]拣选出库时，移除用料清单中不发料的物料；',
+                                '2.重构BOM查询；']},
                     { ver: '1.8.7', timestamp: '2026-07-14',
                       content: ['1.[金蝶云]增加采购订单批改交货日期；',
                                 '2.优化扫码枪的BroadcastReceiver开启和回收机制；']},

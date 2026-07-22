@@ -112,7 +112,7 @@
                         >
                         <template #body>
                             <view class="uni-list-item__body">
-                                <view class="title text-bold">{{ inv_log['FMaterialId.FNumber'] }} / {{ inv_log['FMaterialId.FName'] }}</view>
+                                <view class="title text-bold">{{ inv_log['FMaterialId.FNumber'] }} {{ inv_log['FMaterialId.FName'] }}</view>
                                 <view class="note">
                                     <view>规格：{{ inv_log['FMaterialId.FSpecification'] }}</view>
                                     <view>

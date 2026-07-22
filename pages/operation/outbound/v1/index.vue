@@ -71,7 +71,7 @@
                 <uni-th align="center">规格型号</uni-th>
                 <uni-th align="center">单位</uni-th>
                 <uni-th align="center">应发数量</uni-th>
-                <uni-th align="center">{{ this.dest_loc_no }}</uni-th>
+                <uni-th align="center">{{ this.dest_loc_no || '（拣选区）' }}</uni-th>
                 <uni-th align="center">实发数量</uni-th>
                 <uni-th align="center">仓库</uni-th>
                 <uni-th align="center">仓管员</uni-th>
@@ -173,7 +173,7 @@
                 ppbom: {},
                 outbound_bill: {}, // 出库单据
                 bill_type_dict: { 'ZJDB': '直接调拨单', 'PPBOM': '生产用料清单' },
-                invs: [],          // 拆包区库存
+                invs: [],          // 拣选区库存
                 invs_map: {},      // 优化库存查询性能
                 inv_logs: [],      // 实发物料
                 inv_logs_map: {},  // 优化实发查询性能
@@ -379,7 +379,7 @@
                 }
             },
             async load_ppbom(obj) {
-                let options = { FBillNo: obj.FBillNo, FMustQty_gt: 0 }
+                let options = { FBillNo: obj.FBillNo, FMustQty_gt: 0, 'FIssueType_ne': '7' } // 筛掉不发料
                 let meta = {
                     fields: [ 'FMaterialId2', 'FMaterialId2.FNumber', 'FMaterialId2.FName', 'FMaterialId2.FSpecification', 'FMaterialId2.F_PAEZ_Base1', 'FMaterialType',
                               'FNumerator', 'FDenominator', 'FUnitId2.FName', 'FMustQty', 'FStockId', 'FStockId.FName', 'FReplaceGroup'],
@@ -487,7 +487,7 @@
                 // >>> validation
                 if (!this.outbound_bill.bill_no) return // 1. 是否有生产订单数据
                 if (this.is_completed) return // 2. 是否已完成生产订单
-                // 3. 拆包区库存是否有充足
+                // 3. 拣选区库存是否有充足
                 let checked_materials = this.outbound_bill.entry
                 if (this.outbound_mode == '分批') {
                     checked_materials = this.outbound_bill.entry.filter(m => m.checked)
@@ -503,7 +503,7 @@
                         if (m.stock_id != store.state.cur_stock.FStockId) continue
                         if (m.qty === 0) continue
                         if (m.qty - (this.inv_logs_map[m.material_id] || 0) > (this.invs_map[m.material_id] || 0)) {
-                            uni.showModal({ title: '提示', content: `拆包区库存不足\n[${ m.seq }]${ m.material_name }\n剩余应发：${m.qty - (this.inv_logs_map[m.material_id] || 0)}\n拆包区：${this.invs_map[m.material_id] || 0}` })
+                            uni.showModal({ title: '提示', content: `拣选区库存不足\n[${ m.seq }]${ m.material_name }\n剩余应发：${m.qty - (this.inv_logs_map[m.material_id] || 0)}\n拣选区：${this.invs_map[m.material_id] || 0}` })
                             return
                         }
                         op_cnt++

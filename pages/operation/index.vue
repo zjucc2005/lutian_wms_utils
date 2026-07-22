@@ -132,7 +132,11 @@
                         action: () => { link_to('/pages/operation/material/index') }
                     },
                     // {
-                    //     name: '配件查询', permission: ['default'], icon_path: '/static/icon/nav_node_tree.png',
+                    //     name: 'BOM查询', permission: ['all'], icon_path: '/static/icon/nav_tree_node.png',
+                    //     action: () => { link_to('/pages/k3cloud/eng_bom/show') }
+                    // },
+                    // {
+                    //     name: '配件查询', permission: ['default'], icon_path: '/static/icon/nav_tree_node.png',
                     //     action: () => { link_to('/pages/operation/material/search_parts') }
                     // },
                     {

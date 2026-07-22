@@ -5,7 +5,7 @@ const createWindow = () => {
     const win = new BrowserWindow({
         width: 1440,
         height: 960,
-        minWidth: 480,
+        minWidth: 480, // < 450
         minHeight: 960,
         // resizable: false,
         // maximizable: false,
@@ -43,8 +43,8 @@ const createWindow = () => {
     // })
     
     // win.loadFile('./app/index.html')  // 本地模式
-    // win.loadFile('../unpackage/dist/build/web/index.html') // 调试模式
-    win.loadURL('https://lutian-wms-pages.pages.dev/#/')  // 在线模式 - 静态网页托管
+    win.loadFile('../unpackage/dist/build/web/index.html') // 调试模式
+    // win.loadURL('https://lutian-wms-pages.pages.dev/#/')  // 在线模式 - 静态网页托管
     // 打开调试窗口
     // win.webContents.openDevTools()
 }

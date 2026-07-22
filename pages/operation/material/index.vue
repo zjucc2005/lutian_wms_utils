@@ -74,9 +74,9 @@
                     >
                     <template #body>
                         <view class="uni-list-item__body">
-                            <view class="title text-bold">{{ mat.FNumber }} / {{ mat.FName }}</view>
+                            <view class="title text-bold">{{ mat.FNumber }} {{ mat.FName }}</view>
                             <view class="note">
-                                <view>规格：{{ mat.FSpecification }}</view>
+                                <view>{{ mat.FSpecification }}</view>
                             </view>
                         </view>
                     </template>
