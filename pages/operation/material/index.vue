@@ -19,10 +19,11 @@
                 <button type="primary" size="mini" @click="search">搜索</button>
                 <button size="mini" @click="reset_search_form" class="uni-ml-5">重置</button>
             </uni-group>
-            
-<!--            <uni-group title="其他操作" mode="card">
+            <!--
+            <uni-group title="其他操作" mode="card">
                 <button size="mini" @click="debug">debug</button>
-            </uni-group> -->
+            </uni-group>
+            -->
         </uni-col>
         
         <uni-col :span="20">
@@ -66,7 +67,8 @@
     </uni-row>
     
     <template v-else>
-        <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }">
+        <view class="above-uni-pagination">
+        <!-- <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }"> -->
             <uni-list>
                 <uni-list-item
                     v-for="(mat, index) in materials" :key="index"
@@ -87,14 +89,17 @@
                     </template> -->
                 </uni-list-item>
             </uni-list>
-        </scroll-view>
-        <uni-pagination v-if="materials.length > 0"
-            :total="total" 
-            :current="page" 
-            :page-size="per_page" 
-            show-icon
-            @change="change_page"
-        />
+        <!-- </scroll-view> -->
+        </view>
+        <view class="uni-pagination-wrapper">
+            <uni-pagination v-if="materials.length > 0"
+                :total="total" 
+                :current="page" 
+                :page-size="per_page" 
+                show-icon
+                @change="change_page"
+            />
+        </view>
         <view class="uni-goods-nav-wrapper">
             <uni-goods-nav 
                 :options="goods_nav.options" 
@@ -181,6 +186,9 @@
             this.reg_broadcast_receiver()
             // #endif
         },
+        onReachBottom() {
+            this.scrolltolower()
+        },
         mounted() {
             this.load_bd_materialcategories()
             // #ifdef H5
@@ -198,7 +206,8 @@
             },
             change_page(e) {
                 this.page = e.current
-                this.scroll_top = 0
+                this.scroll_top = 0 // scroll-view
+                uni.pageScrollTo({ scrollTop: 0, duration: 0 })
                 this.load_bd_materials()
             },
             goods_nav_click(e) {
@@ -310,11 +319,6 @@
     .uni-group--card::v-deep {
         overflow: visible;
     }
-    // .uni-list::v-deep {
-    //     .uni-list--border-bottom {
-    //         display: none;
-    //     }
-    // }
     .uni-forms::v-deep {
         .uni-forms-item {
             margin-bottom: 10px;

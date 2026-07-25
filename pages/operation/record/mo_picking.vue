@@ -1,12 +1,38 @@
 <template>
-    <uni-section title="查询生产订单编号" type="square" @click="$logger.info('>>>', $data)">
+    <uni-section title="搜索条件" type="square" @click="$logger.info('>>>', $data)">
         <view class="searchbar-container">
+            <uni-forms ref="search_form" :model="search_form" :label-width="88">
+                <uni-row :gutter="20">
+                    <uni-col :sm="12">
+                        <uni-forms-item label="计划跟踪号">
+                            <uni-easyinput v-model="search_form.sale_order_no" trim />
+                        </uni-forms-item>
+                    </uni-col>
+                    <uni-col :sm="12">
+                        <uni-forms-item label="生产订单号">
+                            <uni-easyinput v-model="search_form.mo_bill_no" trim />
+                        </uni-forms-item>
+                    </uni-col>
+                    <uni-col :sm="12">
+                        <uni-forms-item label="物料名称">
+                            <uni-easyinput v-model="search_form.material_name" trim />
+                        </uni-forms-item>
+                    </uni-col>
+                    <uni-col :sm="12">
+                        <uni-forms-item label="规格型号">
+                            <uni-easyinput v-model="search_form.material_spec" trim />
+                        </uni-forms-item>
+                    </uni-col>
+                </uni-row>
+            </uni-forms>
+            <button type="primary" size="mini" @click="search">搜索</button>
+            <!--
             <uni-easyinput
                 v-model="search_form.bill_no" 
                 placeholder="请输入搜索内容"
                 prefix-icon="scan"
-                @confirm="handle_search"
-                @clear="handle_search"
+                @confirm="search"
+                @clear="search"
                 @icon-click="searchbar_icon_click"
                 primary-color="rgb(238, 238, 238)"
                 :styles="{
@@ -15,6 +41,7 @@
                     borderColor: 'rgb(238, 238, 238)'
                 }"
             />
+            -->
         </view>
     </uni-section>
     
@@ -142,7 +169,11 @@
         data() {
             return {
                 search_form: {
-                    bill_no: ''
+                    mo_bill_no: '',
+                    sale_order_no: '',
+                    material_no: '',
+                    material_name: '',
+                    material_spec: ''
                 },
                 ppboms: [],
                 ppbom: {},
@@ -164,7 +195,7 @@
             // #endif
         },
         mounted() {
-            this.handle_search()
+            // this.search()
         },
         methods: {
             // check_all() {
@@ -197,22 +228,28 @@
                 })
             },
             handle_scan_code(text) {
-                this.search_form.bill_no = text
-                this.handle_search()
+                this.search_form.mo_bill_no = text
+                this.search()
             },
             clear_data() {
                 this.ppboms = []
                 this.ppbom = {}
                 this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
             },
-            async handle_search(e) {
+            async search() {
                 this.clear_data()
-                if (this.search_form.bill_no) {
-                    await this.load_ppboms()
-                }
+                // if (this.search_form.bill_no) {
+                await this.load_ppboms()
+                // }
             },
             async load_ppboms() {
-                let options = { FMoBillNo: this.search_form.bill_no.trim() }
+                let options = {}
+                if (this.search_form.sale_order_no) options['FSaleOrderNo'] = this.search_form.sale_order_no
+                if (this.search_form.mo_bill_no) options['FMoBillNo_lk'] = this.search_form.mo_bill_no
+                if (this.search_form.material_name) options['FMaterialId.FName_lk'] = this.search_form.material_name
+                if (this.search_form.material_spec) options['FMaterialId.FSpecification_lk'] = this.search_form.material_spec
+                if (!Object.keys(options).length) return
+                // let options = { FMoBillNo: this.search_form.bill_no.trim() }
                 let meta = {
                     fields: [ 'FID', 'FBillNo', 'FMoBillNo', 'FMoEntrySeq', 'FSaleOrderNo', 'FWorkShopId.FName', 'FMoEntryStatus',
                               'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',

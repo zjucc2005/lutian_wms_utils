@@ -124,6 +124,7 @@ class StockLoc {
      */    
     static async query(options={}, meta={}) {
         let fields = ['FID', 'FStockId', 'FNumber','FGroup', 'FPosX', 'FPosY', 'FRemark', 'FPalletSpace', 'FDocumentStatus', 'FForbidStatus']
+        if (meta.fields) fields = meta.fields
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),
@@ -135,14 +136,16 @@ class StockLoc {
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
         }
         if (meta.order) data.OrderString = meta.order
-        return K3CloudApi.execute_bill_query(data).then(res => {            
-            res.data = res.data.map(x => {
-                let obj = {}
-                for (let i = 0; i < fields.length; i++) obj[fields[i]] = x[i]
-                return obj
-            })
-            return res
-        })
+        return meta.return === 'array' ? K3CloudApi.execute_bill_query(data) : K3CloudApi.bill_query(data)
+        
+        // return K3CloudApi.execute_bill_query(data).then(res => {            
+        //     res.data = res.data.map(x => {
+        //         let obj = {}
+        //         for (let i = 0; i < fields.length; i++) obj[fields[i]] = x[i]
+        //         return obj
+        //     })
+        //     return res
+        // })
     }
     
     /** 

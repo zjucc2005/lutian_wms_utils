@@ -549,7 +549,7 @@ const gen_pdf_material_label = (options) => {
 }
 
 // 标签-批量
-// options = [{ no, name, spec, supplier, inbound_time, _qr, print_copies: 2 }, ...] 
+// options = [{ no, name, spec, supplier, inbound_time, _qr, print_copies: 2 }, ...]
 const gen_pdf_material_label_batch = (options) => {
     let f = new jsPDF({ orientation: 'landscape', format: [100, 70] })
     f.addFont(font_file_path, font_family, 'normal') // 加载字体
@@ -761,6 +761,89 @@ const gen_pdf_mo_confirming = (options) => {
     return url
 }
 
+/* 生产投料汇总 */
+// options = { bill_no, plan_start_date, prd_line, _qr, group: { storekeeper: []} } 
+const gen_pdf_prd_issue_mtrl = (options) => {
+    let f = new jsPDF() // 初始化jsPDF对象, 竖向A4
+    f.addFont(font_file_path, font_family, 'normal') // 加载字体
+    f.setFont(font_family) // 设置字体
+    
+    let keys = Object.keys(options.group)
+    let storekeeper_seq = []
+    let storekeeper_cnt = {}
+    let last_page = 0
+    for (let i = 0; i < keys.length; i++) {
+        let storekeeper = keys[i]
+        // header
+        f.addImage('./static/image/lutian_logo.png', 7, 7, 37.25, 10.75)
+        if (options._qr) f.addImage(options._qr, 'png', 179, 7, 24, 24)
+        f.setFontSize(20) // 设置固定字段名称
+        f.text('生产投料汇总（分库位）', 66.2, 15)
+        f.setFontSize(10)
+        f.text(`单据编码：${options.bill_no}`, 10, 24)
+        f.text(`领料部门：${options.prd_line}`, 10, 30)
+        f.text(`仓管员：${storekeeper}`, 88, 24)
+        f.text(`日期：${options.plan_start_date}`, 88, 30)
+        
+        let entry = options.group[storekeeper]
+        // body
+        let table_head = [['物料编码', '物料名称', '规格型号', '单位', '计划发料数量', '已发料数量', '仓库', 'WMS库位', 'WMS库存数量', '金蝶即时库存']]
+        let table_body = []
+        for (let obj of options.group[storekeeper]) {
+            table_body.push([obj.material_no, obj.material_name, obj.material_spec, obj.unit, obj.must_qty, obj.picked_qty, 
+                             obj.stock_name, obj.loc_memo, obj.qty, obj.stk_qty])
+        }
+        // f.setFontSize(7)
+        // console.log('>>> ', f.getTextWidth('1.01.12.01.0005')) 
+        f.autoTable({
+            theme: 'grid',
+            startY: 36,
+            margin: { left: 6, right: 6, top: 10, bottom: 10 },
+            styles: { font: 'SourceHanSansCN', fontSize: 7, cellPadding: 0.8, minCellWidth: 9 },
+            headStyles: { textColor: 0, fillColor: 255, lineColor: 60, lineWidth: 0.1, halign: 'center'},
+            bodyStyles: { textColor: 0, lineColor: 60, lineWidth: 0.1, halign: 'center' },
+            columnStyles: {
+                0: { minCellWidth: 22 },
+                // 1: { minCellWidth: 22.1 },
+                3: { cellWidth: 7 },
+                4: { cellWidth: 9.8 },
+                5: { cellWidth: 9.8 },
+                6: { minCellWidth: 18 },
+                7: { cellWidth: 40 },
+                8: { cellWidth: 9.8 },
+                9: { cellWidth: 9.8 }
+            },
+            head: table_head,
+            body: table_body
+        })
+        let cur_page = f.getNumberOfPages()
+        while (cur_page > last_page) {
+            storekeeper_seq.push(storekeeper)
+            last_page++
+            storekeeper_cnt[storekeeper] ||= []
+            storekeeper_cnt[storekeeper].push(last_page)
+        }
+        // tail_page[storekeeper] = f.getNumberOfPages()
+        if (i < keys.length - 1) f.addPage()
+    }
+    console.log('storekeeper_cnt', storekeeper_cnt)
+    // 添加页码
+    f.setFontSize(8)
+    let total_pages = f.getNumberOfPages()
+    for (let i = 1; i <= total_pages; i++) {
+        f.setPage(i)
+        let t = `${i} / ${total_pages}`
+        f.text(t, 200 - f.getTextWidth(t), 290)
+        let storekeeper = storekeeper_seq[i-1]
+        let page_list = storekeeper_cnt[storekeeper]
+        let m = page_list.length > 1 ? [page_list[0], page_list[page_list.length-1]].join('~') : page_list[0]
+        f.text(`${options.bill_no}, ${storekeeper}, 第 ${ m } 页`, 6, 290)
+    }
+    let blob = f.output('blob') // 生成PDF文件的Blob对象
+    let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL
+    return url
+}
+
 export {
     pdf_template_inv_plans_in,
     pdf_template_inv_plans_out,
@@ -772,5 +855,6 @@ export {
     gen_pdf_material_label,
     gen_pdf_material_label_batch,
     gen_pdf_mo_picking,
-    gen_pdf_mo_confirming
+    gen_pdf_mo_confirming,
+    gen_pdf_prd_issue_mtrl
 }

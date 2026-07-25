@@ -123,6 +123,7 @@
         { "path": "pages/operation/print/mo_picking",  "style": { "navigationBarTitleText": "物流拣选单" } },
         { "path": "pages/operation/print/mo_picking_info",  "style": { "navigationBarTitleText": "物流拣选单预览" } },
         { "path": "pages/operation/print/mo_confirming",  "style": { "navigationBarTitleText": "物料状态确认表" } },
+        { "path": "pages/operation/print/prd_issue_mtrl",  "style": { "navigationBarTitleText": "生产投料汇总" } },
         // 记录
         { "path": "pages/operation/record/index", "style": { "navigationBarTitleText": "记录" } },
         { "path": "pages/operation/record/mo_picking", "style": { "navigationBarTitleText": "记录 - 物流拣选单" } },

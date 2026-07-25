@@ -1,9 +1,5 @@
 <template>
-    <uni-section title="当前仓库" type="square"
-        :sub-title="breadcrumb_stockname()"
-        sub-title-color="#007aff"
-        @click="$logger.info('>>>', this.$data)"
-        >
+    <uni-section :title="breadcrumb_stockname()" type="square" title-color="#007aff" @click="$logger.info('>>>', this.$data)">
         <view class="searchbar-container">
             <uni-forms ref="search_form">
                 <uni-forms-item label="单据编号">

@@ -1,9 +1,5 @@
 <template>
-    <uni-section title="当前仓库" type="square"
-        :sub-title="breadcrumb_stockname()"
-        sub-title-color="#007aff"
-        @click="debug"
-        >
+    <uni-section :title="breadcrumb_stockname()" type="square" @click="debug">
         <uni-row v-if="$store.state.screen_type === 'h5'" >
             <uni-col :span="4">
                 <uni-group title="搜索栏" mode="card" style="margin-top: 0;">

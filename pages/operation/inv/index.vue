@@ -1,9 +1,5 @@
 <template>
-    <uni-section title="当前仓库" type="square"
-        :sub-title="breadcrumb_stockname()"
-        sub-title-color="#007aff"
-        @click="debug"
-        >
+    <uni-section :title="breadcrumb_stockname()" type="square" @click="debug">
         <uni-row v-if="$store.state.screen_type === 'h5'" >
             <uni-col :span="6">
                 <uni-group title="搜索栏" mode="card" style="margin-top: 0;">
@@ -83,7 +79,8 @@
         </uni-row>
         
         <template v-else>
-            <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }">
+            <view class="above-uni-pagination">
+            <!-- <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }"> -->
                 <uni-list>
                     <uni-list-item
                         v-for="(obj, index) in table_data" :key="index"
@@ -104,14 +101,17 @@
                         </template>
                     </uni-list-item>
                 </uni-list>
-            </scroll-view>
-            <uni-pagination
-                :total="inv_groups_q.length" 
-                :current="page" 
-                :page-size="per_page" 
-                show-icon
-                @change="change_page"
-            />
+            <!-- </scroll-view> -->
+            </view>
+            <view class="uni-pagination-wrapper">
+                <uni-pagination
+                    :total="inv_groups_q.length" 
+                    :current="page" 
+                    :page-size="per_page" 
+                    show-icon
+                    @change="change_page"
+                />
+            </view>
             <view class="uni-goods-nav-wrapper">
                 <uni-goods-nav 
                     :options="goods_nav.options" 
@@ -200,9 +200,12 @@
             this.reg_broadcast_receiver()
             // #endif
         },
-        onPullDownRefresh() {
-            this.refresh()
-            uni.stopPullDownRefresh()
+        // onPullDownRefresh() {
+        //     this.refresh()
+        //     uni.stopPullDownRefresh()
+        // },
+        onReachBottom() {
+            this.scrolltolower()
         },
         mounted() {
             this.load_data()
@@ -223,6 +226,7 @@
             change_page(e) {
                 this.page = e.current
                 this.scroll_top = 0
+                uni.pageScrollTo({ scrollTop: 0, duration: 0 })
             },
             goods_nav_click(e) {
                 if (e.index === 0) this.$refs.search_dialog.open()
@@ -423,11 +427,6 @@
     }
     .uni-group--card::v-deep {
         overflow: visible;
-    }
-    .uni-list::v-deep {
-        .uni-list--border-bottom {
-            display: none;
-        }
     }
     .uni-forms::v-deep {
         .uni-forms-item {

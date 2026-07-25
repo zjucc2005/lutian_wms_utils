@@ -1,9 +1,5 @@
 <template>
-    <uni-section title="当前仓库" type="square"
-        :sub-title="breadcrumb_stockname()"
-        sub-title-color="#007aff"
-        @click="$logger.info('>>>', this.$data)"
-        >
+    <uni-section :title="breadcrumb_stockname()" type="square" title-color="#007aff" @click="$logger.info('>>>', this.$store)">
         <view class="container">
             <uni-forms 
                 ref="form"
@@ -43,8 +39,8 @@
                     </template>
                     <uni-easyinput v-model="form.loc_no" trim="both" :clearable="false" :input-border="false">
                         <template #left>
-                            <uni-icons v-if="form.loc_no && $store.state.stock_locs.some(x => x.FNumber == form.loc_no.toUpperCase())" type="checkbox-filled" size="24" color="#67c23a"></uni-icons>
-                            <uni-icons v-else-if="form.loc_no" type="help-filled" size="24" color="#c0c4cc"></uni-icons>
+                            <uni-icons v-if="form.loc_no && $store.state.stock_locs.some(x => x.FNumber == form.loc_no.toUpperCase() && x.FForbidStatus == 'A')" type="checkbox-filled" size="24" color="#67c23a"></uni-icons>
+                            <uni-icons v-else-if="form.loc_no" type="clear" size="24" color="#dd524d"></uni-icons>
                         </template>
                     </uni-easyinput>
                 </uni-forms-item>
@@ -158,9 +154,9 @@
                             { required: true, errorMessage: '库位号不能为空' },
                             {
                                 validateFunction: (rule, value, data, callback) => {
-                                    if (!store.state.stock_locs.some(x => x.FNumber == value.toUpperCase())) {
-                                        return callback('库位号不存在')
-                                    }
+                                    let stock_loc = store.state.stock_locs.find(x => x.FNumber == value.toUpperCase())
+                                    if (!stock_loc) return callback('库位号不存在')
+                                    if (stock_loc.FForbidStatus == 'B') return callback('库位号不可用')
                                 }
                             }
                         ]

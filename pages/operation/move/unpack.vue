@@ -1,8 +1,6 @@
 <template>
     <!-- 搜素 -->
-    <uni-section title="当前仓库" type="square" 
-        :sub-title="breadcrumb_stockname()"
-        sub-title-color="#007aff" @click="$logger.info('>>>', $data)">
+    <uni-section :title="breadcrumb_stockname()" type="square" title-color="#007aff" @click="$logger.info('>>>', $data)">
         <template #right>
             <text class="text-grey text-sm">{{ multiuser ? '多人' : '单人' }}</text>
             <switch @change="switch_click" style="transform:scale(0.7)"/>

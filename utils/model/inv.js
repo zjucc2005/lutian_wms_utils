@@ -32,11 +32,12 @@ class Inv {
      * @return {Hash} Promise
      */
     static query(options={}, meta={}) {
-        const fields = ['FID', 'FQty','FBatchNo', 'FCreateTime',
-                        'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.FImageFileServer',
-                        'FStockLocId', 'FStockLocId.FNumber', 'FStockLocId.FGroup', 'FStockLocId.FPosX', 'FStockLocId.FPosY',
-                        'FStockUnitId', 'FStockUnitId.FName',
-                        'FSupplierId', 'FSupplierId.FName']
+        let fields = ['FID', 'FQty','FBatchNo', 'FCreateTime',
+                      'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.FImageFileServer',
+                      'FStockLocId', 'FStockLocId.FNumber', 'FStockLocId.FGroup', 'FStockLocId.FPosX', 'FStockLocId.FPosY',
+                      'FStockUnitId', 'FStockUnitId.FName',
+                      'FSupplierId', 'FSupplierId.FName']
+        if (meta.fields) fields = meta.fields
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),
@@ -47,7 +48,7 @@ class Inv {
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
         }
         if (meta.order) data.OrderString = meta.order
-        return K3CloudApi.bill_query(data)
+        return meta.return === 'array' ? K3CloudApi.execute_bill_query(data) : K3CloudApi.bill_query(data)
     }
     
     static find(id) {

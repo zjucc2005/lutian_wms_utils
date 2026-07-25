@@ -176,6 +176,7 @@
     }
 }
 
+
 .uni-goods-nav-wrapper {
     /* #ifndef APP-NVUE */
     display: flex;
@@ -189,10 +190,31 @@
     right: var(--window-right);
     /* #endif */
     bottom: 0;
+    background-color: #fff;
+}
+
+.uni-pagination-wrapper {
+    /* #ifndef APP-NVUE */
+    display: flex;
+    /* #endif */
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    right: 0;
+    /* #ifdef H5 */
+    left: var(--window-left);
+    right: var(--window-right);
+    /* #endif */
+    bottom: 50px;
+    background-color: #fff;
 }
 
 .above-uni-goods-nav {
     padding-bottom: 60px;
+}
+
+.above-uni-pagination {
+    padding-bottom: 81px;
 }
 
 .is-loading {

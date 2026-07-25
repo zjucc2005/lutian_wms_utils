@@ -1,9 +1,5 @@
 <template>
-    <uni-section title="当前仓库" type="square"
-        :sub-title="breadcrumb_stockname()"
-        sub-title-color="#007aff"
-        @click="debug"
-        >
+    <uni-section :title="breadcrumb_stockname()" type="square" @click="debug">
         <uni-row v-if="$store.state.screen_type === 'h5'" >
             <uni-col :span="6">
                 <uni-group title="搜索栏" mode="card" style="margin-top: 0;">
@@ -80,7 +76,8 @@
         </uni-row>
         
         <template v-else>
-            <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }">
+            <view class="above-uni-pagination">
+            <!-- <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }"> -->
                 <uni-list>
                     <uni-list-item v-for="(loc, index) in table_data" 
                         :key="index"
@@ -89,14 +86,17 @@
                         :style="{ backgroundColor: loc.FForbidStatus == 'B' ? 'rgb(254, 240, 240)' : '' }"
                         />
                 </uni-list>
-            </scroll-view>
-            <uni-pagination v-if="stock_locs_q.length > 0"
-                :total="stock_locs_q.length" 
-                :current="cur_page" 
-                :page-size="per_page" 
-                show-icon
-                @change="change_page"
-            />
+            <!-- </scroll-view> -->
+            </view>
+            <view class="uni-pagination-wrapper">
+                <uni-pagination
+                    :total="stock_locs_q.length" 
+                    :current="cur_page" 
+                    :page-size="per_page" 
+                    show-icon
+                    @change="change_page"
+                />
+            </view>
             <view class="uni-goods-nav-wrapper">
                 <uni-goods-nav 
                     :options="goods_nav.options" 
@@ -180,6 +180,9 @@
             this.refresh()
             uni.stopPullDownRefresh()
         },
+        onReachBottom() {
+            this.scrolltolower()
+        },
         computed: {
             table_data() {
                 let a = (this.cur_page - 1) * this.per_page
@@ -196,6 +199,7 @@
             change_page(e) {
                 this.cur_page = e.current
                 this.scroll_top = 0
+                uni.pageScrollTo({ scrollTop: 0, duration: 0 })
             },
             goods_nav_click(e) {
                 if (e.index === 0) this.$refs.search_dialog.open()

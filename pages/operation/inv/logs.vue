@@ -1,9 +1,5 @@
 <template>
-    <uni-section title="当前仓库" type="square"
-        :sub-title="breadcrumb_stockname()"
-        sub-title-color="#007aff"
-        @click="debug"
-        >
+    <uni-section :title="breadcrumb_stockname()" type="square" @click="debug">
         <uni-row v-if="$store.state.screen_type === 'h5'" >
             <uni-col :span="4">
                 <uni-group title="搜索栏" mode="card" style="margin-top: 0;">
@@ -99,7 +95,8 @@
         </uni-row>
         
         <template v-else>
-            <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }">
+            <view class="above-uni-pagination">
+            <!-- <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }"> -->
                 <uni-list>
                     <uni-list-item
                         v-for="(inv_log, index) in inv_logs"
@@ -145,14 +142,17 @@
                         </template>
                     </uni-list-item>
                 </uni-list>
-            </scroll-view>
-            <uni-pagination
-                :total="total" 
-                :current="page" 
-                :page-size="per_page" 
-                show-icon
-                @change="change_page"
-            />
+            <!-- </scroll-view> -->
+            </view>
+            <view class="uni-pagination-wrapper">
+                <uni-pagination
+                    :total="total" 
+                    :current="page" 
+                    :page-size="per_page" 
+                    show-icon
+                    @change="change_page"
+                />
+            </view>
             <view class="uni-goods-nav-wrapper">
                 <uni-goods-nav 
                     :options="goods_nav.options" 
@@ -285,6 +285,9 @@
                 this.search_form.material_no = options.material_no
             }
         },
+        onReachBottom() {
+            this.scrolltolower()
+        },
         mounted() {
             this.load_inv_logs()
         },
@@ -306,6 +309,7 @@
             change_page(e) {
                 this.page = e.current
                 this.scroll_top = 0
+                uni.pageScrollTo({ scrollTop: 0, duration: 0 })
                 this.load_inv_logs()
             },
             goods_nav_click(e) {
