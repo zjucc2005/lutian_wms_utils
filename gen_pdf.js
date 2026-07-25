@@ -790,8 +790,17 @@ const gen_pdf_prd_issue_mtrl = (options) => {
         let table_head = [['物料编码', '物料名称', '规格型号', '单位', '计划发料数量', '已发料数量', '仓库', 'WMS库位', 'WMS库存数量', '金蝶即时库存']]
         let table_body = []
         for (let obj of options.group[storekeeper]) {
-            table_body.push([obj.material_no, obj.material_name, obj.material_spec, obj.unit, obj.must_qty, obj.picked_qty, 
-                             obj.stock_name, obj.loc_memo, obj.qty, obj.stk_qty])
+            for (let i = 0; i < obj.stock_list.length; i++) {
+                let stock = obj.stock_list[i]
+                if (i == 0) {
+                    table_body.push([obj.material_no, obj.material_name, obj.material_spec, obj.unit, obj.must_qty, obj.picked_qty,
+                                     stock.stock_name, stock.loc_memo, stock.qty, stock.stk_qty])
+                } else {
+                    table_body.push(['', '', '', '', '', '',
+                                     stock.stock_name, stock.loc_memo, stock.qty, stock.stk_qty])
+                }
+            }
+            
         }
         // f.setFontSize(7)
         // console.log('>>> ', f.getTextWidth('1.01.12.01.0005')) 

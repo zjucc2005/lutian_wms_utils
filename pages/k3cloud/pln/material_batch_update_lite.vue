@@ -122,10 +122,24 @@
                     let x_start_time = Date.now()
                     uni.showLoading({ title: 'Loading' })
                     let request_body = await this.get_request_body()
-                    let res = await BdMaterial.batch_update(request_body)
-                    if (!res.data.Result.ResponseStatus.IsSuccess) {
-                        this.response_result.push({ i: 0, msg: res.data.Result.ResponseStatus.Errors[0]?.Message })
+                    // 分片
+                    let step = 100
+                    let fenzi = 0
+                    let fenmu = request_body.length
+                    for (let i = 0; i < request_body.length; i += step) {
+                        let rb_slice = request_body.slice(i, i + step)
+                        let res = await BdMaterial.batch_update(rb_slice)
+                        if (!res.data.Result.ResponseStatus.IsSuccess) {
+                            this.response_result.push({ i: 0, msg: res.data.Result.ResponseStatus.Errors[0]?.Message })
+                        }
+                        fenzi += step
+                        if (fenzi > fenmu) fenzi = fenmu
+                        uni.showLoading({ title: `${(fenzi * 100 / fenmu).toFixed(1)} %` })
                     }
+                    // let res = await BdMaterial.batch_update(request_body)
+                    // if (!res.data.Result.ResponseStatus.IsSuccess) {
+                    //     this.response_result.push({ i: 0, msg: res.data.Result.ResponseStatus.Errors[0]?.Message })
+                    // }
                     uni.hideLoading()
                     uni.showModal({ title: '执行完毕', content: `执行耗时 ${(Date.now() - x_start_time) / 1000} 秒` })
                 } catch (err) {

@@ -701,6 +701,7 @@ const query_filter = (options = {}) => {
             case 'lt': filters.push(is_sym ? `${field} < ${options[k]}` : `${field} < '${options[k]}'`);  break;
             case 'le': filters.push(is_sym ? `${field} <= ${options[k]}` : `${field} <= '${options[k]}'`);break;
             case 'lk': filters.push(`${field} LIKE '%${options[k]}%'`);                    break;
+            case 'nl': filters.push(`${field} NOT LIKE '%${options[k]}%'`);                break;
             case 'sw': filters.push(`${field} LIKE '${options[k]}%'`);                     break;
             case 'ew': filters.push(`${field} LIKE '%${options[k]}'`);                     break;
             case 'in': filters.push(`${field} IN (${options[k].map(x => `'${x}'`)})`);     break;
@@ -723,13 +724,14 @@ const match_suffix = (text) => {
      * ge  大于等于  greater than or equal to
      * lt  小于  less than
      * le  小于等于  less than or equal to
-     * lk  相似:字符串  like (case_sensitive: false)
+     * lk  包含:字符串  like (case_sensitive: false)
+     * nl  不含:字符串  not like
      * sw  开头 start with
      * ew  结尾 end with
      * in  包含于:数组  in
      * ni  不包含于:数组  not in
      */
-    const suffix_list = ['eq', 'ne', 'gt', 'ge', 'lt', 'le', 'lk', 'sw', 'ew', 'in', 'ni']
+    const suffix_list = ['eq', 'ne', 'gt', 'ge', 'lt', 'le', 'lk', 'nl', 'sw', 'ew', 'in', 'ni']
     let m = text.match(new RegExp(`(.+)_(${suffix_list.join('|')})`))
     if (!m) return { field: text, compare: 'eq' }
     return { field: m[1], compare: m[2] }
