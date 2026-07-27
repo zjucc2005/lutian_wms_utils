@@ -555,9 +555,10 @@ const gen_pdf_material_label_batch = (options) => {
     f.addFont(font_file_path, font_family, 'normal') // 加载字体
     f.setFont(font_family) // 设置字体
     
-    for (let i = 0 ;i < options.length; i++) {
+    for (let i = 0; i < options.length; i++) {
         let opt = options[i]
-        while (opt.print_copies > 0) {
+        let print_copies = opt.print_copies
+        while (print_copies > 0) {
             // -- body --
             f.setLineWidth(0.25)
             // 水平框线
@@ -581,13 +582,13 @@ const gen_pdf_material_label_batch = (options) => {
             f.text('名称：', 4, 49.4)
             f.text('型号：', 4, 62.2)
             // 计算各文本长度
-            let std_font_size = 18 // 标准文本大小
+            let std_font_size = 16 // 标准文本大小
             let meta = {
                 supplier:      { x: 20.9, y: 11.8, l: 36.7, mr: 16.9 },
                 inbound_time:  { x: 25.1, y: 24.6, l: 32, mr: 21.6 },
                 no:            { x: 16.7, y: 37.4, l: 40.9, mr: 12.7 },
                 name:          { x: 16.7, y: 50.2, l: 79.3, mr: 12.7 },
-                spec:          { x: 16.7, y: 63, l: 79.3, mr: 12.7 }
+                // spec:          { x: 16.7, y: 63, l: 79.3, mr: 12.7 }
             }
             for (let k of Object.keys(meta)) {
                 f.setFontSize(std_font_size)
@@ -599,8 +600,21 @@ const gen_pdf_material_label_batch = (options) => {
                     f.text(opt[k], meta[k].x, meta[k].y)
                 }
             }
-            opt.print_copies--
-            if (opt.print_copies > 0 || i < options.length - 1) f.addPage()
+            f.setFontSize(12)
+            let spec_lines = []
+            let spec_line = ''
+            for (let i = 0; i < opt.spec.length; i++) {
+                if (f.getTextWidth(spec_line + opt.spec[i]) > 79.4) {
+                    spec_lines.push(spec_line)
+                    spec_line = ''
+                }
+                spec_line += opt.spec[i]
+            }
+            spec_lines.push(spec_line)
+            f.text(spec_lines.join('\n'), 16.6, 64 - spec_lines.length * 2)
+            
+            print_copies--
+            if (print_copies > 0 || i < options.length - 1) f.addPage()
         }
     }
     
@@ -800,10 +814,7 @@ const gen_pdf_prd_issue_mtrl = (options) => {
                                      stock.stock_name, stock.loc_memo, stock.qty, stock.stk_qty])
                 }
             }
-            
         }
-        // f.setFontSize(7)
-        // console.log('>>> ', f.getTextWidth('1.01.12.01.0005')) 
         f.autoTable({
             theme: 'grid',
             startY: 36,
@@ -832,10 +843,8 @@ const gen_pdf_prd_issue_mtrl = (options) => {
             storekeeper_cnt[storekeeper] ||= []
             storekeeper_cnt[storekeeper].push(last_page)
         }
-        // tail_page[storekeeper] = f.getNumberOfPages()
         if (i < keys.length - 1) f.addPage()
     }
-    console.log('storekeeper_cnt', storekeeper_cnt)
     // 添加页码
     f.setFontSize(8)
     let total_pages = f.getNumberOfPages()

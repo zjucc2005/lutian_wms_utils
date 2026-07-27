@@ -1,12 +1,13 @@
 <template>
-    <uni-section title="查询收料通知单编号" type="square">
+    <canvas ref="qrcode" id="qrcode" canvas-id="qrcode" class="canvas-hidden"></canvas>
+    <uni-section title="查询收料通知单编号" type="square" @click="debug">
         <view class="searchbar-container">
             <uni-easyinput
-                v-model="search_form.bill_no" 
+                v-model="search_form.bill_no" trim
                 placeholder="请输入搜索内容"
                 prefix-icon="scan"
-                @confirm="handle_search"
-                @clear="handle_search"
+                @confirm="search"
+                @clear="search"
                 @icon-click="searchbar_icon_click"
                 primary-color="rgb(238, 238, 238)"
                 :styles="{
@@ -18,15 +19,14 @@
         </view>
     </uni-section>
     
-    <uni-section title="物料明细" type="square"
-        v-if="materials?.length"
-        sub-title="请在二维码生成以后，再点击生成标签" sub-title-color="#007aff"
+    <uni-section v-if="materials?.length" title="物料明细" type="square"
+        sub-title="打印份数可编辑" sub-title-color="#007aff"
         class="above-uni-goods-nav"
         >
         <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
             <uni-tr>
                 <uni-th align="center" width="60">序号</uni-th>
-                <uni-th align="center" width="60">QR</uni-th>
+                <!-- <uni-th align="center" width="60">QR</uni-th> -->
                 <uni-th align="center">物料编码</uni-th>
                 <uni-th align="center">物料名称</uni-th>
                 <uni-th align="center">规格型号</uni-th>
@@ -34,64 +34,64 @@
                 <uni-th align="center">供应商</uni-th>
                 <uni-th align="center" width="80">交货数量</uni-th>
                 <uni-th align="center" width="80">收料单位</uni-th>
-                <uni-th align="center">按托标签数</uni-th>
-                <uni-th align="center">按箱标签数</uni-th>
-                <uni-th align="center">操作</uni-th>
+                <uni-th align="center" width="92">按托标签数</uni-th>
+                <uni-th align="center" width="92">按箱标签数</uni-th>
+                <uni-th align="center" width="92">打印份数</uni-th>
+                <!-- <uni-th align="center" width="80">操作</uni-th> -->
             </uni-tr>
             
             <uni-tr v-for="(obj, index) in materials" :key="index">
                 <uni-td align="center">{{ index + 1 }}</uni-td>
-                <uni-td align="center">
+               <!-- <uni-td align="center">
                     <uqrcode :canvas-id="`qrcode_${index}`" :value="obj.no" :size="40"></uqrcode>
-                </uni-td>
+                </uni-td> -->
                 <uni-td>{{ obj.no }}</uni-td>
                 <uni-td>{{ obj.name }}</uni-td>
                 <uni-td>{{ obj.spec }}</uni-td>
                 <uni-td>{{ obj.stock_name }}</uni-td>
-                <uni-td>{{ obj.supplier_name }}</uni-td>
+                <uni-td>{{ obj.supplier }}</uni-td>
                 <uni-td align="center">{{ obj.qty }}</uni-td>
-                <uni-td align="center">{{ obj.unit_name }}</uni-td>
-                <uni-td align="center">{{ obj.plt_print_copy }}</uni-td>
-                <uni-td align="center">{{ obj.box_print_copy }}</uni-td>
+                <uni-td align="center">{{ obj.unit }}</uni-td>
+                <uni-td align="center">{{ obj.plt_print_copies }}</uni-td>
+                <uni-td align="center">{{ obj.box_print_copies }}</uni-td>
                 <uni-td align="center">
-                    <uni-tag text="生成标签" type="primary" @click="gen_label(obj, `qrcode_${index}`)"/>
+                    <uni-easyinput
+                        v-model="obj.print_copies"
+                        type="number"
+                        @change="if (obj.print_copies < 0) obj.print_copies = 0;"
+                        :clearable="false"
+                        :input-border="false"
+                        :style="{ textAlign: 'center' }"
+                        />
                 </uni-td>
+                <!-- <uni-td align="center">
+                    <uni-tag text="生成标签" type="primary" size="mini" @click="gen_label(obj, `qrcode_${index}`)"/>
+                </uni-td> -->
             </uni-tr>
         </uni-table>
         
         <uni-list v-else>
-            <uni-list-item
-                v-for="(obj, index) in materials"
-                :key="index"
-                @click="gen_label(obj, `qrcode_${index}`)" clickable
-                show-arrow
-                >
-                <template #header>
-                    <view class="uni-list-item__head">
-                        <uqrcode :canvas-id="`qrcode_${index}`" :value="obj.no" :size="40"></uqrcode>
-                    </view>
-                </template>
+            <uni-list-item v-for="(obj, index) in materials" :key="index">
                 <template #body>
                     <view class="uni-list-item__body">
-                        <text class="title">{{ obj.no }}</text>
+                        <text class="title text-bold">{{ obj.no }} {{ obj.name }}</text>
                         <view class="note">
-                            <view>名称：{{ obj.name }}</view> 
-                            <view>规格：{{ obj.spec }}</view>
+                            <view>{{ obj.spec }}</view>
                             <view>仓库：<text class="text-primary">{{ obj.stock_name }}</text></view>
-                            <view>供应商：{{ obj.supplier_name }}</view>
+                            <view>供应商：{{ obj.supplier }}</view>
                         </view>
                     </view>
                 </template>
                 <template #footer>
                     <view class="uni-list-item__foot">
-                        <text>{{ obj['FActReceiveQty'] }} {{ obj['FUnitId.FName'] }}</text>
+                        <text>x {{ obj.print_copies }}</text>
                     </view>
                 </template>
             </uni-list-item>
         </uni-list>
     </uni-section>
     
-    <view v-if="$store.state.screen_type === 'app-plus'" class="uni-goods-nav-wrapper">
+    <view class="uni-goods-nav-wrapper">
         <uni-goods-nav 
             :options="goods_nav.options" 
             :button-group="goods_nav.button_group"
@@ -107,8 +107,9 @@
     import { formatDate } from '@/utils'
     import { PurReceiveBill } from '@/utils/model'
     import scan_code from '@/utils/scan_code'
+    import UQRCode from '@/uni_modules/Sansnn-uQRCode/js_sdk/uqrcode/uqrcode.js';
     // #ifdef H5
-    import { gen_pdf_material_label } from '@/gen_pdf'
+    import { gen_pdf_material_label, gen_pdf_material_label_batch } from '@/gen_pdf'
     // #endif
     export default {
         data() {
@@ -118,45 +119,74 @@
                 },
                 materials: [],
                 goods_nav: {
-                    options: [],
+                    options: [
+                        { icon: 'list', text: '操作' },
+                    ],
                     button_group: [
-                        {
-                            text: '扫描单据',
-                            backgroundColor: store.state.goods_nav_color.red,
-                            color: '#fff'
-                        }
+                        { text: '扫码查询', backgroundColor: store.state.goods_nav_color.red, color: '#fff' },
+                        { text: '生成PDF', backgroundColor: store.state.goods_nav_color.grey, color: '#fff' }
                     ]
                 }
             }
         },
         methods: {
-            gen_label(obj, canvas_id) {
-                // #ifdef H5
-                uni.canvasToTempFilePath({
-                    canvasId: canvas_id,
-                    success: function(res) { 
-                        let url = gen_pdf_material_label({
-                            ...obj,
-                            qr: res.tempFilePath, 
-                            inbound_time: formatDate(Date.now(), 'yyyy-MM-dd'),
-                        })
-                        window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800,height=600') // 打开小窗口
-                    }
-                })
-                // #endif
-                // #ifdef APP-PLUS
-                    uni.showModal({ title: '提示', content: '仅PC端支持打印' })
-                // #endif
+            debug() {
+                this.$logger.info('>>>', this.$data)
             },
             goods_nav_click(e) {
-                if (e.index === 0) this.$logger.info('this.$data', this.$data)
+                if (e.index === 0) {
+                    uni.showActionSheet({
+                        itemList: ['打印份数=0', '打印份数=1', '打印份数=按托标签数', '打印份数=按箱标签数'],
+                        success: (e) => {
+                            if (e.tapIndex === 0) {
+                                for (let obj of this.materials) obj.print_copies = 0
+                            }
+                            if (e.tapIndex === 1) {
+                                for (let obj of this.materials) obj.print_copies = 1
+                            }
+                            if (e.tapIndex === 2) {
+                                for (let obj of this.materials) {
+                                    if (typeof obj.plt_print_copies === 'number') {
+                                        obj.print_copies = obj.plt_print_copies
+                                    }
+                                }
+                            }
+                            if (e.tapIndex === 3) {
+                                for (let obj of this.materials) {
+                                    if (typeof obj.box_print_copies === 'number') {
+                                        obj.print_copies = obj.box_print_copies
+                                    }
+                                }
+                            }
+                        }
+                    })
+                }
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码查询单据
+                if (e.index === 1) this.gen_label()
             },
-            async handle_search(e) {
+            goods_nav_button_switch() {
+                if (this.materials.length) {
+                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.blue
+                } else {
+                    this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
+                }
+            },
+            scan_code() {
+                scan_code().then(res => {
+                    this.search_form.bill_no = res.result
+                    this.search()
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
+                })
+            },
+            searchbar_icon_click(e) {
+                if (e == 'prefix') this.scan_code()
+            },
+            async search(e) {
                 if (this.search_form.bill_no) {
-                    this.search_form.bill_no = this.search_form.bill_no.trim().toUpperCase()
+                    this.search_form.bill_no = this.search_form.bill_no.toUpperCase()
                     if (this.search_form.bill_no.match(/^\d+$/)) {
                         this.search_form.bill_no = 'CGSL' + this.search_form.bill_no // 自动补充前缀
                     }
@@ -170,9 +200,11 @@
                 } else {
                     this.materials = []
                 }
+                this.goods_nav_button_switch()
             },
             handle_data(res) {
                 let materials = []
+                let t = formatDate(Date.now(), 'yyyy-MM-dd')
                 for (let obj of res.data) {
                     let material = materials.find(x => x.id == obj.FMaterialId)
                     if (material) {
@@ -184,31 +216,64 @@
                             name: obj['FMaterialId.FName'],
                             spec: obj['FMaterialId.FSpecification'],
                             stock_name: obj['FStockId.FName'],
-                            supplier_name: obj['FSupplierId.FName'],
+                            supplier: obj['FSupplierId.FName'],
                             qty: obj['FActReceiveQty'],
-                            unit_name: obj['FUnitId.FName'],
+                            unit: obj['FUnitId.FName'],
                             plt_std_qty: obj['FMaterialId.F_RGEN_Text_qtr'] * 1,
-                            box_std_qty: obj['FMaterialId.FBoxStandardQty']
+                            box_std_qty: obj['FMaterialId.FBoxStandardQty'],
+                            inbound_time: t,
+                            print_copies: 1
                         })
                     }
                 }
                 for (let material of materials) {
-                    material.plt_print_copy = material.plt_std_qty ? Math.ceil(material.qty / material.plt_std_qty) * 4 : 'NA'
-                    material.box_print_copy = material.box_std_qty ? Math.ceil(material.qty / material.box_std_qty) : 'NA'
+                    material.plt_print_copies = material.plt_std_qty ? Math.ceil(material.qty / material.plt_std_qty) * 4 : 'NA'
+                    material.box_print_copies = material.box_std_qty ? Math.ceil(material.qty / material.box_std_qty) : 'NA'
                 }
                 
                 this.materials = materials
             },
-            scan_code() {
-                scan_code().then(res => {
-                    this.search_form.bill_no = res.result
-                    this.handle_search()
-                }).catch(err => {
-                    uni.showToast({ icon: 'none', title: err })
+            async gen_qrcode(text) {
+                return new Promise((resolve, reject) => {
+                    let uqr = new UQRCode();
+                    uqr.data = text;
+                    uqr.size = 400;
+                    uqr.make();
+                    var canvasContext = uni.createCanvasContext('qrcode', this); // 如果是组件，this必须传入
+                    uqr.canvasContext = canvasContext;
+                    uqr.drawCanvas();
+                    uni.canvasToTempFilePath({
+                        canvasId: 'qrcode',
+                        success: res => {
+                            resolve(res.tempFilePath)
+                        }
+                    })
                 })
             },
-            searchbar_icon_click(e) {
-                if (e == 'prefix') this.scan_code()
+            async gen_label(obj, canvas_id) {
+                // #ifdef H5
+                    for (let d of this.materials) {
+                        d._qr = await this.gen_qrcode(d.no)
+                    }
+                    let url = gen_pdf_material_label_batch(this.materials.filter(x => x.print_copies > 0))
+                    window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800,height=600') // 打开小窗口
+                // #endif
+                // #ifdef H5
+                // uni.canvasToTempFilePath({
+                //     canvasId: canvas_id,
+                //     success: function(res) { 
+                //         let url = gen_pdf_material_label({
+                //             ...obj,
+                //             qr: res.tempFilePath, 
+                //             inbound_time: formatDate(Date.now(), 'yyyy-MM-dd'),
+                //         })
+                //         window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800,height=600') // 打开小窗口
+                //     }
+                // })
+                // #endif
+                // #ifdef APP-PLUS
+                    uni.showModal({ title: '提示', content: '仅PC端支持打印' })
+                // #endif
             },
         }
     }

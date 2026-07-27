@@ -1,4 +1,5 @@
 <template>
+    <canvas ref="qrcode" id="qrcode" canvas-id="qrcode" class="canvas-hidden"></canvas>
     <uni-section title="Excel模板样例" type="square" @click="debug">
         <view class="container">
             <!-- 模板样例 -->
@@ -30,8 +31,6 @@
             <button size="mini" @click="clipboard=''" class="uni-ml-5">清空</button>
         </view>
     </uni-section>
-    
-    <canvas ref="qrcode" id="qrcode" canvas-id="qrcode" style="visibility: hidden; width: 400px; height: 400px;"></canvas>
 </template>
 
 <script>

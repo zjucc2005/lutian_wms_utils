@@ -1,5 +1,5 @@
 <template>
-    <canvas ref="qrcode" id="qrcode" canvas-id="qrcode" style="position: absolute; visibility: hidden; width: 400px; height: 400px;"></canvas>
+    <canvas ref="qrcode" id="qrcode" canvas-id="qrcode" class="canvas-hidden"></canvas>
     <uni-section title="查询生产发料通知单编号" type="square" @click="debug">
         <view class="searchbar-container">
             <uni-easyinput
@@ -205,11 +205,14 @@
             async gen_pdf() {
                 // #ifdef H5
                     if (!this.bill.bill_no) return
-                    this.bill._qr = await this.gen_qrcode(this.bill.bill_no)
-                    let pdf_data = this.gen_pdf_data()
-                    console.log('>>> pdf data', pdf_data)
-                    let url = gen_pdf_prd_issue_mtrl(pdf_data)
-                    window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800,height=600') // 打开小窗口
+                    uni.showLoading({ title: '正在生成PDF', mask: true })
+                    setTimeout(async () => {
+                        this.bill._qr = await this.gen_qrcode(this.bill.bill_no)
+                        let pdf_data = this.gen_pdf_data()
+                        let url = gen_pdf_prd_issue_mtrl(pdf_data)
+                        window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800,height=600') // 打开小窗口
+                        uni.hideLoading()
+                    }, 1000)
                 // #endif
                 // #ifdef APP-PLUS
                     uni.showModal({ title: '提示', content: '仅PC端支持打印' })

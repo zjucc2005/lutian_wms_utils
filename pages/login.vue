@@ -170,7 +170,7 @@
                 this.area_opts = Enum.get_area_options(this.login_form.stock_id)
             },
             handle_stock_change(e) {
-                console.log('handle_stock_change e', e)
+                // console.log('handle_stock_change e', e)
                 this.login_form.org_id = e.detail.value[0]?.value
                 this.login_form.area = ''
                 this.area_opts = Enum.get_area_options(e.detail.value[2]?.value)

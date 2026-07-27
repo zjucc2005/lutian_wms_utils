@@ -63,6 +63,13 @@
 .text-sm {
     font-size: $uni-font-size-sm;
 }
+// canvas
+.canvas-hidden {
+    position: absolute;
+    visibility: hidden;
+    width: 400px;
+    height: 400px;
+}
 // tab
 .tab-scroll {
     width: 100%;
