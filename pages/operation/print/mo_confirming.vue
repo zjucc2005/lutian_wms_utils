@@ -1,4 +1,5 @@
 <template>
+    <canvas ref="qrcode" id="qrcode" canvas-id="qrcode" class="canvas-hidden"></canvas>
     <uni-section title="查询生产订单编号" type="square" @click="$logger.info('>>>', $data)">
         <view class="searchbar-container">
             <uni-easyinput
@@ -25,7 +26,7 @@
         <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
             <uni-tr>
                 <uni-th align="center" width="60">序号</uni-th>
-                <uni-th align="center" width="60">QR</uni-th>
+                <!-- <uni-th align="center" width="60">QR</uni-th> -->
                 <uni-th align="center" width="120">生产订单编号</uni-th>
                 <uni-th align="center">计划跟踪单号</uni-th>
                 <uni-th align="center">产品编码</uni-th>
@@ -39,9 +40,9 @@
             
             <uni-tr v-for="(obj, index) in ppboms" :key="index">
                 <uni-td align="center">{{ index + 1 }}</uni-td>
-                <uni-td align="center">
+                <!-- <uni-td align="center">
                     <uqrcode :canvas-id="`qrcode_${index}`" :value="obj.FMoBillNo" :size="40"></uqrcode>
-                </uni-td>
+                </uni-td> -->
                 <uni-td>{{ obj.FMoBillNo }}</uni-td>
                 <uni-td>{{ obj.FSaleOrderNo }}</uni-td>
                 <uni-td>{{ obj['FMaterialId.FNumber'] }}</uni-td>
@@ -61,11 +62,11 @@
                 @click="gen_pdf(obj, `qrcode_${index}`)" clickable 
                 show-arrow
                 >
-                <template #header>
+                <!-- <template #header>
                     <view class="uni-list-item__head">
                         <uqrcode :canvas-id="`qrcode_${index}`" :value="obj.FMoBillNo" :size="40"></uqrcode>
                     </view>
-                </template>
+                </template> -->
                 <template #body>
                     <view class="uni-list-item__body">
                         <view class="title">
@@ -105,6 +106,7 @@
     import store from '@/store'
     import { PrdPpbom, PrdMo } from '@/utils/model'
     import scan_code from '@/utils/scan_code'
+    import UQRCode from '@/uni_modules/Sansnn-uQRCode/js_sdk/uqrcode/uqrcode.js';
     // #ifdef H5
     import { gen_pdf_mo_confirming } from '@/gen_pdf'
     // #endif
@@ -149,21 +151,40 @@
             async gen_pdf(ppbom, canvas_id) {
                 // #ifdef H5
                 await this.load_pdf_data(ppbom)
-                let _this_ = this
-                uni.canvasToTempFilePath({
-                    canvasId: canvas_id,
-                    success: function(res) { 
-                        let url = gen_pdf_mo_confirming({
-                            ..._this_.pdf_data,
-                            qr: res.tempFilePath, 
-                        })
-                        window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=1080,height=960') // 打开小窗口
-                    }
-                })
+                let url = gen_pdf_mo_confirming(this.pdf_data)
+                window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=1080,height=960') // 打开小窗口
+                // let _this_ = this
+                // uni.canvasToTempFilePath({
+                //     canvasId: canvas_id,
+                //     success: function(res) { 
+                //         let url = gen_pdf_mo_confirming({
+                //             ..._this_.pdf_data,
+                //             qr: res.tempFilePath, 
+                //         })
+                //         window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=1080,height=960') // 打开小窗口
+                //     }
+                // })
                 // #endif
                 // #ifdef APP-PLUS
                     uni.showModal({ title: '提示', content: '仅PC端支持打印' })
                 // #endif
+            },
+            async gen_qrcode(text) {
+                return new Promise((resolve, reject) => {
+                    let uqr = new UQRCode();
+                    uqr.data = text;
+                    uqr.size = 400;
+                    uqr.make();
+                    var canvasContext = uni.createCanvasContext('qrcode', this); // 如果是组件，this必须传入
+                    uqr.canvasContext = canvasContext;
+                    uqr.drawCanvas();
+                    uni.canvasToTempFilePath({
+                        canvasId: 'qrcode',
+                        success: res => {
+                            resolve(res.tempFilePath)
+                        }
+                    })
+                })
             },
             async handle_search(e) {
                 this.ppboms = []
@@ -196,6 +217,7 @@
                     prd_time: '',
                     material_name: ppbom['FMaterialId.FName'],
                     material_spec: ppbom['FMaterialId.FSpecification'],
+                    _qr: await this.gen_qrcode(ppbom.FMoBillNo),
                     children: []
                 }
                 uni.showLoading({ title: 'Loading' })

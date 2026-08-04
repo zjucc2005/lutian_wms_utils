@@ -7,3 +7,4 @@
 /electron/node_modules
 /electron/yarn.lock
 /package-lock.json
+/pages/api_utils/index.vue

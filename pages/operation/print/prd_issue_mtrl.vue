@@ -33,15 +33,15 @@
                 </uni-col>
             </uni-row>
         </uni-list>
-        <uni-forms ref="storekeeper_opts_form" class="searchbar-container">
+       <!-- <uni-forms ref="storekeeper_opts_form" class="searchbar-container">
             <uni-row>
                 <uni-col :sm="8">
                     <uni-forms-item label="仓管员">
-                        <uni-data-select v-model="storekeeper" :localdata="storekeeper_opts" @change="storekeeper_change" />
+                        <uni-data-select v-model="storekeeper" :localdata="storekeeper_opts" />
                     </uni-forms-item>
                 </uni-col>
             </uni-row>
-        </uni-forms>
+        </uni-forms> -->
         
         <uni-table ref="table" border stripe class="table-sm">
             <uni-tr>
@@ -55,7 +55,7 @@
                 <uni-th align="center" width="230">WMS库位</uni-th>
                 <uni-th align="center" width="78">WMS库<br>存数量</uni-th>
                 <uni-th align="center" width="78">金蝶即<br>时库存</uni-th>
-                <uni-th align="center" width="64">仓管员</uni-th>
+                <uni-th align="center" width="120" filter-type="select" :filter-data="storekeeper_opts" @filter-change="filter_change">仓管员</uni-th>
             </uni-tr>
             <template v-for="(obj, i) in bill_entry_filtered" :key="i">
                 <uni-tr v-for="(stock, j) in obj.stock_list" :key="j">
@@ -117,7 +117,7 @@
                 search_form: {
                     // bill_no: 'SCFLTZD36879'
                 },
-                storekeeper: '',
+                filter: [],
                 storekeeper_opts: [],
                 stk_inv: [], // 即时库存信息 item => [material_no, qty, stock_id, stock_name]
                 pdf_data: {},
@@ -137,9 +137,11 @@
         },
         computed: {
             bill_entry_filtered() {
-                if (!this.storekeeper) return this.bill.entry
-                if (this.storekeeper == 'null') return this.bill.entry.filter(x => x.storekeeper == null)
-                return this.bill.entry.filter(x => x.storekeeper == this.storekeeper)
+                // if (!this.storekeeper) return this.bill.entry
+                // if (this.storekeeper == 'null') return this.bill.entry.filter(x => x.storekeeper == null)
+                // return this.bill.entry.filter(x => x.storekeeper == this.storekeeper)
+                if (!this.filter.length) return this.bill.entry
+                return this.bill.entry.filter(x => this.filter.includes(x.storekeeper) )
             }
         },
         methods: {
@@ -149,6 +151,9 @@
             },
             searchbar_icon_click(e) {
                 if (e == 'prefix') this.scan_code()
+            },
+            filter_change(e) {
+                this.filter = e.filter
             },
             goods_nav_click(e) {
                 if (e.index === 0) this.reset_search_form()
@@ -167,6 +172,8 @@
             reset_search_form() {
                 this.search_form = {}
                 this.bill = {}
+                this.filter = []
+                this.storekeeper_opts = []
                 this.goods_nav_button_switch()
             },
             scan_code() {
@@ -176,9 +183,6 @@
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })
                 })
-            },
-            storekeeper_change() {
-                
             },
             gen_loc_memo(list) {
                 let set = new Set()
@@ -207,7 +211,7 @@
                     if (!this.bill.bill_no) return
                     uni.showLoading({ title: '正在生成PDF', mask: true })
                     setTimeout(async () => {
-                        this.bill._qr = await this.gen_qrcode(this.bill.bill_no)
+                        if (!this.bill._qr) this.bill._qr = await this.gen_qrcode(this.bill.bill_no)
                         let pdf_data = this.gen_pdf_data()
                         let url = gen_pdf_prd_issue_mtrl(pdf_data)
                         window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800,height=600') // 打开小窗口
@@ -223,7 +227,7 @@
                 // { bill_no, prd_line, plan_start_date, _qr, group: { storekeeper: [] } }
                 let res = { bill_no: this.bill.bill_no, prd_line: this.bill.prd_line, plan_start_date: this.bill.plan_start_date, _qr: this.bill._qr }
                 let group = {}
-                for (let obj of this.bill.entry || []) {
+                for (let obj of this.bill_entry_filtered || []) {
                     let sk = obj.storekeeper || 'null'
                     if (!group[sk]) group[sk] = []
                     group[sk].push(obj)
@@ -328,12 +332,12 @@
                             // loc_memo: '', // 展示用库位描述
                             // stk_qty: 0
                         })
-                        storekeeper_opts.add(d['FMaterialId.F_PAEZ_Base1'] || 'null')
+                        storekeeper_opts.add(d['FMaterialId.F_PAEZ_Base1'])
                     }
                 }
                 entry.sort((x, y) => x.material_no > y.material_no ? 1 : -1)
                 this.bill.entry = entry
-                this.storekeeper_opts = Array.from(storekeeper_opts).map(x => { return { value: x, text: x } })
+                this.storekeeper_opts = Array.from(storekeeper_opts).map(x => { return { value: x, text: String(x) } })
             },
             async load_inv_info() {
                 // 按仓库分组

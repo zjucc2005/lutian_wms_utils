@@ -20,17 +20,15 @@
     </uni-section>
     
     <uni-section v-if="materials?.length" title="物料明细" type="square"
-        sub-title="打印份数可编辑" sub-title-color="#007aff"
-        class="above-uni-goods-nav"
-        >
-        <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe>
+        sub-title="打印份数可编辑" sub-title-color="#007aff" class="above-uni-goods-nav">
+        <uni-table v-if="$store.state.screen_type === 'h5'" ref="table" border stripe style="min-height: 400px;">
             <uni-tr>
                 <uni-th align="center" width="60">序号</uni-th>
                 <!-- <uni-th align="center" width="60">QR</uni-th> -->
                 <uni-th align="center">物料编码</uni-th>
                 <uni-th align="center">物料名称</uni-th>
                 <uni-th align="center">规格型号</uni-th>
-                <uni-th align="center">仓库</uni-th>
+                <uni-th align="center" filter-type="select" :filter-data="stock_opts" @filter-change="filter_change">仓库</uni-th>
                 <uni-th align="center">供应商</uni-th>
                 <uni-th align="center" width="80">交货数量</uni-th>
                 <uni-th align="center" width="80">收料单位</uni-th>
@@ -40,7 +38,7 @@
                 <!-- <uni-th align="center" width="80">操作</uni-th> -->
             </uni-tr>
             
-            <uni-tr v-for="(obj, index) in materials" :key="index">
+            <uni-tr v-for="(obj, index) in materials_filtered" :key="index">
                 <uni-td align="center">{{ index + 1 }}</uni-td>
                <!-- <uni-td align="center">
                     <uqrcode :canvas-id="`qrcode_${index}`" :value="obj.no" :size="40"></uqrcode>
@@ -71,7 +69,7 @@
         </uni-table>
         
         <uni-list v-else>
-            <uni-list-item v-for="(obj, index) in materials" :key="index">
+            <uni-list-item v-for="(obj, index) in materials_filtered" :key="index">
                 <template #body>
                     <view class="uni-list-item__body">
                         <text class="title text-bold">{{ obj.no }} {{ obj.name }}</text>
@@ -118,6 +116,8 @@
                     bill_no: ''
                 },
                 materials: [],
+                filter: '',
+                stock_opts: [],
                 goods_nav: {
                     options: [
                         { icon: 'list', text: '操作' },
@@ -129,9 +129,18 @@
                 }
             }
         },
+        computed: {
+            materials_filtered() {
+                if (!this.filter?.length) return this.materials
+                return this.materials.filter(x => this.filter.includes(x.stock_name))
+            }
+        },
         methods: {
             debug() {
                 this.$logger.info('>>>', this.$data)
+            },
+            filter_change(e) {
+                this.filter = e.filter
             },
             goods_nav_click(e) {
                 if (e.index === 0) {
@@ -173,6 +182,11 @@
                     this.goods_nav.button_group[1].backgroundColor = store.state.goods_nav_color.grey
                 }
             },
+            reset() {
+                this.materials = []
+                this.filter = []
+                this.stock_opts = []
+            },
             scan_code() {
                 scan_code().then(res => {
                     this.search_form.bill_no = res.result
@@ -198,15 +212,16 @@
                         uni.showToast({ icon: 'none', title: '单据编号不存在' })
                     }
                 } else {
-                    this.materials = []
+                    this.reset()
                 }
                 this.goods_nav_button_switch()
             },
             handle_data(res) {
                 let materials = []
+                let stock_opts = new Set()
                 let t = formatDate(Date.now(), 'yyyy-MM-dd')
                 for (let obj of res.data) {
-                    let material = materials.find(x => x.id == obj.FMaterialId)
+                    let material = materials.find(x => x.id == obj.FMaterialId && x.stock_name == obj['FStockId.FName'])
                     if (material) {
                         material.qty += obj['FActReceiveQty']
                     } else {
@@ -225,13 +240,15 @@
                             print_copies: 1
                         })
                     }
+                    stock_opts.add(obj['FStockId.FName'])
                 }
                 for (let material of materials) {
-                    material.plt_print_copies = material.plt_std_qty ? Math.ceil(material.qty / material.plt_std_qty) * 4 : 'NA'
+                    material.plt_print_copies = material.plt_std_qty ? Math.ceil(material.qty / material.plt_std_qty) : 'NA'
                     material.box_print_copies = material.box_std_qty ? Math.ceil(material.qty / material.box_std_qty) : 'NA'
                 }
                 
                 this.materials = materials
+                this.stock_opts = Array.from(stock_opts).map(x => { return { value: x, text: x } })
             },
             async gen_qrcode(text) {
                 return new Promise((resolve, reject) => {
@@ -252,10 +269,10 @@
             },
             async gen_label(obj, canvas_id) {
                 // #ifdef H5
-                    for (let d of this.materials) {
-                        d._qr = await this.gen_qrcode(d.no)
+                    for (let d of this.materials_filtered) {
+                        if (!d._qr) d._qr = await this.gen_qrcode(d.no)
                     }
-                    let url = gen_pdf_material_label_batch(this.materials.filter(x => x.print_copies > 0))
+                    let url = gen_pdf_material_label_batch(this.materials_filtered.filter(x => x.print_copies > 0))
                     window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800,height=600') // 打开小窗口
                 // #endif
                 // #ifdef H5

@@ -8,7 +8,7 @@
         class="above-uni-goods-nav"
         >
         <uni-list>
-            <uni-list-item title="编码" :right-text="bd_material.Number" @click="show_qrcode" clickable show-arrow />
+            <uni-list-item title="编码" :right-text="bd_material.Number" />
             <uni-list-item title="名称" :right-text="bd_material.Name[0]?.Value" />
             <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
             <uni-list-item title="存货类别" :right-text="bd_material.MaterialBase[0].CategoryID.Name[0].Value" />
@@ -147,9 +147,9 @@
     </uni-popup>
     
     <uni-popup ref="qrcode_popup" type="dialog">
-        <uni-popup-dialog title="分享二维码" type="info" confirm-text="完成" :show-close="false" style="min-width: 320px;">
+        <uni-popup-dialog title="分享二维码" type="info" confirm-text="完成" :show-close="false" style="min-width: 400px;">
             <view align="center">
-                <uqrcode ref="qrcode" :canvas-id="canvas_id" :value="bd_material.Number" :size="270"></uqrcode>
+                <uqrcode ref="qrcode" :canvas-id="canvas_id" :value="bd_material.Number" :size="280"></uqrcode>
                 <view class="text-grey uni-mt-5">{{ bd_material.Number }}</view>
             </view>
         </uni-popup-dialog>

@@ -630,7 +630,7 @@ const gen_pdf_mo_picking = (options) => {
     f.setFont(font_family) // 设置字体
     // header
     f.addImage('./static/image/lutian_logo.png', 6, 6, 37.25, 10.75)
-    if (options.qr) f.addImage(options.qr, 'png', 182, 6, 20, 20)
+    if (options._qr) f.addImage(options._qr, 'png', 182, 6, 20, 20)
     f.setFontSize(20) // 设置固定字段名称
     f.text('物流拣选单', 87.3 ,20)
     f.autoTable({
@@ -710,7 +710,7 @@ const gen_pdf_mo_confirming = (options) => {
     f.setFont(font_family) // 设置字体
     // header
     f.addImage('./static/image/lutian_logo.png', 6, 6, 37.25, 10.75)
-    if (options.qr) f.addImage(options.qr, 'png', 182, 6, 20, 20)
+    if (options._qr) f.addImage(options._qr, 'png', 182, 6, 20, 20)
     f.setFontSize(20) // 设置固定字段名称
     f.text('物料状态确认表', 80.3 ,20)
     f.autoTable({
@@ -781,6 +781,7 @@ const gen_pdf_prd_issue_mtrl = (options) => {
     let f = new jsPDF() // 初始化jsPDF对象, 竖向A4
     f.addFont(font_file_path, font_family, 'normal') // 加载字体
     f.setFont(font_family) // 设置字体
+    let printed_at = formatDate(Date.now(), 'yyyy-MM-dd hh:mm:ss')
     
     let keys = Object.keys(options.group)
     let storekeeper_seq = []
@@ -855,7 +856,7 @@ const gen_pdf_prd_issue_mtrl = (options) => {
         let storekeeper = storekeeper_seq[i-1]
         let page_list = storekeeper_cnt[storekeeper]
         let m = page_list.length > 1 ? [page_list[0], page_list[page_list.length-1]].join('~') : page_list[0]
-        f.text(`${options.bill_no}, ${storekeeper}, 第 ${ m } 页`, 6, 290)
+        f.text(`${options.bill_no}, ${storekeeper}, 第 ${ m } 页, 打印时间 ${ printed_at }`, 6, 290)
     }
     let blob = f.output('blob') // 生成PDF文件的Blob对象
     let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL

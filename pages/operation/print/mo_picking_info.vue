@@ -1,14 +1,15 @@
 <template>
+    <canvas ref="qrcode" id="qrcode" canvas-id="qrcode" class="canvas-hidden"></canvas>
     <uni-section title="物流拣选单" type="square" @click="$logger.info('>>>', $data)"
         sub-title="请在二维码生成以后，再点击生成PDF文件" sub-title-color="#007aff"
         >
         <uni-list>
             <uni-list-item>
-                <template #header>
+                <!-- <template #header>
                     <view class="uni-list-item__head">
                         <uqrcode :canvas-id="`qrcode_${pdf_data.id}`" :value="pdf_data.mo_bill_no" :size="40"></uqrcode>
                     </view>
-                </template>
+                </template> -->
                 <template #body>
                     <view class="uni-list-item__body">
                         <view class="title">
@@ -74,6 +75,7 @@
     import store from '@/store'
     import { PrdPpbom, PrdMo } from '@/utils/model'
     import scan_code from '@/utils/scan_code'
+    import UQRCode from '@/uni_modules/Sansnn-uQRCode/js_sdk/uqrcode/uqrcode.js';
     // #ifdef H5
     import { gen_pdf_mo_picking } from '@/gen_pdf'
     // #endif
@@ -107,21 +109,40 @@
             },
             gen_pdf() {
                 // #ifdef H5
-                let _this_ = this
-                uni.canvasToTempFilePath({
-                    canvasId: `qrcode_${_this_.pdf_data.id}`,
-                    success: function(res) { 
-                        let url = gen_pdf_mo_picking({
-                            ..._this_.pdf_data,
-                            qr: res.tempFilePath, 
-                        })
-                        window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=1080,height=960') // 打开小窗口
-                    }
-                })
+                let url = gen_pdf_mo_picking(this.pdf_data)
+                window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=1080,height=960') // 打开小窗口
+                // let _this_ = this
+                // uni.canvasToTempFilePath({
+                //     canvasId: `qrcode_${_this_.pdf_data.id}`,
+                //     success: function(res) { 
+                //         let url = gen_pdf_mo_picking({
+                //             ..._this_.pdf_data,
+                //             qr: res.tempFilePath, 
+                //         })
+                //         window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=1080,height=960') // 打开小窗口
+                //     }
+                // })
                 // #endif
                 // #ifdef APP-PLUS
                     uni.showModal({ title: '提示', content: '仅PC端支持打印' })
                 // #endif
+            },
+            async gen_qrcode(text) {
+                return new Promise((resolve, reject) => {
+                    let uqr = new UQRCode();
+                    uqr.data = text;
+                    uqr.size = 400;
+                    uqr.make();
+                    var canvasContext = uni.createCanvasContext('qrcode', this); // 如果是组件，this必须传入
+                    uqr.canvasContext = canvasContext;
+                    uqr.drawCanvas();
+                    uni.canvasToTempFilePath({
+                        canvasId: 'qrcode',
+                        success: res => {
+                            resolve(res.tempFilePath)
+                        }
+                    })
+                })
             },
             async load_pdf_data(ppbom) {
                 let pdf_data = {
@@ -137,6 +158,7 @@
                     material_no: ppbom['FMaterialId.FNumber'],
                     material_name: ppbom['FMaterialId.FName'],
                     material_spec: ppbom['FMaterialId.FSpecification'],
+                    _qr: await this.gen_qrcode(ppbom.FMoBillNo),
                     children: []
                 }
                 uni.showLoading({ title: 'Loading' })

@@ -183,6 +183,9 @@
                 })
             },
             async call_test_api() {
+                // await K3CloudApi.view('BD_Customer', { Number: 'CU2607290001' })
+                // await K3CloudApi.view('BD_Contact', { Number: 'CC26072900001' })
+                // await K3CloudApi.view('ENG_BOM', { Number: '1.01.12.02.0010_V1.100委外' })
                 // e.g.
                 // model.EngBom.view('8.802.30200.00_V1.600')
                 // model.PrdPpbom.view('PPBOM01128772')
