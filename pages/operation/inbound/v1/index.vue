@@ -14,7 +14,7 @@
                     <template #label>
                         <view style="display: flex; justify-content: space-between;">
                             <view class="uni-forms-item__label">物料编码</view>
-                            <view v-if="material" class="text-grey" style="flex: 1; text-align: right;">{{ material?.FName }}; {{ material?.FSpecification }}</view>
+                            <view v-if="material" class="text-grey" style="flex: 1; text-align: right;">{{ material?.FName ? [material?.FName, material?.FSpecification].join('; ') : '' }}</view>
                         </view>
                     </template>
                     <uni-easyinput 
@@ -178,7 +178,7 @@
                     ],
                     button_group: [
                         { text: '扫码', backgroundColor: store.state.goods_nav_color.red, color: '#fff' },
-                        { text: '提交', backgroundColor: store.state.goods_nav_color.blue, color: '#fff' }
+                        { text: '提交入库', backgroundColor: store.state.goods_nav_color.blue, color: '#fff' }
                     ]
                 }
             }
@@ -199,7 +199,7 @@
             },
             goods_nav_button_click(e) {
                 if (e.index === 0) this.scan_code() // btn:扫码
-                if (e.index === 1) this.submit() // btn:提交
+                if (e.index === 1) this.submit_inbound() // btn:提交
             },
             scan_code() {
                 scan_code().then(res => {
@@ -300,7 +300,7 @@
                 this.bill = bill
                 this.$refs.search_drawer.open()
             },
-            async submit() {
+            async submit_inbound() {
                 try {
                     await this.$refs.form.validate()
                     let loc_no = this.form.loc_no.toUpperCase()

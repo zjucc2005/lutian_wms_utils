@@ -517,5 +517,9 @@
 </script>
 
 <style lang="scss" scoped>
-
+    .uni-forms::v-deep {
+        .uni-forms-item {
+            margin-bottom: 10px;
+        }
+    }
 </style>

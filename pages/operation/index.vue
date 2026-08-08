@@ -76,7 +76,7 @@
                         action: () => { link_to('/pages/operation/inbound/v2/index') }
                     },
                     {
-                        name: '入库扫码', permission: ['nrj_admin'], icon_path: '/static/icon/nav_scan_in.png',
+                        name: '入库', permission: ['nrj_admin'], icon_path: '/static/icon/nav_scan_in.png',
                         action: () => { link_to('/pages/operation/inbound/v1/index') }
                     },
                     // {
@@ -92,8 +92,8 @@
                         action: () => { link_to('/pages/operation/move/unpack') }
                     },
                     {
-                        name: '出库扫码', permission: ['nrj_admin'], icon_path: '/static/icon/nav_scan_out.png',
-                        action: () => { link_to('/pages/operation/outbound/v1/index') }
+                        name: '出库', permission: ['nrj_admin'], icon_path: '/static/icon/nav_scan_out.png',
+                        action: () => { link_to('/pages/operation/outbound/index') }
                     },
                     // {
                     //     name: '出库Depre', permission: ['nrj_admin'], icon_path: '/static/icon/nav_scan_out.png',

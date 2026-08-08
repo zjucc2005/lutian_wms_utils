@@ -50,7 +50,7 @@ class StkInventory {
         
         options.FStockId = store.state.cur_stock.FStockId
         let filter_string = K3CloudApi.query_filter({ FBaseQty_gt: 0, ...options })
-        let fields = ['FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FBaseQty', 'FBaseUnitId.FName']
+        let fields = ['FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1', 'FBaseQty', 'FBaseUnitId.FName']
         
         let response = null
         let page = 1

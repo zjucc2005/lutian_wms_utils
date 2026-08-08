@@ -3,7 +3,7 @@
         <uni-row v-if="$store.state.screen_type === 'h5'" >
             <uni-col :span="6">
                 <uni-group title="搜索栏" mode="card" style="margin-top: 0;">
-                    <uni-forms ref="search_form" :model="search_form" >
+                    <uni-forms ref="search_form" :model="search_form" label-width="70px">
                         <uni-forms-item label="物料编码">
                             <uni-easyinput v-model="search_form.material_no" trim />
                         </uni-forms-item>
@@ -12,6 +12,9 @@
                         </uni-forms-item>
                         <uni-forms-item label="规格型号">
                             <uni-easyinput v-model="search_form.material_spec" trim />
+                        </uni-forms-item>
+                        <uni-forms-item label="仓管员">
+                            <uni-data-select v-model="search_form.storekeeper" :localdata="storekeeper_opts" />
                         </uni-forms-item>
                         <uni-forms-item v-if="stk_invs.length" label="库存差异">
                             <uni-data-select v-model="search_form.inv_diff" :localdata="[{ value: 'Y', text: '是' },{ value: 'N', text: '否' }]" />
@@ -41,6 +44,7 @@
                                 金蝶账面
                             </uni-th>
                             <uni-th v-if="stk_invs.length" align="center" width="100">差异</uni-th>
+                            <uni-th align="center" width="100">仓管员</uni-th>
                             <uni-th align="center" width="220">操作</uni-th>
                         </uni-tr>
                         <uni-tr v-for="(obj, index) in table_data" :key="index">
@@ -59,6 +63,7 @@
                                 <text v-if="obj.qty - obj.stk_qty < 0" class="text-error">{{ obj.qty - obj.stk_qty }}</text>
                                 <text v-if="obj.qty - obj.stk_qty == 0" class="text-grey">{{ obj.qty - obj.stk_qty }}</text>
                             </uni-td>
+                            <uni-td align="center">{{ obj.storekeeper }}</uni-td>
                             <uni-td align="center">
                                 <uni-tag text="库存明细" type="primary" size="small" inverted @click="link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}`)"/>
                                 <uni-tag text="库存调整" type="primary" size="small" @click="inv_modify(obj.material_no)" class="uni-ml-2"/>
@@ -183,6 +188,7 @@
                     material_spec: '',
                     inv_diff: ''
                 },
+                storekeeper_opts: [],
                 goods_nav: {
                     options: [
                         { icon: 'search', text: '搜索' },
@@ -273,7 +279,7 @@
                 this.page = o_page
             },
             reset_search_form() {
-                this.search_form = { material_no: '', material_name: '', material_spec: '', inv_diff: '' }
+                this.search_form = { material_no: '', material_name: '', material_spec: '', storekeeper: '', inv_diff: '' }
                 this.search()
             },
             scan_code() {
@@ -294,7 +300,7 @@
             },
             search() {
                 this.inv_groups_q = this.inv_groups.filter(obj => {
-                    for (let field of ['material_no', 'material_name', 'material_spec']) {
+                    for (let field of ['material_no', 'material_name', 'material_spec', 'storekeeper']) {
                         let kw = this.search_form[field].toUpperCase()
                         if (kw && !obj[field].toUpperCase().includes(kw)) return false
                     }
@@ -335,11 +341,13 @@
             },
             get_inv_groups() {
                 let inv_groups = []
+                let storekeepers = new Set()
                 let i = 0, j = 0
                 while (i < this.stk_invs.length || j < this.invs.length) {
                     let stk_inv = this.stk_invs[i]
                     let inv = this.invs[j]
                     if (!inv || (stk_inv && stk_inv['FMaterialId.FNumber'] <= inv['FMaterialId.FNumber'])) {
+                        if (stk_inv['FMaterialId.F_PAEZ_Base1']) storekeepers.add(stk_inv['FMaterialId.F_PAEZ_Base1'])
                         let inv_group = inv_groups.find(x => x.material_no == stk_inv['FMaterialId.FNumber'])
                         if (inv_group) {
                             inv_group.stk_qty += stk_inv['FBaseQty']
@@ -349,11 +357,12 @@
                                 material_no: stk_inv['FMaterialId.FNumber'],
                                 material_name: stk_inv['FMaterialId.FName'],
                                 material_spec: stk_inv['FMaterialId.FSpecification'],
-                                material_image: inv?.['FMaterialId.FImageFileServer'],
+                                // material_image: inv?.['FMaterialId.FImageFileServer'],
                                 stk_qty: stk_inv['FBaseQty'],
                                 qty: 0,
                                 unit_name: stk_inv['FBaseUnitId.FName'],
-                                thumbnail: '/static/default_40x40.png'
+                                thumbnail: '/static/default_40x40.png',
+                                storekeeper: stk_inv['FMaterialId.F_PAEZ_Base1']
                             }
                             inv_groups.push(inv_group)
                         }
@@ -363,6 +372,7 @@
                             j += 1
                         }
                     } else {
+                        if (inv['FMaterialId.F_PAEZ_Base1']) storekeepers.add(inv['FMaterialId.F_PAEZ_Base1'])
                         let inv_group = inv_groups.find(x => x.material_no == inv['FMaterialId.FNumber'])
                         if (inv_group) {
                             inv_group.qty += inv.FQty
@@ -372,11 +382,12 @@
                                 material_no: inv['FMaterialId.FNumber'],
                                 material_name: inv['FMaterialId.FName'],
                                 material_spec: inv['FMaterialId.FSpecification'],
-                                material_image: inv['FMaterialId.FImageFileServer'],
+                                // material_image: inv['FMaterialId.FImageFileServer'],
                                 stk_qty: 0,
                                 qty: inv.FQty,
                                 unit_name: inv['FStockUnitId.FName'],
-                                thumbnail: '/static/default_40x40.png'
+                                thumbnail: '/static/default_40x40.png',
+                                storekeeper: inv['FMaterialId.F_PAEZ_Base1']
                             })
                         }
                         j += 1
@@ -384,6 +395,9 @@
                 }
                 this.inv_groups = inv_groups
                 this.inv_groups_q = inv_groups
+                storekeepers = Array.from(storekeepers)
+                storekeepers.sort((x, y) => x > y ? 1 : -1)
+                this.storekeeper_opts = storekeepers.map(x => { return { value: x, text: x } })
             },
             // #ifdef APP-PLUS
             // Broadcast receiver

@@ -17,14 +17,17 @@
         //     }
         // },
         // 仓库流程 VERSION 1
-        { "path": "pages/operation/inbound/v1/index",     "style": { "navigationBarTitleText": "入库扫码" } },
+        { "path": "pages/operation/inbound/v1/index",     "style": { "navigationBarTitleText": "入库" } },
         { "path": "pages/operation/inbound/v1/easy",      "style": { "navigationBarTitleText": "入库扫码 - 简易" } },
-        { "path": "pages/operation/outbound/v1/index",    "style": { "navigationBarTitleText": "出库扫码" } },
+        // { "path": "pages/operation/outbound/v1/__index_20260806", "style": { "navigationBarTitleText": "按单出库" } },
+        { "path": "pages/operation/outbound/index",       "style": { "navigationBarTitleText": "出库" } },
+        { "path": "pages/operation/outbound/by_order",    "style": { "navigationBarTitleText": "按单出库" } },
+        { "path": "pages/operation/outbound/direct",      "style": { "navigationBarTitleText": "直接出库" } },
         { "path": "pages/operation/move/v1/index",        "style": { "navigationBarTitleText": "库存调整" } },
         { "path": "pages/operation/move/v1/move_cart",    "style": { "navigationBarTitleText": "库存调整 - 计划" } },
         { "path": "pages/operation/move/unpack",          "style": { "navigationBarTitleText": "库内调拨" } },
         { "path": "pages/operation/move/unpack_allocate", "style": { "navigationBarTitleText": "库内调拨-分配库位" } },
-        { "path": "pages/operation/outbound/unpack",      "style": { "navigationBarTitleText": "出库" } },
+        // { "path": "pages/operation/outbound/__unpack",      "style": { "navigationBarTitleText": "出库" } },
         // 仓库流程 VERSION 2
         { "path": "pages/operation/index", "style": { "navigationBarTitleText": "", 
             "app-plus": {
