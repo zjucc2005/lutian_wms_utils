@@ -21,7 +21,7 @@
         { "path": "pages/operation/inbound/v1/easy",      "style": { "navigationBarTitleText": "入库扫码 - 简易" } },
         // { "path": "pages/operation/outbound/v1/__index_20260806", "style": { "navigationBarTitleText": "按单出库" } },
         { "path": "pages/operation/outbound/index",       "style": { "navigationBarTitleText": "出库" } },
-        { "path": "pages/operation/outbound/by_order",    "style": { "navigationBarTitleText": "按单出库" } },
+        { "path": "pages/operation/outbound/by_order",    "style": { "navigationBarTitleText": "拣选出库" } },
         { "path": "pages/operation/outbound/direct",      "style": { "navigationBarTitleText": "直接出库" } },
         { "path": "pages/operation/move/v1/index",        "style": { "navigationBarTitleText": "库存调整" } },
         { "path": "pages/operation/move/v1/move_cart",    "style": { "navigationBarTitleText": "库存调整 - 计划" } },

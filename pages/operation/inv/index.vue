@@ -301,7 +301,7 @@
             search() {
                 this.inv_groups_q = this.inv_groups.filter(obj => {
                     for (let field of ['material_no', 'material_name', 'material_spec', 'storekeeper']) {
-                        let kw = this.search_form[field].toUpperCase()
+                        let kw = this.search_form[field]?.toUpperCase()
                         if (kw && !obj[field].toUpperCase().includes(kw)) return false
                     }
                     if (this.search_form.inv_diff == 'Y') return obj.qty != obj.stk_qty
