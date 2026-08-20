@@ -11,7 +11,7 @@ class StkTransferDirect {
     }
         
     /**
-     * 获取生产订单列表
+     * 获取列表
      * @param options:Hash 参数集
      * @param meta:Hash
      *   @field page:Integer

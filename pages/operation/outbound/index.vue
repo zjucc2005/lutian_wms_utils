@@ -2,14 +2,14 @@
     <view>
         <uni-list>
             <uni-list-item title="拣选出库"
-                :extra-icon="{ color: '#007aff', size: '24', type: 'list' }" show-extra-icon
+                :extra-icon="{ color: '#007aff', size: '24', type: 'cart' }" show-extra-icon
                 @click="link_to('/pages/operation/outbound/by_order')" clickable show-arrow />
             <uni-list-item title="直接出库"
                 :extra-icon="{ color: '#007aff', size: '24', type: 'scan' }" show-extra-icon
                 @click="link_to('/pages/operation/outbound/direct')" clickable show-arrow />
             <uni-list-item title="其他出库"
-                :extra-icon="{ color: '#007aff', size: '24', type: 'redo' }" show-extra-icon
-                @click="link_to('/pages/operation/outbound/direct')" clickable show-arrow />
+                :extra-icon="{ color: '#007aff', size: '24', type: 'plusempty' }" show-extra-icon
+                @click="link_to('/pages/operation/outbound/other')" clickable show-arrow />
         </uni-list>
     </view>
 </template>

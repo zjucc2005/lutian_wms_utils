@@ -3,10 +3,12 @@
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 import store from '@/store'
+import config from '@/config'
 import { formatDate } from '@/utils'
 import { InvPlan } from '@/utils/model'
 
-const font_file_path = './static/font/SourceHanSansCN-Normal.ttf'
+// const font_file_path = './static/font/SourceHanSansCN-Normal.ttf'
+const font_file_path = config.update.endpoint + 'public/font/SourceHanSansCN-Normal.ttf'
 const font_family = 'SourceHanSansCN'
 
 const pdf_template_inv_plans_in = (inv_plans) => {

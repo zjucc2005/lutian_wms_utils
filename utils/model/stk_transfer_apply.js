@@ -1,34 +1,32 @@
+import store from '@/store'
 import K3CloudApi from '@/utils/k3cloudapi'
 
 /**
- * 出库申请单
+ * 调拨申请单
  */
-class StkOutStockApply {
-    static form_id = 'STK_OutStockApply'
+class StkTransferApply {
+    static form_id = 'STK_TRANSFERAPPLY'
     constructor() {
         
     }
-    
-    /** 
+        
+    /**
+     * 获取列表
      * @param options:Hash 参数集
-     * @param meta:Hash 
+     * @param meta:Hash
      *   @field page:Integer
      *   @field per_page:Integer
      *   @field order:String
      * @return {Hash} Promise
      */
-    static async query (options={}, meta={}) {
-        let fields = ['FID', 'FBillNo', 'FDeptId', 'FDeptId.FName',
-                      'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1',
-                      'FStockId', 'FStockId.FName',
-                      'FQty', 'FUnitId', 'FUnitId.FName', 'FBaseQty', 'FBaseUnitId', 'FBaseUnitId.FName'
-                      ]
+    static query(options={}, meta={}) {
+        let fields = ['FID', 'FBillNo', 'FCreateDate', 'FDocumentStatus']
         if (meta.fields) fields = meta.fields
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),
             FilterString: K3CloudApi.query_filter(options),
-            Limit: 10000,
+            Limit: 10000
         }
         if (meta.per_page) {
             data.Limit = meta.per_page
@@ -38,11 +36,7 @@ class StkOutStockApply {
         return meta.return === 'array' ? K3CloudApi.execute_bill_query(data) : K3CloudApi.bill_query(data)
     }
     
-    static async find(id) {
-        return this.query({ FID: id }, { limit: 1 })
-    }
-    
-    static async view(id) {
+    static view(id) {
         if (typeof(id) == 'number') {
             return K3CloudApi.view(this.form_id, { Id: id })
         } else {
@@ -51,4 +45,4 @@ class StkOutStockApply {
     }
 }
 
-export default StkOutStockApply
+export default StkTransferApply

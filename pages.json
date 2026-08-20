@@ -23,6 +23,7 @@
         { "path": "pages/operation/outbound/index",       "style": { "navigationBarTitleText": "出库" } },
         { "path": "pages/operation/outbound/by_order",    "style": { "navigationBarTitleText": "拣选出库" } },
         { "path": "pages/operation/outbound/direct",      "style": { "navigationBarTitleText": "直接出库" } },
+        { "path": "pages/operation/outbound/other",       "style": { "navigationBarTitleText": "其他出库" } },
         { "path": "pages/operation/move/v1/index",        "style": { "navigationBarTitleText": "库存调整" } },
         { "path": "pages/operation/move/v1/move_cart",    "style": { "navigationBarTitleText": "库存调整 - 计划" } },
         { "path": "pages/operation/move/unpack",          "style": { "navigationBarTitleText": "库内调拨" } },

@@ -31,6 +31,7 @@ import SalSaleOrder from './sal_sale_order'
 import SpPickMtrl from './sp_pick_mtrl'
 import StkInventory from './stk_inventory'
 import StkOutStockApply from './stk_out_stock_apply'
+import StkTransferApply from './stk_transfer_apply'
 import StkTransferDirect from './stk_transfer_direct'
 import StockLoc from './stock_loc'
 import SubSubReqOrder from './sub_sub_req_order'
@@ -65,6 +66,7 @@ export {
     SpPickMtrl,
     StkInventory,
     StkOutStockApply,
+    StkTransferApply,
     StkTransferDirect,
     StockLoc,
     SubSubReqOrder

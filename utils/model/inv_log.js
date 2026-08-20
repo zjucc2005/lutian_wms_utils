@@ -91,24 +91,26 @@ class InvLog {
      * @return {Hash} Promise
      */
     static query(options={}, meta={}) {
-        const fields = ['FID', 'FOpSN', 'FOpType', 'FOpQTY', 'FCreateTime',
+        let fields = ['FID', 'FOpSN', 'FOpType', 'FOpQTY', 'FCreateTime',
                         'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification',
                         'FStockId', 'FStockId.FName',
                         'FStockLocId', 'FStockLocId.FNumber',
                         'FStockUnitId', 'FStockUnitId.FName',
                         'FInvIncre', 'FInvQTY', 'FBatchNo', 'FBillNo', 'FSupplierId', 'FSupplierId.FName',
                         'FRemark', 'FOpStaffNo', 'FCInvId', 'FReferId', 'FReceiver']
+        if (meta.fields) fields = meta.fields
         const data = {
             FormId: 'PAEZ_C_INV_LOG',
             FieldKeys: fields.join(','),
-            FilterString: K3CloudApi.query_filter(options)
-        }   
+            FilterString: K3CloudApi.query_filter(options),
+            Limit: 10000
+        }
         if (meta.per_page) {
             data.Limit = meta.per_page
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
         }
         if (meta.order) data.OrderString = meta.order
-        return K3CloudApi.bill_query(data)
+        return meta.return === 'array' ? K3CloudApi.execute_bill_query(data) : K3CloudApi.bill_query(data)
     }
     
     static find(id) {
@@ -119,6 +121,17 @@ class InvLog {
         const data = {
             FormId: 'PAEZ_C_INV_LOG',
             FieldKeys: 'count(1)',
+            FilterString: K3CloudApi.query_filter(options),
+            Limit: 0
+        }
+        let res = await K3CloudApi.execute_bill_query(data)
+        return Number(res.data[0][0])
+    }
+    
+    static async sum_qty(options={}) {
+        const data = {
+            FormId: 'PAEZ_C_INV_LOG',
+            FieldKeys: 'sum(FOpQTY)',
             FilterString: K3CloudApi.query_filter(options),
             Limit: 0
         }
