@@ -124,6 +124,7 @@
         // { "path": "pages/operation/print/demo",  "style": { "navigationBarTitleText": "标签DEMO" } },
         { "path": "pages/operation/print/material_label_by_cgsl",  "style": { "navigationBarTitleText": "生成物料标签" } },
         { "path": "pages/operation/print/material_label_by_import",  "style": { "navigationBarTitleText": "生成物料标签（批量）" } },
+        { "path": "pages/operation/print/loc_label_by_import",  "style": { "navigationBarTitleText": "生成库位标签（批量）" } },
         { "path": "pages/operation/print/mo_picking",  "style": { "navigationBarTitleText": "物流拣选单" } },
         { "path": "pages/operation/print/mo_picking_info",  "style": { "navigationBarTitleText": "物流拣选单预览" } },
         { "path": "pages/operation/print/mo_confirming",  "style": { "navigationBarTitleText": "物料状态确认表" } },

@@ -54,6 +54,10 @@
 .text-underline {
     text-decoration: underline;
 }
+.text-nodata {
+    color: $uni-text-color-grey;
+    text-align: center;
+}
 .text-lg {
     font-size: $uni-font-size-lg;
 }
@@ -129,6 +133,25 @@
         font-weight: bold;
     }
 }
+
+.cc-list::v-deep {
+    .uni-list-item {
+        .uni-list-item__container {
+            padding: 9px 15px;
+        }
+        .uni-list-item__content-title {
+            font-weight: bold;
+        }
+        .uni-list-item__extra {
+            flex: 2;
+        }
+        .uni-list-item__extra-text {
+            color: #666;
+            font-size: 13px;
+        }
+    }
+}
+
 // #ifdef H5
 .uni-list-item:hover {
     background-color: #f1f1f1 !important;

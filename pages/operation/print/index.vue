@@ -13,6 +13,9 @@
             <uni-list-item title="生成物料标签（收料通知单）"
                 :extra-icon="{ color: '#007aff', size: '24', type: 'map' }" show-extra-icon
                 @click="link_to('/pages/operation/print/material_label_by_cgsl')" clickable show-arrow />
+            <uni-list-item title="生成库位标签（Excel批量导入）"
+                :extra-icon="{ color: '#007aff', size: '24', type: 'location' }" show-extra-icon
+                @click="link_to('/pages/operation/print/loc_label_by_import')" clickable show-arrow />
             <uni-list-item title="生成《物流拣选单》"
                 :extra-icon="{ color: '#007aff', size: '24', type: 'list' }" show-extra-icon
                 @click="link_to('/pages/operation/print/mo_picking')" clickable show-arrow />

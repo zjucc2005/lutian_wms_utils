@@ -3,16 +3,126 @@
         <uni-popup-message :type="flash_type" :message="flash_msg" :duration="2000"></uni-popup-message>
     </uni-popup>
     
-    <uni-section title="物料详情" type="square"
-        v-if="bd_material.Id"
-        class="above-uni-goods-nav"
-        >
+    <uni-row v-if="bd_material?.Id" :gutter="15" class="above-uni-goods-nav">
+        <uni-col :md="8">
+            <uni-section title="基本" type="square" @click="debug">
+                <uni-list class="cc-list">
+                    <uni-list-item title="物料编码" :right-text="bd_material.Number" />
+                    <uni-list-item title="物料名称" :right-text="bd_material.Name[0]?.Value" />
+                    <uni-list-item title="规格型号" :right-text="bd_material.Specification[0]?.Value" />
+                    <uni-list-item title="存货类别" :right-text="bd_material.MaterialBase[0].CategoryID.Name[0].Value" />
+                    <uni-list-item
+                        title="销售简称" 
+                        :right-text="bd_material.F_RGEN_xsjc_83g"
+                        @click="edit_field('F_RGEN_xsjc_83g')"
+                        :clickable="is_admin"
+                        :show-arrow="is_admin"
+                        />
+                    <uni-list-item
+                        title="产品简称" 
+                        :right-text="bd_material.F_RGEN_Text_cpjc"
+                        @click="edit_field('F_RGEN_Text_cpjc')"
+                        :clickable="is_admin || is_storekeeper"
+                        :show-arrow="is_admin || is_storekeeper"
+                        />
+                    <uni-list-item
+                        title="单箱标准数量"
+                        :right-text="bd_material.MaterialStock[0].BoxStandardQty.toString()"
+                        @click="edit_field('FBoxStandardQty')"
+                        :clickable="is_admin || is_storekeeper"
+                        :show-arrow="is_admin || is_storekeeper"
+                        />
+                    <uni-list-item
+                        title="单托标准数量"
+                        :right-text="bd_material.F_RGEN_Text_qtr"
+                        @click="edit_field('F_RGEN_Text_qtr')"
+                        :clickable="is_admin || is_storekeeper"
+                        :show-arrow="is_admin || is_storekeeper"
+                        />
+                    <uni-list-item
+                        title="仓库"
+                        :right-text="bd_material.MaterialStock[0].StockId?.Name[0].Value"
+                        @click="edit_field('StockId')"
+                        :clickable="is_admin"
+                        :show-arrow="is_admin"
+                        />
+                    <uni-list-item 
+                        title="仓管员"
+                        :right-text="bd_material.F_PAEZ_Base1 ? [bd_material.F_PAEZ_Base1.Name[0].Value, bd_material.F_PAEZ_Base1.FStaffNumber].join(' / ') : ''"
+                        @click="edit_field('CangGuanYuan')"
+                        :clickable="is_admin"
+                        :show-arrow="is_admin"
+                        />
+                    <uni-list-item
+                        title="库位"
+                        :right-text="bd_material.F_PAEZ_Text_qtr2"
+                        @click="edit_field('F_PAEZ_Text_qtr2')"
+                        :clickable="is_admin"
+                        :show-arrow="is_admin"
+                        />
+                    <uni-list-item
+                        title="部装工序"
+                        :right-text="bd_material.F_RGEN_Text_bzgx"
+                        @click="edit_field('F_RGEN_Text_bzgx')"
+                        :clickable="is_admin"
+                        :show-arrow="is_admin"
+                        />
+                </uni-list>
+            </uni-section>
+        </uni-col>
+        <uni-col :md="8">
+            <uni-section title="金蝶即时库存" type="square">
+                <template #right>
+                    <view class="text-bold">{{ sum_stk_inv }}</view>
+                </template>
+                <uni-list v-if="stk_invs.length">
+                    <uni-list-item v-for="(stk_inv, index) in stk_invs" :key="index"
+                        :title="stk_inv['FStockId.FName']"
+                        :right-text="[stk_inv['FBaseQty'], stk_inv['FBaseUnitId.FName']].join(' ')">
+                    </uni-list-item>
+                </uni-list>
+                <view v-else class="text-nodata">NO DATA</view>
+            </uni-section>
+        </uni-col>
+        <uni-col :md="8">
+            <uni-section title="图片" type="square">
+                <uni-row>
+                    <uni-col :md="8" v-for="(e, i) in 3" :key="i">
+                        <view class="image-card">
+                            <image
+                                :src="image_urls[i]?.original || image_urls[i]?.thumbnail" 
+                                mode="aspectFill"
+                                :style="{
+                                    width: image_urls[i]?.loading ? 0 : '100%',
+                                    height: image_urls[i]?.loading ? 0 : ''
+                                }"
+                                @click="image_preview(i)"
+                                />
+                            <view class="image-card-footer" v-if="$store.state.screen_type === 'h5' && (is_admin || is_storekeeper)">
+                                <view class="text-grey">{{ `图片 ${i+1}` }}</view>
+                                <view>
+                                    <uni-icons v-if="image_urls[i]?.id" type="trash" size="24" color="#dd524d" @click="if_image_delete(i)"></uni-icons>
+                                    <uni-icons type="upload" size="24" color="#007aff" class="uni-ml-3" @click="image_upload(i)"></uni-icons>
+                                </view>
+                            </view>
+                        </view>
+                    </uni-col>
+                </uni-row>
+            </uni-section>
+            <uni-group v-if="$store.state.screen_type === 'h5'" title="其他操作" mode="card">
+                <button size="mini" @click="search_bom">浏览BOM</button>
+                <button type="primary" size="mini"class="uni-ml-5" @click="select_material_card">打印模板</button>
+            </uni-group>
+        </uni-col>
+    </uni-row>
+        
+    <!--
+    <uni-section title="物料详情" type="square" v-if="bd_material.Id" class="above-uni-goods-nav">
         <uni-list>
-            <uni-list-item title="编码" :right-text="bd_material.Number" />
-            <uni-list-item title="名称" :right-text="bd_material.Name[0]?.Value" />
-            <uni-list-item title="规格" :right-text="bd_material.Specification[0]?.Value" />
+            <uni-list-item title="物料编码" :right-text="bd_material.Number" />
+            <uni-list-item title="物料名称" :right-text="bd_material.Name[0]?.Value" />
+            <uni-list-item title="规格型号" :right-text="bd_material.Specification[0]?.Value" />
             <uni-list-item title="存货类别" :right-text="bd_material.MaterialBase[0].CategoryID.Name[0].Value" />
-            <!-- <uni-list-item title="使用组织" :right-text="bd_material.UseOrgId.Name[0]?.Value" /> -->
             <uni-list-item 
                 title="销售简称" 
                 :right-text="bd_material.F_RGEN_xsjc_83g"
@@ -69,7 +179,7 @@
                 :clickable="is_admin"
                 :show-arrow="is_admin"
                 />
-            <template v-for="(stk_inv, index) in stk_inventories" :key="index">
+            <template v-for="(stk_inv, index) in stk_invs" :key="index">
                 <uni-list-item
                     title="库存量(基本单位)"
                     :note="[
@@ -90,10 +200,7 @@
             </template> 
         </uni-list>
         
-        <!-- 图片展示，缩略图占位，等待原图加载完毕 -->
         <view v-for="(image_url, index) in image_urls" :key="index" class="image-card">
-            <!-- <uni-icons v-if="image_url.loading" type="spinner-cycle" size="24" color="#eee" class="image-loading"></uni-icons> -->
-            <!-- <image v-if="image_url.loading" :src="image_url.thumbnail" mode="widthFix" style="width: 100%;" /> -->
             <image
                 :src="image_url.original || image_url.thumbnail" 
                 mode="widthFix"
@@ -105,8 +212,9 @@
                 />
         </view>       
     </uni-section>
+    -->
     
-    <view class="uni-goods-nav-wrapper">
+    <view v-if="$store.state.screen_type === 'app-plus'" class="uni-goods-nav-wrapper">
         <uni-goods-nav 
             :options="goods_nav.options" 
             :button-group="goods_nav.button_group"
@@ -203,7 +311,7 @@
         data() {
             return {
                 bd_material: {},        // 物料实例
-                stk_inventories: [],    // 即时库存实例
+                stk_invs: [],    // 即时库存实例
                 image_urls: [],         // 实例图片
                 image_fields: ['ImageFileServer', 'F_PAEZ_ImageFileServer', 'F_PAEZ_ImageFileServer1'], // 图片字段
                 f_image_fields: ['FImageFileServer', 'F_PAEZ_ImageFileServer', 'F_PAEZ_ImageFileServer1'], // F + 图片字段
@@ -239,9 +347,19 @@
             },
             is_storekeeper() {
                 return store.state.cur_staff.FName === this.bd_material.F_PAEZ_Base1?.Name[0]?.Value
+            },
+            sum_stk_inv() {
+                let res = 0
+                for (let stk_inv of this.stk_invs) {
+                    res += stk_inv.FBaseQty
+                }
+                return res
             }
         },
         methods: {
+            debug() {
+                this.$logger.info('>>>', this.$data)
+            },
             edit_field(field) {
                 if (!this.can_edit) {
                     this.flash('warn', '创建组织下才可修改')
@@ -327,30 +445,6 @@
             goods_nav_button_click(e) {
                 if (e.index === 0) this.select_material_card() // btn:物料资料卡模板
             },
-            if_image_delete(image_field_index) {
-                uni.showActionSheet({
-                    itemList: [`删除图片${image_field_index + 1}`],
-                    success: (e) => {
-                        if (e.tapIndex === 0) this.image_delete(image_field_index)
-                    }
-                })
-            },
-            async image_preview(current) {
-                uni.showLoading({ title: 'Loading' })
-                for (let field of this.image_fields) {
-                    if (this.bd_material[field]?.trim()) {
-                        let obj = this.image_urls.find(x => x.field === field)
-                        if (obj.original) continue // 避免重复加载
-                        obj.original = await K3CloudApi.download_image_cache(this.bd_material[field])
-                    }
-                }
-                uni.hideLoading()
-                let _this_ = this
-                uni.previewImage({
-                    current: current,
-                    urls: _this_.image_urls.map(x => x.original)
-                });
-            },
             search_bom() {
                 link_to(`/pages/k3cloud/eng_bom/show?no=${this.bd_material.Number}`)
                 // uni.showActionSheet({
@@ -372,14 +466,15 @@
                 if (!this.bd_material.Id) return
                 uni.showActionSheet({
                     itemList: ['物料资料卡'],
-                    success: (e) => {
+                    success: async (e) => {
                         if (e.tapIndex === 0) {
                             this.$logger.info('>>> 生成物料资料卡')
+                            await this.load_original_image()
                             uni.navigateTo({
                                 url: '/pages/operation/material/card',
                                 success: (res) => {
                                     play_audio_prompt('success')
-                                    res.eventChannel.emit('sendMaterial', { bd_material: this.bd_material, image_urls: this.image_urls })
+                                    res.eventChannel.emit('sendMaterial', { bd_material: this.bd_material, image_urls: this.image_urls.filter(x => x.id) })
                                 }
                             })
                         }
@@ -389,6 +484,14 @@
             show_qrcode() {
                 this.canvas_id = 'qrcode_' + Date.now() // 每次设定不一样的canvas_id，修复popup重新打开后canvas显示空白的问题
                 this.$refs.qrcode_popup.open()
+            },
+            if_image_delete(image_field_index) {
+                uni.showActionSheet({
+                    itemList: [`删除图片${image_field_index + 1}`],
+                    success: (e) => {
+                        if (e.tapIndex === 0) this.image_delete(image_field_index)
+                    }
+                })
             },
             async image_delete(image_field_index) {
                 let params = {}
@@ -422,41 +525,57 @@
                 uni.hideLoading()
                 this.load_material(this.bd_material.Id) // reload
             },
+            async image_preview(current) {
+                await this.load_original_image()
+                let urls = this.image_urls.filter(x => x.id).map(x => x.original)
+                if (urls.length) uni.previewImage({ current, urls })
+            },
             async load_material(material_id) {
                 uni.showLoading({ title: 'Loading', mask: true })
                 this.image_urls = []
-                this.blank_image_fields = []
                 let view_res = await BdMaterial.view(material_id)
                 if (view_res.data.Result.ResponseStatus.IsSuccess) {
                     let raw_data = view_res.data.Result.Result
                     this.bd_material = raw_data
-                    for (let field of this.image_fields) {
+                    for (let i = 0; i < 3; i++) {
+                        let field = this.image_fields[i]
                         if (raw_data[field]?.trim()) {
-                            this.image_urls.push({
-                                field: field,
+                            this.image_urls[i] = {
+                                field, i,
                                 id: raw_data[field],
                                 orignal: '',
                                 thumbnail: await K3CloudApi.thumbnail_url(raw_data[field])
-                                // loading: true
-                            })
+                            }
                         } else {
-                            this.blank_image_fields.push(field)
+                            this.image_urls[i] = {
+                                field, i, id: '', original: '', thumbnail: '/static/default_40x40.png'
+                            }
                         }
                     }
                     // 加载即时库存数据
-                    let inv_res = await StkInventory.query({ 'FMaterialId.FNumber': raw_data.Number })
-                    // let stk_inventory = { FBaseQty: 0 }
-                    let stk_inventories = [] // 按不同仓库分开
+                    let inv_res = await StkInventory.query({ 'FMaterialId.FNumber': raw_data.Number }, { fields: ['FStockId', 'FStockId.FName', 'FBaseQty', 'FBaseUnitId.FName'] })
+                    let stk_invs = [] // 按不同仓库分开
                     for (let item of inv_res.data) {
-                        let stk_inv = stk_inventories.find(x => x.FStockId == item.FStockId)
+                        let stk_inv = stk_invs.find(x => x.FStockId == item.FStockId)
                         if (stk_inv) {
                             stk_inv.FBaseQty += item.FBaseQty
                             continue
                         }
-                        stk_inventories.push(item)
+                        stk_invs.push(item)
                     }
-                    this.stk_inventories = stk_inventories
+                    this.stk_invs = stk_invs
                     this.goods_nav.button_group[0].backgroundColor = store.state.goods_nav_color.green
+                }
+                uni.hideLoading()
+            },
+            async load_original_image() {
+                uni.showLoading({ title: 'Loading' })
+                for (let field of this.image_fields) {
+                    if (this.bd_material[field]?.trim()) {
+                        let obj = this.image_urls.find(x => x.field === field)
+                        if (obj.original) continue // 避免重复加载
+                        obj.original = await K3CloudApi.download_image_cache(this.bd_material[field])
+                    }
                 }
                 uni.hideLoading()
             },
@@ -496,18 +615,26 @@
 </script>
 
 <style lang="scss" scoped>
-    .uni-list-item::v-deep {
-        .uni-list-item__container {
-            padding: 9px 15px;
+    // .uni-list-item::v-deep {
+    //     .uni-list-item__container {
+    //         padding: 9px 15px;
+    //     }
+    //     .uni-list-item__content-title {
+    //         font-weight: bold;
+    //     }
+    //     .uni-list-item__extra {
+    //         flex: 2;
+    //     }
+    //     .uni-list-item__extra-text {
+    //         color: #666;
+    //         font-size: 13px;
+    //     }
+    // }
+    .image-card::v-deep {
+        uni-image {
+            max-height: 200px;
         }
-        .uni-list-item__extra-text {
-            color: #666;
-            font-size: 13px;
-        }
-    }
-    
-    .image-card {
-        margin: 10px;
+        margin: 0 10px 10px 10px;
         padding: 5px 5px 1px 5px;
         border: 1px solid #eee;
         border-radius: 5px;
@@ -517,7 +644,25 @@
             z-index: 10;
             animation: rotate 2s linear infinite;
         }
+        .image-card-footer {
+            padding: 3px 0;
+            display: flex;
+            justify-content: space-between;
+        }
     }
+    
+    // .image-card {
+    //     margin: 10px;
+    //     padding: 5px 5px 1px 5px;
+    //     border: 1px solid #eee;
+    //     border-radius: 5px;
+    //     box-shadow: rgba(0, 0, 0, 0.08) 0px 0px 3px 1px;
+    //     .image-loading {
+    //         position: absolute;
+    //         z-index: 10;
+    //         animation: rotate 2s linear infinite;
+    //     }
+    // }
     
     @keyframes rotate {
       from {

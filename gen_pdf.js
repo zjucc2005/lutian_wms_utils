@@ -625,6 +625,51 @@ const gen_pdf_material_label_batch = (options) => {
     return url
 }
 
+// 库位标签
+// options = { format, labels: [{ no, _qr }] }
+const gen_pdf_loc_label_batch = (options) => {
+    let f;
+    if (options.format == '70x100') {
+        f = new jsPDF({ orientation: 'portrait', format: [70, 100] })
+        f.addFont(font_file_path, font_family, 'normal')
+        f.setFont(font_family)
+        for (let i = 0; i < options.labels.length; i++) {
+            let label = options.labels[i]
+            f.addImage('./static/image/lutian_logo.png', 5, 5, 37.25, 10.75)
+            if (label._qr) f.addImage(label._qr, 'png', 5, 20, 60, 60)
+            let font_size = 24
+            f.setFontSize(font_size)
+            while (f.getTextWidth(label.no) > 60) {
+                font_size--
+                f.setFontSize(font_size)
+            }
+            f.text(label.no, 35 - f.getTextWidth(label.no) / 2, 92)
+            if (i < options.labels.length - 1) f.addPage()
+        }
+    } else if (options.format == '100x50') {
+        f = new jsPDF({ orientation: 'landscape', format: [100, 50] })
+        f.addFont(font_file_path, font_family, 'normal')
+        f.setFont(font_family)
+        for (let i = 0; i < options.labels.length; i++) {
+            let label = options.labels[i]
+            f.addImage('./static/image/lutian_logo.png', 5, 5, 37.25, 10.75)
+            if (label._qr) f.addImage(label._qr, 'png', 55, 5, 40, 40)
+            let font_size = 24
+            f.setFontSize(font_size)
+            while (f.getTextWidth(label.no) > 47) {
+                font_size--
+                f.setFontSize(font_size)
+            }
+            f.text(label.no, 28.5 - f.getTextWidth(label.no) / 2, 45)
+            if (i < options.labels.length - 1) f.addPage()
+        }
+    }
+    if (!f) return ''
+    let blob = f.output('blob') // 生成PDF文件的Blob对象
+    let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL
+    return url
+}
+
 /* 物流拣选单 */
 const gen_pdf_mo_picking = (options) => {
     let f = new jsPDF() // 初始化jsPDF对象, 竖向A4
@@ -875,6 +920,7 @@ export {
     
     gen_pdf_material_label,
     gen_pdf_material_label_batch,
+    gen_pdf_loc_label_batch,
     gen_pdf_mo_picking,
     gen_pdf_mo_confirming,
     gen_pdf_prd_issue_mtrl
