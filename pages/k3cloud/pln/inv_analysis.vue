@@ -277,13 +277,13 @@
             },
             async search() {
                 let x_start_time = Date.now() // 执行开始时间
-                // uni.showLoading({ title: 'Loading...' })
-                // await this.load_inv() // 加载即时库存
-                // uni.showLoading({ title: '25%' })
-                // await this.load_req() // 加载采购申请单
-                // uni.showLoading({ title: '50%' })
-                // await this.load_sub() // 加载委外订单
-                // uni.showLoading({ title: '75%' })
+                uni.showLoading({ title: 'Loading...' })
+                await this.load_inv() // 加载即时库存
+                uni.showLoading({ title: '25%' })
+                await this.load_req() // 加载采购申请单
+                uni.showLoading({ title: '50%' })
+                await this.load_sub() // 加载委外订单
+                uni.showLoading({ title: '75%' })
                 await this.load_po() // 加载采购订单
                 uni.hideLoading()
                 uni.showModal({ title: '搜索完毕',

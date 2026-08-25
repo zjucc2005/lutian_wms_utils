@@ -37,8 +37,7 @@ class PrdIssueMtrNotice {
         const data = {
             FormId: this.form_id,
             FieldKeys: fields.join(','),
-            FilterString: K3CloudApi.query_filter(options),
-            Limit: 10000
+            FilterString: K3CloudApi.query_filter(options)
         }
         if (meta.per_page) {
             data.Limit = meta.per_page

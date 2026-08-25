@@ -106,6 +106,7 @@
         { "path": "pages/api_utils/store/chart", "style": { "navigationBarTitleText": "Chart" } },
         // 统计
         { "path": "pages/operation/statistics/index",            "style": { "navigationBarTitleText": "统计" } },
+        { "path": "pages/operation/statistics/stk_inv_summary",  "style": { "navigationBarTitleText": "金蝶库存明细汇总" } },
         { "path": "pages/operation/statistics/inventory_record", "style": { "navigationBarTitleText": "出入库数量统计" } },
         { "path": "pages/operation/statistics/move_plan_record", "style": { "navigationBarTitleText": "库存调整统计" } },
         { "path": "pages/operation/statistics/inventory_daily",  "style": { "navigationBarTitleText": "库存量统计" } },

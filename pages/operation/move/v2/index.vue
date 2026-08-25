@@ -213,6 +213,7 @@
                 op_type_dict: InvPlan.FOpTypeEnum,
                 last_refresh_time: 0,
                 refresh_interval: 30 * 1000, // 30s
+                new_inv_logs: [],  // 缓存待提交出库的日志报文，集中一次性提交，保持幂等性
                 goods_nav: {
                     options: [
                         { icon: 'refreshempty', text: '刷新' },
@@ -360,11 +361,22 @@
                 let ids = checked_inv_plans.map(x => x.FID)
                 let response = await InvPlan.audit(ids)
                 if (response.data.Result.ResponseStatus.IsSuccess) {
-                    for (let i = 0; i < checked_inv_plans.length; i++) {
-                        uni.showLoading({ title: `Loading:${i}/${checked_inv_plans.length}`, mask: true })
-                        await InvPlan.execute(checked_inv_plans[i]) // 审核确认
+                    if (this.new_inv_logs.length === 0) {
+                        for (let i = 0; i < checked_inv_plans.length; i++) {
+                            uni.showLoading({ title: `Loading:${i}/${checked_inv_plans.length}`, mask: true })
+                            for (let new_inv_log of InvPlan.before_execute(checked_inv_plans[i])) {
+                                this.new_inv_logs.push(new_inv_log)
+                            }
+                            // await InvPlan.execute(checked_inv_plans[i]) // 审核确认
+                        }
+                    }
+                    // 统一分配操作序号，统一提交保存，防重复提交
+                    for (let i = 0; i < this.new_inv_logs.length; i++) {
+                        uni.showToast({ title: `${i}/${this.new_inv_logs.length}`, mask: true })
+                        await this.new_inv_logs[i].save()
                     }
                     await this.load_inv_plans()
+                    this.new_inv_logs = []
                     uni.hideLoading()
                     play_audio_prompt('success')
                 } else {

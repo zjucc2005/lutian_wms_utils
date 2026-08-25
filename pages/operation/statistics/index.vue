@@ -2,38 +2,25 @@
     <view>
         <uni-list>
             <uni-list-item title="出入库数量统计"
-                :show-extra-icon="true" 
-                :extra-icon="{ type: 'tune', size: '24', color: '#007bff' }"
-                @click="link_to('/pages/operation/statistics/inventory_record')" clickable
-                showArrow />
+                :extra-icon="{ type: 'tune', size: '24', color: '#007bff' }" show-extra-icon
+                @click="link_to('/pages/operation/statistics/inventory_record')" clickable show-arrow />
             <uni-list-item title="库存调整统计"
-                :show-extra-icon="true" 
-                :extra-icon="{ type: 'redo', size: '24', color: '#007bff' }"
-                @click="link_to('/pages/operation/statistics/move_plan_record')" clickable
-                showArrow />
+                :extra-icon="{ type: 'redo', size: '24', color: '#007bff' }" show-extra-icon
+                @click="link_to('/pages/operation/statistics/move_plan_record')" clickable show-arrow />
             <uni-list-item title="库存量统计"
-                :show-extra-icon="true" 
-                :extra-icon="{ type: 'calendar', size: '24', color: '#007bff' }"
+                :extra-icon="{ type: 'calendar', size: '24', color: '#007bff' }" show-extra-icon
                 @click="link_to('/pages/operation/statistics/inventory_daily')" clickable
                 showArrow />
             <uni-list-item title="库存看板" v-if="$store.state.screen_type === 'h5'"
-                :show-extra-icon="true"
-                :extra-icon="{ type: 'pyq', size: '24', color: '#007bff' }"
+                :extra-icon="{ type: 'pyq', size: '24', color: '#007bff' }" show-extra-icon
                 @click="link_to('/pages/operation/statistics/dashboard')" clickable
                 showArrow />
+            <uni-list-item title="金蝶库存明细汇总" v-if="$store.state.cur_stock['FUseOrgId.FName'] == '内燃机事业部'"
+                :extra-icon="{ type: 'star-filled', size: '24', color: '#007bff' }" show-extra-icon
+                @click="link_to('/pages/operation/statistics/stk_inv_summary')" clickable show-arrow />
             <!-- <uni-list-item title="监控看板-原料仓库"
-                :show-extra-icon="true"
-                :extra-icon="{ type: 'eye-filled', size: '24', color: '#007bff' }"
-                @click="link_to('/pages/operation/statistics/monitor_wl')" clickable
-                showArrow /> -->
-<!--            <uni-list-item title="库存周期统计"
-                :show-extra-icon="true"
-                :extra-icon="{ type: 'navigate', size: '24', color: '#4cd964' }"
-                clickable showArrow disabled />
-            <uni-list-item title="平均在库天数"
-                :show-extra-icon="true"
-                :extra-icon="{ type: 'paperplane', size: '24', color: '#dc3545' }"
-                clickable showArrow disabled /> -->
+                :extra-icon="{ type: 'eye-filled', size: '24', color: '#007bff' }" show-extra-icon
+                @click="link_to('/pages/operation/statistics/monitor_wl')" clickable show-arrow /> -->
         </uni-list>
     </view>
 </template>

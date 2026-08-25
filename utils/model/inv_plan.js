@@ -227,6 +227,59 @@ class InvPlan {
             await dest_inv_log.save()
         }
     }
+    
+    static before_execute(inv_plan) {
+        if (!inv_plan.FMaterialId) return [] // 变更计划中无物料信息时（数据错误），跳过生成日志
+        let res = []
+        if (['in', 'out', 'add', 'sub'].includes(inv_plan.FOpType)) {
+            let options = {
+                FOpType: inv_plan.FOpType,
+                FStockId: inv_plan.FStockId,
+                FStockLocNo: inv_plan['FStockLocId.FNumber'],
+                FMaterialId: inv_plan.FMaterialId,
+                FOpQTY: inv_plan.FOpQTY,
+                FBatchNo: inv_plan.FBatchNo,
+                FBillNo: inv_plan.FBillNo,
+                FOpStaffNo: inv_plan.FOpStaffNo,
+                FRemark: inv_plan.FRemark,
+                FReceiver: inv_plan.FReceiver,
+                FSupplierId: inv_plan.FSupplierId
+            }
+            let inv_log = new InvLog(options)
+            res.push(inv_log)
+        }
+        else if (inv_plan.FOpType == 'mv') {
+            let src_options = {
+                FOpType: 'mv_out',
+                FStockId: inv_plan.FStockId,
+                FStockLocNo: inv_plan['FStockLocId.FNumber'],
+                FMaterialId: inv_plan.FMaterialId,
+                FOpQTY: inv_plan.FOpQTY,
+                FBatchNo: inv_plan.FBatchNo,
+                FBillNo: inv_plan.FBillNo,
+                FOpStaffNo: inv_plan.FOpStaffNo,
+                FRemark: inv_plan.FRemark,
+                FSupplierId: inv_plan.FSupplierId
+            }
+            let src_inv_log = new InvLog(src_options)
+            res.push(src_inv_log)
+            let dest_options = {
+                FOpType: 'mv_in',
+                FStockId: inv_plan.FStockId,
+                FStockLocNo: inv_plan['FDestStockLocId.FNumber'],
+                FMaterialId: inv_plan.FMaterialId,
+                FOpQTY: inv_plan.FOpQTY,
+                FBatchNo: inv_plan.FBatchNo,
+                FBillNo: inv_plan.FBillNo,
+                FOpStaffNo: inv_plan.FOpStaffNo,
+                FRemark: inv_plan.FRemark,
+                FSupplierId: inv_plan.FSupplierId
+            }
+            let dest_inv_log = new InvLog(dest_options)
+            res.push(dest_inv_log)
+        }
+        return res
+    }
 }
 
 export default InvPlan

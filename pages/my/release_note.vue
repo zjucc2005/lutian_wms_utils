@@ -13,6 +13,8 @@
         data() {
             return {
                 notes: [
+                    { ver: '1.9.7', timestamp: '2026-08-25',
+                      content: ['1.库存调整提交审核按键增加防抖机制']},
                     { ver: '1.9.6', timestamp: '2026-08-21',
                       content: ['1.[原料仓]新增打印-生产库位标签（批量）']},
                     { ver: '1.9.5', timestamp: '2026-08-11',
