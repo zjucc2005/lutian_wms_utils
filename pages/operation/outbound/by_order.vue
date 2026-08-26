@@ -500,76 +500,85 @@
                 this.inv_logs_map = inv_logs_map
             },
             async submit_outbound(){
-                // >>> validation
-                if (!this.outbound_bill.bill_no) return // 1. 是否有生产订单数据
-                if (this.is_completed) return // 2. 是否已完成生产订单
-                // 3. 拣选区库存是否有充足
-                let checked_materials = this.outbound_bill.entry
-                if (this.outbound_mode == '分批') {
-                    checked_materials = this.outbound_bill.entry.filter(m => m.checked)
-                    if (checked_materials.length === 0) {
-                        uni.showModal({ title: '提示', content: '未勾选出库信息' })
-                        return
-                    }
-                }
-
-                if (this.outbound_mode == '齐套') {
-                    let op_cnt = 0
-                    for (let m of this.outbound_bill.entry) {
-                        if (m.stock_id != store.state.cur_stock.FStockId) continue
-                        if (m.qty === 0) continue
-                        if (m.qty - (this.inv_logs_map[m.material_id] || 0) > (this.invs_map[m.material_id] || 0)) {
-                            uni.showModal({ title: '提示', content: `拣选区库存不足\n[${ m.seq }]${ m.material_name }\n剩余应发：${m.qty - (this.inv_logs_map[m.material_id] || 0)}\n拣选区：${this.invs_map[m.material_id] || 0}` })
+                try {
+                    if (this.action_disabled) return
+                    this.action_disabled = true
+                    // >>> validation
+                    if (!this.outbound_bill.bill_no) return // 1. 是否有生产订单数据
+                    if (this.is_completed) return // 2. 是否已完成生产订单
+                    // 3. 拣选区库存是否有充足
+                    let checked_materials = this.outbound_bill.entry
+                    if (this.outbound_mode == '分批') {
+                        checked_materials = this.outbound_bill.entry.filter(m => m.checked)
+                        if (checked_materials.length === 0) {
+                            uni.showModal({ title: '提示', content: '未勾选出库信息' })
                             return
                         }
-                        op_cnt++
                     }
-                    if (op_cnt === 0) {
-                        uni.showModal({ title: '提示', content: `出库清单中不含[${store.state.cur_stock.FName}]的物料` })
-                        return
-                    }
-                }
-                
-                // >>> main
-                uni.showLoading({ title: 'Loading', mask: true })
-                if (this.new_inv_logs.length === 0) {
-                    for (let m of checked_materials) {
-                        if (m.stock_id != store.state.cur_stock.FStockId) continue
-                        if (m.qty === 0) continue
-                        let invs = this.invs.filter(inv => inv.FMaterialId === m.material_id)
-                        let rest_must_qty = m.qty - (this.inv_logs_map[m.material_id] || 0) // 剩余应发数量
-                        for (let inv of invs) {
-                            if (rest_must_qty === 0) break // 分配完毕，跳出循环
-                            let op_qty = inv.FQty >=  rest_must_qty ? rest_must_qty : inv.FQty
-                            let inv_log = new InvLog({
-                                FOpType: 'out',
-                                FStockId: store.state.cur_stock.FStockId,
-                                FStockLocNo: inv['FStockLocId.FNumber'],
-                                FMaterialId: inv.FMaterialId,
-                                FOpQTY: op_qty,
-                                FBatchNo: inv.FBatchNo,
-                                FSupplierId: inv.FSupplierId,
-                                FBillNo: this.outbound_bill.bill_type === 'PPBOM' ? `${this.outbound_bill.bill_no},${this.outbound_bill.mo_bill_no}` : this.outbound_bill.bill_no,
-                                FOpStaffNo: store.state.cur_staff.FNumber
-                            })
-                            this.new_inv_logs.push(inv_log)
-                            rest_must_qty -= op_qty
+                    
+                    if (this.outbound_mode == '齐套') {
+                        let op_cnt = 0
+                        for (let m of this.outbound_bill.entry) {
+                            if (m.stock_id != store.state.cur_stock.FStockId) continue
+                            if (m.qty === 0) continue
+                            if (m.qty - (this.inv_logs_map[m.material_id] || 0) > (this.invs_map[m.material_id] || 0)) {
+                                uni.showModal({ title: '提示', content: `拣选区库存不足\n[${ m.seq }]${ m.material_name }\n剩余应发：${m.qty - (this.inv_logs_map[m.material_id] || 0)}\n拣选区：${this.invs_map[m.material_id] || 0}` })
+                                return
+                            }
+                            op_cnt++
                         }
-                        m.checked = false
+                        if (op_cnt === 0) {
+                            uni.showModal({ title: '提示', content: `出库清单中不含[${store.state.cur_stock.FName}]的物料` })
+                            return
+                        }
                     }
-                } else {
-                    this.$logger.warn(">>> double click")
+                    
+                    // >>> main
+                    uni.showLoading({ title: 'Loading', mask: true })
+                    if (this.new_inv_logs.length === 0) {
+                        for (let m of checked_materials) {
+                            if (m.stock_id != store.state.cur_stock.FStockId) continue
+                            if (m.qty === 0) continue
+                            let invs = this.invs.filter(inv => inv.FMaterialId === m.material_id)
+                            let rest_must_qty = m.qty - (this.inv_logs_map[m.material_id] || 0) // 剩余应发数量
+                            for (let inv of invs) {
+                                if (rest_must_qty === 0) break // 分配完毕，跳出循环
+                                let op_qty = inv.FQty >=  rest_must_qty ? rest_must_qty : inv.FQty
+                                let inv_log = new InvLog({
+                                    FOpType: 'out',
+                                    FStockId: store.state.cur_stock.FStockId,
+                                    FStockLocNo: inv['FStockLocId.FNumber'],
+                                    FMaterialId: inv.FMaterialId,
+                                    FOpQTY: op_qty,
+                                    FBatchNo: inv.FBatchNo,
+                                    FSupplierId: inv.FSupplierId,
+                                    FBillNo: this.outbound_bill.bill_type === 'PPBOM' ? `${this.outbound_bill.bill_no},${this.outbound_bill.mo_bill_no}` : this.outbound_bill.bill_no,
+                                    FOpStaffNo: store.state.cur_staff.FNumber
+                                })
+                                this.new_inv_logs.push(inv_log)
+                                rest_must_qty -= op_qty
+                            }
+                            m.checked = false
+                        }
+                    } else {
+                        this.$logger.warn(">>> double click")
+                    }
+                    // 统一分配操作序号，统一提交保存，防重复提交
+                    for (let i = 0; i < this.new_inv_logs.length; i++) {
+                        uni.showToast({ title: `${i}/${this.new_inv_logs.length}`, mask: true })
+                        await this.new_inv_logs[i].save()
+                    }
+                    await this.load_invs()
+                    await this.load_inv_logs()
+                    uni.hideLoading()
+                    uni.showToast({ title: '出库成功', mask: true })
+                } catch (err) {
+                    this.$logger.info('>>> err',err)
+                } finally {
+                    uni.hideLoading()
+                    this.new_inv_logs = []
+                    this.action_disabled = false
                 }
-                // 统一分配操作序号，统一提交保存，防重复提交
-                for (let i = 0; i < this.new_inv_logs.length; i++) {
-                    uni.showToast({ title: `${i}/${this.new_inv_logs.length}`, mask: true })
-                    await this.new_inv_logs[i].save()
-                }
-                await this.load_invs()
-                await this.load_inv_logs()
-                this.new_inv_logs = []
-                uni.hideLoading()
-                uni.showToast({ title: '出库成功', mask: true })
             },
             // #ifdef APP-PLUS
             // Broadcast receiver

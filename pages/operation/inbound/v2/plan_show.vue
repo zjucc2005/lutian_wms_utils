@@ -315,30 +315,38 @@
                 })
             },
             async submit_audit() {
-                let checked_inv_plans = this.inv_plans.filter(x => x.checked && ['A', 'B'].includes(x.FDocumentStatu))
-                let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
-                if (save_ids.length) {
-                    await InvPlan.submit(save_ids) // 提交(admin补)
-                }
-                let ids = checked_inv_plans.map(x => x.FID)
-                if (ids.length) {
-                    uni.showLoading({ title: 'Loading', mask: true })
-                    let response = await InvPlan.audit(ids)
-                    if (response.data.Result.ResponseStatus.IsSuccess) {
-                        for (let i = 0; i < checked_inv_plans.length; i++) {
-                            uni.showLoading({ title: `Loading:${i}/${checked_inv_plans.length}`, mask: true })
-                            await InvPlan.execute(checked_inv_plans[i])
-                        }
-                        await this.load_inv_plans()
-                        uni.hideLoading()
-                        uni.showToast({ title: '操作成功', mask:true })
-                    } else {
-                        uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message, mask:true })
+                try{
+                    if (this.is_calling) return
+                    this.is_calling = true
+                    let checked_inv_plans = this.inv_plans.filter(x => x.checked && ['A', 'B'].includes(x.FDocumentStatu))
+                    let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
+                    if (save_ids.length) {
+                        await InvPlan.submit(save_ids) // 提交(admin补)
                     }
-                } else {
-                    uni.showToast({
-                        icon: 'none', title: '未选择任何条目'
-                    })
+                    let ids = checked_inv_plans.map(x => x.FID)
+                    if (ids.length) {
+                        uni.showLoading({ title: 'Loading', mask: true })
+                        let response = await InvPlan.audit(ids)
+                        if (response.data.Result.ResponseStatus.IsSuccess) {
+                            for (let i = 0; i < checked_inv_plans.length; i++) {
+                                // uni.showLoading({ title: `Loading:${i}/${checked_inv_plans.length}`, mask: true })
+                                await InvPlan.execute(checked_inv_plans[i])
+                            }
+                            await this.load_inv_plans()
+                            uni.hideLoading()
+                            uni.showToast({ title: '操作成功', mask:true })
+                        } else {
+                            uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message, mask:true })
+                        }
+                    } else {
+                        uni.showToast({
+                            icon: 'none', title: '未选择任何条目'
+                        })
+                    }
+                } catch (err) {
+                    
+                } finally {
+                    this.is_calling = false
                 }
             },
             async submit_submit() {
@@ -379,8 +387,8 @@
 </script>
 
 <style lang="scss">
-    @font-face {
-        font-family: 'SourceHanSansCN-Normal';
-        src: url('/static/font/SourceHanSansCN-Normal.ttf') format('truetype');
-    }
+    // @font-face {
+    //     font-family: 'SourceHanSansCN-Normal';
+    //     src: url('/static/font/SourceHanSansCN-Normal.ttf') format('truetype');
+    // }
 </style>

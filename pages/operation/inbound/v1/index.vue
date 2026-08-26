@@ -302,6 +302,8 @@
             },
             async submit_inbound() {
                 try {
+                    if (this.is_calling) return
+                    this.is_calling = true
                     await this.$refs.form.validate()
                     let loc_no = this.form.loc_no.toUpperCase()
                     let batch_no = formatDate(Date.now(), 'yyyyMMdd')
@@ -333,29 +335,39 @@
                     uni.hideLoading()
                 } catch (err) {
                     // console.log('err', err) 
+                } finally {
+                    this.is_calling = false
                 }
             },
             async submit_cancel(inv_log_id) {
-                let inv_log = this.inv_logs.find(x => x.FID == inv_log_id)
-                if (inv_log.FOpType == 'in' && !inv_log.status) {
-                    let cl_inv_log = new InvLog({
-                        FOpType: 'in_cl',
-                        FStockId: inv_log.FStockId,
-                        FStockLocNo: inv_log['FStockLocId.FNumber'],
-                        FMaterialId: inv_log.FMaterialId,
-                        FOpQTY: inv_log.FOpQTY,
-                        FBatchNo: inv_log.FBatchNo,
-                        FBillNo: inv_log.FBillNo,
-                        FOpStaffNo: store.state.cur_staff.FNumber,
-                        FReferId: inv_log.FID
-                    })
-                    let cl_res = await cl_inv_log.save()
-                    play_audio_prompt('success')
-                    this.after_cancel(inv_log_id)
-                    uni.showToast({ title: '回退成功' })
-                } else {
-                    play_audio_prompt('warn')
-                    uni.showToast({ icon: 'error', title: 'ERROR' })
+                try {
+                    if (this.is_calling) return
+                    this.is_calling = true
+                    let inv_log = this.inv_logs.find(x => x.FID == inv_log_id)
+                    if (inv_log.FOpType == 'in' && !inv_log.status) {
+                        let cl_inv_log = new InvLog({
+                            FOpType: 'in_cl',
+                            FStockId: inv_log.FStockId,
+                            FStockLocNo: inv_log['FStockLocId.FNumber'],
+                            FMaterialId: inv_log.FMaterialId,
+                            FOpQTY: inv_log.FOpQTY,
+                            FBatchNo: inv_log.FBatchNo,
+                            FBillNo: inv_log.FBillNo,
+                            FOpStaffNo: store.state.cur_staff.FNumber,
+                            FReferId: inv_log.FID
+                        })
+                        let cl_res = await cl_inv_log.save()
+                        play_audio_prompt('success')
+                        this.after_cancel(inv_log_id)
+                        uni.showToast({ title: '回退成功' })
+                    } else {
+                        play_audio_prompt('warn')
+                        uni.showToast({ icon: 'error', title: 'ERROR' })
+                    }
+                } catch (err) {
+                    
+                } finally {
+                    this.is_calling = false
                 }
             },
             // #ifdef APP-PLUS

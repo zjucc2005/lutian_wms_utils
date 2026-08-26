@@ -182,7 +182,7 @@
         },
         mounted() {
             // this.loc_nos = this.generate_loc_nos('3LM-QY', '3LM-QY-X', 'X', 38, '')
-            // this.loc_nos = this.shelf_loc_nos('3LM-QY-H25', '3LM-QY-H25', 30, 3)
+            // this.loc_nos = this.shelf_loc_nos('3LM-QY-H24', '3LM-QY-H24', 22, 3)
             // for (let i = 26; i <= 38; i++) {
             //     this.loc_nos = this.loc_nos.concat(this.shelf_loc_nos(`3LM-QY-H${i}`, `3LM-QY-H${i}`, 16, 3))
             // }

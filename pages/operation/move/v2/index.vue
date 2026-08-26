@@ -348,40 +348,49 @@
                 this.last_refresh_time = Date.now()
             },
             async submit_audit() {
-                let checked_inv_plans = this.inv_plans.filter(x => x.checked)
-                if (checked_inv_plans.length === 0) {
-                    uni.showToast({ icon: 'none', title: '未选择任何条目' })
-                    return
-                }
-                uni.showLoading({ title: 'Loading', mask: true })
-                let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
-                if (save_ids.length) {
-                    await InvPlan.submit(save_ids) // 提交(admin补)
-                }
-                let ids = checked_inv_plans.map(x => x.FID)
-                let response = await InvPlan.audit(ids)
-                if (response.data.Result.ResponseStatus.IsSuccess) {
-                    if (this.new_inv_logs.length === 0) {
-                        for (let i = 0; i < checked_inv_plans.length; i++) {
-                            uni.showLoading({ title: `Loading:${i}/${checked_inv_plans.length}`, mask: true })
-                            for (let new_inv_log of InvPlan.before_execute(checked_inv_plans[i])) {
-                                this.new_inv_logs.push(new_inv_log)
+                try{
+                    if (this.is_calling) return
+                    this.is_calling = true
+                    let checked_inv_plans = this.inv_plans.filter(x => x.checked)
+                    if (checked_inv_plans.length === 0) {
+                        uni.showToast({ icon: 'none', title: '未选择任何条目' })
+                        return
+                    }
+                    uni.showLoading({ title: 'Loading', mask: true })
+                    let save_ids = checked_inv_plans.filter(x => x.FDocumentStatu == 'A').map(x => x.FID)
+                    if (save_ids.length) {
+                        await InvPlan.submit(save_ids) // 提交(admin补)
+                    }
+                    let ids = checked_inv_plans.map(x => x.FID)
+                    let response = await InvPlan.audit(ids)
+                    if (response.data.Result.ResponseStatus.IsSuccess) {
+                        if (this.new_inv_logs.length === 0) {
+                            for (let i = 0; i < checked_inv_plans.length; i++) {
+                                // uni.showLoading({ title: `Loading:${i}/${checked_inv_plans.length}`, mask: true })
+                                for (let new_inv_log of InvPlan.before_execute(checked_inv_plans[i])) {
+                                    this.new_inv_logs.push(new_inv_log)
+                                }
+                                // await InvPlan.execute(checked_inv_plans[i]) // 审核确认
                             }
-                            // await InvPlan.execute(checked_inv_plans[i]) // 审核确认
                         }
+                        // 统一分配操作序号，统一提交保存，防重复提交
+                        for (let i = 0; i < this.new_inv_logs.length; i++) {
+                            // uni.showToast({ title: `${i}/${this.new_inv_logs.length}`, mask: true })
+                            await this.new_inv_logs[i].save()
+                        }
+                        await this.load_inv_plans()
+                        uni.hideLoading()
+                        play_audio_prompt('success')
+                    } else {
+                        uni.hideLoading()
+                        uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message, mask: true })
                     }
-                    // 统一分配操作序号，统一提交保存，防重复提交
-                    for (let i = 0; i < this.new_inv_logs.length; i++) {
-                        uni.showToast({ title: `${i}/${this.new_inv_logs.length}`, mask: true })
-                        await this.new_inv_logs[i].save()
-                    }
-                    await this.load_inv_plans()
+                } catch (err) {
+                    
+                } finally {
+                    uni.hideLoading()
                     this.new_inv_logs = []
-                    uni.hideLoading()
-                    play_audio_prompt('success')
-                } else {
-                    uni.hideLoading()
-                    uni.showToast({ icon: 'none', title: response.data.Result.ResponseStatus.Errors[0]?.Message, mask: true })
+                    this.is_calling = false
                 }
             },
             async submit_submit() {
