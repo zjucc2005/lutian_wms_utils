@@ -43,31 +43,6 @@
         </uni-list>
     </uni-section>
     
-    <!-- <uni-section title="操作日志" type="square" sub-title="保留最近5条" class="above-uni-goods-nav">
-        <uni-list>
-            <uni-list-item
-                v-for="(inv_log, index) in inv_logs"
-                :key="index"
-                @click="if_cancel(inv_log.FID)" clickable
-                show-arrow
-                >
-                <template #body>
-                    <view class="uni-list-item__body">
-                        <view class="title">{{ formatDate(inv_log.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }} >> 入库成功</view>
-                        <view class="note">
-                            <view>物料编码：{{ inv_log['FMaterialId.FNumber'] }} [{{ inv_log['FMaterialId.FName'] }}]</view>
-                            <view>库位号：{{ inv_log['FStockLocId.FNumber'] }}</view>
-                            <view>入库数量：{{ inv_log['FOpQTY'] }} {{ inv_log['FStockUnitId.FName'] }}</view>
-                        </view>
-                    </view>
-                </template>
-                <template #footer>
-                    <text class="uni-list-item-right-text">{{ inv_log.status }}</text>
-                </template>
-            </uni-list-item>
-        </uni-list>
-    </uni-section> -->
-    
     <view class="uni-goods-nav-wrapper">
         <uni-goods-nav 
             :options="goods_nav.options" 
@@ -84,7 +59,7 @@
             <view class="plan-form">
                 <uni-number-box 
                     v-model="inv_editing.checked_qty" 
-                    :min="0" :max="inv_editing.FQty"
+                    :min="0" :max="inv_editing.qty"
                     @change="inv_editing.checked = inv_editing.checked_qty > 0"
                 />
             </view>
@@ -168,10 +143,10 @@
             // 页面动作
             check_all() {
                 if (!this.invs.length) return 
-                let result = this.invs.some(e => !e.checked || !e.checked_qty || e.checked_qty < e.FQty)
+                let result = this.invs.some(e => !e.checked || !e.checked_qty || e.checked_qty < e.qty)
                 for (let inv of this.invs) {
                     inv.checked = result
-                    inv.checked_qty = inv.FQty
+                    inv.checked_qty = inv.qty
                 }
             },
             checkbox_click(e) {

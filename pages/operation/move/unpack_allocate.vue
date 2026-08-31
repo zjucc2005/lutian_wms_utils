@@ -75,7 +75,7 @@
                     <view class="title">{{ inv['FStockLocId.FNumber'] }}</view>
                     <view class="note">
                         <view>批次：{{ inv.FBatchNo }}</view>
-                        <view>供应商：{{ inv['FSupplierId.FName'] }}</view>
+                        <view v-if="inv['FSupplierId.FName']">供应商：{{ inv['FSupplierId.FName'] }}</view>
                     </view>
                 </view>
             </template>
@@ -213,32 +213,40 @@
                 this.inv_plans = res.data
             },
             async submit_move() {
-                uni.showLoading({ title: 'Loading', mask: true })
-                for (let inv of this.invs) {
-                    // let dest_loc_no = `${inv['FStockLocId.FNumber'].split('-')[0]}-拆包区`
-                    let dest_loc_no = this.dest_loc_no
-                    if (inv.checked && inv['FStockLocId.FNumber'] !== dest_loc_no) {
-                        let inv_plan = new InvPlan({
-                            FOpType: 'mv',
-                            FStockId: store.state.cur_stock.FStockId,
-                            FStockLocNo: inv['FStockLocId.FNumber'],
-                            FDestStockLocNo: dest_loc_no,
-                            FMaterialId: inv.FMaterialId,
-                            FOpQTY: inv.checked_qty,
-                            FBatchNo: inv.FBatchNo,
-                            FSupplierId: inv.FSupplierId,
-                            FOpStaffNo: store.state.cur_staff.FNumber,
-                            FBillNo: this.bill_no
-                        })
-                        let save_res = await inv_plan.save()
-                        let query_res = await InvPlan.query({ FID: save_res.data.Result.Id })
-                        await InvPlan.audit([save_res.data.Result.Id])
-                        await InvPlan.execute(query_res.data[0])
+                try {
+                    if (this.is_calling) return
+                    this.is_calling = true
+                    uni.showLoading({ title: 'Loading', mask: true })
+                    for (let inv of this.invs) {
+                        // let dest_loc_no = `${inv['FStockLocId.FNumber'].split('-')[0]}-拆包区`
+                        let dest_loc_no = this.dest_loc_no
+                        if (inv.checked && inv['FStockLocId.FNumber'] !== dest_loc_no) {
+                            let inv_plan = new InvPlan({
+                                FOpType: 'mv',
+                                FStockId: store.state.cur_stock.FStockId,
+                                FStockLocNo: inv['FStockLocId.FNumber'],
+                                FDestStockLocNo: dest_loc_no,
+                                FMaterialId: inv.FMaterialId,
+                                FOpQTY: inv.checked_qty,
+                                FBatchNo: inv.FBatchNo,
+                                FSupplierId: inv.FSupplierId,
+                                FOpStaffNo: store.state.cur_staff.FNumber,
+                                FBillNo: this.bill_no
+                            })
+                            let save_res = await inv_plan.save()
+                            let query_res = await InvPlan.query({ FID: save_res.data.Result.Id })
+                            await InvPlan.audit([save_res.data.Result.Id])
+                            await InvPlan.execute(query_res.data[0])
+                        }
                     }
+                    await this.load_invs()
+                    await this.load_inv_plans()
+                    uni.hideLoading()
+                } catch (err) {
+                    
+                } finally {
+                    this.is_calling = false
                 }
-                await this.load_invs()
-                await this.load_inv_plans()
-                uni.hideLoading()
             }
         }
     }

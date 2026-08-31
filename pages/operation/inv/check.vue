@@ -57,11 +57,11 @@
                 
                 <uni-list>
                     <uni-list-item 
-                        title="盘点模板（库位排序）" note="打印用PDF" rightText=".pdf"
+                        title="盘点模板（库位排序）" note="打印用PDF，竖版" rightText=".pdf"
                         :show-extra-icon="true" :extra-icon="{ type: 'map', size: '24', color: '#007bff' }"
                         @click="check_template_pdf('loc_no')" clickable show-arrow />
                     <uni-list-item
-                        title="盘点模板（物料排序）" note="打印用PDF" rightText=".pdf"
+                        title="盘点模板（物料排序）" note="打印用PDF，竖版" rightText=".pdf"
                         :show-extra-icon="true" :extra-icon="{ type: 'map', size: '24', color: '#007bff' }"
                         @click="check_template_pdf('material_no')" clickable show-arrow />
                     <uni-list-item
@@ -74,24 +74,20 @@
                         @click="check_template_excel('material_no')" clickable show-arrow />
                     <template v-if="$store.state.cur_stock['FUseOrgId.FName'] == '内燃机事业部'">
                         <uni-list-item
-                            title="即时库存对照（金蝶账面和WMS库存）" note="打印用PDF, 选择仓管员" rightText=".pdf"
+                            title="即时库存对照（金蝶账面和WMS库存）" note="打印用PDF，横版，选择仓管员" rightText=".pdf"
                             :show-extra-icon="true" :extra-icon="{ type: 'map', size: '24', color: '#007bff' }"
                             @click="export_invs_pdf_102()" clickable show-arrow />
-                        <uni-list-item
-                            title="即时库存对照（金蝶账面和WMS库存）" note="Excel, 选择仓管员" rightText=".xlsx"
-                            :show-extra-icon="true" :extra-icon="{ type: 'download', size: '24', color: '#dd524d' }"
-                            @click="export_invs_excel_102()" clickable show-arrow />
                     </template>
                     <template v-else>
                         <uni-list-item
-                            title="即时库存对照（金蝶账面和WMS库存）" note="打印用PDF" rightText=".pdf"
+                            title="即时库存对照（金蝶账面和WMS库存）" note="打印用PDF，横版" rightText=".pdf"
                             :show-extra-icon="true" :extra-icon="{ type: 'map', size: '24', color: '#007bff' }"
                             @click="export_invs_pdf()" clickable show-arrow />
-                        <uni-list-item
-                            title="即时库存对照（金蝶账面和WMS库存）" note="Excel" rightText=".xlsx"
-                            :show-extra-icon="true" :extra-icon="{ type: 'download', size: '24', color: '#dd524d' }"
-                            @click="export_invs_excel()" clickable show-arrow />
                     </template>
+                    <uni-list-item
+                        title="即时库存对照（金蝶账面和WMS库存）" note="Excel" rightText=".xlsx"
+                        :show-extra-icon="true" :extra-icon="{ type: 'download', size: '24', color: '#dd524d' }"
+                        @click="export_invs_excel()" clickable show-arrow />
                 </uni-list>
             </uni-section>
         </scroll-view>
@@ -222,6 +218,12 @@
             open_form_dialog() {
                 this.$refs.form_dialog.open()
             },
+            async form_dialog_confirm() {
+                let inv_groups = await this.get_inv_groups()
+                inv_groups = inv_groups.filter(x => x.storekeeper == this.form.storekeeper)
+                let url = pdf_template_invs(inv_groups)
+                window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800') // 打开小窗口
+            },
             // 选择盘点模板
             check_template_download() {
                 this.$refs.dl_drawer.open()
@@ -272,7 +274,7 @@
             async export_invs_excel() {
                 let inv_groups = await this.get_inv_groups()
                 let sheet_data = [
-                    ['物料编码', '物料名称', '规格型号', '单位', 'WMS库存', '金蝶账面', '差异', 'WMS库位']
+                    ['物料编码', '物料名称', '规格型号', '单位', 'WMS库存', '金蝶账面', '差异', '仓管员', 'WMS库位']
                 ]
                 for (let inv of inv_groups) {
                     let loc_nos = []
@@ -281,7 +283,7 @@
                     }
                     loc_nos.sort()
                     // let loc_nos = inv.loc_nos.sort((x, y) => compare_loc_no(x, y)).map(loc_no => loc_no.match('[A-Za-z0-9]+-(.+)')[1]).join(', ')
-                    sheet_data.push([ inv.material_no, inv.material_name, inv.material_spec, inv.unit, inv.qty, inv.stk_qty, inv.qty - inv.stk_qty, loc_nos.join(', ') ])
+                    sheet_data.push([ inv.material_no, inv.material_name, inv.material_spec, inv.unit, inv.qty, inv.stk_qty, inv.qty - inv.stk_qty, inv.storekeeper, loc_nos.join(', ') ])
                 }
                 let sheet = XLSX.utils.aoa_to_sheet(sheet_data)
                 let book = XLSX.utils.book_new()
@@ -402,7 +404,8 @@
                                 stk_qty: stk_inv.FBaseQty,
                                 qty: 0,
                                 unit: stk_inv['FBaseUnitId.FName'],
-                                loc_nos: {}
+                                loc_nos: {},
+                                storekeeper: stk_inv['FMaterialId.F_PAEZ_Base1']
                             }
                             inv_groups.push(inv_group)
                         }
@@ -444,7 +447,8 @@
                                 stk_qty: 0,
                                 qty: inv.FQty,
                                 unit: inv['FStockUnitId.FName'],
-                                loc_nos: loc_nos
+                                loc_nos: loc_nos,
+                                storekeeper: inv['FMaterialId.F_PAEZ_Base1']
                             })
                         }
                         j += 1

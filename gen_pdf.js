@@ -281,7 +281,7 @@ const pdf_template_inv_check = (invs) => {
         ])
     }
     // 初始化jsPDF对象
-    let f = new jsPDF({ orientation: 'landscape' })
+    let f = new jsPDF({ orientation: 'portrait' })
     f.addFont(font_file_path, font_family, 'normal') // 加载字体
     f.setFont(font_family) // 设置字体
     let page_width = f.internal.pageSize.getWidth()
@@ -298,25 +298,29 @@ const pdf_template_inv_check = (invs) => {
     f.text(`盘点仓库：${options.stock_name}`, 10, 30)
     f.text(`打印日期：${formatDate(Date.now(), 'yyyy-MM-dd')}`, 251, 30)
     // 表格
+    f.setFontSize(7)
+    let textWidth_0 = 0
     let textWidth_1 = 0
     for (let item of options.table_body) {
+        textWidth_0 = Math.max(textWidth_0, f.getTextWidth(item[0])) // 编码最小宽度
         textWidth_1 = Math.max(textWidth_1, f.getTextWidth(item[1])) // 品名字符最小宽度
     }
     f.autoTable({
         theme: 'grid',
         startY: 32,
         margin: { left: 10, right: 10, top: 10, bottom: 10 },
-        styles: { font: 'SourceHanSansCN', fontSize: 10, cellPadding: 1, minCellWidth: 9 },
-        headStyles: { fillColor: 0, halign: 'center'},
+        styles: { font: 'SourceHanSansCN', fontSize: 7, cellPadding: 1, minCellWidth: 9 },
+        // headStyles: { fillColor: 0, halign: 'center'},
+        headStyles: { fillColor: 255, textColor: 0, halign: 'center'},
         bodyStyles: { textColor: 0, lineColor: 120 },
         columnStyles: {
-            0: { minCellWidth: 32 },
-            1: { minCellWidth: textWidth_1 + 2 },
-            3: { minCellWidth: 22.9 },
-            4: { minCellWidth: 17.5 },
-            5: { },
-            6: { minCellWidth: 16.2, halign: 'center' },
-            7: { minCellWidth: 16.2 },
+            0: { minCellWidth: textWidth_0 + 2 },
+            1: { minCellWidth: 32 },
+            3: { minCellWidth: 16.5 },
+            4: { minCellWidth: 12.9 },
+            5: { halign: 'center'},
+            6: { minCellWidth: 12, halign: 'center' },
+            7: { minCellWidth: 12 },
         },
         head: [ options.table_head ],
         body: options.table_body
@@ -326,7 +330,7 @@ const pdf_template_inv_check = (invs) => {
     for (let i = 1; i <= total_pages; i++) {
         f.setPage(i)
         let t = `${i} / ${total_pages}`
-        f.text(t, 287 - f.getTextWidth(t), 203)
+        f.text(t, 200 - f.getTextWidth(t), 290)
     }
     let blob = f.output('blob') // 生成PDF文件的Blob对象
     let url = URL.createObjectURL(blob) // 生成指向Blob对象的URL
@@ -369,6 +373,7 @@ const pdf_template_invs = (inv_groups) => {
     f.text(`仓库：${options.stock_name}`, 10, 30)
     f.text(`打印时间：${formatDate(Date.now(), 'yyyy-MM-dd hh:mm:ss')}`, 237, 30)
     // 表格
+    f.setFontSize(7)
     let textWidth_0 = 0
     let textWidth_1 = 0
     for (let item of options.table_body) {
@@ -379,16 +384,17 @@ const pdf_template_invs = (inv_groups) => {
         theme: 'grid',
         startY: 32,
         margin: { left: 10, right: 10, top: 10, bottom: 10 },
-        styles: { font: 'SourceHanSansCN', fontSize: 10, cellPadding: 1, minCellWidth: 9 },
+        styles: { font: 'SourceHanSansCN', fontSize: 7, cellPadding: 1, minCellWidth: 9 },
         headStyles: { fillColor: 255, textColor: 0, halign: 'center'},
         bodyStyles: { textColor: 0, lineColor: 120 },
         columnStyles: {
             0: { minCellWidth: textWidth_0 + 2 },
-            1: { cellWidth: 40 },
-            4: { halign: 'center', minCellWidth: 17 },
-            5: { halign: 'center', minCellWidth: 17 },
+            1: { cellWidth: 32 },
+            3: { halign: 'center' },
+            4: { halign: 'center', minCellWidth: 15 },
+            5: { halign: 'center', minCellWidth: 15 },
             6: { halign: 'center' },
-            7: { cellWidth: 48 }
+            7: { cellWidth: 80 }
         },
         head: [ options.table_head ],
         body: options.table_body

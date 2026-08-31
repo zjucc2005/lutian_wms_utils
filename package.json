@@ -1,7 +1,7 @@
 {
   "name": "lutian_wms_utils",
-  "version": "1.9.9",
-  "versionCode": 199,
+  "version": "2.0.0",
+  "versionCode": 200,
   "versionNote": "更新内容\n详见《我-历次更新说明》；",
   "installPack": {
     "h5": "",
