@@ -17,13 +17,16 @@
         //     }
         // },
         // 仓库流程 VERSION 1
-        { "path": "pages/operation/inbound/v1/index",     "style": { "navigationBarTitleText": "入库" } },
+        { "path": "pages/operation/inbound/index",     "style": { "navigationBarTitleText": "入库" } },
+        { "path": "pages/operation/inbound/direct",    "style": { "navigationBarTitleText": "直接入库" } },
+        { "path": "pages/operation/inbound/packaging", "style": { "navigationBarTitleText": "包材入库" } },
         { "path": "pages/operation/inbound/v1/easy",      "style": { "navigationBarTitleText": "入库扫码 - 简易" } },
         // { "path": "pages/operation/outbound/v1/__index_20260806", "style": { "navigationBarTitleText": "按单出库" } },
         { "path": "pages/operation/outbound/index",       "style": { "navigationBarTitleText": "出库" } },
         { "path": "pages/operation/outbound/by_order",    "style": { "navigationBarTitleText": "拣选出库" } },
         { "path": "pages/operation/outbound/direct",      "style": { "navigationBarTitleText": "直接出库" } },
         { "path": "pages/operation/outbound/other",       "style": { "navigationBarTitleText": "其他出库" } },
+        { "path": "pages/operation/outbound/packaging",   "style": { "navigationBarTitleText": "包材出库" } },
         { "path": "pages/operation/move/v1/index",        "style": { "navigationBarTitleText": "库存调整" } },
         { "path": "pages/operation/move/v1/move_cart",    "style": { "navigationBarTitleText": "库存调整 - 计划" } },
         { "path": "pages/operation/move/unpack",          "style": { "navigationBarTitleText": "库内调拨" } },
@@ -79,6 +82,7 @@
         { "path": "pages/operation/inv/detail",            "style": { "navigationBarTitleText": "库存明细" } },
         { "path": "pages/operation/inv/map",               "style": { "navigationBarTitleText": "库存地图" } },
         { "path": "pages/operation/inv/logs",              "style": { "navigationBarTitleText": "库存变更日志" } },
+        { "path": "pages/operation/inv/check",             "style": { "navigationBarTitleText": "库存盘点" } },
         // 我的
         { "path": "pages/my/index",       "style": { "navigationBarTitleText": "我"} },
         { "path": "pages/my/reset_password", "style": { "navigationBarTitleText": "重置密码"} },

@@ -77,7 +77,7 @@
                     },
                     {
                         name: '入库', permission: ['nrj_admin'], icon_path: '/static/icon/nav_scan_in.png',
-                        action: () => { link_to('/pages/operation/inbound/v1/index') }
+                        action: () => { link_to('/pages/operation/inbound/index') }
                     },
                     // {
                     //     name: '入库扫码(tmp)', permission: ['nrj_admin'], icon_path: '/static/icon/nav_scan_in_warn.png',

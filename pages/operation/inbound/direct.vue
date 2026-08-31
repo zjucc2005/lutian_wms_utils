@@ -123,7 +123,7 @@
 <script>
     import store from '@/store'
     import scan_code from '@/utils/scan_code'
-    import { BdMaterial, Inv, InvLog, PurReceiveBill } from '@/utils/model'
+    import { StockLoc, BdMaterial, Inv, InvLog, PurReceiveBill } from '@/utils/model'
     import { breadcrumb_stockname, formatDate, play_audio_prompt } from '@/utils'
     
     export default {
@@ -189,6 +189,8 @@
             // #endif
         },
         mounted() {
+            // 每次进入加载最新库位数据
+            this.load_stock_locs()
         },
         methods: {
             breadcrumb_stockname,
@@ -246,9 +248,6 @@
                 this.form = { material_no: '', loc_no: '', qty: null }
                 this.material = {}
             },
-            set_realtime_log() {
-                
-            },
             after_save(res) {
                 if (res.data.Result.ResponseStatus.IsSuccess) {
                     InvLog.find(res.data.Result.Id).then(find_res => {
@@ -267,12 +266,16 @@
                 this.inv_logs.splice(index, 1)
             },
             // calls
+            async load_stock_locs() {
+                uni.showLoading({ title: 'Loading' })
+                let data = await StockLoc.get_all()
+                uni.hideLoading()
+                store.commit('set_stock_locs', data)
+            },
             async load_material() {
                 let res = await BdMaterial.query(
                     { FNumber: this.form.material_no, FUseOrgId: store.state.cur_stock.FUseOrgId },
-                    { fields: ["FMaterialId", "FName", "FNumber", "FSpecification", "FForbidStatus", "FDocumentStatus", 
-                      "FBaseUnitId", "FBaseUnitId.FNumber", "FBaseUnitId.FName", "FMaterialGroup.FName", "FUseOrgId", 
-                      "FUseOrgId.FName", "FImageFileServer", 'FBoxStandardQty'] })
+                    { fields: ["FMaterialId", "FName", "FNumber", "FSpecification", "FBaseUnitId.FName"] })
                 if (res.data.length) {
                     this.material = res.data[0]
                     // 自动赋值单箱标准数量，待定

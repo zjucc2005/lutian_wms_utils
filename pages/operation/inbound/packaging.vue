@@ -1,0 +1,451 @@
+<template>
+    <uni-section title="1.输入单据编号" type="square" :sub-title="breadcrumb_stockname()" sub-title-color="#007aff" @click="debug">
+        <view class="container">
+            <uni-forms ref="search_form" :model="search_form" :rules="search_form_rules" label-position="top" :label-width="72" class="search-form">
+                <uni-row :gutter="10">
+                    <uni-col :span="12">
+                        <uni-forms-item label="单据编号" name="bill_no" required>
+                            <uni-easyinput v-model="search_form.bill_no" trim placeholder="需求单据编号" @change="set_batch_no" @clear="set_batch_no" />
+                        </uni-forms-item>
+                    </uni-col>
+                    <uni-col :span="12">
+                        <uni-forms-item label="客户编号" name="customer_abbr">
+                            <uni-easyinput v-model="search_form.customer_abbr" trim @change="set_batch_no" @clear="set_batch_no" />
+                        </uni-forms-item>
+                    </uni-col>
+                </uni-row>
+            </uni-forms>
+            
+            <button type="primary" size="mini" @click="set_batch_no">提交</button>
+            <button size="mini" @click="reset_search_form" class="uni-ml-5">重置</button>
+        </view>
+    </uni-section>
+    
+    <uni-section v-if="batch_no" title="2. 入库扫码" :sub-title="`批次号：${batch_no}`" sub-title-color="#007aff" type="square">
+        <view class="container">
+            <!-- 入库类型 -->
+            <uni-data-checkbox v-model="mode" mode="button"
+                :localdata="[{ text: '其他包材入库', value: 'other' }, { text: '标贴入库', value: 'label' }]"
+                @change="handle_mode_change" />
+            
+            <uni-forms 
+                ref="form"
+                :model="form"
+                :rules="form_rules"
+                label-position="top"
+                label-width="80px"
+                err-show-type="modal"
+                :border="true"
+                class="scan-form"
+                >
+                <uni-forms-item label="物料编码" name="material_no">
+                    <template #label>
+                        <view style="display: flex; justify-content: space-between;">
+                            <view class="uni-forms-item__label">物料编码</view>
+                            <view v-if="material" class="text-grey" style="flex: 1; text-align: right;">{{ material?.FName ? [material?.FName, material?.FSpecification].join('; ') : '' }}</view>
+                        </view>
+                    </template>
+                    <uni-easyinput 
+                        v-model="form.material_no" trim
+                        @change="handle_material_no_change"
+                        @clear="handle_material_no_change"
+                        :input-border="false"
+                        :disabled="mode == 'label'"
+                        >
+                        <template #left>
+                            <uni-icons v-if="material.FMaterialId" type="checkbox-filled" size="24" color="#67c23a"></uni-icons>
+                            <uni-icons v-else-if="form.material_no && !material.FMaterialId" type="help-filled" size="24" color="#c0c4cc"></uni-icons>
+                        </template>
+                    </uni-easyinput>
+                </uni-forms-item>
+                <uni-forms-item label="库位号" name="loc_no">
+                    <template #label>
+                        <view style="display: flex; justify-content: space-between;">
+                            <view class="uni-forms-item__label">库位号</view>
+                            <view class="text-grey" style="flex: 1; text-align: right;">{{ $store.state.stock_locs.find(x => x.FNumber == form.loc_no.toUpperCase())?.FRemark }}</view>
+                        </view>
+                    </template>
+                    <uni-easyinput v-model="form.loc_no" trim :input-border="false">
+                        <template #left>
+                            <uni-icons v-if="form.loc_no && $store.state.stock_locs.some(x => x.FNumber == form.loc_no.toUpperCase() && x.FForbidStatus == 'A')" type="checkbox-filled" size="24" color="#67c23a"></uni-icons>
+                            <uni-icons v-else-if="form.loc_no" type="clear" size="24" color="#dd524d"></uni-icons>
+                        </template>
+                    </uni-easyinput>
+                </uni-forms-item>
+                <uni-forms-item label="入库数量" name="qty">
+                    <uni-easyinput ref="form_qty" v-model="form.qty" type="number" :clearable="false" :input-border="false">
+                        <template #left>
+                            <uni-icons v-if="form.qty && form.qty > 0" type="checkbox-filled" size="24" color="#67c23a"></uni-icons>
+                            <uni-icons v-else-if="form.qty" type="help-filled" size="24" color="#c0c4cc"></uni-icons>
+                        </template>
+                        <template #right>
+                            <text class="easyinput-suffix-text">{{ material?.['FBaseUnitId.FName'] || 'Pcs' }}</text>
+                        </template>
+                    </uni-easyinput>
+                </uni-forms-item>
+            </uni-forms>
+        </view>
+    </uni-section>
+    
+    <uni-section v-if="batch_no" title="操作日志" type="square" sub-title="保留最近5条" class="above-uni-goods-nav">
+        <uni-list>
+            <uni-list-item
+                v-for="(inv_log, index) in inv_logs"
+                :key="index"
+                @click="if_cancel(inv_log.FID)" clickable
+                show-arrow
+                >
+                <template #body>
+                    <view class="uni-list-item__body">
+                        <view class="title">{{ formatDate(inv_log.FCreateTime, 'yyyy-MM-dd hh:mm:ss') }} >> 入库成功</view>
+                        <view class="note">
+                            <view>物料编码：{{ inv_log['FMaterialId.FNumber'] }} [{{ inv_log['FMaterialId.FName'] }}]</view>
+                            <view>库位号：{{ inv_log['FStockLocId.FNumber'] }}</view>
+                            <view>入库数量：{{ inv_log['FOpQTY'] }} {{ inv_log['FStockUnitId.FName'] }}</view>
+                        </view>
+                    </view>
+                </template>
+                <template #footer>
+                    <text class="uni-list-item-right-text">{{ inv_log.status }}</text>
+                </template>
+            </uni-list-item>
+        </uni-list>
+    </uni-section>
+    
+    <view class="uni-goods-nav-wrapper">
+        <uni-goods-nav 
+            :options="goods_nav.options" 
+            :button-group="goods_nav.button_group"
+            :fill="$store.state.goods_nav_fill"
+            @click="goods_nav_click"
+            @button-click="goods_nav_button_click"
+        />
+    </view>
+</template>
+
+<script>
+    import store from '@/store'
+    import scan_code from '@/utils/scan_code'
+    import { StockLoc, BdMaterial, Inv, InvLog, PurReceiveBill } from '@/utils/model'
+    import { breadcrumb_stockname, formatDate, play_audio_prompt } from '@/utils'
+    
+    export default {
+        data() {
+            return {
+                broadcast_receiver: null,
+                mode: 'other',
+                material: {},
+                bill: {},
+                inv_logs: [],
+                batch_no: '',
+                search_form: {
+                    bill_no: '',
+                    customer_abbr: '',
+                },
+                search_form_rules: {
+                    bill_no: {
+                        rules: [
+                            { required: true, errorMessage: '需求单据编号不能为空' },
+                            { maxLength: 16, errorMessage: '需求单据编号长度不能超过16' },
+                            {
+                                validateFunction: (rule, value, data, callback) => {
+                                    if (value.includes('|')) return callback('不能包含特殊字符')
+                                }
+                            }
+                        ]
+                    },
+                    customer_abbr: {
+                        rules: [
+                            { maxLength: 8, errorMessage: '客户编号长度不能超过8' },
+                            {
+                                validateFunction: (rule, value, data, callback) => {
+                                    if (value.includes('|')) return callback('不能包含特殊字符')
+                                }
+                            }
+                        ]
+                    }
+                },
+                form: {
+                    material_no: '',
+                    loc_no: '',
+                    qty: null
+                },
+                form_rules: {
+                    material_no: {
+                        rules: [
+                            { required: true, errorMessage: '物料编码不能为空' },
+                            {
+                                validateFunction: (rule, value, data, callback) => {
+                                    if (!this.material.FMaterialId) return callback('物料编码不存在')
+                                }
+                            }
+                        ]
+                    },
+                    loc_no: {
+                        rules: [
+                            { required: true, errorMessage: '库位号不能为空' },
+                            {
+                                validateFunction: (rule, value, data, callback) => {
+                                    let stock_loc = store.state.stock_locs.find(x => x.FNumber == value.toUpperCase())
+                                    if (!stock_loc) return callback('库位号不存在')
+                                    if (stock_loc.FForbidStatus == 'B') return callback('库位号不可用')
+                                }
+                            }
+                        ]
+                    },
+                    qty: {
+                        rules: [
+                            { required: true, errorMessage: '入库数量不能为空' },
+                            { 
+                                validateFunction: (rule, value, data, callback) => {
+                                    if (value <= 0) return callback('入库数量必须大于0')
+                                }
+                            } 
+                        ]
+                    }
+                },
+                goods_nav: {
+                    options: [
+                        { icon: 'clear', text: '清空' }
+                    ],
+                    button_group: [
+                        { text: '扫码', backgroundColor: store.state.goods_nav_color.red, color: '#fff' },
+                        { text: '提交入库', backgroundColor: store.state.goods_nav_color.blue, color: '#fff' }
+                    ]
+                }
+            }
+        },
+        mounted() {
+            // this.set_batch_no()
+        },
+        methods: {
+            breadcrumb_stockname,
+            formatDate,
+            debug () {
+                this.$logger.info('>>>', this.$data)
+            },
+            goods_nav_click(e) {
+                if (e.index === 0) this.reset_form()
+            },
+            goods_nav_button_click(e) {
+                if (e.index === 0) this.scan_code() // btn:扫码
+                if (e.index === 1) this.submit_inbound() // btn:提交
+            },
+            scan_code() {
+                scan_code().then(res => {
+                    this.handle_scan_code(res.result)
+                }).catch(err => {
+                    uni.showToast({ icon: 'none', title: err })
+                })
+            },
+            handle_scan_code(text) {
+                if (!this.batch_no) return // 先输入需求单据编号
+                if (this.mode == 'label') {
+                    this.form.loc_no = text
+                    return
+                }
+                if (text.includes('||')) {
+                    this.form.material_no = text.split('||')[1]
+                    this.handle_material_no_change()
+                } else if (text.includes('-') && !text.includes('.')) {
+                    this.form.loc_no = text
+                } else {
+                    this.form.material_no = text
+                    this.handle_material_no_change()
+                }
+            },
+            handle_mode_change(e) {
+                // console.log("handle mode change e", e)
+                if (e.detail.value == 'label') {
+                    this.form.material_no = '1.03.10.01.0007'
+                    this.load_material()
+                } else {
+                    this.form.material_no = ''
+                    this.material = {}
+                }
+            },
+            handle_material_no_change() {
+                if (this.form.material_no) {
+                    this.load_material()
+                } else {
+                    this.material = {}
+                }
+            },
+            reset_form() {
+                if (this.mode == 'label') {
+                    this.form.loc_no = ''
+                    this.form.qty = null
+                } else {
+                    this.form = { material_no: '', loc_no: '', qty: null }
+                    this.material = {}
+                }
+            },
+            reset_search_form() {
+                this.search_form = { bill_no: '', customer_abbr: '' }
+                this.batch_no = ''
+            },
+            after_save(res) {
+                if (res.data.Result.ResponseStatus.IsSuccess) {
+                    InvLog.find(res.data.Result.Id).then(find_res => {
+                        if (find_res.data[0]) {
+                            if (this.inv_logs.length >= 5) this.inv_logs.pop()
+                            this.inv_logs.unshift(find_res.data[0])
+                            uni.showToast({ title: '提交成功' })
+                        } 
+                    })
+                } else {
+                    uni.showToast({ title: '提交失败' })
+                }
+            },
+            after_cancel(inv_log_id) {
+                let index = this.inv_logs.findIndex(x => x.FID == inv_log_id)
+                this.inv_logs.splice(index, 1)
+            },
+            if_cancel(inv_log_id) {
+                uni.showActionSheet({
+                    itemList: ['回退'],
+                    success: (e) => {
+                        if (e.tapIndex === 0) this.submit_cancel(inv_log_id)
+                    }
+                })
+            },
+            async set_batch_no() {
+                try {
+                    await this.$refs.search_form.validate()
+                    if (this.search_form.bill_no) {
+                        this.batch_no = ["PK", this.search_form.bill_no.toUpperCase(), this.search_form.customer_abbr.toUpperCase()].join('|')
+                    } else {
+                        this.batch_no = ''
+                    }
+                } catch (err) {
+                    this.batch_no = ''
+                    this.$logger.info('>>> err', err)
+                }
+            },
+            async load_material() {
+                let res = await BdMaterial.query(
+                    { FNumber: this.form.material_no, FUseOrgId: store.state.cur_stock.FUseOrgId },
+                    { fields: ["FMaterialId", "FName", "FNumber", "FSpecification","FBaseUnitId.FName"] })
+                if (res.data.length) {
+                    this.material = res.data[0]
+                } else {
+                    this.material = {}
+                }
+            },
+            async submit_inbound() {
+                try {
+                    if (this.is_calling) return
+                    this.is_calling = true
+                    await this.$refs.form.validate()
+                    let loc_no = this.form.loc_no.toUpperCase()
+                    let log_res = await InvLog.query({
+                        FMaterialId: this.material.FMaterialId, 
+                        'FStockLocId.FName': loc_no, 
+                        FOpQTY: this.form.qty * 1,
+                        FBatchNo: this.batch_no,
+                        FCreateTime_ge: formatDate(Date.now() - 15000, 'yyyy-MM-dd hh:mm:ss') // 15s内禁止重复入库，防呆
+                        })
+                    if (log_res.data.length) {
+                        uni.showToast({ icon: 'error', title: '重复入库' })
+                        return
+                    }
+                    uni.showLoading({ title: 'Loading', mask: true })
+                    let inv_log = new InvLog({
+                        FOpType: 'in',
+                        FStockId: store.state.cur_stock.FStockId,
+                        FStockLocNo: loc_no,
+                        FMaterialId: this.material.FMaterialId,
+                        FOpQTY: this.form.qty * 1,
+                        FBatchNo: this.batch_no,
+                        FOpStaffNo: store.state.cur_staff.FNumber,
+                    })
+                    let res = await inv_log.save()
+                    play_audio_prompt('success')
+                    this.after_save(res)
+                    this.reset_form()
+                    uni.hideLoading()
+                } catch (err) {
+                    // console.log('err', err) 
+                } finally {
+                    this.is_calling = false
+                }
+            },
+            async submit_cancel(inv_log_id) {
+                try {
+                    if (this.is_calling) return
+                    this.is_calling = true
+                    let inv_log = this.inv_logs.find(x => x.FID == inv_log_id)
+                    if (inv_log.FOpType == 'in' && !inv_log.status) {
+                        let cl_inv_log = new InvLog({
+                            FOpType: 'in_cl',
+                            FStockId: inv_log.FStockId,
+                            FStockLocNo: inv_log['FStockLocId.FNumber'],
+                            FMaterialId: inv_log.FMaterialId,
+                            FOpQTY: inv_log.FOpQTY,
+                            FBatchNo: inv_log.FBatchNo,
+                            FBillNo: inv_log.FBillNo,
+                            FOpStaffNo: store.state.cur_staff.FNumber,
+                            FReferId: inv_log.FID
+                        })
+                        let cl_res = await cl_inv_log.save()
+                        play_audio_prompt('success')
+                        this.after_cancel(inv_log_id)
+                        uni.showToast({ title: '回退成功' })
+                    } else {
+                        play_audio_prompt('warn')
+                        uni.showToast({ icon: 'error', title: 'ERROR' })
+                    }
+                } catch (err) {
+                    
+                } finally {
+                    this.is_calling = false
+                }
+            },
+            // #ifdef APP-PLUS
+            // Broadcast receiver
+            reg_broadcast_receiver() {
+                let main = plus.android.runtimeMainActivity()
+                main.unregisterReceiver(store.state.broadcast_receiver)
+                let IntentFilter = plus.android.importClass('android.content.IntentFilter')
+                let filter = new IntentFilter()
+                filter.addAction(store.state.android_intent_action)
+                let receiver = plus.android.implements('io.dcloud.feature.internal.reflect.BroadcastReceiver', {
+                    onReceive: (content, intent) => {
+                        plus.android.importClass(intent)
+                        let code = intent.getStringExtra(store.state.android_intent_string_label)
+                        this.$logger.info('>>> broadcast:', code)
+                        play_audio_prompt('laser_scan')
+                        this.handle_scan_code(code)
+                    }
+                })
+                store.commit('set_broadcast_receiver', receiver)
+                main.registerReceiver(receiver, filter)
+                this.$logger.info(`>>> main.registerReceiver:${this.route}`, receiver)
+            },
+            // #endif
+        }
+    }
+</script>
+
+<style lang="scss" scoped>
+    .uni-forms.scan-form::v-deep {
+        .uni-forms-item--border {
+            border-bottom: 1px solid #cacaca;
+            border-top: none;
+            &.is-first-border {
+                border-top: 1px solid #cacaca;
+            }
+        }
+        .uni-forms-item__label {
+            font-size: $uni-font-size-lg;
+            color: $uni-text-color;
+            height: 26px;
+        }
+        .uni-easyinput {
+            .uni-input-input {
+                font-size: 30px;
+                text-align: right;
+            }
+        }
+    }
+</style>

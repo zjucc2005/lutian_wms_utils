@@ -1,7 +1,7 @@
 <template>
     <uni-section title="1. 查询出库单据" type="square"
         :sub-title="breadcrumb_stockname()" sub-title-color="#007aff" @click="debug">
-        <view class="searchbar-container">
+        <view class="container">
             <uni-forms ref="search_form" :model="search_form" :label-width="72" class="search-form">
                 <uni-forms-item label="单据编号">
                     <uni-easyinput v-model="search_form.bill_no" trim placeholder="出库申请单、调拨申请单、生产发料通知单" @confirm="load_bill" />
@@ -359,9 +359,7 @@
             async load_material() {
                 let res = await BdMaterial.query(
                     { FNumber: this.form.material_no, FUseOrgId: store.state.cur_stock.FUseOrgId },
-                    { fields: ["FMaterialId", "FName", "FNumber", "FSpecification", "FForbidStatus", "FDocumentStatus", 
-                      "FBaseUnitId", "FBaseUnitId.FNumber", "FBaseUnitId.FName", "FMaterialGroup.FName", "FUseOrgId", 
-                      "FUseOrgId.FName", "FImageFileServer", 'FBoxStandardQty'] })
+                    { fields: ["FMaterialId", "FName", "FNumber", "FSpecification", "FBaseUnitId.FName"] })
                 if (res.data.length) {
                     this.material = res.data[0]
                 } else {

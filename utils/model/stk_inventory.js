@@ -22,7 +22,7 @@ class StkInventory {
      * @return {Hash} Promise
      */
     static query(options={}, meta={}) {
-        let fields = ['FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 
+        let fields = ['FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1',
                       'FStockUnitId.FName', 'FQty', 'FBaseQty', 'FBaseUnitId.FName', 
                       'FStockName', 'FStockId', 'FStockOrgId', 'FStockOrgId.FName']
         if (meta.fields) fields = meta.fields

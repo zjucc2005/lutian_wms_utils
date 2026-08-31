@@ -348,7 +348,7 @@ const pdf_template_invs = (inv_groups) => {
         }
         loc_nos.sort()
         options.table_body.push([
-            inv.material_no, inv.material_name, inv.material_spec, inv.base_unit_name, inv.qty, inv.stk_qty, inv.qty - inv.stk_qty, loc_nos.join(', ')
+            inv.material_no, inv.material_name, inv.material_spec, inv.unit, inv.qty, inv.stk_qty, inv.qty - inv.stk_qty, loc_nos.join(', ')
         ])
     }
     // 初始化jsPDF对象

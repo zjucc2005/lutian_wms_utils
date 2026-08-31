@@ -10,6 +10,9 @@
             <uni-list-item title="其他出库"
                 :extra-icon="{ color: '#007aff', size: '24', type: 'plusempty' }" show-extra-icon
                 @click="link_to('/pages/operation/outbound/other')" clickable show-arrow />
+            <uni-list-item title="包材出库"
+                :extra-icon="{ color: '#007aff', size: '24', type: 'gift' }" show-extra-icon
+                @click="link_to('/pages/operation/outbound/packaging')" clickable show-arrow />
         </uni-list>
     </view>
 </template>

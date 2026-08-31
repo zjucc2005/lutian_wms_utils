@@ -1,6 +1,6 @@
 <template>
-    <uni-notice-bar single scrollable text="盘点数量和账面数量一致时,可不填写盘点数量" />
-    <uni-section :title="breadcrumb_stockname()" type="square" class="above-uni-goods-nav" @click="debug">
+    <!-- <uni-notice-bar single scrollable text="盘点数量和账面数量一致时,可不填写盘点数量" /> -->
+    <uni-section :title="breadcrumb_stockname()" type="square" title-color="#007aff" class="above-uni-goods-nav" @click="debug">
         <uni-table ref="table" class="table-sm" border stripe>
             <uni-tr>
                 <uni-th align="center" width="140">物料编码</uni-th>
@@ -72,18 +72,51 @@
                         title="盘点模板（物料排序）" note="导入用Excel" rightText=".xlsx"
                         :show-extra-icon="true" :extra-icon="{ type: 'download', size: '24', color: '#dd524d' }"
                         @click="check_template_excel('material_no')" clickable show-arrow />
-                    <uni-list-item
-                        title="即时库存对照（金蝶账面和WMS库存）" note="打印用PDF" rightText=".pdf"
-                        :show-extra-icon="true" :extra-icon="{ type: 'map', size: '24', color: '#007bff' }"
-                        @click="export_invs_pdf()" clickable show-arrow />
-                    <uni-list-item
-                        title="即时库存对照（金蝶账面和WMS库存）" note="Excel" rightText=".xlsx"
-                        :show-extra-icon="true" :extra-icon="{ type: 'download', size: '24', color: '#dd524d' }"
-                        @click="export_invs_excel()" clickable show-arrow />
+                    <template v-if="$store.state.cur_stock['FUseOrgId.FName'] == '内燃机事业部'">
+                        <uni-list-item
+                            title="即时库存对照（金蝶账面和WMS库存）" note="打印用PDF, 选择仓管员" rightText=".pdf"
+                            :show-extra-icon="true" :extra-icon="{ type: 'map', size: '24', color: '#007bff' }"
+                            @click="export_invs_pdf_102()" clickable show-arrow />
+                        <uni-list-item
+                            title="即时库存对照（金蝶账面和WMS库存）" note="Excel, 选择仓管员" rightText=".xlsx"
+                            :show-extra-icon="true" :extra-icon="{ type: 'download', size: '24', color: '#dd524d' }"
+                            @click="export_invs_excel_102()" clickable show-arrow />
+                    </template>
+                    <template v-else>
+                        <uni-list-item
+                            title="即时库存对照（金蝶账面和WMS库存）" note="打印用PDF" rightText=".pdf"
+                            :show-extra-icon="true" :extra-icon="{ type: 'map', size: '24', color: '#007bff' }"
+                            @click="export_invs_pdf()" clickable show-arrow />
+                        <uni-list-item
+                            title="即时库存对照（金蝶账面和WMS库存）" note="Excel" rightText=".xlsx"
+                            :show-extra-icon="true" :extra-icon="{ type: 'download', size: '24', color: '#dd524d' }"
+                            @click="export_invs_excel()" clickable show-arrow />
+                    </template>
                 </uni-list>
             </uni-section>
         </scroll-view>
     </uni-drawer>
+    
+    <!-- select storekeeper -->
+    <uni-popup ref="form_dialog" type="dialog">
+        <uni-popup-dialog
+            type="info"
+            title="搜索条件"
+            cancelText="关闭"
+            @close="$refs.form_dialog.close()"
+            @confirm="form_dialog_confirm"
+            :before-close="true"
+            :style="{ width: $store.state.system_info.windowWidth - 20 + 'px', minWidth: '360px', maxWidth: '1200px' }"
+            >
+            <view style="flex: 1;">
+                <uni-forms ref="form" :model="form" >
+                    <uni-forms-item label="仓管员">
+                        <uni-data-select v-model="form.storekeeper" :localdata="storekeeper_opts" />
+                    </uni-forms-item>
+                </uni-forms>
+            </view>
+        </uni-popup-dialog>
+    </uni-popup>
 </template>
 
 <script>
@@ -101,6 +134,10 @@
                 only_different: false, // 只展示盘点有差异的行
                 invs: [], // 即时库存
                 check_invs: [], // 即时库存 -> 盘点库存
+                storekeeper_opts: [],
+                form: {
+                    storekeeper: ''
+                },
                 goods_nav: {
                     options: [
                         { icon: 'circle', text: '盘盈盘亏' }
@@ -182,6 +219,9 @@
                 this._activate_step('export')
                 this._init_check_invs()
             },
+            open_form_dialog() {
+                this.$refs.form_dialog.open()
+            },
             // 选择盘点模板
             check_template_download() {
                 this.$refs.dl_drawer.open()
@@ -254,6 +294,9 @@
                 link.download = `即时库存对照_${Date.now()}.xlsx`
                 link.click()
                 URL.revokeObjectURL(link.href)
+            },
+            async export_invs_pdf_102() {
+                this.open_form_dialog()
             },
             // 导入盘点数据
             check_data_import() {
@@ -413,6 +456,7 @@
             },
             _init_check_invs() {
                 let check_invs = []
+                let storekeeper_set = new Set()
                 for (let inv of this.invs) {
                     check_invs.push({
                         material_id: inv.FMaterialId,
@@ -425,8 +469,12 @@
                         unit: inv['FStockUnitId.FName'],
                         qty: inv.FQty
                     })
+                    storekeeper_set.add(inv['FMaterialId.F_PAEZ_Base1'])
                 }
                 this.check_invs = check_invs
+                let storekeepers = Array.from(storekeeper_set)
+                storekeepers.sort((x, y) => x > y ? 1 : -1)
+                this.storekeeper_opts = storekeepers.map(sk => { return { value: sk, text: sk } })
             },
             // 结合即时库存展示盘盈盘亏
             _merge_check_invs(sheet_data) {

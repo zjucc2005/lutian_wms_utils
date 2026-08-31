@@ -29,7 +29,7 @@ def get_inv_qty(inv_log):
     WHERE FSTOCKID = {f_stock_id}
     AND FSTOCKLOCID = {f_stock_loc_id}
     AND FMATERIALID = {f_material_id}
-    AND FBATCHNO = {f_batch_no}
+    AND FBATCHNO = '{f_batch_no}'
     AND FSUPPLIERID = {f_supplier_id};
     """.format(
     f_stock_id=inv_log['StockId_Id'],
@@ -60,7 +60,7 @@ def query_inv(inv_log):
     AND FSTOCKID = {f_stock_id}
     AND FSTOCKLOCID = {f_stock_loc_id}
     AND FMATERIALID = {f_material_id}
-    AND FBATCHNO = {f_batch_no}
+    AND FBATCHNO = '{f_batch_no}'
     AND FSUPPLIERID = {f_supplier_id}
     AND FQTY > 0;
     """.format(

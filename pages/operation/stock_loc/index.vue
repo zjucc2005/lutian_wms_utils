@@ -7,6 +7,12 @@
                         <uni-forms-item label="编码">
                             <uni-easyinput v-model="search_form.no" trim />
                         </uni-forms-item>
+                        <uni-forms-item label="X轴">
+                            <uni-easyinput v-model="search_form.pos_x" trim />
+                        </uni-forms-item>
+                        <uni-forms-item label="Y轴">
+                            <uni-easyinput v-model="search_form.pos_y" trim />
+                        </uni-forms-item>
                         <uni-forms-item label="库位备注">
                             <uni-easyinput v-model="search_form.remark" trim />
                         </uni-forms-item>
@@ -39,8 +45,8 @@
                         <uni-tr>
                             <uni-th align="center">编码</uni-th>
                             <uni-th align="center">分组</uni-th>
-                            <uni-th align="center">横向位置</uni-th>
-                            <uni-th align="center">纵向位置</uni-th>
+                            <uni-th align="center">X轴</uni-th>
+                            <uni-th align="center">Y轴</uni-th>
                             <uni-th align="center">位数</uni-th>
                             <uni-th align="center">库位备注</uni-th>
                             <uni-th align="center">禁用状态</uni-th>
@@ -158,6 +164,8 @@
                 refresh_interval: 30 * 1000, // 30s
                 search_form: {
                     no: '',
+                    pos_x: '',
+                    pos_y: '',
                     remark: '',
                     forbid_status: ''
                 },
@@ -230,6 +238,8 @@
             search() {
                 this.stock_locs_q = this.stock_locs.filter(stock_loc => {
                     if (this.search_form.no && !stock_loc.FNumber.includes(this.search_form.no.toUpperCase())) return false
+                    if (this.search_form.pos_x && stock_loc.FPosX != this.search_form.pos_x) return false
+                    if (this.search_form.pos_y && stock_loc.FPosY != this.search_form.pos_y) return false
                     if (this.search_form.remark && !stock_loc.FRemark.includes(this.search_form.remark)) return false
                     if (this.search_form.forbid_status && stock_loc.FForbidStatus != this.search_form.forbid_status) return false
                     return true

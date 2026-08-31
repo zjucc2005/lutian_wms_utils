@@ -26,7 +26,7 @@
                 
                 <uni-group title="其他操作" mode="card">
                     <button size="mini" @click="inv_map">库存地图</button>
-                    <button type="primary" size="mini" @click="link_to('/pages/operation/manage/inv_check')" class="uni-ml-5" >库存盘点</button>
+                    <button type="primary" size="mini" @click="link_to('/pages/operation/inv/check')" class="uni-ml-5" >库存盘点</button>
                 </uni-group>
             </uni-col>
             

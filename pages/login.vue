@@ -216,9 +216,6 @@
             async after_login() {
                 let data = await StockLoc.get_all()
                 store.commit('set_stock_locs', data)
-                // StockLoc.query({ FStockId: store.state.cur_stock.FStockId }).then(res => {
-                //     store.commit('set_stock_locs', res.data)
-                // })
             }
         }
     }
