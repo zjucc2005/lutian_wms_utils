@@ -124,7 +124,7 @@
                             <view class="title">{{ inv['FStockLocId.FNumber'] }}</view>
                             <view class="note">
                                 <view>批次：{{ inv['FBatchNo'] }}</view>
-                                <view>供应商：{{ inv['FSupplierId.FName'] }}</view>
+                                <view v-if="inv['FSupplierId.FName']">供应商：{{ inv['FSupplierId.FName'] }}</view>
                             </view>
                         </view>
                     </template>

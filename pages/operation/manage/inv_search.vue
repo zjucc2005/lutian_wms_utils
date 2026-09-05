@@ -1,52 +1,57 @@
 <template>
-    <uni-section title="查询结果" type="square"
-        :sub-title="set_section_sub_title()"
-        sub-title-color="#007aff"
-        class="above-uni-goods-nav"
-        >
-        <template #right v-if="mode == 'material_no'">
-            <view class="text-sm text-primary">库存总数：{{ sum_inv_qty }}</view>
-            <view class="text-sm text-grey">金蝶账面：{{ sum_stk_inv_qty }}</view>
-        </template>
-        
+    <uni-section title="查询结果" type="square" :sub-title="set_section_sub_title()" class="above-uni-goods-nav">
         <cc-shelf
             v-if="display_mode == 'grid' && invs.length"
             :stock_locs="$store.state.stock_locs"
             :invs="invs"
             only-inv
             open />
-            
-        <uni-list v-if="mode == 'material_no' && display_mode == 'list'">
-            <uni-list-item v-for="(inv, index) in invs" :key="index">
-                <template #body>
-                    <view class="uni-list-item__body">
-                        <view class="title">{{ inv['FStockLocId.FNumber'] }}</view>
-                        <view class="note">
-                            <view>批次：{{ inv.FBatchNo }}</view>
-                            <view>供应商：{{ inv['FSupplierId.FName'] }}</view>
-                        </view>
-                    </view>
-                </template>
-                <template v-slot:footer>
-                    <view class="uni-list-item__foot">
-                        <view class="op_qty">
-                            <text>{{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}</text>
-                        </view>
-                    </view>
-                </template>
-            </uni-list-item>
-        </uni-list>
         
+        <template v-if="mode == 'material_no' && display_mode == 'list'">
+            <uni-list class="cc-list">
+                <uni-list-item title="物料编码" :right-text="material.material_no" />
+                <uni-list-item title="物料名称" :right-text="material.material_name" />
+                <uni-list-item title="规格型号" :right-text="material.material_spec" />
+                <uni-list-item title="库存总数" :right-text="String(sum_inv_qty)" />
+                <uni-list-item title="金蝶账面" :right-text="String(sum_stk_inv_qty)" />
+            </uni-list>
+            
+            <uni-list>
+                <uni-list-item v-for="(inv, index) in invs" :key="index">
+                    <template #body>
+                        <view class="uni-list-item__body">
+                            <view class="title">{{ inv['FStockLocId.FNumber'] }}</view>
+                            <view class="note">
+                                <view>
+                                    <text>批次：{{ inv.FBatchNo }}</text>
+                                    <text v-if="inv['FSupplierId.FName']">, 供应商：{{ inv['FSupplierId.FName'] }}</text>
+                                </view>
+                                <view>入库时间: {{ formatDate(inv['FLastInboundDate'], 'yyyyMMdd') }}</view>
+                            </view>
+                        </view>
+                    </template>
+                    <template v-slot:footer>
+                        <view class="uni-list-item__foot">
+                            <view class="op_qty">
+                                <text>{{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}</text>
+                            </view>
+                        </view>
+                    </template>
+                </uni-list-item>
+            </uni-list>
+        </template>
         <uni-list v-if="mode == 'loc_no' && display_mode == 'list'">
             <uni-list-item v-for="(inv, index) in invs" :key="index">
                 <template #body>
                     <view class="uni-list-item__body">
-                        <view class="title">{{ inv['FMaterialId.FNumber'] }}</view>
+                        <view class="title text-bold">{{ inv['FMaterialId.FNumber'] }} {{ inv['FMaterialId.FName'] }}</view>
                         <view class="note">
-                            <view>名称：{{ inv['FMaterialId.FName'] }}</view>
                             <view>规格：{{ inv['FMaterialId.FSpecification'] }}</view>
-                            <view>批次：{{ inv.FBatchNo }}</view>
-                            <view>供应商：{{ inv['FSupplierId.FName'] }}</view>
+                            <view>
+                                <text>批次：{{ inv.FBatchNo }}</text>
+                                <text v-if="inv['FSupplierId.FName']">, 供应商：{{ inv['FSupplierId.FName'] }}</text>
+                            </view>
+                            <view>入库时间: {{ formatDate(inv['FLastInboundDate'], 'yyyyMMdd') }}</view>
                         </view>
                     </view>
                 </template>
@@ -81,7 +86,7 @@
     import store from '@/store'
     import { get_bd_material } from '@/utils/api'
     import { Inv, StockLoc, StkInventory } from '@/utils/model'
-    import { play_audio_prompt } from '@/utils'
+    import { play_audio_prompt, formatDate } from '@/utils'
     import scan_code from '@/utils/scan_code'
     import ccShelf from '@/components/cc-shelf/cc-shelf.vue'
     export default {
@@ -152,6 +157,7 @@
             }
         },
         methods: {
+            formatDate,
             goods_nav_click(e) {
                 // if (e.index == 0) this.more_actions() // btn:更多
                 if (e.index == 0) this.switch_display_mode() // btn:切换显示 网格/列表
@@ -264,16 +270,10 @@
                 }
             },
             set_section_sub_title() {
-                let text_list = []
-                if (this.mode == 'material_no') {
-                    text_list = [ 
-                        `${this.material.material_no} / ${this.material.material_name}`, 
-                        `规格：${this.material.material_spec}`
-                    ]
-                } else if (this.mode == 'loc_no') {
-                    text_list = [ `库位：${this.no}` ]
+                if (this.mode == 'loc_no') {
+                    return `库位：${this.no}`
                 }
-                return text_list.join('\n')
+                return ''
             },
             // #ifdef APP-PLUS
             // Broadcast receiver

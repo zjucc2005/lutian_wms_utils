@@ -218,6 +218,33 @@ const audit = async (form_id, data) => {
     })
 }
 
+const unaudit = async (form_id, data) => {
+    const _data_  = {
+        Numbers: [],
+        Ids: "",
+        ...data
+    }
+    return conn().then(_ => {
+        return new Promise((resolve, reject) => {
+            logger.info("K3CloudApi.unaudit req:", form_id, _data_)
+            uni.request({
+                url: full_url('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.UnAudit.common.kdsvc'),
+                method: 'POST',
+                header: set_header(),
+                data: { formid: form_id, data: _data_ },
+                success: (res) => {
+                    logger.info("K3CloudApi.unaudit res:", res)
+                    resolve(res)
+                },
+                fail: (err) => {
+                    logger.info("K3CloudApi.unaudit fail:", err)
+                    reject(err)
+                }
+            })
+        })   
+    })
+}
+
 /**
  * 禁用表单数据接口
  * @param form_id:String 表单id，必须
@@ -744,6 +771,7 @@ const K3CloudApi = {
     view,
     submit,
     audit,
+    unaudit,
     forbid,
     enable,
     delete: _delete_,

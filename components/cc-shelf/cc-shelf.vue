@@ -67,7 +67,7 @@
                                 }"
                                 >
                                 <view :class="['grid-item-box', grid.style]">
-                                    <view class="name">{{ grid.name }}</view>
+                                    <view :class="['name', grid.name.length > 5 ? 'sm' : '']">{{ grid.name }}</view>
                                     <view v-if="grid.qty" class="qty">{{ grid.qty > 99999 ? '99999+' : grid.qty }}</view>
                                 </view>
                             </uni-grid-item>
@@ -80,9 +80,8 @@
     
     <uni-drawer ref="inv_drawer" mode="left" :width="$store.state.drawer_width" >
         <scroll-view scroll-y style="height: 100%;" @touchmove.stop>
-            <uni-section :title="`库位：${drawer_stock_loc.FNumber}`"
-                :sub-title="drawer_stock_loc.FRemark ? `备注：${drawer_stock_loc.FRemark}` : ''"
-                type="square">
+            <uni-section :title="`库位：${drawer_stock_loc.FNumber}`" type="square"
+                :sub-title="drawer_stock_loc.FRemark ? `备注：${drawer_stock_loc.FRemark}` : ''">
                 <template v-slot:right>
                     <view class="uni-section__right">
                         <uni-icons type="closeempty" size="24" color="#333" @click="drawer_close"/>
@@ -108,12 +107,14 @@
                         @click="inv_menu(inv)" clickable>
                         <template #body>
                             <view class="uni-list-item__body">
-                                <text class="title">{{ inv['FMaterialId.FNumber'] }}</text>
+                                <text class="title text-bold">{{ inv['FMaterialId.FNumber'] }} {{ inv['FMaterialId.FName'] }}</text>
                                 <view class="note">
-                                    <view>名称：{{ inv['FMaterialId.FName'] }}</view>
                                     <view>规格：{{ inv['FMaterialId.FSpecification'] }}</view>
-                                    <view>批次：{{ inv.FBatchNo }}</view>
-                                    <view>供应商：{{ inv['FSupplierId.FName'] }}</view>
+                                    <view>
+                                        <text>批次：{{ inv.FBatchNo }}</text>
+                                        <text v-if="inv['FSupplierId.FName']">, 供应商：{{ inv['FSupplierId.FName'] }}</text>
+                                    </view>
+                                    <view>入库时间: {{ formatDate(inv['FLastInboundDate'], 'yyyyMMdd') }}</view>
                                 </view>
                             </view>
                         </template>
@@ -142,7 +143,7 @@
      */
     
     import store from '@/store'
-    import { link_to } from '@/utils'
+    import { link_to, formatDate } from '@/utils'
     import { StockLoc } from '@/utils/model'
     export default {
         name:"cc-shelf",
@@ -300,151 +301,9 @@
                     return grid_shelves
                 }
             }
-            // ,
-            // grid_shelves_old() {
-            //     let grid_shelves = []
-            //     this.stock_locs.forEach(stock_loc => {
-            //         if (this.is_loc_no_std_format(stock_loc.FNumber)) {
-            //             // 标准库位
-            //             let loc_no_arr = stock_loc.FNumber.split('-')
-            //             let name = loc_no_arr.slice(0,2).join('-')
-            //             let x = loc_no_arr[2].slice(1,3) * 1
-            //             let y = loc_no_arr[2][0] * 1
-            //             let status = ''
-            //             let style = 'default'
-            //             if (stock_loc.FForbidStatus == 'B') {
-            //                 status = 'forbidden'
-            //                 style = 'error'
-            //             }
-            //             let shelf = grid_shelves.find(s => s.name == name)
-            //             if (shelf) {
-            //                 shelf.bound.x = Math.max(shelf.bound.x, x)
-            //                 shelf.bound.y = Math.max(shelf.bound.y, y)
-            //                 shelf.grids.push({ x, y, status, style, no: stock_loc.FNumber, name: loc_no_arr[2], qty: 0 })
-            //             } else {
-            //                 grid_shelves.push({
-            //                     name: name,
-            //                     disabled: true,
-            //                     bound: { x, y },
-            //                     loc_qty: { total: 0, used: 0, idle: 0, disabled: 0 },
-            //                     grids: [{ x, y, status, style, sp: false, no: stock_loc.FNumber, name: loc_no_arr[2], qty: 0 }]
-            //                 })
-            //             }
-            //         } else if (this.is_loc_no_std_sp_format(stock_loc.FNumber)) {
-            //             // 特殊库位，库区地面连续编号
-            //             let loc_no_arr = stock_loc.FNumber.split('-')
-            //             let name = [loc_no_arr[0], loc_no_arr[1][0]].join('-')
-            //             let x = loc_no_arr[1].slice(1,3) * 1
-            //             let y = 1
-            //             let status = ''
-            //             let style = 'default'
-            //             if (stock_loc.FForbidStatus == 'B') {
-            //                 status = 'forbidden'
-            //                 style = 'error'
-            //             }
-            //             let shelf = grid_shelves.find(s => s.name == name)
-            //             if (shelf) {
-            //                 shelf.bound.x = Math.max(shelf.bound.x, x)
-            //                 shelf.bound.y = Math.max(shelf.bound.y, y)
-            //                 shelf.grids.push({ x, y, status, style, no: stock_loc.FNumber, name: loc_no_arr[1], qty: 0 })
-            //             } else {
-            //                 grid_shelves.push({
-            //                     name: name,
-            //                     disabled: true,
-            //                     bound: { x, y },
-            //                     sp: true,
-            //                     loc_qty: { total: 0, used: 0, idle: 0, disabled: 0 },
-            //                     grids: [{ x, y, status, style, sp: true, no: stock_loc.FNumber, name: loc_no_arr[1], qty: 0 }]
-            //                 })
-            //             }
-            //         } else {
-            //             // 特殊库位，未分组/独立库位处理
-            //             let shelf = {
-            //                 name: stock_loc.FNumber,
-            //                 disabled: true,
-            //                 bound: { x: 1, y: 1 },
-            //                 sp: true,
-            //                 loc_qty: { total: 0, used: 0, disabled: 0, idle: 0 },
-            //                 grids:[{
-            //                     x: 1, y: 1, 
-            //                     status: stock_loc.FForbidStatus == 'B' ? 'forbidden' : '', 
-            //                     style: stock_loc.FForbidStatus == 'B' ? 'error' : 'default', 
-            //                     sp: true, no: stock_loc.FNumber,  qty: 0,
-            //                 }]
-            //             }
-            //             grid_shelves.push(shelf)
-            //         }
-            //     })
-            //     // 判断库存状态
-            //     this.invs.forEach(inv => {
-            //         // let loc_no_arr = inv['FStockLocId.FNumber'].split('-')
-            //         let shelf_name = inv['FStockLocId.FNumber'].split('-').slice(0,2).join('-')
-            //         if (this.is_loc_no_std_sp_format(inv['FStockLocId.FNumber'])) {
-            //             let loc_no_arr = inv['FStockLocId.FNumber'].split('-')
-            //             shelf_name = [loc_no_arr[0], loc_no_arr[1][0]].join('-')
-            //         }
-            //         let shelf = grid_shelves.find(s => s.name == shelf_name)
-            //         if (shelf) {
-            //             shelf.disabled = false
-            //             let grid = shelf.grids.find(g => g.no == inv['FStockLocId.FNumber'])
-            //             if (grid.status == '') {
-            //                 grid.style = 'success'
-            //             }
-            //             grid.qty += inv.FQty
-            //         }
-            //     })
-            //     // 汇总每个货架库位数
-            //     grid_shelves.forEach(shelf => {
-            //         shelf.grids.forEach(grid => {
-            //             shelf.loc_qty.total += 1
-            //             if (grid.style == 'error') {
-            //                 shelf.loc_qty.disabled += 1
-            //             } else if (grid.style == 'success') {
-            //                 shelf.loc_qty.used += 1
-            //             } else {
-            //                 shelf.loc_qty.idle += 1
-            //             }
-            //         })
-            //     })
-                
-            //     // 补全空缺的grid并赋予page + index
-            //     grid_shelves.forEach(shelf => {
-            //         for(let x=1;x<=Math.ceil(shelf.bound.x/this.column)*this.column;x+=1) {
-            //             for(let y=1;y<=shelf.bound.y;y+=1) {
-            //                 let { page, index } = this.get_grid_page_and_index(shelf.bound, { x, y })
-            //                 let name = this.get_grid_name({x, y})
-            //                 let no = [shelf.name, name].join('-')
-            //                 let grid = shelf.grids.find(g => g.x == x && g.y == y)
-            //                 if (grid) {
-            //                     grid.page = page
-            //                     grid.index = index
-            //                     // grid.name = grid.sp ? '' : name
-            //                     grid.no = grid.no || no
-            //                 } else {
-            //                     grid = { x, y, page, index, name, no, qty: 0, status: '', style: x > shelf.bound.x ? 'none' : 'default' }
-            //                     shelf.grids.push(grid)
-            //                 }
-            //             }
-            //         }
-            //     })
-            //     grid_shelves.sort((x, y) => x.name >= y.name ? 1 : -1)
-                
-            //     if (this.onlyInv) {
-            //         return grid_shelves.filter(shelf => !shelf.disabled)
-            //     } else {
-            //         return grid_shelves
-            //     }
-            // }
         },
-        methods: {    
-            // is_loc_no_std_format(text) {
-            //     const reg = /^[A-Z0-9]{1,4}-[A-Z0-9]{1,4}-\d{3}$/
-            //     return !!text.match(reg)
-            // },
-            // is_loc_no_std_sp_format(text) {
-            //     const reg = /^[A-Z0-9]{1,4}-[A-Z][0-9]{1,3}$/
-            //     return !!text.match(reg)
-            // },
+        methods: {
+            formatDate,
             // 设置grid所在页码，以及在整个货架中的索引
             get_grid_page_and_index(bound={}, coord={}) {
                 let page = Math.ceil(coord.x / this.column)
@@ -570,9 +429,12 @@
             }
             .name {
                 width: 100%;
-                font-size: $uni-font-size-sm;
+                font-size: 12px;
                 text-align: left;
                 padding-left: 2px;
+                &.sm {
+                    font-size: 10px;
+                }
             }
             .qty {
                 width: 100%;

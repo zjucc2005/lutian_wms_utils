@@ -181,21 +181,18 @@
             }
         },
         mounted() {
-            // this.loc_nos = this.generate_loc_nos('3LM-QY', '3LM-QY-X', 'X', 38, '')
-            // this.loc_nos = this.shelf_loc_nos('3LM-QY-H24', '3LM-QY-H24', 22, 3)
+            // 地面
+            // this.loc_nos = this.generate_loc_nos('3WIP-JJ', '3WIP-JJ-B', 'B', 64, 1)
+            // 货架
+            // this.loc_nos = this.shelf_loc_nos('3LM-BC-H09', '3LM-BC-H09', 40, 3)
+            // 货架 + 位
+            // this.loc_nos = this.grid_loc_nos('3LM-BC-D17', '3LM-BC-D17', 9, 5, 4)
+            
             // for (let i = 26; i <= 38; i++) {
             //     this.loc_nos = this.loc_nos.concat(this.shelf_loc_nos(`3LM-QY-H${i}`, `3LM-QY-H${i}`, 16, 3))
             // }
-            // this.loc_nos = [{
-            //     no: '3LM-QY-拣选区',
-            //     status: '',
-            //     shelf: '3LM-QY-拣选区',
-            //     x: 1,
-            //     y: 1
-            // }]
-            // this.gen_loc_nos('standard', '3LM-QY', 'H01', 18, 3).forEach(x => {
-            //     this.loc_nos.push({ value: x, status: '' })
-            // })
+            // 拣选区
+            this.loc_nos = [{ no: '3LM-QY-拣选区02', status: '', shelf: '3LM-QY-拣选区', x: 2, y: 1 }]
         },
         computed: {
             loc_no_example() {
@@ -390,7 +387,7 @@
                 }
                 return loc_nos
             },
-            shelf_loc_nos(prefix, group, xlist=[], ylist=[], xlen=2, ylen=2, xy_separator='-') {
+            shelf_loc_nos(prefix, group, xlist=[], ylist=[], xlen=2, ylen=2, separator='-') {
                 if (typeof xlist === 'string') xlist = [xlist]
                 if (typeof ylist === 'string') ylist = [ylist]
                 if (typeof xlist === 'number') {
@@ -411,7 +408,7 @@
                         let y = String(ylist[j])
                         while (y.length < ylen) y = '0' + y
                         loc_nos.push({
-                            no: `${prefix}-${x}${xy_separator}${y}`,
+                            no: `${prefix}-${x}${separator}${y}`,
                             status: '',
                             shelf: group,
                             x: i + 1,
@@ -421,9 +418,51 @@
                 }
                 return loc_nos
             },
+            grid_loc_nos(prefix, group, xlist=[], ylist=[], zlist=[], xlen=2, ylen=2, zlen=2, separator='-') {
+                if (typeof xlist === 'string') xlist = [xlist]
+                if (typeof ylist === 'string') ylist = [ylist]
+                if (typeof zlist === 'string') zlist = [zlist]
+                if (typeof xlist === 'number') {
+                    let _xlist = []
+                    for (let i = 1; i <= xlist; i++) _xlist.push(i)
+                    xlist = _xlist
+                }
+                if (typeof ylist === 'number') {
+                    let _ylist = []
+                    for (let i = 1; i <= ylist; i++) _ylist.push(i)
+                    ylist = _ylist
+                }
+                if (typeof zlist === 'number') {
+                    let _zlist = []
+                    for (let i = 1; i <= zlist; i++) _zlist.push(i)
+                    zlist = _zlist
+                }
+                let loc_nos = []
+                for (let i = 0; i < xlist.length; i++) {
+                    for (let j = 0; j < ylist.length; j++) {
+                        for (let k = 0; k < zlist.length; k++) {
+                            let x = String(xlist[i])
+                            while (x.length < xlen) x = '0' + x
+                            let y = String(ylist[j])
+                            while (y.length < ylen) y = '0' + y
+                            let z = String(zlist[k])
+                            while (z.length < zlen) z = '0' + z
+                            
+                            loc_nos.push({
+                                no: [prefix, x, y, z].join(separator),
+                                status: '',
+                                shelf: group,
+                                x: zlist.length * i + k + 1,
+                                y: j + 1
+                            })
+                        }
+                    }
+                }
+                return loc_nos
+            },
             // 库位号格式, 仓库, 库区, x, y, z, pos
             // 生成库位号方法, 前缀 + x * y
-            generate_loc_nos(prefix, group, xlist=[], ylist=[], xlen=2, ylen=2, xy_separator='') {
+            generate_loc_nos(prefix, group, xlist=[], ylist=[], xlen=2, ylen=2, separator='') {
                 if (typeof xlist === 'string') xlist = [xlist]
                 if (typeof ylist === 'string') ylist = [ylist]
                 if (typeof xlist === 'number') {
@@ -436,6 +475,8 @@
                     for (let i = 1; i <= ylist; i++) _ylist.push(i)
                     ylist = _ylist
                 }
+                console.log('xlist', xlist)
+                console.log('ylist', ylist)
                 let loc_nos = []
                 for (let i = 0; i < xlist.length; i++) {
                     for (let j = 0; j < ylist.length; j++) {
@@ -444,11 +485,11 @@
                         let y = String(ylist[j])
                         while (y.length < ylen) y = '0' + y
                         loc_nos.push({
-                            no: `${prefix}-${x}${xy_separator}${y}`,
+                            no: `${prefix}-${[x,y].join('')}`,
                             status: '',
                             shelf: group,
-                            x: j + 1,
-                            y: i + 1
+                            x: j % 10 + 1,
+                            y: i + 1 + Math.floor(j / 10)
                         })
                     }
                 }

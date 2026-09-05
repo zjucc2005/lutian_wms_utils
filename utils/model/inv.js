@@ -32,7 +32,7 @@ class Inv {
      * @return {Hash} Promise
      */
     static query(options={}, meta={}) {
-        let fields = ['FID', 'FQty','FBatchNo', 'FCreateTime',
+        let fields = ['FID', 'FQty','FBatchNo', 'FCreateTime', 'FLastInboundDate',
                       'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.FImageFileServer',
                       'FStockLocId', 'FStockLocId.FNumber', 'FStockLocId.FGroup', 'FStockLocId.FPosX', 'FStockLocId.FPosY',
                       'FStockUnitId', 'FStockUnitId.FName',
@@ -89,7 +89,7 @@ class Inv {
         let filter_string = K3CloudApi.query_filter({ FQty_gt: 0, ...options })
         let fields = ['FID', 'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1', 
                       'FQty', 'FStockUnitId', 'FStockUnitId.FName', 'FStockLocId', 'FStockLocId.FNumber', 'FStockLocId.FGroup', 'FStockLocId.FPosX', 'FStockLocId.FPosY',
-                      'FBatchNo', 'FSupplierId', 'FSupplierId.FName', 'FCreateTime']
+                      'FBatchNo', 'FSupplierId', 'FSupplierId.FName', 'FCreateTime', 'FLastInboundDate']
         
         let response = null
         let page = 1

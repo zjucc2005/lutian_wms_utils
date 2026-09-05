@@ -272,13 +272,14 @@
                 }
             },
             reset_form() {
-                if (this.mode == 'label') {
-                    this.form.loc_no = ''
-                    this.form.qty = null
-                } else {
-                    this.form = { material_no: '', loc_no: '', qty: null }
-                    this.material = {}
-                }
+                // if (this.mode == 'label') {
+                //     this.form.loc_no = ''
+                //     this.form.qty = null
+                // } else {
+                //     this.form = { material_no: '', loc_no: '', qty: null }
+                //     this.material = {}
+                // }
+                this.form.loc_no = ''
             },
             reset_search_form() {
                 this.search_form = { bill_no: '', customer_abbr: '' }

@@ -29,6 +29,12 @@
                         <uni-forms-item label="库位备注">
                             <uni-easyinput v-model="edit_form.remark" trim />
                         </uni-forms-item>
+<!--                        <uni-forms-item label="x轴">
+                            <uni-easyinput v-model="edit_form.pos_x" trim />
+                        </uni-forms-item>
+                        <uni-forms-item label="y轴">
+                            <uni-easyinput v-model="edit_form.pos_y" trim />
+                        </uni-forms-item> -->
                     </uni-forms>
                     <button type="primary" size="mini" @click="batch_update">提交</button>
                 </uni-group>
@@ -260,7 +266,8 @@
                 for (let idx of checked_idx) {
                     let obj = this.table_data[idx]
                     params.push({ FID: obj.FID, FRemark: this.edit_form.remark })
-                    // params.push({ FID: obj.FID, FPalletSpace: this.edit_form.remark })
+                    // params.push({ FID: obj.FID, FGroup: this.edit_form.remark })
+                    // params.push({ FID: obj.FID, FPosX: this.edit_form.pos_x, FPosY: this.edit_form.pos_y })
                 }
                 uni.showLoading({ title: 'Loading' })
                 await StockLoc.batch_save(params)
