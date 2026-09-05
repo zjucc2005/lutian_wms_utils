@@ -215,6 +215,11 @@
                 }
             }
         },
+        onShow() {
+            // #ifdef APP-PLUS
+            this.reg_broadcast_receiver()
+            // #endif
+        },
         mounted() {
             // this.set_batch_no()
         },
