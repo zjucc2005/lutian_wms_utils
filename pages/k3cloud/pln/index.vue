@@ -30,6 +30,9 @@
         <uni-list-item title="采购订单批改"
             :extra-icon="{ color: '#dd524d', size: '24', type: 'compose' }" show-extra-icon
             @click="link_to('/pages/k3cloud/pln/po_batch_update')" clickable show-arrow/>
+        <uni-list-item title="金蝶库存明细汇总"
+            :extra-icon="{ type: 'star-filled', size: '24', color: '#007bff' }" show-extra-icon
+            @click="link_to('/pages/operation/statistics/stk_inv_summary')" clickable show-arrow />
     </uni-list>
 </template>
 

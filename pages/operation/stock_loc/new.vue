@@ -193,6 +193,7 @@
             // }
             // 拣选区
             this.loc_nos = [{ no: '3LM-QY-拣选区02', status: '', shelf: '3LM-QY-拣选区', x: 2, y: 1 }]
+            // this.loc_nos = [{ no: '1LM-BC-供应商容器', status: '', shelf: '1LM-BC-供应商容器', x: 1, y: 1 }]
         },
         computed: {
             loc_no_example() {

@@ -70,7 +70,7 @@
                 
                 <uni-tr v-for="i in Math.min(table_body_mv.length, 200)" :key="i">
                     <uni-td>{{ i }}</uni-td>
-                    <uni-td v-for="(cell, j) in table_body_in[i-1]" :key="j" align="center">{{ cell instanceof Date ? formatDate(cell, 'yyyy-MM-dd') : cell }}</uni-td>
+                    <uni-td v-for="(cell, j) in table_body_mv[i-1]" :key="j" align="center">{{ cell instanceof Date ? formatDate(cell, 'yyyy-MM-dd') : cell }}</uni-td>
                 </uni-tr>
             </uni-table>
         </uni-section>
@@ -116,6 +116,7 @@
                                 </template>
                             </uni-data-select>
                         </uni-forms-item>
+                        
                     </uni-section>
                     
                     <uni-section title="收料通知单 & 发料通知单 & 直接调拨单" type="square">
@@ -128,6 +129,11 @@
                             <uni-col :md="8" :sm="12" :xs="24">
                                 <uni-forms-item label="~" name="created_at_le">
                                     <uni-datetime-picker type="date" v-model="search_form.created_at_le" />
+                                </uni-forms-item>
+                            </uni-col>
+                            <uni-col :md="8" :sm="12" :xs="24">
+                                <uni-forms-item label="物料编码" name="material_no">
+                                    <uni-easyinput v-model="search_form.material_no" type="textarea" :maxlength="-1" placeholder="一个物料编码一行" />
                                 </uni-forms-item>
                             </uni-col>
                         </uni-row>
@@ -158,7 +164,7 @@
                 table_head_sum: ['物料编码', '物料名称', '规格型号', '仓管员', '单位', '库存总数', '收料总数', '收料未入库数量', '应发数量', '已发数量', '未发数量', '跨组织调入数量', '跨组织调出数量'],
                 table_body_sum: [],
                 // output 2
-                table_head_in: ['单据编号', '收料日期', '物料编码', '物料名称', '规格型号', '收料单位', '交货数量', '入库数量'],
+                table_head_in: ['单据编号', '收料日期', '物料编码', '物料名称', '规格型号', '收料单位', '交货数量', '入库数量', '未入库数量'],
                 table_body_in: [],
                 // output 3
                 table_head_out: ['单据编号', '单据日期', '生产订单编号', '物料编码', '物料名称', '物料规格', '单位', '申请数量', '已发数量', '未发数量', '订单号'],
@@ -167,11 +173,31 @@
                 table_head_mv: ['单据编号', '日期', '物料编码', '物料名称', '规格型号', '单位', '调拨数量', '调出仓库', '调入仓库'],
                 table_body_mv: [],
                 // search
-                search_form: { created_at_ge: '', created_at_le: '', stock_ids: [] },
+                search_form: { created_at_ge: '', created_at_le: '', stock_ids: [], material_no: '' },
                 search_form_rules: {
                     created_at_ge: {
                         rules: [
                             { required: true, errorMessage: '创建时间不能为空' },
+                        ]
+                    },
+                    material_no: {
+                        rules: [
+                            {
+                                validateFunction: (rule, value, data, callback) => {
+                                    if (value) {
+                                        // 预处理搜索条件
+                                        let material_nos = []
+                                        for (let no of value.split('\n')) {
+                                            if (no.trim()) material_nos.push(no.trim())
+                                        }
+                                        if (material_nos.length <= 20) {
+                                            this.search_form.material_nos = material_nos
+                                        } else {
+                                            return callback('物料编码不能超过20个')
+                                        }
+                                    }
+                                }
+                            }
                         ]
                     }
                 },
@@ -263,7 +289,9 @@
                 let h = {}
                 let fields = ['FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1', 'FBaseUnitId.FName', 'FBaseQty']
                 for (let stock_id of this.search_form.stock_ids) {
-                    let res = await StkInventory.query({ FStockId: stock_id }, { fields, return: 'array' })
+                    let options = { FStockId: stock_id }
+                    if (this.search_form.material_nos.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
+                    let res = await StkInventory.query(options, { fields, return: 'array' })
                     for (let d of res.data) {
                         if (h[d[0]]) {
                             h[d[0]].inv_qty += d[5]
@@ -282,6 +310,7 @@
                 let options = {}
                 if (this.search_form.created_at_ge) options.FCreateDate_ge = this.search_form.created_at_ge
                 if (this.search_form.created_at_le) options.FCreateDate_le = this.search_form.created_at_le
+                if (this.search_form.material_nos.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
                 let fields = ['FBillNo', 'FDate',
                               'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1', 'FUnitId.FName',
                               'FActReceiveQty', 'FInStockQty']
@@ -317,6 +346,7 @@
                 let options = {}
                 if (this.search_form.created_at_ge) options.FCreateDate_ge = this.search_form.created_at_ge
                 if (this.search_form.created_at_le) options.FCreateDate_le = this.search_form.created_at_le
+                if (this.search_form.material_nos.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
                 let fields = ['FBillNo', 'FDate', 'FMoBillNo', 'F_PAEZ_Text',
                               'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1', 'FUnitId1.FName',
                               'FAppQty', 'FActPickedQty', 'FNoPickedQty']
@@ -352,6 +382,7 @@
                 let options = { 'FStockOrgId_ne': ':FStockOutOrgId' }  // 筛选跨组织调拨
                 if (this.search_form.created_at_ge) options.FCreateDate_ge = this.search_form.created_at_ge
                 if (this.search_form.created_at_le) options.FCreateDate_le = this.search_form.created_at_le
+                if (this.search_form.material_nos.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
                 let fields = ['FBillNo', 'FDate', 'FSrcStockId.FName', 'FDestStockId.FName',
                               'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1', 'FUnitId.FName',
                               'FQty']
@@ -417,10 +448,10 @@
                         row.inv_qty, row.receive_qty, row.receive_qty - row.instock_qty, row.must_qty, row.picked_qty, row.must_qty - row.picked_qty, row.dtin_qty, row.dtout_qty
                     ])
                 }
-                // ['单据编号', '收料日期', '物料编码', '物料名称', '规格型号', '收料单位', '交货数量', '入库数量']
+                // ['单据编号', '收料日期', '物料编码', '物料名称', '规格型号', '收料单位', '交货数量', '入库数量', '未入库数量']
                 this.table_body_in = []
                 for (let row of this.cgsl) {
-                    this.table_body_in.push([row.bill_no, row.date, row.material_no, row.material_name, row.material_spec, row.unit, row.receive_qty, row.instock_qty])
+                    this.table_body_in.push([row.bill_no, row.date, row.material_no, row.material_name, row.material_spec, row.unit, row.receive_qty, row.instock_qty, row.receive_qty - row.instock_qty])
                 }
                 // ['单据编号', '单据日期', '生产订单编号', '物料编码', '物料名称', '物料规格', '单位', '申请数量', '已发数量', '未发数量', '订单号']
                 this.table_body_out = []
