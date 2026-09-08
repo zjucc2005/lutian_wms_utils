@@ -15,7 +15,7 @@
         </view>
     </uni-section>
     
-    <uni-section v-if="invs.length" title="库存信息" type="square" sub-title="勾选后，再次点击该行可修改选择数量" sub-title-color="#007aff">
+    <uni-section v-if="invs.length" title="库存信息" type="square" sub-title="勾选后，再次点击该行可修改选择数量" sub-title-color="#007aff" class="above-uni-goods-nav">
         <uni-list>
             <uni-list-item v-for="(inv, index) in invs" :key="index"
                 @click="edit_checked_qty(inv)" clickable show-arrow>
@@ -230,6 +230,7 @@
                     this.is_calling = true
                     uni.showLoading({ title: 'Loading', mask: true })
                     for (let inv of this.invs) {
+                        if (!inv.checked_qty) continue
                         let inv_log = new InvLog({
                             FOpType: 'out',
                             FStockId: store.state.cur_stock.FStockId,
@@ -242,6 +243,10 @@
                             FOpStaffNo: store.state.cur_staff.FNumber
                         })
                         this.new_inv_logs.push(inv_log)
+                    }
+                    if (this.new_inv_logs.length == 0) {
+                        uni.showModal({ title: '提示', content: '未选择库存' })
+                        return
                     }
                     // 统一分配操作序号，统一提交保存，防重复提交
                     for (let i = 0; i < this.new_inv_logs.length; i++) {

@@ -159,12 +159,18 @@
 </script>
 
 <style lang="scss" scoped>
+    page {
+        background-color: #ccc;
+    }
     .uni-forms::v-deep {
         .uni-forms-item {
             margin-bottom: 10px;
         }
     }
-    .uni-list {
+    .uni-list::v-deep {
         background-color: #ccc;
+        .uni-list--border-bottom {
+            background-color: #ccc;
+        }
     }
 </style>

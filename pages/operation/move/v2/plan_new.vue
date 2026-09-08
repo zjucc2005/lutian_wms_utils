@@ -582,7 +582,7 @@
             },
             // 物料模糊匹配
             async search(strict) {
-                if (!this.material_no && this.search_form.material_no == this.material.material_no) return
+                if (this.material_no && this.search_form.material_no == this.material.material_no) return
                 this._set_material()
                 this.invs = []
                 this.inv_plans = []

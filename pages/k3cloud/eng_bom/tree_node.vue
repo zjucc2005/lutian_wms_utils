@@ -41,9 +41,6 @@
             node: Object
         },
         methods: {
-            // _click() {
-            //     this.$emit('click', {})
-            // },
             async node_click(node) {
                 node.is_open = !node.is_open
                 if (node.is_load) return
@@ -51,46 +48,7 @@
                 if (!bomid) bomid = await get_bomid(node.no)
                 if (bomid) node.children = await load_bom_children(bomid)
                 node.is_load = true
-            },
-            // async get_bomid(no) {
-            //     let options = { 'FMaterialId.FNumber': no }
-            //     let meta = {
-            //         fields: ['FID', 'FNumber', 'FMaterialId.FNumber'],
-            //         order: 'FNumber DESC'
-            //     }
-            //     let res = await EngBom.query(options, meta)
-            //     return res.data.length ? res.data[0]['FID'] : 0
-            // },
-            // // 加载BOM清单
-            // async load_bom_children(id) {
-            //     let meta = {
-            //         fields: ['FBomId', 'FBomId.FNumber', 'FMaterialIdChild.FNumber', 'FMaterialIdChild.FName', 'FMaterialIdChild.FSpecification', 
-            //                  'FChildUnitId.FName', 'FNumerator', 'FDenominator', 'FChildItemProperty' ],
-            //         order: 'FReplaceGroup ASC'
-            //     }
-            //     uni.showLoading({ title: 'Loading' })
-            //     let res = await EngBom.query({ FID: id }, meta)
-            //     uni.hideLoading()
-            //     let bom = []
-            //     for (let d of res.data) {
-            //         bom.push({
-            //             bomid: d['FBomId'],
-            //             bomver: d['FBomId.FNumber'],
-            //             no: d['FMaterialIdChild.FNumber'],
-            //             name: d['FMaterialIdChild.FName'],
-            //             spec: d['FMaterialIdChild.FSpecification'],
-            //             unit: d['FChildUnitId.FName'],
-            //             numerator: d['FNumerator'],
-            //             denominator: d['FDenominator'],
-            //             prop: d['FChildItemProperty'],
-            //             is_root: false,
-            //             is_open: false,
-            //             is_load: d['FChildItemProperty'] == '1', // 外购无子级
-            //             children: []
-            //         })
-            //     }
-            //     return bom
-            // }
+            }
         }
     }
 </script>

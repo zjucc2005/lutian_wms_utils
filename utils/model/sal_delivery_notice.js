@@ -44,7 +44,11 @@ class SalDeliveryNotice {
     }
     
     static async view(id) {
-        return K3CloudApi.view(this.form_id, { Id: id })
+        if (typeof(id) == 'number') {
+            return K3CloudApi.view(this.form_id, { Id: id })
+        } else {
+            return K3CloudApi.view(this.form_id, { Number: id })
+        }
     }
 }
 

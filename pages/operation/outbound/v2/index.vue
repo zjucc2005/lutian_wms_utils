@@ -1,8 +1,6 @@
 <template>
     <!-- <view v-if="$store.state.role == 'wh_admin'"> -->
-        <uni-section title="进行中的出库计划" type="square"
-            sub-title="单据编号"
-            class="above-uni-goods-nav">
+        <uni-section title="进行中的出库计划" type="square" class="above-uni-goods-nav">
             <view class="searchbar-container">
                 <uni-easyinput
                     v-model="search_form.no" 

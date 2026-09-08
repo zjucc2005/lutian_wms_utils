@@ -273,6 +273,7 @@
             },
             // #ifdef H5
             async preview_pdf() {
+                uni.showLoading({ title: 'Loading...', mask: true })
                 let receiver = this.inv_plans[0]?.FReceiver
                 if (!receiver) {
                     let response = await K3CloudApi.view('SAL_DELIVERYNOTICE', { Number: this.bill_no })
@@ -280,10 +281,13 @@
                         receiver = response.data.Result.Result.F_PAEZ_Text
                     }
                 }
-                let inv_plans = this.inv_plans.filter(x => x.checked)
-                if (inv_plans.length === 0) inv_plans = this.inv_plans 
-                let url = pdf_template_inv_plans_out(inv_plans, { receiver: receiver })
-                window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800') // 打开小窗口
+                setTimeout(() => {
+                    let inv_plans = this.inv_plans.filter(x => x.checked)
+                    if (inv_plans.length === 0) inv_plans = this.inv_plans
+                    let url = pdf_template_inv_plans_out(inv_plans, { receiver: receiver })
+                    window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=800') // 打开小窗口
+                    uni.hideLoading()
+                }, 1000)
             },
             // #endif
             if_submit_delete(inv_plan) {

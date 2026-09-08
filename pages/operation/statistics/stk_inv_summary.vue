@@ -173,7 +173,7 @@
                 table_head_mv: ['单据编号', '日期', '物料编码', '物料名称', '规格型号', '单位', '调拨数量', '调出仓库', '调入仓库'],
                 table_body_mv: [],
                 // search
-                search_form: { created_at_ge: '', created_at_le: '', stock_ids: [], material_no: '' },
+                search_form: { created_at_ge: '', created_at_le: '', stock_ids: [], material_no: '', material_nos: [] },
                 search_form_rules: {
                     created_at_ge: {
                         rules: [
@@ -261,6 +261,7 @@
             },
             async search_dialog_confirm() {
                 try {
+                    this.search_form.material_nos = []
                     await this.$refs.search_form.validate()
                     this.search()
                     this.$refs.search_dialog.close()
@@ -290,7 +291,7 @@
                 let fields = ['FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1', 'FBaseUnitId.FName', 'FBaseQty']
                 for (let stock_id of this.search_form.stock_ids) {
                     let options = { FStockId: stock_id }
-                    if (this.search_form.material_nos.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
+                    if (this.search_form.material_nos?.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
                     let res = await StkInventory.query(options, { fields, return: 'array' })
                     for (let d of res.data) {
                         if (h[d[0]]) {
@@ -310,7 +311,7 @@
                 let options = {}
                 if (this.search_form.created_at_ge) options.FCreateDate_ge = this.search_form.created_at_ge
                 if (this.search_form.created_at_le) options.FCreateDate_le = this.search_form.created_at_le
-                if (this.search_form.material_nos.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
+                if (this.search_form.material_nos?.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
                 let fields = ['FBillNo', 'FDate',
                               'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1', 'FUnitId.FName',
                               'FActReceiveQty', 'FInStockQty']
@@ -346,7 +347,7 @@
                 let options = {}
                 if (this.search_form.created_at_ge) options.FCreateDate_ge = this.search_form.created_at_ge
                 if (this.search_form.created_at_le) options.FCreateDate_le = this.search_form.created_at_le
-                if (this.search_form.material_nos.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
+                if (this.search_form.material_nos?.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
                 let fields = ['FBillNo', 'FDate', 'FMoBillNo', 'F_PAEZ_Text',
                               'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1', 'FUnitId1.FName',
                               'FAppQty', 'FActPickedQty', 'FNoPickedQty']
@@ -382,7 +383,7 @@
                 let options = { 'FStockOrgId_ne': ':FStockOutOrgId' }  // 筛选跨组织调拨
                 if (this.search_form.created_at_ge) options.FCreateDate_ge = this.search_form.created_at_ge
                 if (this.search_form.created_at_le) options.FCreateDate_le = this.search_form.created_at_le
-                if (this.search_form.material_nos.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
+                if (this.search_form.material_nos?.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
                 let fields = ['FBillNo', 'FDate', 'FSrcStockId.FName', 'FDestStockId.FName',
                               'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1', 'FUnitId.FName',
                               'FQty']

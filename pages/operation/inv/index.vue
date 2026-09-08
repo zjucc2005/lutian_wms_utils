@@ -1,7 +1,7 @@
 <template>
     <uni-section :title="breadcrumb_stockname()" type="square" @click="debug">
         <uni-row v-if="$store.state.screen_type === 'h5'" >
-            <uni-col :span="6">
+            <uni-col :span="4">
                 <uni-group title="搜索栏" mode="card" style="margin-top: 0;">
                     <uni-forms ref="search_form" :model="search_form" label-width="70px">
                         <uni-forms-item label="物料编码">
@@ -30,7 +30,7 @@
                 </uni-group>
             </uni-col>
             
-            <uni-col :span="18">
+            <uni-col :span="20">
                 <scroll-view :scroll-top="scroll_top" @scroll="scroll" @scrolltolower="scrolltolower" scroll-y :style="{ height: scroll_height }">
                     <uni-table ref="table" stripe>
                         <uni-tr>
@@ -39,8 +39,7 @@
                             <uni-th align="center">规格型号</uni-th>
                             <uni-th align="center" width="50">单位</uni-th>
                             <uni-th align="center" width="100">数量</uni-th>
-                            <uni-th v-if="stk_invs.length" align="center" width="100">
-                                <image src="/static/icon/cc_k3cloud_active.png" style="width:20px; height:20px;" mode="aspectFit" />
+                            <uni-th v-if="stk_invs.length" align="center" width="76">
                                 金蝶账面
                             </uni-th>
                             <uni-th v-if="stk_invs.length" align="center" width="100">差异</uni-th>
@@ -102,6 +101,7 @@
                         <template #footer>
                             <view class="uni-list-item__foot">
                                 <view>{{ obj.qty }} {{ obj.unit_name }}</view>
+                                <view v-if="stk_invs.length && obj.stk_qty != obj.qty" class="text-primary">{{ obj.stk_qty }}</view>
                             </view>
                         </template>
                     </uni-list-item>
@@ -326,7 +326,7 @@
                 uni.showLoading({ title: 'Loading' })
                 await this.load_invs()
                 if (!store.state.cur_area?.value) {
-                    // await this.load_stk_invs() // 不分库区的仓库，加载金蝶即时库存
+                    await this.load_stk_invs() // 不分库区的仓库，加载金蝶即时库存
                 }
                 uni.hideLoading()
                 this.get_inv_groups()

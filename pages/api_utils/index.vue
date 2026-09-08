@@ -183,70 +183,13 @@
                 })
             },
             async call_test_api() {
+                await model.QmInspectBill.view('IQC003345')
+                await model.SalDeliveryNotice.view('DG260907002')
+                
                 // await K3CloudApi.unaudit('CRM_Contract', { Numbers: ['SO260831002'] })
                 // await K3CloudApi.unaudit('CRM_Contract', { ids: '144036' })
-                let data = {
-                  "Model": {
-                    "FBillNo": "CC260903002",
-                    FBillTypeID: {
-                        FNumber: 'XSDD01_SYS'
-                    },
-                    "F_PAEZ_Combo": "BY SEA",
-                    "FDate": "2026-09-01 16:38:56",
-                    "FSaleOrgId": {
-                      "FNumber": "500"
-                    },
-                    "FSalerId": {
-                      "FNumber": "JS10091_GW000194_3135245"
-                    },
-                    "FCustId": {
-                      "FNumber": "500.0031"
-                    },
-                    // "FSaleDeptId": {
-                    //     FNumber: 'BM10003'
-                    // },
-                    "FSaleOrderPlan": [
-                      {
-                        "FMustDate": "2026-09-08 00:00:00",
-                        "FRecAdvanceRate": 100,
-                        "FRecAdvanceAmount": 7920
-                      }
-                    ],
-                    "FSaleGroupId": {},
-                    "FSaleOrderFinance": {
-                      "FSettleCurrId": {
-                        "FNumber": "PRE007"
-                      },
-                      "FExchangeRate": "7.097"
-                    },
-                    
-                    "FContractType": "正常合同",
-                    // "FContractType": "1",
-                    "FSaleOrderEntry": [
-                      {
-                        "FMaterialId": {
-                          "FNumber": "8.901.10025.00"
-                        },
-                        "FStockOrgId": {},
-                        "FPrice": 88,
-                        "FAmount": 7920,
-                        "FSettleOrgIds": {
-                          "FNumber": "500"
-                        },
-                        "FQty": 90,
-                        "FTaxPrice": 88,
-                        "F_RGEN_Text_crmhh": "849798426824597504",
-                        "FBomId": {},
-                        "FDiscount": 0
-                      }
-                    ],
-                    
-                    // "FCreateDate": "2026-09-01 16:40:02"
-                  },
-                  // "IsAutoAdjustField": "true",
-                  // "IsVerifyBaseDataField": "true",
-                }
-                await K3CloudApi.save('SAL_SaleOrder', { ...data })
+                
+                // await K3CloudApi.save('SAL_SaleOrder', { ...data })
                 // await K3CloudApi.save('CRM_Contract', { ...data })
                 // await K3CloudApi.view('CRM_Contract', { Number: 'CC260903001' })
                 // await K3CloudApi.view('BD_Customer', { Number: '500.0031' })
