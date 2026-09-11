@@ -1,11 +1,6 @@
 <template>
-    <uni-section title="当前仓库" type="square"
-        :sub-title="[
-            $store.state.cur_stock['FUseOrgId.FName'],
-            $store.state.cur_stock['FGroup.FName'] || '未分组',
-            $store.state.cur_stock.FName
-        ].join(' / ')"
-        >
+    <uni-section :title="breadcrumb_stockname()" type="square"
+        :sub-title="`数据时间：${formatDate(data_time, 'yyyy-MM-dd hh:mm:ss')}`" sub-title-color="#007aff">
         <cc-shelf
             :stock_locs="$store.state.stock_locs"
             :invs="invs"
@@ -14,10 +9,12 @@
 </template>
 
 <script>
+    import { breadcrumb_stockname, formatDate } from '@/utils';
     export default {
         data() {
             return {
                 invs: [],
+                data_time: null,
                 cc_shelf_open: true
             }
         },
@@ -25,10 +22,12 @@
             const eventChannel = this.getOpenerEventChannel();
             eventChannel.on('sendInvs', res => {
                 this.invs = res.invs
+                this.data_time = res.data_time
             })
         },
         methods: {
-            
+            breadcrumb_stockname,
+            formatDate
         }
     }
 </script>

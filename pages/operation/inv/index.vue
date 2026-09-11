@@ -1,5 +1,7 @@
 <template>
-    <uni-section :title="breadcrumb_stockname()" type="square" @click="debug">
+    <uni-section :title="breadcrumb_stockname()" type="square" @click="debug"
+        :sub-title="`数据时间：${formatDate(data_time, 'yyyy-MM-dd hh:mm:ss')}`" sub-title-color="#007aff"
+        >
         <uni-row v-if="$store.state.screen_type === 'h5'" >
             <uni-col :span="4">
                 <uni-group title="搜索栏" mode="card" style="margin-top: 0;">
@@ -64,7 +66,7 @@
                             </uni-td>
                             <uni-td align="center">{{ obj.storekeeper }}</uni-td>
                             <uni-td align="center">
-                                <uni-tag text="库存明细" type="primary" size="small" inverted @click="link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}`)"/>
+                                <uni-tag text="库存明细" type="primary" size="small" inverted @click="link_to(`/pages/operation/inv/search?t=${obj.material_no}`)"/>
                                 <uni-tag text="库存调整" type="primary" size="small" @click="inv_modify(obj.material_no)" class="uni-ml-2"/>
                                 <uni-tag text="库存日志" type="primary" size="small" inverted @click="link_to(`/pages/operation/inv/logs?material_no=${obj.material_no}`)" class="uni-ml-2"/>
                             </uni-td>
@@ -160,13 +162,14 @@
 
 <script>
     import store from '@/store'
-    import { breadcrumb_stockname, link_to, play_audio_prompt } from '@/utils'
+    import { breadcrumb_stockname, link_to, play_audio_prompt, formatDate } from '@/utils'
     import { Inv, StkInventory } from '@/utils/model'
     import scan_code from '@/utils/scan_code'
     
     export default {
         data() {
             return {
+                data_time: null,
                 invs: [], // 后端数据
                 stk_invs: [], // 金蝶库存
                 inv_groups: [], // 按物料分组
@@ -225,6 +228,7 @@
         methods: {
             breadcrumb_stockname,
             link_to,
+            formatDate,
             debug() {
                 this.$logger.info('>>> $data', this.$data)
                 // this.$logger.info('>>> store.state', store.state)
@@ -247,7 +251,7 @@
                     url: '/pages/operation/inv/map',
                     success: (res) => {
                         play_audio_prompt('success')
-                        res.eventChannel.emit('sendInvs', { invs: this.invs })
+                        res.eventChannel.emit('sendInvs', { invs: this.invs, data_time: this.data_time })
                     }
                 })
             },
@@ -255,11 +259,11 @@
                 if (!obj.material_id) {
                     uni.showToast({ icon: 'none', title: '物料ID不能为空' })
                     return
-                } 
+                }
                 uni.showActionSheet({
                     itemList: ['库存明细', '库存调整', '库存日志', '物料详情'],
                     success: (e) => {
-                        if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}`)
+                        if (e.tapIndex === 0) link_to(`/pages/operation/inv/search?t=${obj.material_no}`)
                         if (e.tapIndex === 1) this.inv_modify(obj.material_no)
                         if (e.tapIndex === 2) link_to(`/pages/operation/inv/logs?material_no=${obj.material_no}`)
                         if (e.tapIndex === 3) link_to(`/pages/operation/material/show?id=${obj.material_id}`)
@@ -290,7 +294,7 @@
                 })
             },
             handle_scan_code(text) {
-                uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${text}`})
+                uni.navigateTo({ url: `/pages/operation/inv/search?t=${text}`})
             },
             scroll(e) {
                 this.scroll_top = e.detail.scrollTop
@@ -328,6 +332,7 @@
                 if (!store.state.cur_area?.value) {
                     await this.load_stk_invs() // 不分库区的仓库，加载金蝶即时库存
                 }
+                this.data_time = Date.now()
                 uni.hideLoading()
                 this.get_inv_groups()
             },

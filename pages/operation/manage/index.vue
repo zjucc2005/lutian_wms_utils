@@ -38,7 +38,7 @@
             },
             handle_inv_search() {
                 scan_code().then(res => {
-                    uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
+                    uni.navigateTo({ url: `/pages/operation/inv/search?t=${res.result}`})
                 }).catch(err => {
                     uni.showToast({ icon: 'none', title: err })
                 })

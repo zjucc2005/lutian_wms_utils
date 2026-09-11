@@ -1,5 +1,5 @@
 <template>
-    <uni-section :title="breadcrumb_stockname()" type="square" title-color="#007aff" @click="$logger.info('>>>', this.$store)">
+    <uni-section :title="breadcrumb_stockname()" type="square" title-color="#007aff" @click="$logger.info('>>>', this.$data)">
         <view class="container">
             <uni-forms 
                 ref="form"
@@ -273,6 +273,7 @@
                 store.commit('set_stock_locs', data)
             },
             async load_material() {
+                if (this.material.FNumber == this.form.material_no) return // 减少接口调用
                 let res = await BdMaterial.query(
                     { FNumber: this.form.material_no, FUseOrgId: store.state.cur_stock.FUseOrgId },
                     { fields: ["FMaterialId", "FName", "FNumber", "FSpecification", "FBaseUnitId.FName"] })

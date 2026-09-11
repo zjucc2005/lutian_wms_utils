@@ -1,13 +1,6 @@
 <template>
     <uni-section title="查询结果" type="square" :sub-title="set_section_sub_title()" class="above-uni-goods-nav">
-        <cc-shelf
-            v-if="display_mode == 'grid' && invs.length"
-            :stock_locs="$store.state.stock_locs"
-            :invs="invs"
-            only-inv
-            open />
-        
-        <template v-if="mode == 'material_no' && display_mode == 'list'">
+        <template v-if="mode == 'material_no'">
             <uni-list class="cc-list">
                 <uni-list-item title="物料编码" :right-text="material.material_no" />
                 <uni-list-item title="物料名称" :right-text="material.material_name" />
@@ -16,7 +9,7 @@
                 <uni-list-item title="金蝶账面" :right-text="String(sum_stk_inv_qty)" />
             </uni-list>
             
-            <uni-list>
+            <uni-list v-if="display_mode == 'list'">
                 <uni-list-item v-for="(inv, index) in invs" :key="index">
                     <template #body>
                         <view class="uni-list-item__body">
@@ -30,7 +23,7 @@
                             </view>
                         </view>
                     </template>
-                    <template v-slot:footer>
+                    <template #footer>
                         <view class="uni-list-item__foot">
                             <view class="op_qty">
                                 <text>{{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}</text>
@@ -39,8 +32,15 @@
                     </template>
                 </uni-list-item>
             </uni-list>
+            
+            <cc-shelf
+                v-if="display_mode == 'grid' && invs.length"
+                :stock_locs="$store.state.stock_locs"
+                :invs="invs"
+                only-inv
+                open />
         </template>
-        <uni-list v-if="mode == 'loc_no' && display_mode == 'list'">
+        <uni-list v-if="mode == 'loc_no'">
             <uni-list-item v-for="(inv, index) in invs" :key="index">
                 <template #body>
                     <view class="uni-list-item__body">
@@ -55,7 +55,7 @@
                         </view>
                     </view>
                 </template>
-                <template v-slot:footer>
+                <template #footer>
                     <view class="uni-list-item__foot">
                         <view class="op_qty">
                             <text>{{ inv.FQty }} {{ inv['FStockUnitId.FName'] }}</text>
@@ -132,7 +132,6 @@
         },
         onLoad(options) {
             if (options.t) {
-                // if (options.m) this.scan_mode = options.m
                 this.handle_scan_code(options.t)
             }
         },
@@ -186,7 +185,7 @@
                 if (!text) return
                 let material_no = ''
                 let loc_no = ''
-                 if (text.includes('||')) {
+                if (text.includes('||')) {
                     material_no = text.split('||')[1]
                 } else if (text.includes('-')) {
                     loc_no = text
@@ -195,11 +194,11 @@
                 }
                 uni.showLoading({ title: 'Loading' })
                 if (loc_no) {
-                    await this.load_invs_by_loc_no(text)
+                    await this.load_invs_by_loc_no(loc_no)
                 } else {
-                    await this.load_invs_by_material_no(text)
-                    await this.load_stk_invs(text)
-                    await this.load_material(text)
+                    await this.load_invs_by_material_no(material_no)
+                    await this.load_stk_invs(material_no)
+                    await this.load_material(material_no)
                 }
                 uni.hideLoading()
             },

@@ -41,7 +41,11 @@
         },
         methods: {
             gen_pic() {
-                this.gen_qrcode(this.text)
+                if (this.form.text) {
+                    this.gen_qrcode(this.form.text)
+                } else {
+                    uni.showToast({ icon: 'error', title: '内容不能为空' })
+                }
             },
             async gen_qrcode(text) {
                 return new Promise((resolve, reject) => {

@@ -41,6 +41,7 @@
                 
                 <uni-group title="其他操作" mode="card">
                     <button size="mini" @click="link_to('/pages/operation/stock_loc/map')">库位平面图</button>
+                    <!-- <button size="mini" @click="link_to('/pages/operation/stock_loc/plan')" class="uni-ml-5 ">仓库平面图</button> -->
                     <button v-if="$store.state.config.log" type="primary" size="mini" @click="link_to('/pages/operation/stock_loc/new')" class="uni-ml-5">新增库位</button>
                 </uni-group>
             </uni-col>

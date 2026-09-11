@@ -665,7 +665,7 @@
                 uni.showActionSheet({
                     itemList: ['库存明细', '物料详情'],
                     success: (e) => {
-                        if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${this.plan_form.material_no}`)
+                        if (e.tapIndex === 0) link_to(`/pages/operation/inv/search?t=${this.plan_form.material_no}`)
                         if (e.tapIndex === 1) link_to(`/pages/operation/material/show?id=${this.plan_form.material_id}`)
                     }
                 })

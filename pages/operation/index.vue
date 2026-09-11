@@ -103,10 +103,6 @@
                         name: '库存调整', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_stock_move.png',
                         action: () => { link_to('/pages/operation/move/v2/index') }
                     },
-                    // {
-                    //     name: '库存查询', permission: ['wh_admin', 'nrj_admin'], icon_path: '/static/icon/nav_scan.png',
-                    //     action: () => { link_to('/pages/operation/manage/inv_search') }
-                    // },
                     {
                         name: '库存查询', permission: ['wh_admin', 'wh_nx', 'nrj_admin',], icon_path: '/static/icon/nav_stock_search_violet.png',
                         action: () => { link_to('/pages/operation/inv/index') }
@@ -222,15 +218,8 @@
             }
         },
         methods: {
-            // inv_search() {
-            //     scan_code().then(res => {
-            //         uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${res.result}`})
-            //     }).catch(err => {
-            //         uni.showToast({ icon: 'none', title: err })
-            //     })
-            // },
             handle_scan_code(text) {
-                uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${text}`})
+                uni.navigateTo({ url: `/pages/operation/inv/search?t=${text}`})
             },
             set_navbar_title () {
                 let title = store.state.cur_stock['FName']

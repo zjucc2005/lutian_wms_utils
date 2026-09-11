@@ -262,7 +262,7 @@
                 })
             },
             handle_scan_code(text) {
-                uni.navigateTo({ url: `/pages/operation/manage/inv_search?t=${text}`})
+                uni.navigateTo({ url: `/pages/operation/inv/search?t=${text}`})
             },
             scroll(e) {
                 this.scroll_top = e.detail.scrollTop

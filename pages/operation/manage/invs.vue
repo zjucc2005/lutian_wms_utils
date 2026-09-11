@@ -63,7 +63,7 @@
                     <text v-if="obj.qty - obj.stk_qty == 0" class="text-grey">{{ obj.qty - obj.stk_qty }}</text>
                 </uni-td>
                 <uni-td align="center">
-                    <uni-tag text="库存明细" type="primary" inverted @click="link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}`)"/>
+                    <uni-tag text="库存明细" type="primary" inverted @click="link_to(`/pages/operation/inv/search?t=${obj.material_no}`)"/>
                     <uni-tag text="库存调整" type="primary" @click="inv_modify(obj.material_no)" class="uni-ml-2"/>
                     <uni-tag text="库存日志" type="primary" inverted @click="link_to(`/pages/operation/list/inv_logs?material_no=${obj.material_no}`)" class="uni-ml-2"/>
                 </uni-td>
@@ -250,7 +250,7 @@
                 uni.showActionSheet({
                     itemList: ['库存明细', '库存调整', '库存日志', '物料详情'],
                     success: (e) => {
-                        if (e.tapIndex === 0) link_to(`/pages/operation/manage/inv_search?t=${obj.material_no}`)
+                        if (e.tapIndex === 0) link_to(`/pages/operation/inv/search?t=${obj.material_no}`)
                         if (e.tapIndex === 1) this.inv_modify(obj.material_no)
                         if (e.tapIndex === 2) link_to(`/pages/operation/list/inv_logs?material_no=${obj.material_no}`)
                         if (e.tapIndex === 3) link_to(`/pages/operation/material/show?id=${obj.material_id}`)
