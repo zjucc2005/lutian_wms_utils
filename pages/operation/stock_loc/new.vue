@@ -182,7 +182,7 @@
         },
         mounted() {
             // 地面
-            // this.loc_nos = this.generate_loc_nos('3WIP-JJ', '3WIP-JJ-B', 'B', 64, 1)
+            // this.loc_nos = this.generate_loc_nos('3LM-QY', '3LM-QY-Z', 'Z', 30, 1)
             // 货架
             // this.loc_nos = this.shelf_loc_nos('3LM-CY-H09', '3LM-CY-H09', 36, 4)
             // 货架 + 位

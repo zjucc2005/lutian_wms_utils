@@ -25,8 +25,15 @@
                         :clearable="false"
                         :input-border="false">
                         <template #left>
-                            <uni-icons v-if="material.FMaterialId" type="checkbox-filled" size="24" color="#67c23a"></uni-icons>
-                            <uni-icons v-else-if="form.material_no && !material.FMaterialId" type="help-filled" size="24" color="#c0c4cc"></uni-icons>
+                            <template v-if="material.FMaterialId">
+                                <uni-icons v-if="material.FForbidStatus == 'A' && material.FDocumentStatus == 'C'" type="checkbox-filled" size="24" color="#67c23a"></uni-icons>
+                                <uni-icons v-else type="clear" size="24" color="#dd524d"></uni-icons>
+                            </template>
+                            <template v-else>
+                                <uni-icons v-if="form.material_no" type="help-filled" size="24" color="#c0c4cc"></uni-icons>
+                            </template>
+                            <!-- <uni-icons v-if="material.FMaterialId && material.FForbidStatus == 'A'" type="checkbox-filled" size="24" color="#67c23a"></uni-icons> -->
+                            <!-- <uni-icons v-else-if="form.material_no" type="help-filled" size="24" color="#c0c4cc"></uni-icons> -->
                         </template>
                     </uni-easyinput>
                 </uni-forms-item>
@@ -145,6 +152,8 @@
                             {
                                 validateFunction: (rule, value, data, callback) => {
                                     if (!this.material.FMaterialId) return callback('物料编码不存在')
+                                    if (this.material.FForbidStatus != 'A') return callback('物料编码被禁用')
+                                    if (this.material.FDocumentStatus != 'C') return callback('物料编码未审核')
                                 }
                             }
                         ]
@@ -276,7 +285,7 @@
                 if (this.material.FNumber == this.form.material_no) return // 减少接口调用
                 let res = await BdMaterial.query(
                     { FNumber: this.form.material_no, FUseOrgId: store.state.cur_stock.FUseOrgId },
-                    { fields: ["FMaterialId", "FName", "FNumber", "FSpecification", "FBaseUnitId.FName"] })
+                    { fields: ["FMaterialId", "FName", "FNumber", "FSpecification", "FBaseUnitId.FName", 'FDocumentStatus', 'FForbidStatus'] })
                 if (res.data.length) {
                     this.material = res.data[0]
                     // 自动赋值单箱标准数量，待定

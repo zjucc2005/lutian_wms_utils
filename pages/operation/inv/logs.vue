@@ -53,7 +53,7 @@
                             <uni-th align="center" width="80">操作类型</uni-th>
                             <uni-th align="center" width="60">数量</uni-th>
                             <uni-th align="center" width="60">单位</uni-th>
-                            <uni-th align="center" width="120">库位</uni-th>
+                            <uni-th align="center" width="150">库位</uni-th>
                             <uni-th align="center" width="80">批次</uni-th>
                             <uni-th align="center">单据编号</uni-th>
                             <uni-th align="center" width="80">收货人</uni-th>
