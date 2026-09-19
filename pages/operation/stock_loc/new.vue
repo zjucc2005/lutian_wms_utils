@@ -182,7 +182,7 @@
         },
         mounted() {
             // 地面
-            // this.loc_nos = this.generate_loc_nos('3LM-QY', '3LM-QY-Z', 'Z', 30, 1)
+            // this.loc_nos = this.generate_loc_nos('3LM-QY', '3LM-QY-K', 'K', 50, 1)
             // 货架
             // this.loc_nos = this.shelf_loc_nos('3LM-CY-H09', '3LM-CY-H09', 36, 4)
             // 货架 + 位
@@ -192,7 +192,7 @@
             //     this.loc_nos = this.loc_nos.concat(this.shelf_loc_nos(`3LM-QY-H${i}`, `3LM-QY-H${i}`, 16, 3))
             // }
             // 拣选区
-            // this.loc_nos = [{ no: '3LM-QY-拣选区02', status: '', shelf: '3LM-QY-拣选区', x: 2, y: 1 }]
+            // this.loc_nos = [{ no: '3LM-QY-拣选区03', status: '', shelf: '3LM-QY-拣选区', x: 3, y: 1 }]
             // this.loc_nos = [{ no: '1LM-BC-供应商容器', status: '', shelf: '1LM-BC-供应商容器', x: 1, y: 1 }]
         },
         computed: {

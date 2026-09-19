@@ -71,18 +71,19 @@
                 if (e.currentIndex === 2) this._set_chart_data_month()
             },
             async load_invs() {
-                const options = {
-                    FStockId: store.state.cur_stock.FStockId
-                }
-                return Inv.get_all(options).then(res => {
-                    uni.hideLoading()
-                    this.invs = res
-                    let sum_inv_qty = 0
-                    res.forEach(x => {
-                        sum_inv_qty += x.FQty
-                    })
-                    this.sum_inv_qty = sum_inv_qty
-                })
+                let options = { FStockId: store.state.cur_stock.FStockId }
+                if (store.state.cur_area?.value) options['FStockLocId.FNumber_sw'] = store.state.cur_area.value
+                this.sum_inv_qty = await Inv.sum_qty(options)
+                
+                // return Inv.get_all(options).then(res => {
+                //     uni.hideLoading()
+                //     this.invs = res
+                //     let sum_inv_qty = 0
+                //     res.forEach(x => {
+                //         sum_inv_qty += x.FQty
+                //     })
+                //     this.sum_inv_qty = sum_inv_qty
+                // })
             },
             async load_data() {
                 try {
@@ -91,6 +92,7 @@
                         FStockId: store.state.cur_stock.FStockId,
                         FCreateTime_ge: formatDate(this.stime, 'yyyy-MM-dd')
                     }
+                    if (store.state.cur_area?.value) options['FStockLocId.FNumber_sw'] = store.state.cur_area.value
                     uni.showLoading({ title: 'Loading' })
                     await this.load_invs()
                     let res = await InvLog.inventory_record(options)

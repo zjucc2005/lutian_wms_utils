@@ -251,11 +251,13 @@
             async area_dialog_confirm() {
                 try {
                     let res = await this.$refs.area_form.validate()
+                    uni.showLoading({ title: 'Loading', mask: true })
                     let cur_area = this.area_form.area_opts.find(opt => opt.value === this.area_form.area)
                     store.commit('set_cur_area', cur_area)
                     this.set_navbar_title() // 设置导航栏标题
                     let data = await StockLoc.get_all() // 重新加载库位数据
                     store.commit('set_stock_locs', data)
+                    uni.hideLoading()
                     play_audio_prompt('success')
                     this.$refs.area_dialog.close()
                 } catch (err) { }

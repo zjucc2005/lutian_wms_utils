@@ -185,7 +185,9 @@
                 if (!text) return
                 let material_no = ''
                 let loc_no = ''
-                if (text.includes('||')) {
+                if (text == 'null') {
+                    
+                } else if (text.includes('||')) {
                     material_no = text.split('||')[1]
                 } else if (text.includes('-')) {
                     loc_no = text
@@ -225,10 +227,16 @@
                 this.stk_invs = res.data
             },
             async load_invs_by_material_no(material_no) {
-                const options = {
+                let options = {
                     FStockId: store.state.cur_stock.FStockId,
-                    'FMaterialId.FNumber': material_no,
+                    // 'FMaterialId.FNumber': material_no,
                     FQty_gt: 0,
+                }
+                // if (store.state.cur_area?.value) options['FStockLocId.FNumber_sw'] = store.state.cur_area.value
+                if (material_no) {
+                    options['FMaterialId.FNumber'] = material_no
+                } else {
+                    options['FMaterialId'] = 0
                 }
                 let res = await Inv.query(options, { order: 'FBatchNo ASC, FStockLocId.FNumber ASC' })
                 this.invs = res.data
