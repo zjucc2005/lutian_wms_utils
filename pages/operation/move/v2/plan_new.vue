@@ -329,7 +329,7 @@
                                 <uni-number-box
                                     v-model="move_form.new_qty"
                                     :min="1"
-                                    :max="9999"
+                                    :max="99999999"
                                     :width="100"
                                     style="padding-top: 5px; line-height: 25px;"
                                 />
