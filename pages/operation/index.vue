@@ -88,7 +88,7 @@
                         action: () => { link_to('/pages/operation/outbound/v2/index') }
                     },
                     {
-                        name: '库内调拨', permission: ['nrj_admin'], icon_path: '/static/icon/nav_scan_move.png',
+                        name: '库内调拨Depre', permission: ['nrj_admin'], icon_path: '/static/icon/nav_scan_move.png',
                         action: () => { link_to('/pages/operation/move/unpack') }
                     },
                     {

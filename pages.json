@@ -24,6 +24,8 @@
         // { "path": "pages/operation/outbound/v1/__index_20260806", "style": { "navigationBarTitleText": "按单出库" } },
         { "path": "pages/operation/outbound/index",       "style": { "navigationBarTitleText": "出库" } },
         { "path": "pages/operation/outbound/by_order",    "style": { "navigationBarTitleText": "拣选出库" } },
+        { "path": "pages/operation/outbound/issue",       "style": { "navigationBarTitleText": "发料出库（生产投料）" } },
+        { "path": "pages/operation/outbound/issue_allocate", "style": { "navigationBarTitleText": "发料出库（生产投料）" } },
         { "path": "pages/operation/outbound/direct",      "style": { "navigationBarTitleText": "直接出库" } },
         { "path": "pages/operation/outbound/other",       "style": { "navigationBarTitleText": "其他出库" } },
         { "path": "pages/operation/outbound/packaging",   "style": { "navigationBarTitleText": "包材出库" } },
