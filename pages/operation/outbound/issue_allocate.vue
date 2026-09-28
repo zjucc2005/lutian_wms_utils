@@ -136,9 +136,9 @@
                 let meta = { 
                     fields: ['FID', 'FStockLocId', 'FStockLocId.FNumber', 'FQty', 'FBatchNo', 'FSupplierId', 'FSupplierId.FName'],
                     order: 'FSupplierId ASC, FBatchNo ASC, FStockLocId.FNumber ASC' }
-                // uni.showLoading({ title: 'Loading' })
+                uni.showLoading({ title: 'Loading' })
                 let res = await Inv.query(options, meta)
-                // uni.hideLoading()
+                uni.hideLoading()
                 let invs = []
                 for (let d of res.data) {
                     invs.push({

@@ -183,8 +183,11 @@
                 })
             },
             async call_test_api() {
-                await model.QmInspectBill.view('IQC003345')
-                await model.SalDeliveryNotice.view('DG260907002')
+                // await model.QmInspectBill.view('IQC003345')
+                // await model.SalDeliveryNotice.view('DG260907002')
+                await model.PrdMo.view('1022605052123')
+                await K3CloudApi.view('PRD_INSTOCK', { Number: 'SCRK144244' })
+                await K3CloudApi.view('PRD_INSTOCK', { Number: 'SCRK144245' })
                 
                 // await K3CloudApi.unaudit('CRM_Contract', { Numbers: ['SO260831002'] })
                 // await K3CloudApi.unaudit('CRM_Contract', { ids: '144036' })

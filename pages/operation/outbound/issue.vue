@@ -205,7 +205,6 @@
                     if (this.search_form.bill_no.startsWith('SCFLTZD')) {
                         await this.load_scfltzd()
                     }
-                    // await this.load_inv_plans()
                     await this.load_inv_logs()
                 }
                 if (this.scfl.length) {
@@ -241,7 +240,7 @@
                     } else {
                         options.F_PAEZ_BaseProperty1 = store.state.cur_staff.FName
                     }
-                    let res = await PrdIssueMtrNotice.query(options)
+                    let res = await PrdIssueMtrNotice.query(options, { order: 'FMaterialId.FNumber ASC' })
                     uni.hideLoading()
                     if (res.data.length === 0) {
                         uni.showToast({ icon: 'none' ,title: '没有相关数据' })
