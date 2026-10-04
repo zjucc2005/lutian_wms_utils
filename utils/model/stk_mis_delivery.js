@@ -1,7 +1,7 @@
 import K3CloudApi from '@/utils/k3cloudapi'
 
-class SpPickMtrl {
-    static form_id = 'SP_PickMtrl'
+class StkMisDelivery {
+    static form_id = 'STK_MisDelivery'
     constructor() {
         
     }
@@ -15,11 +15,9 @@ class SpPickMtrl {
      * @return {Hash} Promise
      */
     static async query (options={}, meta={}) {
-        let fields = ['FID', 'FBillNo', 'FWorkShopId', 'FWorkShopId.FName',
+        let fields = ['FID', 'FBillNo', 
                       'FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1',
-                      'FStockId', 'FStockId.FName',
-                      'FActualQty', 'FUnitId', 'FUnitId.FName', 'FBaseActualQty', 'FBaseUnitId', 'FBaseUnitId.FName'
-                      ]
+                      'FUnitId', 'FUnitId.FName']
         if (meta.fields) fields = meta.fields
         const data = {
             FormId: this.form_id,
@@ -47,4 +45,4 @@ class SpPickMtrl {
     }
 }
 
-export default SpPickMtrl
+export default StkMisDelivery

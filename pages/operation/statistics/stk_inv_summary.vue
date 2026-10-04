@@ -76,6 +76,38 @@
         </uni-section>
     </view>
     
+    <view v-if="currentIndex === 4" class="tab-content">
+        <uni-section :title="`共 ${ table_body_jscl.length } 行数据`" type="square">
+            <uni-table ref="table" border stripe class="table-sm">
+                <uni-tr>
+                    <uni-th></uni-th>
+                    <uni-th v-for="(name, index) in table_head_jscl" :key="index" align="center">{{ name }}</uni-th>
+                </uni-tr>
+                
+                <uni-tr v-for="i in Math.min(table_body_jscl.length, 200)" :key="i">
+                    <uni-td>{{ i }}</uni-td>
+                    <uni-td v-for="(cell, j) in table_body_jscl[i-1]" :key="j" align="center">{{ cell instanceof Date ? formatDate(cell, 'yyyy-MM-dd') : cell }}</uni-td>
+                </uni-tr>
+            </uni-table>
+        </uni-section>
+    </view>
+    
+    <view v-if="currentIndex === 5" class="tab-content">
+        <uni-section :title="`共 ${ table_body_qtck.length } 行数据`" type="square">
+            <uni-table ref="table" border stripe class="table-sm">
+                <uni-tr>
+                    <uni-th></uni-th>
+                    <uni-th v-for="(name, index) in table_head_qtck" :key="index" align="center">{{ name }}</uni-th>
+                </uni-tr>
+                
+                <uni-tr v-for="i in Math.min(table_body_qtck.length, 200)" :key="i">
+                    <uni-td>{{ i }}</uni-td>
+                    <uni-td v-for="(cell, j) in table_body_qtck[i-1]" :key="j" align="center">{{ cell instanceof Date ? formatDate(cell, 'yyyy-MM-dd') : cell }}</uni-td>
+                </uni-tr>
+            </uni-table>
+        </uni-section>
+    </view>
+    
     
     <view class="uni-goods-nav-wrapper">
         <uni-goods-nav
@@ -119,7 +151,7 @@
                         
                     </uni-section>
                     
-                    <uni-section title="收料通知单 & 发料通知单 & 直接调拨单" type="square">
+                    <uni-section title="收料通知单 & 发料通知单 & 直接调拨单 & 简单生产领料单 & 其他出库单" type="square">
                         <uni-row :gutter="15">
                             <uni-col :md="8" :sm="12" :xs="24">
                                 <uni-forms-item label="创建时间" name="created_at_ge">
@@ -149,7 +181,7 @@
     import store from '@/store'
     import XLSX from 'xlsx'
     import K3CloudApi from '@/utils/k3cloudapi'
-    import { StkInventory, PurReceiveBill, PrdIssueMtrNotice, StkTransferDirect } from '@/utils/model'
+    import { StkInventory, PurReceiveBill, PrdIssueMtrNotice, StkTransferDirect, SpPickMtrl, StkMisDelivery } from '@/utils/model'
     import { formatDate } from '@/utils'
     
     export default {
@@ -160,8 +192,10 @@
                 cgsl: [],
                 scfl: [],
                 zjdb: [],
+                jscl: [],
+                qtck: [],
                 // output 1
-                table_head_sum: ['物料编码', '物料名称', '规格型号', '仓管员', '单位', '库存总数', '收料总数', '收料未入库数量', '应发数量', '已发数量', '未发数量', '跨组织调入数量', '跨组织调出数量'],
+                table_head_sum: ['物料编码', '物料名称', '规格型号', '仓管员', '单位', '库存总数', '收料总数', '收料未入库数量', '应发数量', '已发数量', '未发数量', '其他出库数量', '跨组织调入数量', '跨组织调出数量'],
                 table_body_sum: [],
                 // output 2
                 table_head_in: ['单据编号', '收料日期', '物料编码', '物料名称', '规格型号', '收料单位', '交货数量', '入库数量', '未入库数量'],
@@ -172,6 +206,12 @@
                 // output 4
                 table_head_mv: ['单据编号', '日期', '物料编码', '物料名称', '规格型号', '单位', '调拨数量', '调出仓库', '调入仓库'],
                 table_body_mv: [],
+                // output 5
+                table_head_jscl: ['单据编号', '日期', '物料编码', '物料名称', '规格型号', '单位', '实发数量', '仓库', '生产编号'],
+                table_body_jscl: [],
+                // output 6
+                table_head_qtck: ['单据编号', '日期', '物料编码', '物料名称', '规格型号', '单位', '实发数量', '发货仓库'],
+                table_body_qtck: [],
                 // search
                 search_form: { created_at_ge: '', created_at_le: '', stock_ids: [], material_no: '', material_nos: [] },
                 search_form_rules: {
@@ -203,7 +243,7 @@
                 },
                 stock_options: [],
                 currentIndex: 0,
-                tabs: [ '库存明细汇总', '收料通知单明细', '发料通知单明细', '直接调拨单明细' ],
+                tabs: [ '库存明细汇总', '收料通知单明细', '发料通知单明细', '直接调拨单明细', '简单生产领料单明细', '其他出库单明细' ],
                 goods_nav: {
                     options: [
                         { icon: 'search', text: '搜索'},
@@ -279,6 +319,9 @@
                 await this.load_scfl() // 加载发料通知单
                 uni.showLoading({ title: '4.加载调拨' })
                 await this.load_zjdb() // 加载直接调拨单
+                uni.showLoading({ title: '5.加载其他' })
+                await this.load_jscl() // 加载简单生产领料单
+                await this.load_qtck() // 加载其他出库单
                 uni.hideLoading()
                 this.set_table_data()
                 uni.showModal({ title: '搜索完毕',
@@ -299,7 +342,7 @@
                         } else {
                             h[d[0]] = {
                                 material_name: d[1], material_spec: d[2], storekeeper: d[3], unit: d[4],
-                                inv_qty: d[5], receive_qty: 0, instock_qty: 0, must_qty: 0, picked_qty: 0, dtin_qty: 0, dtout_qty: 0
+                                inv_qty: d[5], receive_qty: 0, instock_qty: 0, must_qty: 0, picked_qty: 0, dtin_qty: 0, dtout_qty: 0, qtout_qty: 0
                             }
                         }
                     }
@@ -308,7 +351,7 @@
             },
             async load_cgsl() {
                 let cgsl = []
-                let options = {}
+                let options = { 'FStockOrgId.FName': '内燃机事业部' }
                 if (this.search_form.created_at_ge) options.FCreateDate_ge = this.search_form.created_at_ge
                 if (this.search_form.created_at_le) options.FCreateDate_le = this.search_form.created_at_le
                 if (this.search_form.material_nos?.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
@@ -334,7 +377,7 @@
                         } else {
                             this.mtrl[obj.material_no] = {
                                 material_name: obj.material_name, material_spec: obj.material_spec, storekeeper: obj.storekeeper, unit: obj.unit, 
-                                inv_qty: 0, receive_qty: obj.receive_qty, instock_qty: obj.instock_qty, must_qty: 0, picked_qty: 0, dtin_qty: 0, dtout_qty: 0
+                                inv_qty: 0, receive_qty: obj.receive_qty, instock_qty: obj.instock_qty, must_qty: 0, picked_qty: 0, dtin_qty: 0, dtout_qty: 0, qtout_qty: 0
                             }
                         }
                     }
@@ -344,7 +387,7 @@
             },
             async load_scfl() {
                 let scfl = []
-                let options = {}
+                let options = { 'FPrdOrgId.FName': '内燃机事业部' }
                 if (this.search_form.created_at_ge) options.FCreateDate_ge = this.search_form.created_at_ge
                 if (this.search_form.created_at_le) options.FCreateDate_le = this.search_form.created_at_le
                 if (this.search_form.material_nos?.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
@@ -370,7 +413,7 @@
                         } else {
                             this.mtrl[obj.material_no] = {
                                 material_name: obj.material_name, material_spec: obj.material_spec, storekeeper: obj.storekeeper, unit: obj.unit, 
-                                inv_qty: 0, receive_qty: 0, instock_qty: 0, must_qty: obj.must_qty, picked_qty: obj.picked_qty, dtin_qty: 0, dtout_qty: 0
+                                inv_qty: 0, receive_qty: 0, instock_qty: 0, must_qty: obj.must_qty, picked_qty: obj.picked_qty, dtin_qty: 0, dtout_qty: 0, qtout_qty: 0
                             }
                         }
                     }
@@ -406,7 +449,7 @@
                         } else {
                             this.mtrl[obj.material_no] = {
                                 material_name: obj.material_name, material_spec: obj.material_spec, storekeeper: obj.storekeeper, unit: obj.unit, 
-                                inv_qty: 0, receive_qty: 0, instock_qty: 0, must_qty: 0, picked_qty: 0, dtin_qty: obj.qty, dtout_qty: 0
+                                inv_qty: 0, receive_qty: 0, instock_qty: 0, must_qty: 0, picked_qty: 0, dtin_qty: obj.qty, dtout_qty: 0, qtout_qty: 0
                             }
                         }
                     }
@@ -431,7 +474,7 @@
                         } else {
                             this.mtrl[obj.material_no] = {
                                 material_name: obj.material_name, material_spec: obj.material_spec, storekeeper: obj.storekeeper, unit: obj.unit, 
-                                inv_qty: 0, receive_qty: 0, instock_qty: 0, must_qty: 0, picked_qty: 0, dtin_qty: 0, dtout_qty: obj.qty
+                                inv_qty: 0, receive_qty: 0, instock_qty: 0, must_qty: 0, picked_qty: 0, dtin_qty: 0, dtout_qty: obj.qty, qtout_qty: 0
                             }
                         }
                     }
@@ -439,14 +482,84 @@
                 }
                 this.zjdb = zjdb
             },
+            async load_jscl() {
+                let jscl = []
+                let options = { 'FStockOrgId.FName': '内燃机事业部' }
+                if (this.search_form.created_at_ge) options.FCreateDate_ge = this.search_form.created_at_ge
+                if (this.search_form.created_at_le) options.FCreateDate_le = this.search_form.created_at_le
+                if (this.search_form.material_nos?.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
+                let fields = ['FBillNo', 'FDate',
+                              'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1', 'FUnitId.FName',
+                              'FActualQty', 'FStockId.FName', 'FProductNo']
+                let res = null
+                let page = 1
+                let per_page = 10000
+                while (!res || res.data.length === per_page) {
+                    res = await SpPickMtrl.query(options, { fields, page, per_page, return: 'array' })
+                    for (let d of res.data) {
+                        let obj = {
+                            bill_no: d[0], date: new Date(d[1]),
+                            material_no: d[2], material_name: d[3], material_spec: d[4], storekeeper: d[5], unit: d[6],
+                            actual_qty: d[7], stock: d[8], product_no: d[9]
+                        }
+                        jscl.push(obj)
+                        let m = this.mtrl[obj.material_no]
+                        if (m) {
+                            m.qtout_qty += obj.actual_qty
+                        } else {
+                            this.mtrl[obj.material_no] = {
+                                material_name: obj.material_name, material_spec: obj.material_spec, storekeeper: obj.storekeeper, unit: obj.unit, 
+                                inv_qty: 0, receive_qty: 0, instock_qty: 0, must_qty: 0, picked_qty: 0, dtin_qty: 0, dtout_qty: 0, qtout_qty: obj.actual_qty
+                            }
+                        }
+                    }
+                    page++
+                }
+                this.jscl = jscl
+            },
+            async load_qtck() {
+                let qtck = []
+                let options = { 'FStockOrgId.FName': '内燃机事业部' }
+                if (this.search_form.created_at_ge) options.FCreateDate_ge = this.search_form.created_at_ge
+                if (this.search_form.created_at_le) options.FCreateDate_le = this.search_form.created_at_le
+                if (this.search_form.material_nos?.length) options['FMaterialId.FNumber_in'] = this.search_form.material_nos
+                let fields = ['FBillNo', 'FDate',
+                              'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FMaterialId.F_PAEZ_Base1', 'FUnitId.FName',
+                              'FQty', 'FStockId.FName']
+                let res = null
+                let page = 1
+                let per_page = 10000
+                while (!res || res.data.length === per_page) {
+                    res = await StkMisDelivery.query(options, { fields, page, per_page, return: 'array' })
+                    for (let d of res.data) {
+                        let obj = {
+                            bill_no: d[0], date: new Date(d[1]),
+                            material_no: d[2], material_name: d[3], material_spec: d[4], storekeeper: d[5], unit: d[6],
+                            actual_qty: d[7], stock: d[8]
+                        }
+                        qtck.push(obj)
+                        let m = this.mtrl[obj.material_no]
+                        if (m) {
+                            m.qtout_qty += obj.actual_qty
+                        } else {
+                            this.mtrl[obj.material_no] = {
+                                material_name: obj.material_name, material_spec: obj.material_spec, storekeeper: obj.storekeeper, unit: obj.unit, 
+                                inv_qty: 0, receive_qty: 0, instock_qty: 0, must_qty: 0, picked_qty: 0, dtin_qty: 0, dtout_qty: 0, qtout_qty: obj.actual_qty
+                            }
+                        }
+                    }
+                    page++
+                }
+                this.qtck = qtck
+            },
             set_table_data () {
-                // ['物料编码', '物料名称', '规格型号', '仓管员', '单位', '库存总数', '收料总数', '收料未入库数量', '应发数量', '已发数量', '未发数量', '跨组织调入数量', '跨组织调出数量']
+                // ['物料编码', '物料名称', '规格型号', '仓管员', '单位', '库存总数', '收料总数', '收料未入库数量', '应发数量', '已发数量', '未发数量', '其他出库数量', '跨组织调入数量', '跨组织调出数量']
                 this.table_body_sum = []
                 for (let material_no in this.mtrl) {
                     let row = this.mtrl[material_no]
                     this.table_body_sum.push([
                         material_no, row.material_name, row.material_spec, row.storekeeper, row.unit, 
-                        row.inv_qty, row.receive_qty, row.receive_qty - row.instock_qty, row.must_qty, row.picked_qty, row.must_qty - row.picked_qty, row.dtin_qty, row.dtout_qty
+                        row.inv_qty, row.receive_qty, row.receive_qty - row.instock_qty, row.must_qty, row.picked_qty, row.must_qty - row.picked_qty, row.qtout_qty, row.dtin_qty, row.dtout_qty
                     ])
                 }
                 // ['单据编号', '收料日期', '物料编码', '物料名称', '规格型号', '收料单位', '交货数量', '入库数量', '未入库数量']
@@ -464,13 +577,22 @@
                 for (let row of this.zjdb) {
                     this.table_body_mv.push([row.bill_no, row.date, row.material_no, row.material_name, row.material_spec, row.unit, row.qty, row.src_stock, row.dest_stock])
                 }
+                // ['单据编号', '日期', '物料编码', '物料名称', '规格型号', '单位', '实发数量', '仓库', '生产编号']
+                this.table_body_jscl = []
+                for (let row of this.jscl) {
+                    this.table_body_jscl.push([row.bill_no, row.date, row.material_no, row.material_name, row.material_spec, row.unit, row.actual_qty, row.stock, row.product_no ])
+                }
+                // ['单据编号', '日期', '物料编码', '物料名称', '规格型号', '单位', '实发数量', '发货仓库']
+                for (let row of this.qtck) {
+                    this.table_body_qtck.push([row.bill_no, row.date, row.material_no, row.material_name, row.material_spec, row.unit, row.actual_qty, row.stock])
+                }
             },
             export_as_excel() {
                 // #ifdef APP-PLUS
                     uni.showToast({ icon: 'none', title: 'APP不支持导出Excel' })
                     return
                 // #endif
-                if (this.table_body_sum.length === 0 && this.table_body_in.length === 0 && this.table_body_out.length === 0 && this.table_body_mv.length === 0) {
+                if (this.table_body_sum.length === 0) {
                     uni.showModal({ title: '提示', content: '没有数据可供导出' })
                     return
                 }
@@ -485,7 +607,11 @@
                         let sheet_3 = XLSX.utils.aoa_to_sheet([this.table_head_out, ...this.table_body_out])
                         XLSX.utils.book_append_sheet(book, sheet_3, '发料通知单明细')
                         let sheet_4 = XLSX.utils.aoa_to_sheet([this.table_head_mv, ...this.table_body_mv])
-                        XLSX.utils.book_append_sheet(book, sheet_4, '直接调拨明细')
+                        XLSX.utils.book_append_sheet(book, sheet_4, '直接调拨单明细')
+                        let sheet_5 = XLSX.utils.aoa_to_sheet([this.table_head_jscl, ...this.table_body_jscl])
+                        XLSX.utils.book_append_sheet(book, sheet_5, '简单生产领料单明细')
+                        let sheet_6 = XLSX.utils.aoa_to_sheet([this.table_head_qtck, ...this.table_body_qtck])
+                        XLSX.utils.book_append_sheet(book, sheet_6, '其他出库单明细')
                         XLSX.writeFile(book, `金蝶库存明细汇总_${formatDate(Date.now(), 'yyyyMMdd_hhmmss')}.xlsx`, { compression: true });
                         uni.hideLoading()
                         uni.showToast({ title: '导出完毕' })

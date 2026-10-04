@@ -375,6 +375,9 @@
                             stock.loc_memo = this.gen_loc_memo(inv_info.list)
                         }
                     }
+                    let first = obj.stock_list[0]
+                    obj.stock_list = obj.stock_list.filter(x => x.qty > 0 || x.stk_qty > 0)
+                    if (obj.stock_list.length === 0) obj.stock_list = [first]
                 }
                 // 按仓库分组
                 // let group = {}

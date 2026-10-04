@@ -30,6 +30,7 @@ import SalDeliveryNotice from './sal_delivery_notice'
 import SalSaleOrder from './sal_sale_order'
 import SpPickMtrl from './sp_pick_mtrl'
 import StkInventory from './stk_inventory'
+import StkMisDelivery from './stk_mis_delivery'
 import StkOutStockApply from './stk_out_stock_apply'
 import StkTransferApply from './stk_transfer_apply'
 import StkTransferDirect from './stk_transfer_direct'
@@ -65,6 +66,7 @@ export {
     SalSaleOrder,
     SpPickMtrl,
     StkInventory,
+    StkMisDelivery,
     StkOutStockApply,
     StkTransferApply,
     StkTransferDirect,
