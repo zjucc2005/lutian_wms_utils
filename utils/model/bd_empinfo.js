@@ -31,7 +31,7 @@ class BdEmpInfo {
     static async query (options={}, meta={}) {
         let fields = ['FID', 'FName', 'FNumber', 'FForbidStatus', 'FUseOrgId', 'FUseOrgId.FName', 'FWMSPWD']
         if (meta.fields) {
-            fields = fields.concat(meta.fields)
+            fields = meta.fields
         }
         const data = {
             FormId: this.form_id,
@@ -43,7 +43,7 @@ class BdEmpInfo {
             if (meta.page) data.StartRow = (meta.page - 1) * meta.per_page
         }
         if (meta.order) data.OrderString = meta.order
-        return K3CloudApi.bill_query(data)
+        return meta.return === 'array' ? K3CloudApi.execute_bill_query(data) : K3CloudApi.bill_query(data)
     }
     
     static async find(id) {
