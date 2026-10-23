@@ -2,8 +2,8 @@
     "name" : "绿田WMS",
     "appid" : "__UNI__EFA5C5A",
     "description" : "绿田机械库存管理工具",
-    "versionName" : "2.1.1",
-    "versionCode" : 211,
+    "versionName" : "2.1.2",
+    "versionCode" : 212,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {
@@ -20,7 +20,8 @@
         "modules" : {
             "Share" : {},
             "Barcode" : {},
-            "Camera" : {}
+            "Camera" : {},
+            "Bluetooth" : {}
         },
         /* 应用发布信息 */
         "distribute" : {

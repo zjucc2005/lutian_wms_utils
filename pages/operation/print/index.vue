@@ -7,6 +7,9 @@
                 :extra-icon="{ color: '#007aff', size: '24', type: 'image' }"
                 @click="link_to('/pages/operation/print/demo')" clickable show-arrow />
             -->
+            <!-- <uni-list-item title="蓝牙打印DEMO"
+                :extra-icon="{ color: '#007aff', size: '24', type: 'image' }" show-extra-icon
+                @click="link_to('/pages/operation/print/bluetooth_demo')" clickable show-arrow /> -->
             <uni-list-item title="生成物料标签（Excel批量导入）"
                 :extra-icon="{ color: '#007aff', size: '24', type: 'map' }" show-extra-icon
                 @click="link_to('/pages/operation/print/material_label_by_import')" clickable show-arrow />

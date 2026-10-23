@@ -111,6 +111,7 @@
                             else if (d[1] === 'out_cl') { staff_info[d[0]]['out']-- }
                             else { staff_info[d[0]]['other']++ }
                         }
+                        page++
                     }
                     if (staff_nos.size > 0) {
                         let emp_res = await BdEmpInfo.query({ FNumber_in: Array.from(staff_nos) }, { fields: ['FNumber', 'FName'], return: 'array' })

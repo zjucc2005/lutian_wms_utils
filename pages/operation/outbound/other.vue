@@ -4,7 +4,7 @@
         <view class="container">
             <uni-forms ref="search_form" :model="search_form" :label-width="72" class="search-form">
                 <uni-forms-item label="单据编号">
-                    <uni-easyinput v-model="search_form.bill_no" trim placeholder="出库申请单、调拨申请单、生产发料通知单" @confirm="load_bill" />
+                    <uni-easyinput v-model="search_form.bill_no" trim placeholder="出库申请单、调拨申请单、生产发料通知单、简单生产领料单" @confirm="load_bill" />
                 </uni-forms-item>
             </uni-forms>
             <button type="primary" size="mini" @click="load_bill">搜索</button>
@@ -126,7 +126,7 @@
     import store from '@/store'
     import { breadcrumb_stockname, play_audio_prompt } from '@/utils'
     import scan_code from '@/utils/scan_code'
-    import { BdMaterial, Inv, InvLog, StkOutStockApply, StkTransferApply, PrdIssueMtrNotice } from '@/utils/model'
+    import { BdMaterial, Inv, InvLog, StkOutStockApply, StkTransferApply, PrdIssueMtrNotice, SpPickMtrl } from '@/utils/model'
     
     export default {
         data() {
@@ -241,7 +241,7 @@
                 }
             },
             open_entity_drawer() {
-                if (this.bill.bill_no && ['出库申请单', '调拨申请单'].includes(this.bill.bill_type)) {
+                if (this.bill.bill_no && ['出库申请单', '调拨申请单', '简单生产领料单'].includes(this.bill.bill_type)) {
                     this.$refs.entity_drawer.open()
                     this.load_outbound_qty_all()
                 } else {
@@ -296,6 +296,8 @@
                             await this.load_dbsq() // 调拨申请单
                         } else if (this.search_form.bill_no.startsWith('SCFLTZD')) {
                             await this.load_scfl() // 生产发料通知单
+                        } else if (this.search_form.bill_no.startsWith('JSCLL')) {
+                            await this.load_jscll() // 简单生产领料单
                         } else {
                             uni.showToast({ icon: 'none', title: '非法单据编号' })
                         }
@@ -363,6 +365,28 @@
                 }
                 let entity = []
                 this.bill = { bill_no: this.search_form.bill_no, bill_type: '生产发料通知单', entity }
+            },
+            async load_jscll() {
+                uni.showLoading({ title: 'Loading', mask: true })
+                let res = await SpPickMtrl.query({ FBillNo: this.search_form.bill_no }, 
+                        { fields: ['FMaterialId', 'FMaterialId.FNumber', 'FMaterialId.FName', 'FMaterialId.FSpecification', 'FAppQty', 'FUnitID.FName'], return: 'array' })
+                
+                uni.hideLoading()
+                if (res.data.length === 0) {
+                    uni.showToast({ icon: 'none' ,title: '没有相关数据' })
+                    this.reset_search_form()
+                    return
+                }
+                let entity = []
+                for (let d of res.data) {
+                    let item = entity.find(e => e.material_no == d[1])
+                    if (item) {
+                        item.must_qty += d[4]
+                    } else {
+                        entity.push({ material_id: d[0], material_no: d[1], material_name: d[2], material_spec: d[3], must_qty: d[4], unit: d[5], send_qty: 0 })
+                    }
+                }
+                this.bill = { bill_no: this.search_form.bill_no, bill_type: '简单生产领料单', entity }
             },
             // 加载物料信息
             async load_material() {

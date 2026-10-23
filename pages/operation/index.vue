@@ -161,6 +161,10 @@
                         name: '记录', permission: ['nrj_admin'], icon_path: '/static/icon/nav_bill_edit.png',
                         action: () => { link_to('/pages/operation/record/index') }
                     },
+                    // {
+                    //     name: '调试', permission: ['all'], icon_path: '/static/icon/cc_warn_active.png',
+                    //     action: () => { link_to('/pages/operation/print/bluetooth_demo') }
+                    // },
                     // ,
                     // {
                     //     name: '其他功能', permission: ['wh_admin'], icon_path: '/static/icon/nav_others.png',

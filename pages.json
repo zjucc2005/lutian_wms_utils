@@ -132,6 +132,7 @@
         // 打印
         { "path": "pages/operation/print/index", "style": { "navigationBarTitleText": "打印" } },
         // { "path": "pages/operation/print/demo",  "style": { "navigationBarTitleText": "标签DEMO" } },
+        { "path": "pages/operation/print/bluetooth_demo",  "style": { "navigationBarTitleText": "蓝牙打印DEMO" } },
         { "path": "pages/operation/print/material_label_by_cgsl",  "style": { "navigationBarTitleText": "生成物料标签" } },
         { "path": "pages/operation/print/material_label_by_import",  "style": { "navigationBarTitleText": "生成物料标签（批量）" } },
         { "path": "pages/operation/print/loc_label_by_import",  "style": { "navigationBarTitleText": "生成库位标签（批量）" } },
