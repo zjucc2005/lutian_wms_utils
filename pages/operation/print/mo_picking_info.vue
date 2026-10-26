@@ -77,7 +77,7 @@
     import scan_code from '@/utils/scan_code'
     import UQRCode from '@/uni_modules/Sansnn-uQRCode/js_sdk/uqrcode/uqrcode.js';
     // #ifdef H5
-    import { gen_pdf_mo_picking } from '@/gen_pdf'
+    import { gen_pdf_mo_picking_batch } from '@/gen_pdf'
     // #endif
     
     export default {
@@ -109,19 +109,8 @@
             },
             gen_pdf() {
                 // #ifdef H5
-                let url = gen_pdf_mo_picking(this.pdf_data)
+                let url = gen_pdf_mo_picking_batch([this.pdf_data])
                 window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=1080,height=960') // 打开小窗口
-                // let _this_ = this
-                // uni.canvasToTempFilePath({
-                //     canvasId: `qrcode_${_this_.pdf_data.id}`,
-                //     success: function(res) { 
-                //         let url = gen_pdf_mo_picking({
-                //             ..._this_.pdf_data,
-                //             qr: res.tempFilePath, 
-                //         })
-                //         window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=1080,height=960') // 打开小窗口
-                //     }
-                // })
                 // #endif
                 // #ifdef APP-PLUS
                     uni.showModal({ title: '提示', content: '仅PC端支持打印' })

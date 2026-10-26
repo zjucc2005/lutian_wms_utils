@@ -59,7 +59,7 @@
                 <uni-td align="center">{{ obj['FWorkShopId.FName'] }}</uni-td>
                 <uni-td align="center">
                     <uni-tag text="预览" type="primary" inverted class="uni-mr-3" @click="preview_info(obj)"/>
-                    <uni-tag text="生成PDF" type="primary" @click="gen_pdf(obj, `qrcode_${index}`)"/>
+                    <uni-tag text="生成PDF" type="primary" @click="gen_pdf(obj)"/>
                 </uni-td>
             </uni-tr>
         </uni-table>
@@ -136,7 +136,7 @@
         </uni-list>
     </uni-section>
     
-    <view v-if="$store.state.screen_type === 'app-plus'" class="uni-goods-nav-wrapper">
+    <view class="uni-goods-nav-wrapper">
         <uni-goods-nav 
             :options="goods_nav.options" 
             :button-group="goods_nav.button_group"
@@ -154,7 +154,7 @@
     import scan_code from '@/utils/scan_code'
     import UQRCode from '@/uni_modules/Sansnn-uQRCode/js_sdk/uqrcode/uqrcode.js';
     // #ifdef H5
-    import { gen_pdf_mo_picking } from '@/gen_pdf'
+    import { gen_pdf_mo_picking_batch } from '@/gen_pdf'
     // #endif
     
     export default {
@@ -168,7 +168,7 @@
                 goods_nav: {
                     options: [],
                     button_group: [
-                        { text: '扫描单据', backgroundColor: store.state.goods_nav_color.red, color: '#fff' }
+                        { text: '批量生成PDF', backgroundColor: store.state.goods_nav_color.blue, color: '#fff' }
                     ]
                 }
             }
@@ -185,7 +185,8 @@
                 if (e.index === 0) this.$logger.info('>>>', this.$data)
             },
             goods_nav_button_click(e) {
-                if (e.index === 0) this.scan_code() // btn:扫码查询单据
+                // if (e.index === 0) this.scan_code() // btn:扫码查询单据
+                if (e.index === 0) this.gen_pdf_batch()
             },
             scan_code() {
                 scan_code().then(res => {
@@ -206,20 +207,23 @@
             },
             async gen_pdf(ppbom, canvas_id) {
                 // #ifdef H5
-                await this.load_pdf_data(ppbom)
-                let url = gen_pdf_mo_picking(this.pdf_data)
+                let pdf_data = await this.load_pdf_data(ppbom)
+                let url = gen_pdf_mo_picking_batch([pdf_data])
                 window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=1080,height=960') // 打开小窗口
-                let _this_ = this
-                // uni.canvasToTempFilePath({
-                //     canvasId: canvas_id,
-                //     success: function(res) { 
-                //         let url = gen_pdf_mo_picking({
-                //             ..._this_.pdf_data,
-                //             qr: res.tempFilePath, 
-                //         })
-                //         window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=1080,height=960') // 打开小窗口
-                //     }
-                // })
+                // #endif
+                // #ifdef APP-PLUS
+                    uni.showModal({ title: '提示', content: '仅PC端支持打印' })
+                // #endif
+            },
+            async gen_pdf_batch() {
+                if (this.ppboms.length === 0) return
+                // #ifdef H5
+                let pdf_data = []
+                for (let ppbom of this.ppboms) {
+                    pdf_data.push(await this.load_pdf_data(ppbom))
+                }
+                let url = gen_pdf_mo_picking_batch(pdf_data)
+                window.open(`#/pages/my/preview_pdf?url=${url}`, 'newWindow', 'width=1080,height=960') // 打开小窗口
                 // #endif
                 // #ifdef APP-PLUS
                     uni.showModal({ title: '提示', content: '仅PC端支持打印' })
@@ -244,7 +248,6 @@
             },
             async handle_search() {
                 this.ppboms = []
-                this.pdf_data = {}
                 if (this.search_form.bill_no) {
                     // console.log('>>> handle search', this.search_form.bill_no.split('\n'))
                     // this.search_form.bill_no = this.search_form.bill_no.trim()
@@ -314,7 +317,7 @@
                     })
                 }
                 pdf_data.children.sort((x, y) => x.bzgx_seq < y.bzgx_seq ? -1 : 1)
-                this.pdf_data = pdf_data
+                return pdf_data
             }
         }
     }
